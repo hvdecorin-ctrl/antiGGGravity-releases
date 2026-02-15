@@ -52,3 +52,13 @@ bld/
 
 # Revit Addin Specifics
 *.addin
+
+# Project Build Logs
+build_errors.log
+build_errors.txt
+build_errors*.txt
+build_log.txt
+build_log_*.txt
+build_output.txt
+pushbuttons.txt
+errors_only.txt
