@@ -1,0 +1,35 @@
+<Window x:Class="antiGGGravity.Views.Samples.UiSamplesLauncher"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="antiGGGravity UI Samples" Height="400" Width="400"
+        WindowStartupLocation="CenterScreen" Topmost="True"
+        Background="{DynamicResource WindowBackgroundBrush}">
+    
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/antiGGGravity;component/Resources/BrandStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid Margin="30">
+        <StackPanel>
+            <TextBlock Text="Premium UI Layout Samples" Style="{StaticResource BrandTitleStyle}" Margin="0,0,0,10"/>
+            <TextBlock Text="Select a layout to view the premium standard implementation." 
+                       TextWrapping="Wrap" FontSize="12" Foreground="#666" Margin="0,0,0,30"/>
+            
+            <Button Content="1. Single Panel Layout" Height="45" Margin="0,0,0,15"
+                    Style="{StaticResource SecondaryButtonStyle}" Click="BtnSingle_Click"/>
+            
+            <Button Content="2. Dual Panel Layout" Height="45" Margin="0,0,0,15"
+                    Style="{StaticResource SecondaryButtonStyle}" Click="BtnDual_Click"/>
+            
+            <Button Content="3. Triple Panel Layout" Height="45" Margin="0,0,0,15"
+                    Style="{StaticResource SecondaryButtonStyle}" Click="BtnTriple_Click"/>
+            
+            <Button Content="Close" Height="36" Margin="0,20,0,0" Width="100" HorizontalAlignment="Right"
+                    Style="{StaticResource SecondaryButtonStyle}" Click="BtnClose_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

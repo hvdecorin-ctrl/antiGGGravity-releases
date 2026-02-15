@@ -1,0 +1,107 @@
+<Window x:Class="antiGGGravity.Views.Overrides.DimFakeView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Dimension Override" Height="500" Width="450"
+        WindowStartupLocation="CenterScreen" Topmost="True" ResizeMode="NoResize"
+        Background="{DynamicResource WindowBackgroundBrush}">
+    
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/antiGGGravity;component/Resources/BrandStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="{DynamicResource HeaderHeight}"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="{DynamicResource FooterHeight}"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="White" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="{DynamicResource HeaderPadding}">
+                <TextBlock Style="{StaticResource BrandTitleStyle}"/>
+                <Rectangle Width="2" Height="24" Fill="{DynamicResource SeparatorBrush}" Margin="15,0" VerticalAlignment="Center"/>
+                <TextBlock Text="Dimension Override" Style="{StaticResource BrandSubtitleStyle}"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Content -->
+        <StackPanel Grid.Row="1" Margin="{DynamicResource ContentMargin}">
+            
+            <TextBlock Text="Current Override" Style="{StaticResource SectionLabelStyle}"/>
+            
+            <Grid Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                    <TextBlock Text="Value Override" Foreground="{DynamicResource SubtitleBrush}" Margin="0,0,0,5"/>
+                    <TextBox x:Name="UI_Value" Style="{StaticResource FilterTextBoxStyle}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                    <TextBlock Text="Text Below" Foreground="{DynamicResource SubtitleBrush}" Margin="0,0,0,5"/>
+                    <TextBox x:Name="UI_Below" Style="{StaticResource FilterTextBoxStyle}"/>
+                </StackPanel>
+            </Grid>
+
+            <TextBlock Text="Presets" Style="{StaticResource SectionLabelStyle}"/>
+            
+            <!-- Preset Rows -->
+            <ItemsControl x:Name="UI_Presets_List">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <Button Content="Set" Click="Preset_Apply_Click" Tag="{Binding}"
+                                    Width="30" Height="26" Margin="0,0,10,0"
+                                    Style="{StaticResource PrimaryButtonStyle}" Padding="0"/>
+
+                            <TextBox Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                     Grid.Column="1" Style="{StaticResource FilterTextBoxStyle}" Height="26" Margin="0,0,5,0"/>
+                            
+                            <TextBox Text="{Binding Below, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                     Grid.Column="2" Style="{StaticResource FilterTextBoxStyle}" Height="26" Margin="5,0,0,0"/>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+        </StackPanel>
+
+        <!-- Footer -->
+        <Border Grid.Row="2" Background="White" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Padding="{DynamicResource FooterPadding}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock x:Name="UI_Status" Style="{StaticResource StatusLabelStyle}" Text="Select dims then Apply, or Apply to Pick"/>
+
+                <Button Grid.Column="1" Content="Apply" Width="100" 
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Margin="0,0,10,0" Click="UI_Btn_Apply_Click"/>
+                
+                <Button Grid.Column="2" Content="Close" Width="80"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Click="UI_Btn_Close_Click"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

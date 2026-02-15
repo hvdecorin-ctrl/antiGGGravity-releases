@@ -1,0 +1,182 @@
+<Window x:Class="antiGGGravity.Views.Rebar.WallCornerRebarLView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Wall Corner Rebar L-Shape" 
+        Height="700" Width="850" 
+        MinHeight="600" MinWidth="750"
+        WindowStartupLocation="CenterScreen" Topmost="True"
+        Background="{DynamicResource WindowBackgroundBrush}">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/antiGGGravity;component/Resources/BrandStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="{DynamicResource HeaderHeight}"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="{DynamicResource FooterHeight}"/>
+        </Grid.RowDefinitions>
+
+        <!-- HEADER -->
+        <Border Grid.Row="0" Background="White" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
+            <Grid Margin="{DynamicResource HeaderPadding}">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Style="{StaticResource BrandTitleStyle}"/>
+                    <Rectangle Width="2" Height="20" Fill="{DynamicResource SeparatorBrush}" Margin="15,0"/>
+                    <TextBlock Text="WALL CORNER REBAR L-SHAPE" Style="{StaticResource BrandSubtitleStyle}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- MAIN CONTENT (DUAL PANEL) -->
+        <Grid Grid.Row="1" Margin="{DynamicResource ContentMargin}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- LEFT PANEL: L-Shape Bar Settings -->
+            <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <Border Style="{StaticResource SectionBorderStyle}" Margin="0,0,0,15">
+                        <StackPanel>
+                            <TextBlock Text="L-Shape Corner Bars" Style="{StaticResource SectionLabelStyle}"/>
+                            
+                            <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Rebar Type" FontSize="{DynamicResource StandardFontSize}" Foreground="{DynamicResource SubtitleBrush}" Margin="0,0,0,4"/>
+                                    <ComboBox x:Name="UI_Combo_HorizType" Height="28" VerticalContentAlignment="Center"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Spacing (mm)" FontSize="{DynamicResource StandardFontSize}" Foreground="{DynamicResource SubtitleBrush}" Margin="0,0,0,4"/>
+                                    <TextBox x:Name="UI_Text_HorizSpacing" Text="200" Height="28" VerticalContentAlignment="Center" Padding="8,0" Background="{DynamicResource InputBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"/>
+                                </StackPanel>
+                            </Grid>
+                            
+                            <TextBlock Text="Leg Lengths (mm)" FontSize="{DynamicResource StandardFontSize}" FontWeight="Bold" Foreground="{DynamicResource SubtitleBrush}" Margin="0,5,0,8"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Leg 1 (Wall 1)" FontSize="{DynamicResource StandardFontSize}" Foreground="{DynamicResource SubtitleBrush}" Margin="0,0,0,4"/>
+                                    <TextBox x:Name="UI_Text_HorizLeg1" Text="1000" Height="28" VerticalContentAlignment="Center" Padding="8,0" Background="{DynamicResource InputBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Margin="0,0,0,10"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Leg 2 (Wall 2)" FontSize="{DynamicResource StandardFontSize}" Foreground="{DynamicResource SubtitleBrush}" Margin="0,0,0,4"/>
+                                    <TextBox x:Name="UI_Text_HorizLeg2" Text="1000" Height="28" VerticalContentAlignment="Center" Padding="8,0" Background="{DynamicResource InputBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Margin="0,0,0,10"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <TextBlock Text="Rule Offsets" FontSize="{DynamicResource StandardFontSize}" FontWeight="Bold" Foreground="{DynamicResource SubtitleBrush}" Margin="0,5,0,8"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Top Offset (mm)" FontSize="{DynamicResource StandardFontSize}" Foreground="{DynamicResource SubtitleBrush}" Margin="0,0,0,4"/>
+                                    <TextBox x:Name="UI_Text_HorizTopOffset" Text="50" Height="28" VerticalContentAlignment="Center" Padding="8,0" Background="{DynamicResource InputBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Margin="0,0,0,10"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Bottom Offset (mm)" FontSize="{DynamicResource StandardFontSize}" Foreground="{DynamicResource SubtitleBrush}" Margin="0,0,0,4"/>
+                                    <TextBox x:Name="UI_Text_HorizBottomOffset" Text="50" Height="28" VerticalContentAlignment="Center" Padding="8,0" Background="{DynamicResource InputBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Margin="0,0,0,10"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <TextBlock Text="Hooks Configuration" FontSize="{DynamicResource StandardFontSize}" FontWeight="Bold" Foreground="{DynamicResource SubtitleBrush}" Margin="0,5,0,8"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Hook Start" FontSize="{DynamicResource StandardFontSize}" Foreground="{DynamicResource SubtitleBrush}" Margin="0,0,0,4"/>
+                                    <ComboBox x:Name="UI_Combo_HorizHookStart" Height="28" VerticalContentAlignment="Center" Margin="0,0,0,5"/>
+                                    <CheckBox x:Name="UI_Check_HorizHookStartOut" Content="Bend Outward" FontSize="{DynamicResource StandardFontSize}" Margin="0,0,0,10"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Hook End" FontSize="{DynamicResource StandardFontSize}" Foreground="{DynamicResource SubtitleBrush}" Margin="0,0,0,4"/>
+                                    <ComboBox x:Name="UI_Combo_HorizHookEnd" Height="28" VerticalContentAlignment="Center" Margin="0,0,0,5"/>
+                                    <CheckBox x:Name="UI_Check_HorizHookEndOut" Content="Bend Outward" FontSize="{DynamicResource StandardFontSize}" Margin="0,0,0,10"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- RIGHT PANEL: Trimmer Bars & Placement Config -->
+            <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <!-- Trimmer Bars Section -->
+                    <Border Style="{StaticResource SectionBorderStyle}" Margin="0,0,0,15">
+                        <StackPanel>
+                            <TextBlock Text="Trimmer Bars" Style="{StaticResource SectionLabelStyle}"/>
+                            
+                            <CheckBox x:Name="UI_Check_AddTrimmers" Content="Add Trimmer Bars at Corner" 
+                                      FontSize="{DynamicResource StandardFontSize}" 
+                                      FontWeight="SemiBold"
+                                      IsChecked="True" 
+                                      Margin="0,0,0,15"/>
+                            
+                            <StackPanel x:Name="TrimmerOptions">
+                                <TextBlock Text="Trimmer Rebar Type" FontSize="{DynamicResource StandardFontSize}" Foreground="{DynamicResource SubtitleBrush}" Margin="0,0,0,4"/>
+                                <ComboBox x:Name="UI_Combo_TrimmerType" Height="28" VerticalContentAlignment="Center" Margin="0,0,0,10"/>
+                                
+                                <TextBlock Text="Trimmer bars are placed vertical at the corner and at the L-bar bend points." 
+                                           FontSize="11" Foreground="#999999" FontStyle="Italic" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Placement Config Section -->
+                    <Border Style="{StaticResource SectionBorderStyle}" Margin="0,0,0,15">
+                        <StackPanel>
+                            <TextBlock Text="Placement Config" Style="{StaticResource SectionLabelStyle}"/>
+                            <TextBlock Text="Layer Layout" FontSize="{DynamicResource StandardFontSize}" Foreground="{DynamicResource SubtitleBrush}" Margin="0,0,0,4"/>
+                            <ComboBox x:Name="UI_Combo_LayerConfig" Height="28" VerticalContentAlignment="Center" Margin="0,0,0,10">
+                                <ComboBoxItem Content="Centre" IsSelected="True"/>
+                                <ComboBoxItem Content="Both faces"/>
+                                <ComboBoxItem Content="Internal face"/>
+                                <ComboBoxItem Content="External face"/>
+                            </ComboBox>
+                            <CheckBox x:Name="UI_Check_RemoveExisting" Content="Clear existing rebar" FontSize="{DynamicResource StandardFontSize}" IsChecked="True" Margin="0,5,0,5"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- FOOTER -->
+        <Border Grid.Row="2" Background="White" Padding="{DynamicResource FooterPadding}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <TextBlock Grid.Column="0" Text="Ready to reinforce • Wall Corner Rebar L-Shape" Style="{StaticResource StatusLabelStyle}"/>
+
+                <Button x:Name="UI_Button_Cancel" Grid.Column="1" Content="Cancel" Width="100" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,12,0" Click="UI_Button_Cancel_Click"/>
+                <Button x:Name="UI_Button_Generate" Grid.Column="2" Content="Generate Rebar" Width="160" Style="{StaticResource PrimaryButtonStyle}" Click="UI_Button_Generate_Click"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

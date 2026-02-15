@@ -1,0 +1,113 @@
+<Window x:Class="antiGGGravity.Views.Management.DuplicateSheetsView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Duplicate Sheets" Height="600" Width="800"
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize" Topmost="True"
+        Background="{DynamicResource WindowBackgroundBrush}">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/antiGGGravity;component/Resources/BrandStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="{DynamicResource HeaderHeight}"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="{DynamicResource FooterHeight}"/>
+        </Grid.RowDefinitions>
+
+        <!-- HEADER -->
+        <Border Grid.Row="0" Background="White" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
+            <Grid Margin="{DynamicResource HeaderPadding}">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Style="{StaticResource BrandTitleStyle}"/>
+                    <Rectangle Width="2" Height="20" Fill="{DynamicResource SeparatorBrush}" Margin="15,0"/>
+                    <TextBlock Text="DUPLICATE SHEETS" Style="{StaticResource BrandSubtitleStyle}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- CONTENT -->
+        <Grid Grid.Row="1" Margin="{DynamicResource ContentMargin}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/> <!-- Sheet List -->
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="1.2*"/> <!-- Options -->
+            </Grid.ColumnDefinitions>
+
+            <!-- LEFT: SHEET LIST -->
+            <Border Grid.Column="0" Style="{StaticResource SectionBorderStyle}" Padding="0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Border Grid.Row="0" Background="{DynamicResource WindowBackgroundBrush}" Padding="15,10" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
+                        <TextBlock Text="Select Sheets to Duplicate" Style="{StaticResource SectionLabelStyle}" Margin="0"/>
+                    </Border>
+                    <TextBox x:Name="UI_Txt_Search" Grid.Row="1" Height="32" Margin="15,10,15,5" Padding="5" VerticalContentAlignment="Center" Background="{DynamicResource InputBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" TextChanged="UI_Txt_Search_TextChanged"/>
+                    <ListBox x:Name="UI_List_Sheets" Grid.Row="2" Margin="15,5,15,15" SelectionMode="Extended" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding IsSelected}" Content="{Binding Name}" Margin="5,2"/>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+            </Border>
+
+            <!-- RIGHT: OPTIONS -->
+            <StackPanel Grid.Column="2">
+                <!-- VIEW OPTIONS -->
+                <Border Style="{StaticResource SectionBorderStyle}" Margin="0,0,0,15">
+                    <StackPanel>
+                        <TextBlock Text="View Duplication" Style="{StaticResource SectionLabelStyle}"/>
+                        <RadioButton x:Name="UI_Radio_Duplicate" Content="Duplicate" IsChecked="True" Margin="0,5"/>
+                        <RadioButton x:Name="UI_Radio_Detailing" Content="With Detailing" Margin="0,5"/>
+                        <RadioButton x:Name="UI_Radio_Dependent" Content="As Dependent" Margin="0,5"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- INCLUDE OPTIONS -->
+                <Border Style="{StaticResource SectionBorderStyle}" Margin="0,0,0,15">
+                    <StackPanel>
+                        <TextBlock Text="Include Elements" Style="{StaticResource SectionLabelStyle}"/>
+                        <CheckBox x:Name="UI_Check_Legends" Content="Duplicate Legends" IsChecked="True" Margin="0,5"/>
+                        <CheckBox x:Name="UI_Check_Schedules" Content="Duplicate Schedules" IsChecked="True" Margin="0,5"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- NAMING OPTIONS -->
+                <Border Style="{StaticResource SectionBorderStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Naming Rules" Style="{StaticResource SectionLabelStyle}"/>
+                        <TextBlock Text="Sheet Name Suffix" FontSize="11" Foreground="{DynamicResource SubtitleBrush}" Margin="0,0,0,5"/>
+                        <TextBox x:Name="UI_Txt_Suffix" Text=" Copy" Height="32" Padding="8,0" VerticalContentAlignment="Center" Background="{DynamicResource InputBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}"/>
+                        <TextBlock Text="Preview: A101 - Plan Copy" Foreground="{DynamicResource SubtitleBrush}" Margin="2,8,0,0" FontSize="11" FontStyle="Italic"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Grid>
+
+        <!-- FOOTER -->
+        <Border Grid.Row="2" Background="White" Padding="{DynamicResource FooterPadding}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <TextBlock x:Name="UI_Txt_Status" Grid.Column="0" Text="Ready to duplicate sheets" Style="{StaticResource StatusLabelStyle}"/>
+
+                <Button x:Name="UI_Btn_Cancel" Grid.Column="1" Content="Cancel" Width="100" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,12,0" Click="UI_Btn_Cancel_Click"/>
+                <Button x:Name="UI_Btn_Duplicate" Grid.Column="2" Content="Duplicate Sheets" Width="180" Style="{StaticResource PrimaryButtonStyle}" Click="UI_Btn_Duplicate_Click"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

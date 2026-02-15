@@ -1,0 +1,601 @@
+# antiGGGravity Ribbon Configuration
+# Reorder panels by moving lines. Reorder buttons by moving lines within pulldowns.
+# Icons are auto-resolved from: Resources/Icons/{IconName}(32x32).png
+#
+# ICON RULES:
+#   - "icon:" on pulldowns = the main ribbon icon (shown on ribbon + QAT)
+#   - Individual buttons inside pulldowns do NOT show icons (text only)
+#   - Stacked buttons do NOT show icons
+
+tab:
+  name: antiGGGravity
+
+panels:
+  # ============================================================
+  # PROJECT AUDIT PANEL
+  # ============================================================
+  - name: Project Audit
+    items:
+      - type: pushbutton
+        name: Project Folder
+        command: OpenProjectFolderCommand
+        icon: ProjectFolder
+        tooltip: Open the folder containing the central model.
+
+      - type: pulldown
+        name: Audit
+        icon: ProjectAudit
+        tooltip: Project audit and cleanup tools.
+        buttons:
+          - name: Wipe Empty Tags
+            command: WipeEmptyTagsCommand
+            icon: WipeEmptyTags
+          
+          - separator: true
+
+          - name: Title on Active View
+            command: TitleOnActiveViewCommand
+            icon: TitleOnActiveView
+          
+          - name: Title on Sheets
+            command: TitleOnSheetsCommand
+            icon: TitleOnSheets
+
+          - separator: true
+
+          - name: Drafter Text Off
+            command: DrafterTextOffCommand
+            icon: DrafterTextOff
+          
+          - name: Drafter Text On
+            command: DrafterTextOnCommand
+            icon: DrafterTextOn
+
+      - type: pulldown
+        name: Family Load
+        icon: FamilyLoad
+        tooltip: Tools for loading and duplicating families.
+        buttons:
+          - name: Family Loading
+            command: FamilyLoadingCommand
+            icon: FamilyLoading
+          
+          - name: Load More Type
+            command: LoadMoreTypeCommand
+            icon: LoadMoreType
+          
+          - name: Duplicate Families
+            command: FamilyDuplicatorCommand
+            icon: FamilyDuplicator
+
+  # ============================================================
+  # OVERRIDES PANEL
+  # ============================================================
+  - name: Overrides
+    items:
+      - type: pushbutton
+        name: Color Splasher
+        command: ColorSplashCommand
+        icon: ColorSplasher
+        tooltip: Visualize parameter values with color overrides.
+
+      - type: stacked
+        buttons:
+          - type: pulldown
+            name: Dim & Text
+            icon: DimText
+            tooltip: Dimension and text override tools.
+            buttons:
+              - name: DimFake
+                command: DimFakeCommand
+                icon: DimFake
+              
+              - name: Text Audit
+                command: TextAuditCommand
+                icon: TextAudit
+              
+              - name: Text Upper
+                command: TextUpperCommand
+                icon: TextUpper
+
+          - type: pulldown
+            name: Cad Override
+            icon: CadOverride
+            tooltip: Quick graphic override styles.
+            buttons:
+              - name: Style 1 (Black/Half/Trans)
+                command: Style1Command
+                icon: Style1
+              
+              - name: Style 2 (Red/Solid)
+                command: Style2Command
+                icon: Style2
+              
+              - name: Style 3 (Blue/Solid)
+                command: Style3Command
+                icon: Style3
+              
+              - name: Style 4 (Green/Solid)
+                command: Style4Command
+                icon: Style4
+
+      - type: stacked
+        buttons:
+          - type: pulldown
+            name: Transparency
+            icon: Transparency
+            tooltip: Set surface transparency.
+            buttons:
+              - name: 60 Pct Transparency
+                command: Transparency60Command
+                icon: Transparency60
+              
+              - name: 100 Pct Transparency
+                command: Transparency100Command
+                icon: Transparency100
+
+          - type: pulldown
+            name: Match & Reset
+            icon: MatchReset
+            tooltip: Match or reset graphic overrides.
+            buttons:
+              - name: Match Overrides
+                command: MatchOverridesCommand
+                icon: MatchOverrides
+              
+              - separator: true
+              
+              - name: Reset Selected
+                command: ResetSelectedCommand
+                icon: ResetSelected
+              
+              - name: Reset All Overrides
+                command: ResetOverridesCommand
+                icon: ResetOverrides
+
+
+  # ============================================================
+  # MANAGEMENT PANEL
+  # ============================================================
+  - name: Management
+    items:
+      - type: stacked
+        buttons:
+          - type: pulldown
+            name: Rename View
+            icon: Views
+            tooltip: View management tools.
+            buttons:
+              - name: Rename Views (Active Sheet)
+                command: RenameViewsActiveSheetCommand
+                icon: RenameViews
+
+              - name: Rename View (all Sheets)
+                command: RenameViewsAllSheetsCommand
+                icon: RenameViews
+
+              - name: Renumber Viewports
+                command: RenumberViewportsCommand
+                icon: RenumberViewports
+
+          - type: pulldown
+            name: Add Views
+            icon: AddViews
+            tooltip: Add views to sheets.
+            buttons:
+              - name: Add Selected View
+                command: AddSelectedViewCommand
+                icon: AddSelectedView
+
+              - name: Add Views
+                command: AddViewsCommand
+                icon: AddViews
+
+          - type: pulldown
+            name: Sheets
+            icon: Sheets
+            tooltip: Sheet management tools.
+            buttons:
+              - name: Duplicate Sheets
+                command: DuplicateSheetsCommand
+                icon: DuplicateSheets
+
+      - type: stacked
+        buttons:
+          - name: Set Crop View
+            command: SetCropCommand
+            icon: SetCrop
+
+          - name: Toggle Crop
+            command: ToggleCropRegionCommand
+            icon: ToggleCrop
+
+          - name: Zoom To
+            command: ZoomToSelectionCommand
+            icon: ZoomTo
+
+      - type: stacked
+        buttons:
+          - name: Auto 3D
+            command: Auto3DCommand
+            icon: Auto3D
+
+          - name: Toggle 3D
+            command: Toggle3DSectionBoxCommand
+            icon: ToggleSectionBoxActive
+
+          - name: Toggle Sectbox
+            command: ToggleSectionBoxVisibilityCommand
+            icon: ToggleSectionBox
+
+      - name: Align Schematic
+        command: AlignSchematicCommand
+        icon: AlignSchematic
+        tooltip: Align viewports across multiple sheets.
+
+  # ============================================================
+  # VISIBILITY GRAPHIC PANEL
+  # ============================================================
+  - name: Visibility Graphic
+    items:
+      - type: pulldown
+        name: Visibility
+        icon: Visibility
+        tooltip: Access all 2D, 3D and Category visibility toggles.
+        buttons:
+          # --- General Toggles ---
+          - name: Toggle All Elements
+            command: ToggleAllElementsCommand
+            icon: ToggleAllElements
+
+          - name: Toggle 2D Elements
+            command: Toggle2DCommand
+            icon: Toggle2D
+
+          - name: Toggle 3D Elements
+            command: Toggle3DCommand
+            icon: Toggle3D
+
+          - name: Toggle Structural Packs
+            command: ToggleStructuralPacksCommand
+            icon: ToggleStructuralPacks
+
+          - separator: true
+
+          # --- Category Toggles ---
+          - name: Toggle Foundations
+            command: ToggleFoundationsCommand
+            icon: ToggleFoundations
+
+          - name: Toggle Walls
+            command: ToggleWallsCommand
+            icon: ToggleWalls
+
+          - name: Toggle Floors (Slabs)
+            command: ToggleFloorsCommand
+            icon: ToggleFloors
+
+          - name: Toggle Columns
+            command: ToggleColumnsCommand
+            icon: ToggleColumns
+
+          - name: Toggle Framing
+            command: ToggleFramingCommand
+            icon: ToggleFraming
+
+          - name: Toggle Rebar
+            command: ToggleRebarCommand
+            icon: ToggleRebar
+
+          - name: Toggle Connections
+            command: ToggleConnectionsCommand
+            icon: ToggleConnections
+
+          - separator: true
+
+          # --- Datum Toggles ---
+          - name: Toggle Grids
+            command: ToggleGridsCommand
+            icon: ToggleGrids
+
+          - name: Toggle Levels
+            command: ToggleLevelsCommand
+            icon: ToggleLevels
+
+          - name: Toggle Ref Planes
+            command: ToggleRefPlanesCommand
+            icon: ToggleRefPlanes
+
+          - separator: true
+
+          # --- Link Toggles ---
+          - name: Toggle CAD Links
+            command: ToggleCadLinksCommand
+            icon: ToggleCadLinks
+
+          - name: Toggle Revit Links
+            command: ToggleLinksCommand
+            icon: ToggleLinks
+
+          - separator: true
+
+          # --- View Toggles ---
+          - name: Toggle Section Box
+            command: ToggleSectionBoxesCommand
+            icon: ToggleSectionBoxes
+
+          - name: Toggle Scope Box
+            command: ToggleScopeBoxesCommand
+            icon: ToggleScopeBox
+
+  # ============================================================
+  # REBAR PANEL
+  # ============================================================
+  - name: Rebar
+    items:
+      # --- Selection Pulldown ---
+      - type: pulldown
+        name: Selection
+        icon: RebarSelection
+        tooltip: Rebar selection and visibility tools.
+        buttons:
+          - name: Set Obscured
+            command: SetObscuredCommand
+            icon: SetObscured
+
+          - name: Set Unobscured
+            command: SetUnobscuredCommand
+            icon: SetUnobscured
+
+          - separator: true
+
+          - name: Show Rebar
+            command: ShowRebarCommand
+            icon: ShowRebar
+
+          - name: Hide Rebar
+            command: HideRebarCommand
+            icon: HideRebar
+
+          - separator: true
+
+          - name: Select All Rebar By Host
+            command: SelectRebarCommand
+            icon: SelectRebar
+
+          - name: Select & Delete Rebar By Host
+            command: SelectDeleteRebarCommand
+            icon: SelectDeleteRebar
+
+      # --- Setting Pulldown ---
+      - type: pulldown
+        name: Setting
+        icon: RebarSetting
+        tooltip: Rebar host visibility settings.
+        buttons:
+          - name: Hide Rebar By Host
+            command: HideRebarByHostCommand
+            icon: HideRebarByHost
+
+          - separator: true
+
+          - name: Show Rebar By Host
+            command: ShowRebarByHostCommand
+            icon: ShowRebarByHost
+
+          - name: Show Rebar By Host Only
+            command: ShowRebarByHostOnlyCommand
+            icon: ShowRebarByHostOnly
+
+      # --- Reinforcing Pulldown ---
+      - type: pulldown
+        name: Reinforcing
+        icon: RebarReinforcing
+        tooltip: Create reinforcement for structural elements.
+        buttons:
+          - name: Strip Footing
+            command: StripFootingRebarCommand
+            icon: StripFootingRebar
+
+          - name: Footing Pad
+            command: FootingPadRebarCommand
+            icon: FootingPadRebar
+
+          - name: Wall Rebar
+            command: WallRebarCommand
+            icon: WallRebar
+
+          - name: Wall Corner L
+            command: WallCornerLCommand
+            icon: WallCornerL
+
+          - name: Wall Corner U
+            command: WallCornerUCommand
+            icon: WallCornerU
+
+          - name: Column Rebar
+            command: ColumnRebarCommand
+            icon: ColumnRebar
+
+          - name: Beam Rebar
+            command: BeamRebarCommand
+            icon: BeamRebar
+
+  # ============================================================
+  # GENERAL PANEL
+  # ============================================================
+  - name: General
+    items:
+      # --- Column 2: Joins ---
+      - type: stacked
+        buttons:
+          - type: pulldown
+            name: Allow Join
+            icon: AllowJoin
+            buttons:
+              - name: Allow Join (Selection)
+                command: AllowJoinCommand
+                icon: AllowJoin
+              - name: Allow Join (View)
+                command: AllowJoinAllCommand
+                icon: AllowJoinAll
+
+          - type: pulldown
+            name: Disallow Join
+            icon: DisAllowJoin
+            buttons:
+              - name: Disallow Join (Selection)
+                command: DisAllowJoinCommand
+                icon: DisAllowJoin
+              - name: Disallow Join (View)
+                command: DisAllowJoinAllCommand
+                icon: DisAllowJoinAll
+
+          - name: Beam Reset
+            command: BeamResetCommand
+            icon: BeamReset
+
+      # --- Column 3: Advanced Process ---
+      - type: stacked
+        buttons:
+          - name: Join Geometry
+            command: JoinUnjoinGeometryCommand
+            icon: JoinUnjoin
+
+          - type: pulldown
+            name: Toggle Grids
+            icon: ToggleGrids
+            buttons:
+              - name: Toggle All Grids
+                command: ToggleAllGridsCommand
+                icon: ToggleAllGrids
+              - name: Grid 3D & 2D
+                command: Grid3D2DCommand
+                icon: Grid3D2D
+
+      # --- Column 4: Quick Actions ---
+      - type: stacked
+        buttons:
+          - name: Flip Elements
+            command: FlipElementsCommand
+            icon: Flip
+
+          - name: Transfer Templates
+            command: TransferTemplatesCommand
+            icon: TransferTemplates
+
+          - type: pulldown
+            name: View Filters
+            icon: ViewFilters
+            buttons:
+              - name: Copy Filters
+                command: ViewFiltersCopyCommand
+                icon: ViewFiltersCopy
+              - name: Filters Legend
+                command: ViewFiltersLegendCommand
+                icon: ViewFiltersLegend
+
+      # --- Column 5: Geometry & Walls ---
+      - type: stacked
+        buttons:
+          - name: Rotate Multiple
+            command: ElementsRotateMultipleCommand
+            icon: ElementsRotateMultiple
+
+          - type: pulldown
+            name: Filled Regions
+            icon: FilledRegions
+            buttons:
+              - name: Merge Regions
+                command: MergeRegionsCommand
+                icon: MergeRegions
+              - name: Regions -> Floors
+                command: RegionsToFloorsCommand
+                icon: RegionsToFloors
+              - name: Regions -> Ceilings
+                command: RegionsToCeilingsCommand
+                icon: RegionsToCeilings
+              - name: Change LineStyle
+                command: RegionChangeLineStyleCommand
+                icon: RegionChangeLineStyle
+
+          - type: pulldown
+            name: Walls
+            icon: Walls
+            buttons:
+              - name: Match Top
+                command: WallMatchTopCommand
+                icon: WallMatchTop
+              - name: Match Base
+                command: WallMatchBaseCommand
+                icon: WallMatchBase
+              - name: Match Both
+                command: WallMatchBothCommand
+                icon: WallMatchBoth
+              - name: Modify Constraints
+                command: ModifyWallConstraintsCommand
+                icon: ModifyWallConstraints
+
+      # --- Column 6: Selection ---
+      - type: splitpushbutton
+        name: Pick
+        icon: Pick
+        command: PickElementsCommand
+
+  # ============================================================
+  # MODEL PANEL
+  # ============================================================
+  - name: Model
+    items:
+      - type: pulldown
+        name: Bracing
+        icon: Bracing
+        tooltip: Structural bracing creation tools.
+        buttons:
+          - name: Roof Framing
+            command: RoofFramingCommand
+            icon: RoofFraming
+            tooltip: Generate purlins and rafters on roof/slab faces.
+
+          - name: H-Frame
+            command: HFrameCommand
+            icon: HFrame
+            tooltip: Create parallel horizontal braces (multi-brace).
+          
+          - name: K-Brace
+            command: KBraceCommand
+            icon: KBrace
+            tooltip: Create K-shaped (V-shaped) bracing with apex.
+          
+          - name: X-Brace
+            command: XBraceCommand
+            icon: XBrace
+            tooltip: Create crossed structural bracing.
+
+  # ============================================================
+  # ANTIGRAVITY PANEL
+  # ============================================================
+  - name: AntiGravity
+    items:
+      - type: stacked
+        buttons:
+          - name: Hardware ID
+            command: GetHardwareIdCommand
+            icon: HardwareID
+            tooltip: Copy machine ID for license activation.
+
+          - name: License Status
+            command: LicensedCommand
+            icon: LicenseStatus
+            tooltip: Check current license activation status.
+
+          - name: Inspect Resources
+            command: InspectResourcesCommand
+            icon: InspectResources
+            tooltip: Debug tool to list embedded resources.
+
+      - type: pushbutton
+        name: UI Samples
+        command: UiSamplesCommand
+        icon: UISamples
+        tooltip: View premium single, dual, and triple panel layout templates.

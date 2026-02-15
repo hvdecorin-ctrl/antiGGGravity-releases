@@ -1,0 +1,115 @@
+<Window x:Class="antiGGGravity.Views.Samples.DualPanelSample"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Dual Panel Sample" Height="800" Width="800"
+        MinHeight="600" MinWidth="750"
+        WindowStartupLocation="CenterScreen" Topmost="True"
+        Background="{DynamicResource WindowBackgroundBrush}">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/antiGGGravity;component/Resources/BrandStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="{DynamicResource HeaderHeight}"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="{DynamicResource FooterHeight}"/>
+        </Grid.RowDefinitions>
+
+        <!-- HEADER -->
+        <Border Grid.Row="0" Background="White" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
+            <Grid Margin="{DynamicResource HeaderPadding}">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Style="{StaticResource BrandTitleStyle}"/>
+                    <Rectangle Width="2" Height="20" Fill="{DynamicResource SeparatorBrush}" Margin="15,0"/>
+                    <TextBlock Text="DUAL PANEL SAMPLE" Style="{StaticResource BrandSubtitleStyle}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- BODY -->
+        <Grid Grid.Row="1" Margin="{DynamicResource ContentMargin}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="20"/> <!-- Gap -->
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- LEFT PANEL -->
+            <Border Grid.Column="0" Style="{StaticResource SectionBorderStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Grid.Row="0" Text="Source Selection" Style="{StaticResource SectionLabelStyle}"/>
+                    <TextBox Grid.Row="1" Height="28" Margin="0,0,0,10" Padding="8,0" VerticalContentAlignment="Center" 
+                             Tag="Filter items..."/>
+                    
+                    <ListBox Grid.Row="2" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}">
+                        <ListBoxItem Content="Item 001"/>
+                        <ListBoxItem Content="Item 002"/>
+                        <ListBoxItem Content="Item 003"/>
+                        <ListBoxItem Content="Item 004"/>
+                    </ListBox>
+                </Grid>
+            </Border>
+
+            <!-- RIGHT PANEL -->
+            <Border Grid.Column="2" Style="{StaticResource SectionBorderStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Grid.Row="0" Text="Target Configuration" Style="{StaticResource SectionLabelStyle}"/>
+                    
+                    <StackPanel Grid.Row="1">
+                        <TextBlock Text="Setting A" FontSize="{DynamicResource StandardFontSize}" Margin="0,0,0,5"/>
+                        <ComboBox Height="28" Margin="0,0,0,15">
+                            <ComboBoxItem Content="Default" IsSelected="True"/>
+                        </ComboBox>
+                        
+                        <TextBlock Text="Setting B" FontSize="{DynamicResource StandardFontSize}" Margin="0,0,0,5"/>
+                        <TextBox Height="28" Margin="0,0,0,15"/>
+                        
+                        <CheckBox Content="Mirror results" FontSize="{DynamicResource StandardFontSize}"/>
+                    </StackPanel>
+                    
+                    <TextBlock Grid.Row="2" Text="Total selected: 0" FontSize="{DynamicResource SmallFontSize}" 
+                               Foreground="{DynamicResource StatusBrush}"/>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- FOOTER -->
+        <Border Grid.Row="2" Background="White" Padding="{DynamicResource FooterPadding}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <TextBlock Grid.Column="0" Text="Ready to map • Dual Panel Layout" Style="{StaticResource StatusLabelStyle}"/>
+                
+                <Button x:Name="UI_Btn_Cancel" Grid.Column="1" Content="Reset" Width="100" 
+                        Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,12,0" 
+                        Click="UI_Btn_Cancel_Click"/>
+                
+                <Button x:Name="UI_Btn_Apply" Grid.Column="2" Content="Transfer Data" Width="160" 
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Click="UI_Btn_Apply_Click"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<Obfuscator>
+  <Var name="InPath" value="bin\Release\net48" />
+  <Var name="OutPath" value="bin\Obfuscated" />
+  <Var name="HideStrings" value="true" />
+  <Var name="RenameProperties" value="true" />
+  <Var name="RenameEvents" value="true" />
+  <Var name="RenameFields" value="true" />
+  
+  <Module file="$(InPath)\antiGGGravity.dll">
+    <!-- Keep IExternalCommand implementations visible to Revit -->
+    <!-- These classes are loaded by name so they must not be renamed -->
+    <SkipType name="antiGGGravity.GetHardwareIdCommand" />
+    <SkipType name="antiGGGravity.LicensedCommand" />
+    
+    <!-- Keep LicenseResult public interface visible -->
+    <SkipType name="antiGGGravity.LicenseResult" skipMethods="true" skipProperties="false" />
+  </Module>
+</Obfuscator>
