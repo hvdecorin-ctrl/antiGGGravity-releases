@@ -68,7 +68,7 @@ namespace antiGGGravity.Commands.General
 
             if (!(view is ViewPlan viewPlan))
             {
-                TaskDialog.Show("Toggle Grids", "This tool only works in plan views.");
+                TaskDialog.Show("antiGGGravity", "This tool only works in plan views.");
                 return Result.Cancelled;
             }
 

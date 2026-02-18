@@ -20,31 +20,16 @@ namespace antiGGGravity.Commands.VisibilityGraphic
 
             if (view == null) return Result.Failed;
 
-            // Collect all elements of the category in the document
-            var collector = new FilteredElementCollector(doc)
-                .OfCategory(Category)
-                .WhereElementIsNotElementType()
-                .ToElements();
-
-            if (!collector.Any()) return Result.Succeeded;
-
-            // Separate visible and hidden (ensure they CAN be hidden in this view)
-            var hidden = collector.Where(e => e.IsHidden(view)).ToList();
-            var visible = collector.Where(e => !e.IsHidden(view) && e.CanBeHidden(view)).ToList();
-
-            if (!hidden.Any() && !visible.Any()) return Result.Succeeded;
-
-            using (var t = new Transaction(doc, $"Toggle {Category}"))
+            // The reliable SetCategoryHidden method can directly use BuiltInCategory
+            using (var t = new Transaction(doc, "Toggle Category"))
             {
                 t.Start();
 
-                if (hidden.Any())
+                ElementId catId = new ElementId(Category);
+                if (view.CanCategoryBeHidden(catId))
                 {
-                    view.UnhideElements(hidden.Select(e => e.Id).ToList());
-                }
-                else if (visible.Any())
-                {
-                    view.HideElements(visible.Select(e => e.Id).ToList());
+                    bool shouldHide = !view.GetCategoryHidden(catId);
+                    view.SetCategoryHidden(catId, shouldHide);
                 }
 
                 t.Commit();

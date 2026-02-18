@@ -52,6 +52,7 @@ bld/
 
 # Revit Addin Specifics
 *.addin
+!antiGGGravity.addin
 
 # Project Build Logs
 build_errors.log

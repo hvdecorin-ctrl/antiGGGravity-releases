@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+  <AddIn Type="Application">
+    <Name>antiGGGravity</Name>
+    <FullClassName>antiGGGravity.App</FullClassName>
+    <Assembly>antiGGGravity.dll</Assembly>
+    <AddInId>7E8A1D3B-E2F4-4C5A-9D8B-123456789ABC</AddInId>
+    <VendorId>ADSK</VendorId>
+    <VendorDescription>Duy, Revit Developer</VendorDescription>
+  </AddIn>
+</RevitAddIns>

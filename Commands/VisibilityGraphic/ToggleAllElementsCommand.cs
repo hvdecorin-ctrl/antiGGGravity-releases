@@ -13,45 +13,51 @@ namespace antiGGGravity.Commands.VisibilityGraphic
 
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            var uiapp = commandData.Application;
-            var uidoc = uiapp.ActiveUIDocument;
-            var doc = uidoc.Document;
-            var view = uidoc.ActiveView;
+            var doc = commandData.Application.ActiveUIDocument.Document;
+            var uidoc = commandData.Application.ActiveUIDocument;
+            var activeView = doc.ActiveView;
 
-            if (view == null) return Result.Failed;
+            if (activeView == null) return Result.Failed;
 
-            // Collect MUST be document-wide to find hidden elements. 
-            // View-specific collectors only find already visible elements.
-            var allElements = new FilteredElementCollector(doc)
-                .WhereElementIsNotElementType()
-                .ToElements();
+            // Check for Selection first
+            var selectedIds = uidoc.Selection.GetElementIds();
+            var selectedHideable = selectedIds.Where(id => doc.GetElement(id).CanBeHidden(activeView)).ToList();
 
-            if (!allElements.Any()) return Result.Succeeded;
+            // Collect Visible Elements in View (for "Hide All" logic)
+            var visibleColl = new FilteredElementCollector(doc, activeView.Id).WhereElementIsNotElementType();
+            var visibleIds = visibleColl.ToElementIds().Where(id => doc.GetElement(id).CanBeHidden(activeView)).ToList();
 
-            // Check if any element is hidden to decide logic
-            bool anyHidden = allElements.Any(e => e.IsHidden(view));
-
-            using (var t = new Transaction(doc, "Toggle All Elements"))
+            using (var t = new Transaction(doc, "Toggle Visibility"))
             {
                 t.Start();
 
-                if (anyHidden)
+                if (selectedHideable.Any())
                 {
-                    // Unhide everything
-                    var idsToUnhide = allElements.Select(e => e.Id).ToList();
-                    view.UnhideElements(idsToUnhide);
+                    // TOGGLE SELECTION
+                    activeView.HideElements(selectedHideable);
+                }
+                else if (visibleIds.Any())
+                {
+                    // HIDE ALL VISIBLE
+                    activeView.HideElements(visibleIds);
                 }
                 else
                 {
-                    // Hide everything that CAN be hidden
-                    var idsToHide = allElements
-                        .Where(e => e.Id != view.Id && e.CanBeHidden(view))
-                        .Select(e => e.Id)
-                        .ToList();
+                    // UNHIDE ALL
+                    var allColl = new FilteredElementCollector(doc).WhereElementIsNotElementType();
+                    var hiddenIds = new List<ElementId>();
 
-                    if (idsToHide.Any())
+                    foreach (var elem in allColl)
                     {
-                        view.HideElements(idsToHide);
+                        if (elem.Id != activeView.Id && elem.IsHidden(activeView) && elem.CanBeHidden(activeView))
+                        {
+                            hiddenIds.Add(elem.Id);
+                        }
+                    }
+
+                    if (hiddenIds.Any())
+                    {
+                        activeView.UnhideElements(hiddenIds);
                     }
                 }
 

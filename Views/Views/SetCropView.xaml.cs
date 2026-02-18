@@ -48,35 +48,38 @@ namespace antiGGGravity.Views.Views
         private List<Curve> GetCurvesFromBox(PickedBox box)
         {
             View activeView = _uidoc.Document.ActiveView;
-            XYZ min = box.Min;
-            XYZ max = box.Max;
-
-            // Transform logic from python script (simplified)
-            // Python: proj(pt), vtm(pt)
-            // PickBox returns points in world coordinates but bounded by screen? 
-            // The python script logic projects these points onto the view plane.
-            
+            XYZ origin = activeView.Origin;
             XYZ right = activeView.RightDirection;
             XYZ up = activeView.UpDirection;
-            XYZ origin = activeView.Origin;
 
-            // Logic to convert PickBox to View Plane Curves
-            // Simplified: PickBox Min/Max are usually correct for Plan Views in World Coords.
-            // For general views, we need to ensure we are creating a rectangle on the view plane.
-            
-            // Assume Plan View for now or simple projection
-            double z = origin.Z; 
-            XYZ p1 = new XYZ(min.X, min.Y, z);
-            XYZ p2 = new XYZ(max.X, min.Y, z);
-            XYZ p3 = new XYZ(max.X, max.Y, z);
-            XYZ p4 = new XYZ(min.X, max.Y, z);
+            // Porting Python logic: proj(pt) and vtm(pt_v)
+            XYZ Proj(XYZ pt)
+            {
+                XYZ vec = pt - origin;
+                return new XYZ(vec.DotProduct(right), vec.DotProduct(up), 0);
+            }
+
+            XYZ Vtm(XYZ ptV)
+            {
+                return origin + (right * ptV.X) + (up * ptV.Y);
+            }
+
+            // Project Min and Max to View Plane coordinates
+            XYZ pp1 = Proj(box.Min);
+            XYZ pp3 = Proj(box.Max);
+
+            // Create 4 points for the rectangle loop on the view plane
+            XYZ v1 = Vtm(pp1);
+            XYZ v2 = Vtm(new XYZ(pp3.X, pp1.Y, 0));
+            XYZ v3 = Vtm(pp3);
+            XYZ v4 = Vtm(new XYZ(pp1.X, pp3.Y, 0));
 
             return new List<Curve>
             {
-                Line.CreateBound(p1, p2),
-                Line.CreateBound(p2, p3),
-                Line.CreateBound(p3, p4),
-                Line.CreateBound(p4, p1)
+                Line.CreateBound(v1, v2),
+                Line.CreateBound(v2, v3),
+                Line.CreateBound(v3, v4),
+                Line.CreateBound(v4, v1)
             };
         }
 

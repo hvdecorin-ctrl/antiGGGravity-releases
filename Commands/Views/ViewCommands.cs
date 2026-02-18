@@ -23,7 +23,7 @@ namespace antiGGGravity.Commands.Views
 
             if (!IsValidView(activeView))
             {
-                TaskDialog.Show("Set Crop", "View does not support cropping.");
+                TaskDialog.Show("antiGGGravity", "View does not support cropping.");
                 return Result.Cancelled;
             }
 
@@ -84,7 +84,7 @@ namespace antiGGGravity.Commands.Views
 
                     if (allCurves.Count == 0)
                     {
-                        TaskDialog.Show("Set Crop", "No valid boundary found.");
+                        TaskDialog.Show("antiGGGravity", "No valid boundary found.");
                         t.RollBack();
                         return Result.Failed;
                     }
@@ -162,55 +162,97 @@ namespace antiGGGravity.Commands.Views
             }
             else if (element is FilledRegion fr)
             {
-                // GetBoundaries returns IList<CurveLoop>
                 foreach (var loop in fr.GetBoundaries())
                 {
                     foreach (Curve c in loop) curves.Add(c);
                 }
             }
-            // Simplified: Not doing GetDependentElements for brevity/complexity, focus on core
+            else
+            {
+                // Try to get dependent curve elements (like lines and filled regions)
+                try
+                {
+                    var depIds = element.GetDependentElements(new ElementClassFilter(typeof(CurveElement)));
+                    foreach (var depId in depIds)
+                    {
+                        var ceDep = doc.GetElement(depId) as CurveElement;
+                        if (ceDep?.GeometryCurve != null) curves.Add(ceDep.GeometryCurve);
+                    }
+                }
+                catch { }
+            }
             return curves;
         }
 
         private CurveLoop CreateCurveLoop(List<Curve> curves)
         {
-            if (curves.Count == 0) return null;
+            if (curves == null || curves.Count == 0) return null;
             
-            // Should implement ordering logic here similar to python
-            // For now, assuming simple closed loop if drawn. 
-            // If from elements, might need sorting.
-            // Using logic from python script order_curves is complex in C# without helper.
-            // Trying standard Create.
-            try
+            // Handle single closed loop (e.g. circle/ellipse if possible, though Line.CreateBound doesn't do that)
+            if (curves.Count == 1 && curves[0].IsBound && curves[0].GetEndPoint(0).IsAlmostEqualTo(curves[0].GetEndPoint(1)))
             {
-                CurveLoop loop = CurveLoop.Create(curves);
-                return loop;
+                try
+                {
+                    CurveLoop singleLoop = new CurveLoop();
+                    singleLoop.Append(curves[0]);
+                    return singleLoop;
+                }
+                catch { }
             }
-            catch
-            {
-                 // Try ordering manually if Create fails (simplified nearest neighbor)
-                 // This is complex, for now returning null if standard create fails.
-                 // In python script 'order_curves' handles this.
-                 // Implementing simple reorder:
-                 var ordered = new List<Curve>();
-                 var remaining = new List<Curve>(curves);
-                 ordered.Add(remaining[0]);
-                 remaining.RemoveAt(0);
 
-                 while (remaining.Count > 0)
-                 {
-                     XYZ endPt = ordered.Last().GetEndPoint(1);
-                     Curve next = null;
-                     foreach(var c in remaining)
-                     {
-                         if (c.GetEndPoint(0).IsAlmostEqualTo(endPt)) { next = c; break; }
-                         if (c.GetEndPoint(1).IsAlmostEqualTo(endPt)) { next = c.CreateReversed(); break; }
-                     }
-                     if (next != null) { ordered.Add(next); remaining.Remove(next); }
-                     else break;
-                 }
-                 try { return CurveLoop.Create(ordered); } catch { TaskDialog.Show("Error", "Could not create closed loop."); return null; }
+            var ordered = OrderCurves(curves);
+                if (ordered == null)
+                {
+                    TaskDialog.Show("antiGGGravity", "Boundary must be a closed loop.");
+                    return null;
+                }
+
+            CurveLoop loop = new CurveLoop();
+            foreach (Curve c in ordered) loop.Append(c);
+            return loop;
+        }
+
+        private List<Curve> OrderCurves(List<Curve> curves)
+        {
+            if (curves == null || curves.Count == 0) return null;
+            double tol = 0.001;
+            var remaining = new List<Curve>(curves);
+            var ordered = new List<Curve>();
+            ordered.Add(remaining[0]);
+            remaining.RemoveAt(0);
+
+            int iterations = curves.Count;
+            for (int i = 0; i < iterations; i++)
+            {
+                if (remaining.Count == 0) break;
+                XYZ currentEnd = ordered.Last().GetEndPoint(1);
+                bool found = false;
+                for (int j = 0; j < remaining.Count; j++)
+                {
+                    Curve c = remaining[j];
+                    if (currentEnd.DistanceTo(c.GetEndPoint(0)) < tol)
+                    {
+                        ordered.Add(c);
+                        remaining.RemoveAt(j);
+                        found = true;
+                        break;
+                    }
+                    else if (currentEnd.DistanceTo(c.GetEndPoint(1)) < tol)
+                    {
+                        ordered.Add(c.CreateReversed());
+                        remaining.RemoveAt(j);
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) break;
             }
+
+            if (remaining.Count > 0 || ordered.Last().GetEndPoint(1).DistanceTo(ordered[0].GetEndPoint(0)) > tol)
+            {
+                return null;
+            }
+            return ordered;
         }
 
         private BoundingBoxXYZ GetBBox(List<Curve> curves)
@@ -237,25 +279,32 @@ namespace antiGGGravity.Commands.Views
 
         private bool ApplyCrop(View view, CurveLoop loop, List<Curve> allCurves)
         {
-            var mgr = view.GetCropRegionShapeManager();
-            if (mgr != null)
+            try
             {
-                // Some views return false for CanHaveShape but allow SetCropShape?
-                // Python script checks CanHaveShape.
-                try 
+                if (!view.CropBoxActive) view.CropBoxActive = true;
+                
+                var mgr = view.GetCropRegionShapeManager();
+                if (mgr != null)
                 {
-                    mgr.SetCropShape(loop);
-                    return true;
+                    if (mgr.CanHaveShape)
+                    {
+                        mgr.SetCropShape(loop);
+                        return true;
+                    }
+                    else
+                    {
+                        BoundingBoxXYZ bbox = GetBBox(allCurves);
+                        if (bbox != null)
+                        {
+                            view.CropBox = bbox;
+                            return true;
+                        }
+                    }
                 }
-                catch 
-                { 
-                     BoundingBoxXYZ bbox = GetBBox(allCurves);
-                     if (bbox != null)
-                     {
-                         view.CropBox = bbox;
-                         return true;
-                     }
-                }
+            }
+            catch (Exception ex)
+            {
+                TaskDialog.Show("antiGGGravity", ex.Message);
             }
             return false;
         }
@@ -325,7 +374,7 @@ namespace antiGGGravity.Commands.Views
                          t.Commit();
                      }
                  }
-                 catch { TaskDialog.Show("Error", "Cannot toggle crop region for this view."); }
+                 catch { TaskDialog.Show("antiGGGravity", "Cannot toggle crop region for this view."); }
             }
             return Result.Succeeded;
         }
@@ -351,7 +400,7 @@ namespace antiGGGravity.Commands.Views
             var selection = uidoc.Selection.GetElementIds().ToList();
             if (selection.Count == 0)
             {
-                TaskDialog.Show("Zoom to Selection", "Please select one or more elements first.");
+                TaskDialog.Show("antiGGGravity", "Please select one or more elements first.");
                 return Result.Cancelled;
             }
 
@@ -380,7 +429,7 @@ namespace antiGGGravity.Commands.Views
             }
             else
             {
-                TaskDialog.Show("Zoom to Selection", "No suitable view found for element.");
+                TaskDialog.Show("antiGGGravity", "No suitable view found for element.");
             }
 
             _currentIndex = (_currentIndex + 1) % selection.Count;

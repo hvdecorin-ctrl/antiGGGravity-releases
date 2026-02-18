@@ -91,45 +91,65 @@ namespace antiGGGravity.Commands.VisibilityGraphic
         protected override bool RequiresLicense => false;
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            var uidoc = commandData.Application.ActiveUIDocument;
-            var doc = uidoc.Document;
-            var view = uidoc.ActiveView;
+            var doc = commandData.Application.ActiveUIDocument.Document;
+            var activeView = doc.ActiveView;
+            if (activeView == null) return Result.Failed;
 
-            var exclude3D = new HashSet<ElementId> {
-                new ElementId(BuiltInCategory.OST_Walls), new ElementId(BuiltInCategory.OST_Floors),
-                new ElementId(BuiltInCategory.OST_Columns), new ElementId(BuiltInCategory.OST_StructuralColumns),
-                new ElementId(BuiltInCategory.OST_StructuralFraming), new ElementId(BuiltInCategory.OST_StructuralFoundation),
-                new ElementId(BuiltInCategory.OST_Doors), new ElementId(BuiltInCategory.OST_Windows),
-                new ElementId(BuiltInCategory.OST_Roofs), new ElementId(BuiltInCategory.OST_Ceilings),
-                new ElementId(BuiltInCategory.OST_Stairs), new ElementId(BuiltInCategory.OST_Rebar)
+            // 3D Model categories to EXCLUDE (plus all Links)
+            var exclude3DCategories = new List<BuiltInCategory> {
+                BuiltInCategory.OST_Walls, BuiltInCategory.OST_Floors,
+                BuiltInCategory.OST_Columns, BuiltInCategory.OST_StructuralColumns,
+                BuiltInCategory.OST_StructuralFraming, BuiltInCategory.OST_StructuralFoundation,
+                BuiltInCategory.OST_Doors, BuiltInCategory.OST_Windows,
+                BuiltInCategory.OST_Roofs, BuiltInCategory.OST_Ceilings,
+                BuiltInCategory.OST_Stairs, BuiltInCategory.OST_Rebar,
+                BuiltInCategory.OST_StructConnections, BuiltInCategory.OST_CurtainWallPanels,
+                BuiltInCategory.OST_CurtainWallMullions, BuiltInCategory.OST_GenericModel,
+                BuiltInCategory.OST_Casework, BuiltInCategory.OST_Furniture,
+                BuiltInCategory.OST_MechanicalEquipment, BuiltInCategory.OST_PlumbingFixtures,
+                BuiltInCategory.OST_SpecialityEquipment, 
+                BuiltInCategory.OST_RvtLinks,  // Revit Links
             };
 
-            var allElements = new FilteredElementCollector(doc)
-                .WhereElementIsNotElementType()
-                .ToElements();
+            var excludeCatIds = new HashSet<ElementId>(exclude3DCategories.Select(c => new ElementId(c)));
+            // ImportObjectStyles is usually a category for CAD imports
+            excludeCatIds.Add(new ElementId(BuiltInCategory.OST_ImportObjectStyles));
 
-            var twodElements = allElements.Where(e => 
-                e.Category != null && 
-                !exclude3D.Contains(e.Category.Id) && 
-                !(e is ImportInstance) &&
-                e.Id != view.Id).ToList();
+            // Collect ALL elements from document
+            var allElementIds = new FilteredElementCollector(doc).WhereElementIsNotElementType().ToElementIds();
 
-            if (!twodElements.Any()) return Result.Succeeded;
+            // Filter to get only 2D elements (exclude 3D model categories and links)
+            var twodElementIds = new List<ElementId>();
+            bool hasHidden = false;
 
-            bool hasHidden = twodElements.Any(e => e.IsHidden(view));
+            foreach (var elemId in allElementIds)
+            {
+                var element = doc.GetElement(elemId);
+                if (element == null || element.Category == null) continue;
+                if (element is ImportInstance) continue;
+
+                if (!excludeCatIds.Contains(element.Category.Id) && element.Id != activeView.Id)
+                {
+                    twodElementIds.Add(elemId);
+                    if (!hasHidden && element.IsHidden(activeView))
+                    {
+                        hasHidden = true;
+                    }
+                }
+            }
 
             using (var t = new Transaction(doc, "Toggle 2D Elements"))
             {
                 t.Start();
                 if (hasHidden)
                 {
-                    var ids = twodElements.Select(e => e.Id).ToList();
-                    if (ids.Any()) view.UnhideElements(ids);
+                    activeView.UnhideElements(twodElementIds);
                 }
                 else
                 {
-                    var ids = twodElements.Where(e => e.CanBeHidden(view)).Select(e => e.Id).ToList();
-                    if (ids.Any()) view.HideElements(ids);
+                    var hideableIds = twodElementIds.Where(id => doc.GetElement(id).CanBeHidden(activeView)).ToList();
+                    if (hideableIds.Any())
+                        activeView.HideElements(hideableIds);
                 }
                 t.Commit();
             }
@@ -144,42 +164,62 @@ namespace antiGGGravity.Commands.VisibilityGraphic
         protected override bool RequiresLicense => false;
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            var uidoc = commandData.Application.ActiveUIDocument;
-            var doc = uidoc.Document;
-            var view = uidoc.ActiveView;
+            var doc = commandData.Application.ActiveUIDocument.Document;
+            var activeView = doc.ActiveView;
+            if (activeView == null) return Result.Failed;
 
-            var exclude2D = new HashSet<ElementId> {
-                new ElementId(BuiltInCategory.OST_Grids), new ElementId(BuiltInCategory.OST_Levels),
-                new ElementId(BuiltInCategory.OST_CLines), new ElementId(BuiltInCategory.OST_Dimensions),
-                new ElementId(BuiltInCategory.OST_TextNotes), new ElementId(BuiltInCategory.OST_GenericAnnotation)
+            // 2D Annotation categories to EXCLUDE (plus all Links)
+            var exclude2DCategories = new List<BuiltInCategory> {
+                BuiltInCategory.OST_Grids, BuiltInCategory.OST_Levels,
+                BuiltInCategory.OST_CLines, BuiltInCategory.OST_Dimensions,
+                BuiltInCategory.OST_TextNotes, BuiltInCategory.OST_GenericAnnotation,
+                BuiltInCategory.OST_Tags, BuiltInCategory.OST_Callouts,
+                BuiltInCategory.OST_Elev, BuiltInCategory.OST_Sections,
+                BuiltInCategory.OST_DetailComponents, BuiltInCategory.OST_Lines,
+                BuiltInCategory.OST_FilledRegion, BuiltInCategory.OST_MaskingRegion,
+                BuiltInCategory.OST_Viewers, BuiltInCategory.OST_RoomTags,
+                BuiltInCategory.OST_Matchline,
+                BuiltInCategory.OST_RvtLinks,  // Revit Links
             };
 
-            var allElements = new FilteredElementCollector(doc)
-                .WhereElementIsNotElementType()
-                .ToElements();
+            var excludeCatIds = new HashSet<ElementId>(exclude2DCategories.Select(c => new ElementId(c)));
+            excludeCatIds.Add(new ElementId(BuiltInCategory.OST_ImportObjectStyles));
 
-            var threedElements = allElements.Where(e => 
-                e.Category != null && 
-                !exclude2D.Contains(e.Category.Id) && 
-                !(e is ImportInstance) &&
-                e.Id != view.Id).ToList();
+            // Collect ALL elements from document
+            var allElementIds = new FilteredElementCollector(doc).WhereElementIsNotElementType().ToElementIds();
 
-            if (!threedElements.Any()) return Result.Succeeded;
+            // Filter to get only 3D elements (exclude 2D annotation categories and links)
+            var threedElementIds = new List<ElementId>();
+            bool hasHidden = false;
 
-            bool hasHidden = threedElements.Any(e => e.IsHidden(view));
+            foreach (var elemId in allElementIds)
+            {
+                var element = doc.GetElement(elemId);
+                if (element == null || element.Category == null) continue;
+                if (element is ImportInstance) continue;
+
+                if (!excludeCatIds.Contains(element.Category.Id) && element.Id != activeView.Id)
+                {
+                    threedElementIds.Add(elemId);
+                    if (!hasHidden && element.IsHidden(activeView))
+                    {
+                        hasHidden = true;
+                    }
+                }
+            }
 
             using (var t = new Transaction(doc, "Toggle 3D Elements"))
             {
                 t.Start();
                 if (hasHidden)
                 {
-                    var ids = threedElements.Select(e => e.Id).ToList();
-                    if (ids.Any()) view.UnhideElements(ids);
+                    activeView.UnhideElements(threedElementIds);
                 }
                 else
                 {
-                    var ids = threedElements.Where(e => e.CanBeHidden(view)).Select(e => e.Id).ToList();
-                    if (ids.Any()) view.HideElements(ids);
+                    var hideableIds = threedElementIds.Where(id => doc.GetElement(id).CanBeHidden(activeView)).ToList();
+                    if (hideableIds.Any())
+                        activeView.HideElements(hideableIds);
                 }
                 t.Commit();
             }
