@@ -320,10 +320,6 @@ panels:
           - separator: true
 
           # --- View Toggles ---
-          - name: Toggle Section Box
-            command: ToggleSectionBoxesCommand
-            icon: ToggleSectionBoxes
-
           - name: Toggle Scope Box
             command: ToggleScopeBoxesCommand
             icon: ToggleScopeBox

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
+using Autodesk.Revit.DB.ExtensibleStorage;
 using Autodesk.Revit.UI;
 using antiGGGravity.Views.ThreeD;
 
@@ -93,6 +94,9 @@ namespace antiGGGravity.Commands.ThreeD
     [Transaction(TransactionMode.Manual)]
     public class Toggle3DSectionBoxCommand : IExternalCommand
     {
+        // Unique ID for the Extensible Storage Schema - V4 (Serialized String)
+        private static readonly Guid SchemaGuid = new Guid("A47E8A1D-E2F4-4C5A-9D8B-123456789EE0");
+
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
@@ -108,22 +112,104 @@ namespace antiGGGravity.Commands.ThreeD
             using (Transaction t = new Transaction(doc, "Toggle Section Box"))
             {
                 t.Start();
+
                 if (view3D.IsSectionBoxActive)
                 {
-                    // Save state would go here (omitted for brevity/complexity of finding storage)
-                    // Just turn off
+                    // Turning OFF: Save bounds first
+                    BoundingBoxXYZ bbox = view3D.GetSectionBox();
+                    SaveSectionBoxBounds(view3D, bbox);
                     view3D.IsSectionBoxActive = false;
                 }
                 else
                 {
-                    // Turn on
-                    view3D.IsSectionBoxActive = true;
-                    // Ideally restore saved state
+                    // Turning ON: Try to restore
+                    view3D.IsSectionBoxActive = true; 
+                    BoundingBoxXYZ savedBbox = LoadSectionBoxBounds(view3D);
+                    if (savedBbox != null)
+                    {
+                        view3D.SetSectionBox(savedBbox);
+                    }
                 }
+
                 t.Commit();
             }
 
             return Result.Succeeded;
+        }
+
+        private void SaveSectionBoxBounds(View3D view, BoundingBoxXYZ bbox)
+        {
+            Schema schema = GetOrBuildSchema();
+            Entity entity = new Entity(schema);
+
+            // Serialize bounds to string to avoid all Revit 2026 Unit issues
+            // Format: MinX,MinY,MinZ|MaxX,MaxY,MaxZ|OriginX,OriginY,OriginZ|BXx,BXy,BXz|BYx,BYy,BYz|BZx,BZy,BZz
+            Transform trf = bbox.Transform;
+            string data = string.Join("|", 
+                $"{bbox.Min.X},{bbox.Min.Y},{bbox.Min.Z}",
+                $"{bbox.Max.X},{bbox.Max.Y},{bbox.Max.Z}",
+                $"{trf.Origin.X},{trf.Origin.Y},{trf.Origin.Z}",
+                $"{trf.BasisX.X},{trf.BasisX.Y},{trf.BasisX.Z}",
+                $"{trf.BasisY.X},{trf.BasisY.Y},{trf.BasisY.Z}",
+                $"{trf.BasisZ.X},{trf.BasisZ.Y},{trf.BasisZ.Z}"
+            );
+
+            entity.Set("SerializedBounds", data);
+            view.SetEntity(entity);
+        }
+
+        private BoundingBoxXYZ LoadSectionBoxBounds(View3D view)
+        {
+            Schema schema = GetOrBuildSchema();
+            Entity entity = view.GetEntity(schema);
+
+            if (!entity.IsValid()) return null;
+
+            try 
+            {
+                string data = entity.Get<string>("SerializedBounds");
+                if (string.IsNullOrEmpty(data)) return null;
+
+                string[] parts = data.Split('|');
+                if (parts.Length < 6) return null;
+
+                BoundingBoxXYZ bbox = new BoundingBoxXYZ();
+                bbox.Min = ParseXYZ(parts[0]);
+                bbox.Max = ParseXYZ(parts[1]);
+
+                Transform trf = Transform.Identity;
+                trf.Origin = ParseXYZ(parts[2]);
+                trf.BasisX = ParseXYZ(parts[3]);
+                trf.BasisY = ParseXYZ(parts[4]);
+                trf.BasisZ = ParseXYZ(parts[5]);
+
+                bbox.Transform = trf;
+                return bbox;
+            }
+            catch { return null; }
+        }
+
+        private XYZ ParseXYZ(string s)
+        {
+            string[] c = s.Split(',');
+            return new XYZ(double.Parse(c[0]), double.Parse(c[1]), double.Parse(c[2]));
+        }
+
+        private Schema GetOrBuildSchema()
+        {
+            Schema schema = Schema.Lookup(SchemaGuid);
+            if (schema != null) return schema;
+
+            SchemaBuilder builder = new SchemaBuilder(SchemaGuid);
+            builder.SetReadAccessLevel(AccessLevel.Public);
+            builder.SetWriteAccessLevel(AccessLevel.Public);
+            builder.SetSchemaName("SectionBoxStorageV4");
+            builder.SetDocumentation("Stores serialized section box bounds for a 3D view.");
+
+            // Storing as string bypasses all Revit unit/spec compatibility issues
+            builder.AddSimpleField("SerializedBounds", typeof(string));
+
+            return builder.Finish();
         }
     }
 

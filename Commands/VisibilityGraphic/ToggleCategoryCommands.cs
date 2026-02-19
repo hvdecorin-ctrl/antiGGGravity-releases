@@ -40,8 +40,6 @@ namespace antiGGGravity.Commands.VisibilityGraphic
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
     public class ToggleLinksCommand : ToggleCategoryBaseCommand { protected override BuiltInCategory Category => BuiltInCategory.OST_RvtLinks; }
 
-    [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
-    public class ToggleSectionBoxesCommand : ToggleCategoryBaseCommand { protected override BuiltInCategory Category => BuiltInCategory.OST_SectionBox; }
 
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
     public class ToggleConnectionsCommand : ToggleCategoryBaseCommand { protected override BuiltInCategory Category => BuiltInCategory.OST_StructConnections; }
