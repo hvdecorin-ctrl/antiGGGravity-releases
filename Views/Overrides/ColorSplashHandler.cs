@@ -44,7 +44,7 @@ namespace antiGGGravity.Views.Overrides
                         CreateLegend(doc);
                         break;
                     case ColorSplashAction.CreateFilters:
-                        TaskDialog.Show("Filters", "Filter creation not yet fully implemented in C# port.");
+                        CreateFilters(doc, activeView);
                         break;
                 }
             }
@@ -200,9 +200,13 @@ namespace antiGGGravity.Views.Overrides
                     // 5. Create Entries
                     double y = 0;
                     double x = 0;
-                    double rowHeight = 0.5; // Feet? Text size dependent usually.
                     
-                    // Simple fixed spacing for now
+                    // Conversion: 1 mm = 0.00328084 feet
+                    double mmToFeet = 0.00328084;
+                    double boxWidth = 150.0 * mmToFeet;
+                    double boxHeight = 70.0 * mmToFeet;
+                    double textGap = 100.0 * mmToFeet;
+                    
                     XYZ origin = XYZ.Zero;
 
                     // Get Solid Fill Pattern Id for Overrides
@@ -215,17 +219,26 @@ namespace antiGGGravity.Views.Overrides
                     {
                         // Create Text
                         string text = $"{catItem.Name} / {paramItem.Name} - {valItem.Value}";
-                        TextNote note = TextNote.Create(doc, newLegend.Id, new XYZ(x + 2.0, y, 0), text, textType.Id); // Offset X element
+                        
+                        // Default Revit text origin is Top-Left but can vary.
+                        // Y = y is the top of the box. y - boxHeight is the bottom.
+                        // Center of the box mathematically is y - (boxHeight / 2)
+                        // Note: text height offsets slightly visually, so we might need a minor correction
+                        XYZ textPos = new XYZ(x + boxWidth + textGap, y - (boxHeight / 2) + (5.0 * mmToFeet), 0);
+                        
+                        TextNoteOptions options = new TextNoteOptions(textType.Id);
+                        options.HorizontalAlignment = HorizontalTextAlignment.Left;
+                        options.VerticalAlignment = VerticalTextAlignment.Middle;
+
+                        TextNote note = TextNote.Create(doc, newLegend.Id, textPos, text, options); 
                         
                         // Create Filled Region (Rectangle)
-                        // Needs CurveLoop
-                        double boxSize = 0.5;
                         List<CurveLoop> loops = new List<CurveLoop>();
                         CurveLoop loop = new CurveLoop();
-                        loop.Append(Line.CreateBound(new XYZ(x, y, 0), new XYZ(x + boxSize, y, 0)));
-                        loop.Append(Line.CreateBound(new XYZ(x + boxSize, y, 0), new XYZ(x + boxSize, y - boxSize, 0)));
-                        loop.Append(Line.CreateBound(new XYZ(x + boxSize, y - boxSize, 0), new XYZ(x, y - boxSize, 0)));
-                        loop.Append(Line.CreateBound(new XYZ(x, y - boxSize, 0), new XYZ(x, y, 0)));
+                        loop.Append(Line.CreateBound(new XYZ(x,            y,             0), new XYZ(x + boxWidth, y,             0)));
+                        loop.Append(Line.CreateBound(new XYZ(x + boxWidth, y,             0), new XYZ(x + boxWidth, y - boxHeight, 0)));
+                        loop.Append(Line.CreateBound(new XYZ(x + boxWidth, y - boxHeight, 0), new XYZ(x,            y - boxHeight, 0)));
+                        loop.Append(Line.CreateBound(new XYZ(x,            y - boxHeight, 0), new XYZ(x,            y,             0)));
                         loops.Add(loop);
 
                         FilledRegion region = FilledRegion.Create(doc, solidRegionType.Id, newLegend.Id, loops);
@@ -236,7 +249,7 @@ namespace antiGGGravity.Views.Overrides
                         if (solidFill != null) ogs.SetSurfaceForegroundPatternId(solidFill.Id);
                         newLegend.SetElementOverrides(region.Id, ogs);
 
-                        y -= (boxSize * 1.5);
+                        y -= (boxHeight * 1.5); // Add 50% spacing vertically between boxes
                     }
 
                     t.Commit();
@@ -262,6 +275,115 @@ namespace antiGGGravity.Views.Overrides
                  return t; 
             }
             return null; // Should handle creation if null
+        }
+
+        private void CreateFilters(Document doc, View view)
+        {
+            if (!(_view.UI_Combo_Category.SelectedItem is CategoryItem catItem) ||
+                !(_view.UI_List_Parameters.SelectedItem is ParameterItem paramItem))
+            {
+                TaskDialog.Show("Error", "Select category and parameter first.");
+                return;
+            }
+
+            using (Transaction t = new Transaction(doc, "Create Filters"))
+            {
+                t.Start();
+                try
+                {
+                    ElementId paramId = paramItem.Id;
+                    var catIdList = new List<ElementId> { catItem.Category.Id };
+
+                    var existingFilters = new FilteredElementCollector(doc)
+                        .OfClass(typeof(ParameterFilterElement))
+                        .Cast<ParameterFilterElement>()
+                        .ToList();
+
+                    var viewFilters = view.GetFilters();
+
+                    FillPatternElement solidFill = new FilteredElementCollector(doc)
+                        .OfClass(typeof(FillPatternElement))
+                        .Cast<FillPatternElement>()
+                        .FirstOrDefault(x => x.GetFillPattern().IsSolidFill);
+
+                    foreach (var valItem in _view.Values)
+                    {
+                        OverrideGraphicSettings ogs = new OverrideGraphicSettings();
+                        ogs.SetSurfaceForegroundPatternColor(valItem.RevitColor);
+                        ogs.SetCutForegroundPatternColor(valItem.RevitColor);
+                        if (solidFill != null)
+                        {
+                            ogs.SetSurfaceForegroundPatternId(solidFill.Id);
+                            ogs.SetCutForegroundPatternId(solidFill.Id);
+                        }
+
+                        // Sanitize filter name
+                        string filterName = $"{catItem.Name} {paramItem.Name} - {valItem.Value}";
+                        char[] invalidChars = { '{', '}', '[', ']', ':', '\\', '|', '?', '/', '<', '>', '*' };
+                        foreach (char c in invalidChars) { filterName = filterName.Replace(c.ToString(), ""); }
+
+                        ParameterFilterElement filterElement = existingFilters.FirstOrDefault(f => f.Name == filterName);
+
+                        if (filterElement != null)
+                        {
+                            if (!viewFilters.Contains(filterElement.Id))
+                            {
+                                view.AddFilter(filterElement.Id);
+                            }
+                            view.SetFilterOverrides(filterElement.Id, ogs);
+                        }
+                        else
+                        {
+                            // Create new filter
+                            FilterRule rule = null;
+                            if (paramItem.StorageType == StorageType.Double)
+                            {
+                                double val = 0;
+                                double.TryParse(valItem.Value, out val);
+                                rule = ParameterFilterRuleFactory.CreateEqualsRule(paramId, val, 0.001);
+                            }
+                            else if (paramItem.StorageType == StorageType.ElementId)
+                            {
+                                if (long.TryParse(valItem.Value, out long idAsLong))
+                                {
+                                    rule = ParameterFilterRuleFactory.CreateEqualsRule(paramId, new ElementId(idAsLong));
+                                }
+                                else
+                                {
+                                    rule = ParameterFilterRuleFactory.CreateEqualsRule(paramId, ElementId.InvalidElementId);
+                                }
+                            }
+                            else if (paramItem.StorageType == StorageType.Integer)
+                            {
+                                int val = 0;
+                                int.TryParse(valItem.Value, out val);
+                                rule = ParameterFilterRuleFactory.CreateEqualsRule(paramId, val);
+                            }
+                            else if (paramItem.StorageType == StorageType.String)
+                            {
+                                string val = valItem.Value == "<empty>" || valItem.Value == "<null>" ? "" : valItem.Value;
+                                rule = ParameterFilterRuleFactory.CreateEqualsRule(paramId, val);
+                            }
+
+                            if (rule != null)
+                            {
+                                ElementParameterFilter elemFilter = new ElementParameterFilter(rule);
+                                ParameterFilterElement newFilter = ParameterFilterElement.Create(doc, filterName, catIdList, elemFilter);
+                                existingFilters.Add(newFilter);
+                                view.AddFilter(newFilter.Id);
+                                view.SetFilterOverrides(newFilter.Id, ogs);
+                            }
+                        }
+                    }
+                    t.Commit();
+                    TaskDialog.Show("Success", "Filters created successfully!");
+                }
+                catch (Exception ex)
+                {
+                    t.RollBack();
+                    TaskDialog.Show("Error", "Failed to create filters: " + ex.Message);
+                }
+            }
         }
     }
 }

@@ -20,16 +20,44 @@ namespace antiGGGravity.Commands.VisibilityGraphic
 
             if (view == null) return Result.Failed;
 
-            // The reliable SetCategoryHidden method can directly use BuiltInCategory
-            using (var t = new Transaction(doc, "Toggle Category"))
+            // Get elements of the specific category currently visible in the view
+            var visibleIds = new FilteredElementCollector(doc, view.Id)
+                .OfCategory(Category)
+                .WhereElementIsNotElementType()
+                .ToElementIds()
+                .Where(id => doc.GetElement(id).CanBeHidden(view))
+                .ToList();
+
+            using (var t = new Transaction(doc, "Toggle Elements Visibility"))
             {
                 t.Start();
 
-                ElementId catId = new ElementId(Category);
-                if (view.CanCategoryBeHidden(catId))
+                if (visibleIds.Any())
                 {
-                    bool shouldHide = !view.GetCategoryHidden(catId);
-                    view.SetCategoryHidden(catId, shouldHide);
+                    // If any are visible, hide them all
+                    view.HideElements(visibleIds);
+                }
+                else
+                {
+                    // If none are visible, find all hidden elements of this category in the document
+                    // and try to unhide them in this view.
+                    var allCatElements = new FilteredElementCollector(doc)
+                        .OfCategory(Category)
+                        .WhereElementIsNotElementType();
+
+                    var hiddenIds = new List<ElementId>();
+                    foreach (var elem in allCatElements)
+                    {
+                        if (elem.IsHidden(view) && elem.CanBeHidden(view))
+                        {
+                            hiddenIds.Add(elem.Id);
+                        }
+                    }
+
+                    if (hiddenIds.Any())
+                    {
+                        view.UnhideElements(hiddenIds);
+                    }
                 }
 
                 t.Commit();

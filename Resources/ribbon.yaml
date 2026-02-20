@@ -153,6 +153,25 @@ panels:
                 command: ResetOverridesCommand
                 icon: ResetOverrides
 
+          - type: pulldown
+            name: Reset Filters
+            icon: RemoveFilters
+            tooltip: Enable, disable, or remove view filters.
+            buttons:
+              - name: Disable Filters
+                command: DisableFiltersCommand
+                icon: DisableFilters
+              
+              - name: Enable Filters
+                command: EnableFiltersCommand
+                icon: EnableFilters
+              
+              - separator: true
+              
+              - name: Remove Filters
+                command: RemoveFiltersCommand
+                icon: RemoveFilters
+
 
   # ============================================================
   # MANAGEMENT PANEL
@@ -283,6 +302,10 @@ panels:
             command: ToggleFramingCommand
             icon: ToggleFraming
 
+          - name: Toggle Roof
+            command: ToggleRoofsCommand
+            icon: ToggleRoofs
+
           - name: Toggle Rebar
             command: ToggleRebarCommand
             icon: ToggleRebar
@@ -308,6 +331,13 @@ panels:
 
           - separator: true
 
+          # --- View Toggles ---
+          - name: Toggle Scope Box
+            command: ToggleScopeBoxesCommand
+            icon: ToggleScopeBox
+
+          - separator: true
+
           # --- Link Toggles ---
           - name: Toggle CAD Links
             command: ToggleCadLinksCommand
@@ -316,17 +346,6 @@ panels:
           - name: Toggle Revit Links
             command: ToggleLinksCommand
             icon: ToggleLinks
-
-          - separator: true
-
-          # --- View Toggles ---
-          - name: Toggle Section Box
-            command: ToggleSectionBoxesCommand
-            icon: ToggleSectionBoxes
-
-          - name: Toggle Scope Box
-            command: ToggleScopeBoxesCommand
-            icon: ToggleScopeBox
 
   # ============================================================
   # REBAR PANEL

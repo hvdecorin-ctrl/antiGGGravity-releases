@@ -169,6 +169,72 @@ namespace antiGGGravity.Commands.Overrides
     }
 
     [Transaction(TransactionMode.Manual)]
+    public class DisableFiltersCommand : IExternalCommand
+    {
+        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        {
+            Document doc = commandData.Application.ActiveUIDocument.Document;
+            View activeView = doc.ActiveView;
+
+            using (Transaction t = new Transaction(doc, "Disable Filters"))
+            {
+                t.Start();
+                foreach (ElementId filterId in activeView.GetFilters())
+                {
+                    activeView.SetIsFilterEnabled(filterId, false);
+                }
+                t.Commit();
+            }
+
+            return Result.Succeeded;
+        }
+    }
+
+    [Transaction(TransactionMode.Manual)]
+    public class EnableFiltersCommand : IExternalCommand
+    {
+        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        {
+            Document doc = commandData.Application.ActiveUIDocument.Document;
+            View activeView = doc.ActiveView;
+
+            using (Transaction t = new Transaction(doc, "Enable Filters"))
+            {
+                t.Start();
+                foreach (ElementId filterId in activeView.GetFilters())
+                {
+                    activeView.SetIsFilterEnabled(filterId, true);
+                }
+                t.Commit();
+            }
+
+            return Result.Succeeded;
+        }
+    }
+
+    [Transaction(TransactionMode.Manual)]
+    public class RemoveFiltersCommand : IExternalCommand
+    {
+        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        {
+            Document doc = commandData.Application.ActiveUIDocument.Document;
+            View activeView = doc.ActiveView;
+
+            using (Transaction t = new Transaction(doc, "Remove Filters"))
+            {
+                t.Start();
+                foreach (ElementId filterId in activeView.GetFilters())
+                {
+                    activeView.RemoveFilter(filterId);
+                }
+                t.Commit();
+            }
+
+            return Result.Succeeded;
+        }
+    }
+
+    [Transaction(TransactionMode.Manual)]
     public class MatchOverridesCommand : IExternalCommand
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)

@@ -107,7 +107,7 @@ namespace antiGGGravity.Views.Overrides
                 {
                     if (p.StorageType != StorageType.None && !uniqueParams.ContainsKey(p.Definition.Name))
                     {
-                        uniqueParams.Add(p.Definition.Name, new ParameterItem { Name = p.Definition.Name, StorageType = p.StorageType, Definition = p.Definition });
+                        uniqueParams.Add(p.Definition.Name, new ParameterItem { Name = p.Definition.Name, StorageType = p.StorageType, Definition = p.Definition, Id = p.Id });
                     }
                 }
 
@@ -119,7 +119,7 @@ namespace antiGGGravity.Views.Overrides
                     {
                         if (p.StorageType != StorageType.None && !uniqueParams.ContainsKey(p.Definition.Name))
                         {
-                            uniqueParams.Add(p.Definition.Name, new ParameterItem { Name = p.Definition.Name, StorageType = p.StorageType, Definition = p.Definition, IsTypeParameter = true });
+                            uniqueParams.Add(p.Definition.Name, new ParameterItem { Name = p.Definition.Name, StorageType = p.StorageType, Definition = p.Definition, IsTypeParameter = true, Id = p.Id });
                         }
                     }
                 }
@@ -276,6 +276,7 @@ namespace antiGGGravity.Views.Overrides
         public StorageType StorageType { get; set; }
         public Definition Definition { get; set; }
         public bool IsTypeParameter { get; set; }
+        public ElementId Id { get; set; }
     }
 
     public class ValueItem : System.ComponentModel.INotifyPropertyChanged
