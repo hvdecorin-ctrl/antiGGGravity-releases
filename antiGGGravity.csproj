@@ -35,8 +35,9 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <!-- Set to false to avoid locked file errors when Revit is open -->
-    <DeployToRevit Condition="'$(DeployToRevit)' == ''">false</DeployToRevit>
+    <!-- Set to true to automatically copy files to Revit Addins folder -->
+    <!-- We set default to true so F5 always tries to update your Revit -->
+    <DeployToRevit Condition="'$(DeployToRevit)' == ''">true</DeployToRevit>
   </PropertyGroup>
 
   <!-- Post-Build Event for Automatic Revit Installation -->
