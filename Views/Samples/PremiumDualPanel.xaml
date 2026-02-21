@@ -1,0 +1,89 @@
+<Window x:Class="antiGGGravity.Views.Samples.PremiumDualPanel"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Premium Dual Panel" Height="450" Width="650"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        WindowStartupLocation="CenterScreen" Topmost="True">
+    
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="70" CornerRadius="12" GlassFrameThickness="0"/>
+    </WindowChrome.WindowChrome>
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/antiGGGravity;component/Resources/Pre_BrandStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Border Style="{StaticResource PremiumBorderStyle}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="70"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Border Grid.Row="0" Background="{StaticResource BrandGradientBrush}" CornerRadius="12,12,0,0">
+                <Grid Margin="25,0">
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="PREMIUM TOOL" Style="{StaticResource PremiumTitleStyle}"/>
+                        <TextBlock Text="Dual Panel Standard Layout" Style="{StaticResource PremiumSubtitleStyle}"/>
+                    </StackPanel>
+                    <Button HorizontalAlignment="Right" VerticalAlignment="Center" Content="✕" 
+                            Style="{StaticResource PremiumIconButtonStyle}" Width="30" Height="30"
+                            Click="Close_Click" WindowChrome.IsHitTestVisibleInChrome="True"/>
+                </Grid>
+            </Border>
+
+            <!-- Content -->
+            <Grid Grid.Row="1" Margin="25">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Left Panel -->
+                <Grid Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Left Controls" Style="{StaticResource PremiumSectionLabelStyle}"/>
+                    <Border Grid.Row="1" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="1" CornerRadius="8" Background="#FAFAFA">
+                        <TextBlock Text="List or Settings" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#A0A0A0"/>
+                    </Border>
+                </Grid>
+
+                <!-- Vertical Divider -->
+                <Rectangle Grid.Column="1" Fill="#EAEAEA" Width="1" Margin="0,30" HorizontalAlignment="Center"/>
+
+                <!-- Right Panel -->
+                <Grid Grid.Column="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Right Controls" Style="{StaticResource PremiumSectionLabelStyle}"/>
+                    <Border Grid.Row="1" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="1" CornerRadius="8" Background="#FAFAFA">
+                        <TextBlock Text="Preview or Actions" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#A0A0A0"/>
+                    </Border>
+                </Grid>
+            </Grid>
+
+            <!-- Footer -->
+            <Border Grid.Row="2" Padding="20,15" Background="#FAFAFA" CornerRadius="0,0,12,12" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,1,0,0">
+                <Grid>
+                    <TextBlock Text="2 items selected" VerticalAlignment="Center" Foreground="#999999"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Reset" Click="Close_Click" Style="{StaticResource PremiumPrimaryButtonStyle}" Margin="0,0,10,0"/>
+                        <Button Content="Execute All" Style="{StaticResource PremiumActionButtonStyle}" Width="120"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

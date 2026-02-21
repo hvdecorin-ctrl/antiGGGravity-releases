@@ -12,17 +12,17 @@ namespace antiGGGravity.Views.Samples
 
         private void BtnSingle_Click(object sender, RoutedEventArgs e)
         {
-            new SinglePanelSample().Show();
+            new PremiumSinglePanel().Show();
         }
 
         private void BtnDual_Click(object sender, RoutedEventArgs e)
         {
-            new DualPanelSample().Show();
+            new PremiumDualPanel().Show();
         }
 
         private void BtnTriple_Click(object sender, RoutedEventArgs e)
         {
-            new TriplePanelSample().Show();
+            new PremiumTriplePanel().Show();
         }
 
         private void BtnClose_Click(object sender, RoutedEventArgs e)

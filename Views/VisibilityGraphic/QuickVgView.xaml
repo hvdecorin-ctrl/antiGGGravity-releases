@@ -19,7 +19,7 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/antiGGGravity;component/Resources/BrandStyles.xaml"/>
+                <ResourceDictionary Source="/antiGGGravity;component/Resources/Pre_BrandStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             
             <DataTemplate x:Key="CategoryItemTemplate">
@@ -43,7 +43,7 @@
         </ResourceDictionary>
     </Window.Resources>
 
-    <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Background="White" CornerRadius="12">
+    <Border BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="1" Background="White" CornerRadius="12">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="70"/> <!-- Header -->
@@ -55,12 +55,11 @@
             <Border Grid.Row="0" Background="{StaticResource BrandGradientBrush}" CornerRadius="12,12,0,0">
                 <Grid Margin="25,0">
                     <StackPanel VerticalAlignment="Center" IsHitTestVisible="False">
-                        <TextBlock Text="Quick VG" Foreground="White" FontSize="18" FontWeight="Bold"/>
-                        <TextBlock Text="Category Visibility Manager" Foreground="#E0E0E0" FontSize="12"/>
+                        <TextBlock Text="Quick VG" Style="{StaticResource PremiumTitleStyle}"/>
+                        <TextBlock Text="Category Visibility Manager" Style="{StaticResource PremiumSubtitleStyle}"/>
                     </StackPanel>
                     <Button HorizontalAlignment="Right" VerticalAlignment="Center" 
-                            Style="{StaticResource PrimaryButtonStyle}" Width="30" Height="30" Content="✕" 
-                            Background="Transparent" BorderThickness="0" Foreground="White" FontSize="16"
+                            Style="{StaticResource PremiumIconButtonStyle}" Width="30" Height="30" Content="✕" 
                             Click="Close_Click" WindowChrome.IsHitTestVisibleInChrome="True"/>
                 </Grid>
             </Border>
@@ -82,9 +81,9 @@
                         <RowDefinition Height="*"/>    <!-- List -->
                     </Grid.RowDefinitions>
                     
-                    <TextBlock Text="Structural" Style="{StaticResource SectionLabelStyle}" Margin="0,0,0,10"/>
+                    <TextBlock Text="Structural" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,0,0,10"/>
                     
-                    <Border Grid.Row="1" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4" Margin="0,0,0,10" Background="White">
+                    <Border Grid.Row="1" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="1" CornerRadius="4" Margin="0,0,0,10" Background="White">
                         <Grid>
                             <TextBlock Text="Search Structural..." Foreground="#A0A0A0" Margin="10,0" VerticalAlignment="Center" IsHitTestVisible="False">
                                 <TextBlock.Style>
@@ -130,9 +129,9 @@
                         <RowDefinition Height="*"/>    <!-- List -->
                     </Grid.RowDefinitions>
                     
-                    <TextBlock Text="Coordinate" Style="{StaticResource SectionLabelStyle}" Margin="0,0,0,10"/>
+                    <TextBlock Text="Coordinate" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,0,0,10"/>
                     
-                    <Border Grid.Row="1" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4" Margin="0,0,0,10" Background="White">
+                    <Border Grid.Row="1" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="1" CornerRadius="4" Margin="0,0,0,10" Background="White">
                         <Grid>
                             <TextBlock Text="Search Coordinate..." Foreground="#A0A0A0" Margin="10,0" VerticalAlignment="Center" IsHitTestVisible="False">
                                 <TextBlock.Style>
@@ -168,10 +167,10 @@
             </Grid>
 
             <!-- Footer -->
-            <Border Grid.Row="2" Padding="20,15" Background="#FAFAFA" CornerRadius="0,0,12,12" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0">
+            <Border Grid.Row="2" Padding="20,15" Background="#FAFAFA" CornerRadius="0,0,12,12" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,1,0,0">
                 <Grid>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button Content="Apply" Click="Apply_Click" Style="{StaticResource PrimaryButtonStyle}" Width="85" Height="32" IsDefault="True"/>
+                        <Button Content="Apply" Click="Apply_Click" Style="{StaticResource PremiumActionButtonStyle}" Width="85" Height="32" IsDefault="True"/>
                     </StackPanel>
                 </Grid>
             </Border>
