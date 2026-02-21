@@ -203,9 +203,9 @@ namespace antiGGGravity.Views.Overrides
                     
                     // Conversion: 1 mm = 0.00328084 feet
                     double mmToFeet = 0.00328084;
-                    double boxWidth = 150.0 * mmToFeet;
-                    double boxHeight = 70.0 * mmToFeet;
-                    double textGap = 100.0 * mmToFeet;
+                    double boxWidth = 120.0 * mmToFeet;
+                    double boxHeight = 60.0 * mmToFeet;
+                    double textGap = 50.0 * mmToFeet;
                     
                     XYZ origin = XYZ.Zero;
 

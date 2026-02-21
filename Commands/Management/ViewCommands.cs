@@ -6,7 +6,7 @@ using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using antiGGGravity.Views.Views;
 
-namespace antiGGGravity.Commands.Views
+namespace antiGGGravity.Commands.Management
 {
     // ===================================================================================
     // SET CROP VIEW

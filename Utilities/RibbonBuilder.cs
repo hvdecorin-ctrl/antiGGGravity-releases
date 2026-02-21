@@ -88,9 +88,17 @@ namespace antiGGGravity.Utilities
                 itemConfigs.Add(btn);
             }
 
-            // AddStackedItems requires 2 or 3 items
+            // AddStackedItems requires 2 or 3 items. If only 1, add as a standard item.
             IList<RibbonItem> items = null;
-            if (buttonDataList.Count == 2)
+            if (buttonDataList.Count == 1)
+            {
+                var ribbonItem = panel.AddItem(buttonDataList[0]);
+                if (ribbonItem is PulldownButton pulldown && itemConfigs[0].Type?.ToLower() == "pulldown")
+                {
+                    PopulatePulldown(pulldown, itemConfigs[0], panelName);
+                }
+            }
+            else if (buttonDataList.Count == 2)
             {
                 items = panel.AddStackedItems(buttonDataList[0], buttonDataList[1]);
             }

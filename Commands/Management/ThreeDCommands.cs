@@ -6,7 +6,7 @@ using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using antiGGGravity.Views.ThreeD;
 
-namespace antiGGGravity.Commands.ThreeD
+namespace antiGGGravity.Commands.Management
 {
     // ===================================================================================
     // AUTO 3D VIEW
@@ -110,20 +110,93 @@ namespace antiGGGravity.Commands.ThreeD
                 t.Start();
                 if (view3D.IsSectionBoxActive)
                 {
-                    // Save state would go here (omitted for brevity/complexity of finding storage)
-                    // Just turn off
+                    SaveSectionBox(view3D);
                     view3D.IsSectionBoxActive = false;
                 }
                 else
                 {
-                    // Turn on
+                    // Must activate first, then set bounds
                     view3D.IsSectionBoxActive = true;
-                    // Ideally restore saved state
+                    LoadSectionBox(view3D);
                 }
                 t.Commit();
             }
 
             return Result.Succeeded;
+        }
+
+        private string GetConfigFilePath()
+        {
+            string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            string pyRevitFolder = System.IO.Path.Combine(appData, "pyRevit");
+            if (!System.IO.Directory.Exists(pyRevitFolder))
+            {
+                System.IO.Directory.CreateDirectory(pyRevitFolder);
+            }
+            return System.IO.Path.Combine(pyRevitFolder, "antiGGGravity_Toggle3D.json");
+        }
+
+        private void SaveSectionBox(View3D view)
+        {
+            BoundingBoxXYZ bbox = view.GetSectionBox();
+            if (bbox == null) return;
+
+            Transform t = bbox.Transform ?? Transform.Identity;
+            
+            var data = new System.Collections.Generic.Dictionary<string, object>
+            {
+                { "view_id", view.Id.Value },
+                { "min_x", bbox.Min.X }, { "min_y", bbox.Min.Y }, { "min_z", bbox.Min.Z },
+                { "max_x", bbox.Max.X }, { "max_y", bbox.Max.Y }, { "max_z", bbox.Max.Z },
+                { "origin_x", t.Origin.X }, { "origin_y", t.Origin.Y }, { "origin_z", t.Origin.Z },
+                { "basis_x_x", t.BasisX.X }, { "basis_x_y", t.BasisX.Y }, { "basis_x_z", t.BasisX.Z },
+                { "basis_y_x", t.BasisY.X }, { "basis_y_y", t.BasisY.Y }, { "basis_y_z", t.BasisY.Z },
+                { "basis_z_x", t.BasisZ.X }, { "basis_z_y", t.BasisZ.Y }, { "basis_z_z", t.BasisZ.Z }
+            };
+
+            try
+            {
+                string json = System.Text.Json.JsonSerializer.Serialize(data);
+                System.IO.File.WriteAllText(GetConfigFilePath(), json);
+            }
+            catch { }
+        }
+
+        private void LoadSectionBox(View3D view)
+        {
+            string path = GetConfigFilePath();
+            if (!System.IO.File.Exists(path)) return;
+
+            try
+            {
+                string json = System.IO.File.ReadAllText(path);
+                var data = System.Text.Json.JsonSerializer.Deserialize<System.Collections.Generic.Dictionary<string, System.Text.Json.JsonElement>>(json);
+
+                if (data == null || !data.ContainsKey("view_id")) return;
+
+                // Check if this saved box belongs to the current view
+                long savedViewId = data["view_id"].GetInt64();
+                if (savedViewId != view.Id.Value) return;
+
+                XYZ origin = new XYZ(data["origin_x"].GetDouble(), data["origin_y"].GetDouble(), data["origin_z"].GetDouble());
+                XYZ basisX = new XYZ(data["basis_x_x"].GetDouble(), data["basis_x_y"].GetDouble(), data["basis_x_z"].GetDouble());
+                XYZ basisY = new XYZ(data["basis_y_x"].GetDouble(), data["basis_y_y"].GetDouble(), data["basis_y_z"].GetDouble());
+                XYZ basisZ = new XYZ(data["basis_z_x"].GetDouble(), data["basis_z_y"].GetDouble(), data["basis_z_z"].GetDouble());
+
+                Transform t = Transform.Identity;
+                t.Origin = origin;
+                t.BasisX = basisX;
+                t.BasisY = basisY;
+                t.BasisZ = basisZ;
+
+                BoundingBoxXYZ bbox = new BoundingBoxXYZ();
+                bbox.Transform = t;
+                bbox.Min = new XYZ(data["min_x"].GetDouble(), data["min_y"].GetDouble(), data["min_z"].GetDouble());
+                bbox.Max = new XYZ(data["max_x"].GetDouble(), data["max_y"].GetDouble(), data["max_z"].GetDouble());
+
+                view.SetSectionBox(bbox);
+            }
+            catch { }
         }
     }
 

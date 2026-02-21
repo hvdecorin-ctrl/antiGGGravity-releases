@@ -3,7 +3,7 @@ using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using antiGGGravity.Views.Samples;
 
-namespace antiGGGravity.Commands.Samples
+namespace antiGGGravity.Commands.AntiGravity
 {
     [Transaction(TransactionMode.Manual)]
     public class UiSamplesCommand : IExternalCommand

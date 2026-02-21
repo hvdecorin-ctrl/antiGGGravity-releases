@@ -69,11 +69,11 @@
                          </Grid.ColumnDefinitions>
                          <StackPanel Grid.Column="0">
                              <TextBlock Text="Width" Foreground="{StaticResource SubtitleBrush}"/>
-                             <TextBox x:Name="UI_Txt_Width" Text="1000" Height="26" VerticalContentAlignment="Center" Padding="5,0"/>
+                             <TextBox x:Name="UI_Txt_Width" Text="1200" Height="26" VerticalContentAlignment="Center" Padding="5,0"/>
                          </StackPanel>
                          <StackPanel Grid.Column="2">
                              <TextBlock Text="Height" Foreground="{StaticResource SubtitleBrush}"/>
-                             <TextBox x:Name="UI_Txt_Height" Text="500" Height="26" VerticalContentAlignment="Center" Padding="5,0"/>
+                             <TextBox x:Name="UI_Txt_Height" Text="600" Height="26" VerticalContentAlignment="Center" Padding="5,0"/>
                          </StackPanel>
                      </Grid>
                      

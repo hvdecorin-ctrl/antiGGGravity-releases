@@ -16,12 +16,13 @@ panels:
   # ============================================================
   - name: Project Audit
     items:
+      # --- Column 1 ---
       - type: pushbutton
         name: Project Folder
         command: OpenProjectFolderCommand
         icon: ProjectFolder
         tooltip: Open the folder containing the central model.
-
+      # --- Column 2 ---
       - type: pulldown
         name: Audit
         icon: ProjectAudit
@@ -50,7 +51,7 @@ panels:
           - name: Drafter Text On
             command: DrafterTextOnCommand
             icon: DrafterTextOn
-
+      # --- Column 3 ---
       - type: pulldown
         name: Family Load
         icon: FamilyLoad
@@ -73,12 +74,13 @@ panels:
   # ============================================================
   - name: Overrides
     items:
+      # --- Column 1 ---
       - type: pushbutton
         name: Color Splasher
         command: ColorSplashCommand
         icon: ColorSplasher
         tooltip: Visualize parameter values with color overrides.
-
+      # --- Column 2 ---
       - type: stacked
         buttons:
           - type: pulldown
@@ -118,7 +120,7 @@ panels:
               - name: Style 4 (Green/Solid)
                 command: Style4Command
                 icon: Style4
-
+      # --- Column 3 ---
       - type: stacked
         buttons:
           - type: pulldown
@@ -178,6 +180,7 @@ panels:
   # ============================================================
   - name: Management
     items:
+      # --- Column 1 ---
       - type: stacked
         buttons:
           - type: pulldown
@@ -218,7 +221,7 @@ panels:
               - name: Duplicate Sheets
                 command: DuplicateSheetsCommand
                 icon: DuplicateSheets
-
+      # --- Column 2 ---
       - type: stacked
         buttons:
           - name: Set Crop View
@@ -232,7 +235,7 @@ panels:
           - name: Zoom To
             command: ZoomToSelectionCommand
             icon: ZoomTo
-
+      # --- Column 3 ---
       - type: stacked
         buttons:
           - name: Auto 3D
@@ -246,7 +249,7 @@ panels:
           - name: Toggle Sectbox
             command: ToggleSectionBoxVisibilityCommand
             icon: ToggleSectionBox
-
+      # --- Column 4 ---
       - name: Align Schematic
         command: AlignSchematicCommand
         icon: AlignSchematic
@@ -257,6 +260,7 @@ panels:
   # ============================================================
   - name: Visibility Graphic
     items:
+      # --- Column 1 ---
       - type: pulldown
         name: Visibility
         icon: Visibility
@@ -306,13 +310,13 @@ panels:
             command: ToggleRoofsCommand
             icon: ToggleRoofs
 
-          - name: Toggle Rebar
-            command: ToggleRebarCommand
-            icon: ToggleRebar
-
           - name: Toggle Connections
             command: ToggleConnectionsCommand
             icon: ToggleConnections
+
+          - name: Toggle Rebar
+            command: ToggleRebarCommand
+            icon: ToggleRebar
 
           - separator: true
 
@@ -329,9 +333,6 @@ panels:
             command: ToggleRefPlanesCommand
             icon: ToggleRefPlanes
 
-          - separator: true
-
-          # --- View Toggles ---
           - name: Toggle Scope Box
             command: ToggleScopeBoxesCommand
             icon: ToggleScopeBox
@@ -347,12 +348,19 @@ panels:
             command: ToggleLinksCommand
             icon: ToggleLinks
 
+      # --- Column 2 ---
+      - type: pushbutton
+        name: Quick VG
+        command: QuickVgCommand
+        icon: QuickVG
+        tooltip: Open the Quick Visibility Graphic manager to batch toggle categories.
+
   # ============================================================
   # REBAR PANEL
   # ============================================================
   - name: Rebar
     items:
-      # --- Selection Pulldown ---
+      # --- Column 1 ---
       - type: pulldown
         name: Selection
         icon: RebarSelection
@@ -385,8 +393,7 @@ panels:
           - name: Select & Delete Rebar By Host
             command: SelectDeleteRebarCommand
             icon: SelectDeleteRebar
-
-      # --- Setting Pulldown ---
+      # --- Column 2 ---
       - type: pulldown
         name: Setting
         icon: RebarSetting
@@ -405,8 +412,7 @@ panels:
           - name: Show Rebar By Host Only
             command: ShowRebarByHostOnlyCommand
             icon: ShowRebarByHostOnly
-
-      # --- Reinforcing Pulldown ---
+      # --- Column 3 ---
       - type: pulldown
         name: Reinforcing
         icon: RebarReinforcing
@@ -445,7 +451,7 @@ panels:
   # ============================================================
   - name: General
     items:
-      # --- Column 2: Joins ---
+      # --- Column 1 ---
       - type: stacked
         buttons:
           - type: pulldown
@@ -473,8 +479,7 @@ panels:
           - name: Beam Reset
             command: BeamResetCommand
             icon: BeamReset
-
-      # --- Column 3: Advanced Process ---
+      # --- Column 2 ---
       - type: stacked
         buttons:
           - name: Join Geometry
@@ -491,8 +496,7 @@ panels:
               - name: Grid 3D & 2D
                 command: Grid3D2DCommand
                 icon: Grid3D2D
-
-      # --- Column 4: Quick Actions ---
+      # --- Column 3 ---
       - type: stacked
         buttons:
           - name: Flip Elements
@@ -513,8 +517,7 @@ panels:
               - name: Filters Legend
                 command: ViewFiltersLegendCommand
                 icon: ViewFiltersLegend
-
-      # --- Column 5: Geometry & Walls ---
+      # --- Column 4 ---
       - type: stacked
         buttons:
           - name: Rotate Multiple
@@ -554,8 +557,7 @@ panels:
               - name: Modify Constraints
                 command: ModifyWallConstraintsCommand
                 icon: ModifyWallConstraints
-
-      # --- Column 6: Selection ---
+      # --- Column 5 ---
       - type: splitpushbutton
         name: Pick
         icon: Pick
@@ -566,36 +568,43 @@ panels:
   # ============================================================
   - name: Model
     items:
-      - type: pulldown
-        name: Bracing
-        icon: Bracing
-        tooltip: Structural bracing creation tools.
+      # --- Column 1 ---
+      - type: stacked
         buttons:
           - name: Roof Framing
             command: RoofFramingCommand
             icon: RoofFraming
             tooltip: Generate purlins and rafters on roof/slab faces.
 
-          - name: H-Frame
-            command: HFrameCommand
-            icon: HFrame
-            tooltip: Create parallel horizontal braces (multi-brace).
-          
-          - name: K-Brace
-            command: KBraceCommand
-            icon: KBrace
-            tooltip: Create K-shaped (V-shaped) bracing with apex.
-          
-          - name: X-Brace
-            command: XBraceCommand
-            icon: XBrace
-            tooltip: Create crossed structural bracing.
+      # --- Column 2 ---
+      - type: stacked
+        buttons:
+          - type: pulldown
+            name: Bracing
+            icon: Bracing
+            tooltip: Structural bracing creation tools.
+            buttons:
+              - name: X-Brace
+                command: XBraceCommand
+                icon: XBrace
+                tooltip: Create crossed structural bracing.
+              
+              - name: K-Brace
+                command: KBraceCommand
+                icon: KBrace
+                tooltip: Create K-shaped (V-shaped) bracing with apex.
+
+              - name: H-Frame
+                command: HFrameCommand
+                icon: HFrame
+                tooltip: Create parallel horizontal braces (multi-brace).
 
   # ============================================================
   # ANTIGRAVITY PANEL
   # ============================================================
   - name: AntiGravity
     items:
+      # --- Column 1 ---
       - type: stacked
         buttons:
           - name: Hardware ID
@@ -612,7 +621,7 @@ panels:
             command: InspectResourcesCommand
             icon: InspectResources
             tooltip: Debug tool to list embedded resources.
-
+      # --- Column 2 ---
       - type: pushbutton
         name: UI Samples
         command: UiSamplesCommand

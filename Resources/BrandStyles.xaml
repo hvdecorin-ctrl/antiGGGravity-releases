@@ -50,7 +50,7 @@
 
     <!-- Brand Title Style -->
     <Style x:Key="BrandTitleStyle" TargetType="TextBlock">
-        <Setter Property="Text" Value="antiGGGravity"/>
+        <Setter Property="Text" Value="antiGravity"/>
         <Setter Property="FontSize" Value="18"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="VerticalAlignment" Value="Center"/>

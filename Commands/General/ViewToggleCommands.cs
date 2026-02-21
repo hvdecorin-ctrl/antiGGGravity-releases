@@ -211,9 +211,8 @@ namespace antiGGGravity.Commands.General
             double mmToFeet = 1.0 / 304.8;
             double w = w_mm * mmToFeet * scale;
             double h = h_mm * mmToFeet * scale;
-            // Increase text offset to avoid clashing (User input: "too close")
-            // 50mm seems reasonable for a 1000mm box.
-            double text_offset = 50.0 * mmToFeet * scale; 
+            // Set text offset to match vertical offset (offset_mm)
+            double text_offset = offset_mm * mmToFeet * scale; 
             double shift = (offset_mm + h_mm) * mmToFeet * scale;
 
             // Geometry Helpers
