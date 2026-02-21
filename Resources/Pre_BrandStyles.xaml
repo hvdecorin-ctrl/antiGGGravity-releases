@@ -17,11 +17,45 @@
     <!-- Original Border Brush -->
     <SolidColorBrush x:Key="PremiumBorderBrush" Color="#E5E5E5"/>
 
-    <!-- Typography (Restored from QuickVG Header & Labels) -->
-    <Style x:Key="PremiumTitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="18"/>
+    <!-- ============================================================ -->
+    <!-- COMPANY IDENTITY — Change these to rebrand everything        -->
+    <!-- ============================================================ -->
+    <system:String x:Key="CompanyName" xmlns:system="clr-namespace:System;assembly=mscorlib">antiGGGravity</system:String>
+
+    <!-- Company Logo TextBlock Style (shown top-left in gradient headers) -->
+    <Style x:Key="CompanyLogoStyle" TargetType="TextBlock">
+        <Setter Property="Text" Value="antiGGGravity"/>
+        <Setter Property="FontSize" Value="18"/>    <!-- Company name: Anchor size -->
         <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Foreground" Value="#FFF8E8"/>  <!-- Warm white: bridges blue-to-gold gradient -->
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Opacity" Value="1.0"/>
+    </Style>
+
+    <!-- Company Pipe Divider (between logo and tool name) -->
+    <Style x:Key="CompanyDividerStyle" TargetType="TextBlock">
+        <Setter Property="Text" Value="|"/>
+        <Setter Property="FontSize" Value="18"/>
+        <Setter Property="Foreground" Value="#80FFFFFF"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Margin" Value="12,0"/>
+        <Setter Property="FontWeight" Value="Thin"/>
+    </Style>
+
+    <!-- Company Footer Label -->
+    <Style x:Key="CompanyFooterStyle" TargetType="TextBlock">
+        <Setter Property="Text" Value="antiGGGravity"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="Foreground" Value="#AAAAAA"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="FontStyle" Value="Italic"/>
+    </Style>
+
+    <!-- Typography (Tool title — smaller than company name) -->
+    <Style x:Key="PremiumTitleStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="14"/>    <!-- 14/18 = 0.78 hierarchy ratio vs company name -->
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="#E0EFFF"/>  <!-- Cool blue-white: contrasts with warm company name -->
     </Style>
 
     <Style x:Key="PremiumSubtitleStyle" TargetType="TextBlock">

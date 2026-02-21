@@ -28,9 +28,13 @@
             <!-- Header -->
             <Border Grid.Row="0" Background="{StaticResource BrandGradientBrush}" CornerRadius="12,12,0,0">
                 <Grid Margin="25,0">
-                    <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="PREMIUM TOOL" Style="{StaticResource PremiumTitleStyle}"/>
-                        <TextBlock Text="Single Panel Standard Layout" Style="{StaticResource PremiumSubtitleStyle}"/>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource CompanyLogoStyle}"/>
+                        <TextBlock Style="{StaticResource CompanyDividerStyle}"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="PREMIUM TOOL" Style="{StaticResource PremiumTitleStyle}"/>
+                            <TextBlock Text="Single Panel Standard Layout" Style="{StaticResource PremiumSubtitleStyle}"/>
+                        </StackPanel>
                     </StackPanel>
                     <Button HorizontalAlignment="Right" VerticalAlignment="Center" Content="✕" 
                             Style="{StaticResource PremiumIconButtonStyle}" Width="30" Height="30"
