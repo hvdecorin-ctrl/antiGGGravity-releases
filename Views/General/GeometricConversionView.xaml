@@ -2,63 +2,75 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Geometric Conversion" Height="450" Width="380"
-        WindowStartupLocation="CenterScreen" Background="{DynamicResource WindowBackgroundBrush}"
-        ResizeMode="NoResize" ShowInTaskbar="False">
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize" ShowInTaskbar="False" Topmost="True">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="70" CornerRadius="12" GlassFrameThickness="0"/>
+    </WindowChrome.WindowChrome>
 
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/antiGGGravity;component/Resources/BrandStyles.xaml"/>
+                <ResourceDictionary Source="/antiGGGravity;component/Resources/Pre_BrandStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
     
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="{DynamicResource HeaderHeight}"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="{DynamicResource FooterHeight}"/>
-        </Grid.RowDefinitions>
+    <Border Style="{StaticResource PremiumBorderStyle}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="70"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <!-- Header -->
-        <Border Grid.Row="0" Background="White" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="{DynamicResource HeaderPadding}">
-                <TextBlock Style="{StaticResource BrandTitleStyle}"/>
-                <Rectangle Width="2" Height="24" Fill="{DynamicResource SeparatorBrush}" Margin="15,0" VerticalAlignment="Center"/>
-                <TextBlock x:Name="UI_Title" Text="Convert Regions" Style="{StaticResource BrandSubtitleStyle}"/>
-            </StackPanel>
-        </Border>
+            <!-- Header -->
+            <Border Grid.Row="0" Background="{StaticResource BrandGradientBrush}" CornerRadius="12,12,0,0">
+                <Grid Margin="25,0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource CompanyLogoStyle}"/>
+                        <TextBlock Style="{StaticResource CompanyDividerStyle}"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Geometric Conversion" Style="{StaticResource PremiumTitleStyle}"/>
+                            <TextBlock x:Name="UI_Title" Text="Convert Regions" Style="{StaticResource PremiumSubtitleStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <Button HorizontalAlignment="Right" VerticalAlignment="Center" Content="✕" 
+                            Style="{StaticResource PremiumIconButtonStyle}" Width="30" Height="30"
+                            Click="UI_Btn_Cancel_Click" WindowChrome.IsHitTestVisibleInChrome="True"/>
+                </Grid>
+            </Border>
 
-        <!-- Content -->
-        <StackPanel Grid.Row="1" Margin="{DynamicResource ContentMargin}">
-            <TextBlock x:Name="UI_Label_Type" Text="Select Type:" Style="{StaticResource SectionLabelStyle}"/>
-            <ComboBox x:Name="UI_Combo_Type" Height="30" Margin="0,0,0,20"/>
+            <!-- Content -->
+            <StackPanel Grid.Row="1" Margin="25">
+                <TextBlock x:Name="UI_Label_Type" Text="Select Type:" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,0,0,8"/>
+                <ComboBox x:Name="UI_Combo_Type" Height="32" Margin="0,0,0,20" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0"/>
 
-            <TextBlock Text="Select Level:" Style="{StaticResource SectionLabelStyle}"/>
-            <ComboBox x:Name="UI_Combo_Level" Height="30" Margin="0,0,0,20"/>
+                <TextBlock Text="Select Level:" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,0,0,8"/>
+                <ComboBox x:Name="UI_Combo_Level" Height="32" Margin="0,0,0,20" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0"/>
 
-            <TextBlock Text="Height Offset (mm):" Style="{StaticResource SectionLabelStyle}"/>
-            <TextBox x:Name="UI_Text_Offset" Text="0" Style="{StaticResource FilterTextBoxStyle}"/>
-            
-            <TextBlock x:Name="UI_Selection_Info" Text="Generate geometry from region outlines." Style="{StaticResource StatusLabelStyle}" Margin="2,15,0,0"/>
-        </StackPanel>
-
-        <!-- Footer -->
-        <Border Grid.Row="2" Background="White" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Padding="{DynamicResource FooterPadding}">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+                <TextBlock Text="Height Offset (mm):" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,0,0,8"/>
+                <TextBox x:Name="UI_Text_Offset" Text="0" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0"/>
                 
-                <TextBlock x:Name="UI_Status_Text" Text="Ready" Style="{StaticResource StatusLabelStyle}"/>
+                <TextBlock x:Name="UI_Selection_Info" Text="Generate geometry from region outlines." Foreground="#666666" Margin="0,15,0,0"/>
+            </StackPanel>
 
-                <Button Content="Cancel" Click="UI_Btn_Cancel_Click" Width="80" Margin="0,0,10,0"
-                        Style="{StaticResource SecondaryButtonStyle}"/>
-                <Button x:Name="UI_Btn_Run" Content="Create" Click="UI_Btn_Run_Click" Width="100" 
-                        Style="{StaticResource PrimaryButtonStyle}"/>
-            </Grid>
-        </Border>
-    </Grid>
+            <!-- Footer -->
+            <Border Grid.Row="2" Background="#FAFAFA" Padding="20,15" CornerRadius="0,0,12,12" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,1,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <TextBlock x:Name="UI_Status_Text" Text="Ready" VerticalAlignment="Center" Foreground="#999999"/>
+
+                    <Button Grid.Column="1" Content="Cancel" Click="UI_Btn_Cancel_Click" Width="80" Margin="0,0,12,0" Style="{StaticResource PremiumPrimaryButtonStyle}"/>
+                    <Button x:Name="UI_Btn_Run" Grid.Column="2" Content="Create" Click="UI_Btn_Run_Click" Width="100" Style="{StaticResource PremiumActionButtonStyle}"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
 </Window>

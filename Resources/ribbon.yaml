@@ -360,6 +360,7 @@ panels:
   # ============================================================
   - name: Rebar
     items:
+
       # --- Column 1 ---
       - type: pulldown
         name: Selection
@@ -445,6 +446,13 @@ panels:
           - name: Beam Rebar
             command: BeamRebarCommand
             icon: BeamRebar
+
+      # --- Column 4 ---
+      - type: pushbutton
+        name: Rebar Suite
+        command: RebarSuiteCommand
+        icon: RebarSuite
+        tooltip: Unified structural reinforcement generator for beams, walls, columns, and footings.
 
   # ============================================================
   # GENERAL PANEL
@@ -599,6 +607,7 @@ panels:
                 icon: HFrame
                 tooltip: Create parallel horizontal braces (multi-brace).
 
+
   # ============================================================
   # ANTIGRAVITY PANEL
   # ============================================================
@@ -621,9 +630,4 @@ panels:
             command: InspectResourcesCommand
             icon: InspectResources
             tooltip: Debug tool to list embedded resources.
-      # --- Column 2 ---
-      - type: pushbutton
-        name: UI Samples
-        command: UiSamplesCommand
-        icon: UISamples
-        tooltip: View premium single, dual, and triple panel layout templates.
+

@@ -1,0 +1,110 @@
+<Window x:Class="antiGGGravity.StructuralRebar.UI.RebarSuiteWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Rebar Suite" 
+        Height="900" Width="950" 
+        MinHeight="700" MinWidth="900"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        WindowStartupLocation="CenterScreen" ShowInTaskbar="True" Topmost="True">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="70" CornerRadius="12" GlassFrameThickness="0" ResizeBorderThickness="4"/>
+    </WindowChrome.WindowChrome>
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/antiGGGravity;component/Resources/Pre_BrandStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    
+    <Border Style="{StaticResource PremiumBorderStyle}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="70"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- HEADER -->
+            <Border Grid.Row="0" Background="{StaticResource BrandGradientBrush}" CornerRadius="12,12,0,0">
+                <Grid Margin="25,0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource CompanyLogoStyle}"/>
+                        <TextBlock Style="{StaticResource CompanyDividerStyle}"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Rebar Suite" Style="{StaticResource PremiumTitleStyle}"/>
+                            <TextBlock Text="Structural reinforcement generator" Style="{StaticResource PremiumSubtitleStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <Button HorizontalAlignment="Right" VerticalAlignment="Center" Content="✕" 
+                            Style="{StaticResource PremiumIconButtonStyle}" Width="30" Height="30"
+                            Click="UI_Button_Cancel_Click" WindowChrome.IsHitTestVisibleInChrome="True"/>
+                </Grid>
+            </Border>
+
+            <!-- MAIN CONTENT: Sidebar + Panel -->
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="200"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- SIDEBAR -->
+                <Border Grid.Column="0" Background="#F5F5F5" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,0,1,0">
+                    <StackPanel Margin="10,15">
+                        <TextBlock Text="ELEMENT TYPE" FontSize="11" FontWeight="SemiBold" Foreground="#888888" Margin="8,0,0,10"/>
+                        
+                        <RadioButton x:Name="UI_Radio_Beam" Content="Beam" IsChecked="True" 
+                                     GroupName="ElementType" FontSize="14" Foreground="#444" Margin="0,4" Padding="10,8"
+                                     Checked="ElementType_Changed"/>
+                        <RadioButton x:Name="UI_Radio_Wall" Content="Wall" 
+                                     GroupName="ElementType" FontSize="14" Foreground="#444" Margin="0,4" Padding="10,8"
+                                     Checked="ElementType_Changed"/>
+                        <RadioButton x:Name="UI_Radio_Column" Content="Column" 
+                                     GroupName="ElementType" FontSize="14" Foreground="#444" Margin="0,4" Padding="10,8"
+                                     Checked="ElementType_Changed" IsEnabled="True"/>
+                        <RadioButton x:Name="UI_Radio_StripFooting" Content="Strip Footing" 
+                                     GroupName="ElementType" FontSize="14" Foreground="#444" Margin="0,4" Padding="10,8"
+                                     Checked="ElementType_Changed" IsEnabled="True"/>
+                        <RadioButton x:Name="UI_Radio_FootingPad" Content="Footing Pad" 
+                                     GroupName="ElementType" FontSize="14" Foreground="#444" Margin="0,4" Padding="10,8"
+                                     Checked="ElementType_Changed" IsEnabled="True"/>
+                        <RadioButton x:Name="UI_Radio_WallCornerL" Content="Wall Corner L" 
+                                     GroupName="ElementType" FontSize="14" Foreground="#444" Margin="0,4" Padding="10,8"
+                                     Checked="ElementType_Changed" IsEnabled="True"/>
+                        <RadioButton x:Name="UI_Radio_WallCornerU" Content="Wall Corner U" 
+                                     GroupName="ElementType" FontSize="14" Foreground="#444" Margin="0,4" Padding="10,8"
+                                     Checked="ElementType_Changed" IsEnabled="True"/>
+
+                        <Separator Margin="5,15,5,10" Background="#E0E0E0"/>
+
+                        <TextBlock Text="OPTIONS" FontSize="11" FontWeight="SemiBold" Foreground="#888888" Margin="8,0,0,10"/>
+                        <CheckBox x:Name="UI_Check_RemoveExisting" Content="Remove existing" FontSize="13" Foreground="#555" Margin="8,0,0,6"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- PANEL CONTENT AREA -->
+                <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+                    <ContentControl x:Name="UI_PanelHost" Margin="20"/>
+                </ScrollViewer>
+            </Grid>
+
+            <!-- FOOTER -->
+            <Border Grid.Row="2" Background="#F9F9F9" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,1,0,0" CornerRadius="0,0,12,12" Padding="25,12">
+                <Grid>
+                    <TextBlock VerticalAlignment="Center" FontSize="11" Foreground="#AAAAAA" Text="antiGGGravity © 2026 HV Decorin"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Cancel" Width="100" Height="36" Margin="0,0,10,0"
+                                Style="{StaticResource PremiumPrimaryButtonStyle}" Click="UI_Button_Cancel_Click"
+                                WindowChrome.IsHitTestVisibleInChrome="True"/>
+                        <Button Content="Generate" Width="140" Height="36"
+                                Style="{StaticResource PremiumPrimaryButtonStyle}" Click="UI_Button_Generate_Click"
+                                WindowChrome.IsHitTestVisibleInChrome="True"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

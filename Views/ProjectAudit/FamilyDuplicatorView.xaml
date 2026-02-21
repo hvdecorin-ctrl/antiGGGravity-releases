@@ -4,70 +4,82 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Family Duplicator" Height="700" Width="1200"
-        WindowStartupLocation="CenterScreen" Topmost="True" 
-        Background="{DynamicResource WindowBackgroundBrush}">
+        Title="Family Duplicator" Height="750" Width="1200"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        WindowStartupLocation="CenterScreen" Topmost="True">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="70" CornerRadius="12" GlassFrameThickness="0"/>
+    </WindowChrome.WindowChrome>
 
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/antiGGGravity;component/Resources/BrandStyles.xaml"/>
+                <ResourceDictionary Source="/antiGGGravity;component/Resources/Pre_BrandStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
     
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="{DynamicResource HeaderHeight}"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="{DynamicResource FooterHeight}"/>
-        </Grid.RowDefinitions>
+    <Border Style="{StaticResource PremiumBorderStyle}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="70"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <!-- HEADER -->
-        <Border Grid.Row="0" Background="White" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
-            <Grid Margin="{DynamicResource HeaderPadding}">
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Style="{StaticResource BrandTitleStyle}"/>
-                    <Rectangle Width="2" Height="20" Fill="{DynamicResource SeparatorBrush}" Margin="15,0"/>
-                    <TextBlock Text="FAMILY DUPLICATOR" Style="{StaticResource BrandSubtitleStyle}"/>
-                </StackPanel>
+            <!-- HEADER -->
+            <Border Grid.Row="0" Background="{StaticResource BrandGradientBrush}" CornerRadius="12,12,0,0">
+                <Grid Margin="25,0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource CompanyLogoStyle}"/>
+                        <TextBlock Style="{StaticResource CompanyDividerStyle}"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Family Duplicator" Style="{StaticResource PremiumTitleStyle}"/>
+                            <TextBlock Text="Batch duplicate family types via DataGrid" Style="{StaticResource PremiumSubtitleStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <Button HorizontalAlignment="Right" VerticalAlignment="Center" Content="✕" 
+                            Style="{StaticResource PremiumIconButtonStyle}" Width="30" Height="30"
+                            Click="UI_Btn_Close_Click" WindowChrome.IsHitTestVisibleInChrome="True"/>
+                </Grid>
+            </Border>
+
+            <!-- CONTENT -->
+            <Grid Grid.Row="1" Margin="25">
+                <Border Background="White" CornerRadius="8" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="1" Padding="0">
+                    <DataGrid x:Name="UI_Grid" AutoGenerateColumns="False" CanUserAddRows="True" Background="White" 
+                              BorderBrush="Transparent" RowHeight="32" AlternatingRowBackground="#FAFAFA"
+                              GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#F0F0F0"
+                              BorderThickness="0" Margin="1">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Type Mark *" Binding="{Binding TypeMark}" Width="150"/>
+                            <DataGridTextColumn Header="Type Comment" Binding="{Binding TypeComment}" Width="200"/>
+                            <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="350"/>
+                            <DataGridComboBoxColumn Header="Base Family Type *" x:Name="UI_Col_BaseType" 
+                                                    SelectedValueBinding="{Binding BaseType}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Border>
             </Grid>
-        </Border>
 
-        <!-- CONTENT -->
-        <Grid Grid.Row="1" Margin="{DynamicResource ContentMargin}">
-            <Border Style="{StaticResource SectionBorderStyle}" Padding="0">
-                <DataGrid x:Name="UI_Grid" AutoGenerateColumns="False" CanUserAddRows="True" Background="White" 
-                          BorderBrush="Transparent" RowHeight="32" AlternatingRowBackground="#FAFAFA"
-                          GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#F0F0F0"
-                          BorderThickness="0">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Type Mark *" Binding="{Binding TypeMark}" Width="150"/>
-                        <DataGridTextColumn Header="Type Comment" Binding="{Binding TypeComment}" Width="200"/>
-                        <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="350"/>
-                        <DataGridComboBoxColumn Header="Base Family Type *" x:Name="UI_Col_BaseType" 
-                                                SelectedValueBinding="{Binding BaseType}" Width="*"/>
-                    </DataGrid.Columns>
-                </DataGrid>
+            <!-- FOOTER -->
+            <Border Grid.Row="2" Background="#FAFAFA" Padding="20,15" CornerRadius="0,0,12,12" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,1,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock x:Name="UI_Status" Grid.Column="0" Text="Enter data or paste from Excel (Type Mark-Description-BaseType)" VerticalAlignment="Center" Foreground="#999999"/>
+
+                    <Button Grid.Column="1" Content="Clear" Width="100" Style="{StaticResource PremiumPrimaryButtonStyle}" Margin="0,0,12,0" Click="UI_Btn_Clear_Click"/>
+                    <Button Grid.Column="2" Content="Duplicate All" Width="160" Style="{StaticResource PremiumActionButtonStyle}" Margin="0,0,12,0" Click="UI_Btn_Create_Click"/>
+                    <Button Grid.Column="3" Content="Close" Width="100" Style="{StaticResource PremiumPrimaryButtonStyle}" Click="UI_Btn_Close_Click"/>
+                </Grid>
             </Border>
         </Grid>
-
-        <!-- FOOTER -->
-        <Border Grid.Row="2" Background="White" Padding="{DynamicResource FooterPadding}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
-                <TextBlock x:Name="UI_Status" Grid.Column="0" Text="Enter data or paste from Excel (Type Mark-Description-BaseType)" Style="{StaticResource StatusLabelStyle}"/>
-
-                <Button Grid.Column="1" Content="Clear" Width="100" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,12,0" Click="UI_Btn_Clear_Click"/>
-                <Button Grid.Column="2" Content="Duplicate All" Width="160" Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,12,0" Click="UI_Btn_Create_Click"/>
-                <Button Grid.Column="3" Content="Close" Width="100" Style="{StaticResource SecondaryButtonStyle}" Click="UI_Btn_Close_Click"/>
-            </Grid>
-        </Border>
-    </Grid>
+    </Border>
 </Window>

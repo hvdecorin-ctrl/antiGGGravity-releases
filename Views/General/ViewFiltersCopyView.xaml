@@ -6,217 +6,197 @@
         xmlns:local="clr-namespace:antiGGGravity.Views.General"
         mc:Ignorable="d"
         Title="ViewFilters: Copy to Another View"
-        Height="800" Width="1000"
+        Height="800" Width="1050"
         MinHeight="600" MinWidth="800"
-        WindowStartupLocation="CenterScreen"
-        ShowInTaskbar="True" 
-        ResizeMode="CanResizeWithGrip"
-        Background="{DynamicResource WindowBackgroundBrush}">
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        WindowStartupLocation="CenterScreen" ShowInTaskbar="True">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="70" CornerRadius="12" GlassFrameThickness="0" ResizeBorderThickness="4"/>
+    </WindowChrome.WindowChrome>
 
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/antiGGGravity;component/Resources/BrandStyles.xaml"/>
+                <ResourceDictionary Source="/antiGGGravity;component/Resources/Pre_BrandStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>   
         </ResourceDictionary>
     </Window.Resources>
 
-    <!--MAIN CONTAINER-->
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="{DynamicResource HeaderHeight}"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="{DynamicResource FooterHeight}"/>
-        </Grid.RowDefinitions>
+    <Border Style="{StaticResource PremiumBorderStyle}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="70"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <!-- HEADER -->
-        <Border Grid.Row="0" Background="White" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
-            <Grid Margin="{DynamicResource HeaderPadding}">
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Style="{StaticResource BrandTitleStyle}"/>
-                    <Rectangle Width="2" Height="20" Fill="{DynamicResource SeparatorBrush}" Margin="15,0"/>
-                    <TextBlock Text="COPY FILTERS" Style="{StaticResource BrandSubtitleStyle}"/>
-                </StackPanel>
-            </Grid>
-        </Border>
-
-        <!--DUAL PANEL CONTAINER-->
-        <Grid Grid.Row="1" Margin="25,20,25,10">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="30"/> <!-- Spacer -->
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-
-            <!--LEFT PANEL - SOURCE-->
-            <Border Grid.Column="0" Background="White" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-
-                    <!--Source Header-->
-                    <Border Grid.Row="0" Background="{DynamicResource BrandPrimaryBrush}" Padding="15,10" CornerRadius="4,4,0,0">
-                        <TextBlock Text="Select Source" FontSize="14" FontWeight="SemiBold" Foreground="White"/>
-                    </Border>
-
-                    <!--Source Content-->
-                    <Grid Grid.Row="1" Margin="15">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/> <!-- Toggles -->
-                            <RowDefinition Height="Auto"/> <!-- Search -->
-                            <RowDefinition Height="Auto"/> <!-- Views Label -->
-                            <RowDefinition Height="3*"/>   <!-- Views List -->
-                            <RowDefinition Height="Auto"/> <!-- Separator -->
-                            <RowDefinition Height="Auto"/> <!-- Filters Label -->
-                            <RowDefinition Height="2*"/>   <!-- Filters List -->
-                            <RowDefinition Height="Auto"/> <!-- Buttons -->
-                        </Grid.RowDefinitions>
-
-                        <!--Checkboxes-->
-                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
-                            <CheckBox x:Name="UI_checkbox_src_views" Content="Views" IsChecked="True" Margin="0,0,20,0" Checked="Check_Source_Views_Changed" Unchecked="Check_Source_Views_Changed"/>
-                            <CheckBox x:Name="UI_checkbox_src_templates" Content="Templates" IsChecked="True" Checked="Check_Source_Views_Changed" Unchecked="Check_Source_Views_Changed"/>
+            <!-- Header -->
+            <Border Grid.Row="0" Background="{StaticResource BrandGradientBrush}" CornerRadius="12,12,0,0">
+                <Grid Margin="25,0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource CompanyLogoStyle}"/>
+                        <TextBlock Style="{StaticResource CompanyDividerStyle}"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Copy Filters" Style="{StaticResource PremiumTitleStyle}"/>
+                            <TextBlock Text="Copy View Filters between Views or Templates" Style="{StaticResource PremiumSubtitleStyle}"/>
                         </StackPanel>
-
-                        <!--Filter-->
-                        <TextBox x:Name="textbox_src_filter" Grid.Row="1" Margin="0,0,0,10" Style="{StaticResource FilterTextBoxStyle}" Tag="Filter source views..." TextChanged="Filter_Source_TextChanged"/>
-
-                        <!--Source View Label-->
-                        <TextBlock Grid.Row="2" Text="Source View:" FontWeight="SemiBold" Margin="0,0,0,5"/>
-
-                        <!--Source Views ListBox-->
-                        <ListBox x:Name="UI_ListBox_Src_Views" Grid.Row="3" Margin="0,0,0,10" SelectionMode="Single" 
-                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <CheckBox Content="{Binding Name}" IsChecked="{Binding IsChecked}" 
-                                              Checked="Source_View_Checked" Unchecked="Source_View_Unchecked"/>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-
-                        <!--Separator-->
-                        <Separator Grid.Row="4" Margin="0,0,0,10" Background="{StaticResource SeparatorBrush}"/>
-
-                        <!--Filters Label-->
-                        <TextBlock Grid.Row="5" Text="Select Filters to Copy:" FontWeight="SemiBold" Margin="0,0,0,5"/>
-
-                        <!--Filters ListBox-->
-                        <ListBox x:Name="UI_ListBox_Filters" Grid.Row="6" Margin="0,0,0,10" SelectionMode="Multiple"
-                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <CheckBox Content="{Binding Name}" IsChecked="{Binding IsChecked}" 
-                                              Checked="Filter_Checked" Unchecked="Filter_Unchecked"/>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-
-                        <!--Select All/None Buttons-->
-                        <StackPanel Grid.Row="7" Orientation="Horizontal" HorizontalAlignment="Left">
-                            <Button Content="Select All" Click="Select_All_Filters_Click" Margin="0,0,10,0" Style="{StaticResource SecondaryButtonStyle}" Width="90"/>
-                            <Button Content="Select None" Click="Select_None_Filters_Click" Style="{StaticResource SecondaryButtonStyle}" Width="90"/>
-                        </StackPanel>
-                    </Grid>
+                    </StackPanel>
+                    <Button HorizontalAlignment="Right" VerticalAlignment="Center" Content="✕" 
+                            Style="{StaticResource PremiumIconButtonStyle}" Width="30" Height="30"
+                            Click="Close_Click" WindowChrome.IsHitTestVisibleInChrome="True"/>
                 </Grid>
             </Border>
 
-            <!--CENTER ARROW INDICATOR-->
-            <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="▶" FontSize="16" Foreground="{StaticResource BrandPrimaryBrush}" Margin="0,2"/>
-                <TextBlock Text="▶" FontSize="16" Foreground="{StaticResource BrandPrimaryBrush}" Opacity="0.5" Margin="0,2"/>
-            </StackPanel>
+            <!-- Content -->
+            <Grid Grid.Row="1" Margin="25">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="40"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-            <!--RIGHT PANEL - DESTINATION-->
-            <Border Grid.Column="2" Background="White" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-
-                    <!--Destination Header-->
-                    <Border Grid.Row="0" Background="{DynamicResource BrandPrimaryBrush}" Padding="15,10" CornerRadius="4,4,0,0">
-                        <TextBlock Text="Select Destination" FontSize="14" FontWeight="SemiBold" Foreground="White"/>
-                    </Border>
-
-                    <!--Destination Content-->
-                    <Grid Grid.Row="1" Margin="15">
+                <!-- LEFT PANEL: SOURCE -->
+                <Border Grid.Column="0" Background="White" CornerRadius="8" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="1" Padding="0">
+                    <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/> <!-- Toggles -->
-                            <RowDefinition Height="Auto"/> <!-- Search -->
-                            <RowDefinition Height="Auto"/> <!-- Views Label -->
-                            <RowDefinition Height="3*"/>   <!-- Views List -->
-                            <RowDefinition Height="Auto"/> <!-- Separator -->
-                            <RowDefinition Height="Auto"/> <!-- Filters Label -->
-                            <RowDefinition Height="2*"/>   <!-- Filters List (Preview) -->
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
-                        <!--Checkboxes-->
-                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
-                            <CheckBox x:Name="UI_checkbox_dest_views" Content="Views" IsChecked="True" Margin="0,0,20,0" Checked="Check_Dest_Views_Changed" Unchecked="Check_Dest_Views_Changed"/>
-                            <CheckBox x:Name="UI_checkbox_dest_templates" Content="Templates" IsChecked="True" Checked="Check_Dest_Views_Changed" Unchecked="Check_Dest_Views_Changed"/>
-                        </StackPanel>
+                        <!-- Source Header -->
+                        <Border Grid.Row="0" Background="#F8F9FA" Padding="15,12" CornerRadius="8,8,0,0" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,0,0,1">
+                            <TextBlock Text="Select Source" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0"/>
+                        </Border>
 
-                        <!--Filter-->
-                        <TextBox x:Name="textbox_dest_filter" Grid.Row="1" Margin="0,0,0,10" Style="{StaticResource FilterTextBoxStyle}" Tag="Filter destination views..." TextChanged="Filter_Dest_TextChanged"/>
+                        <!-- Source Content -->
+                        <Grid Grid.Row="1" Margin="15">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/> <!-- Toggles -->
+                                <RowDefinition Height="Auto"/> <!-- Search -->
+                                <RowDefinition Height="Auto"/> <!-- Views Label -->
+                                <RowDefinition Height="3*"/>   <!-- Views List -->
+                                <RowDefinition Height="Auto"/> <!-- Separator -->
+                                <RowDefinition Height="Auto"/> <!-- Filters Label -->
+                                <RowDefinition Height="2*"/>   <!-- Filters List -->
+                                <RowDefinition Height="Auto"/> <!-- Buttons -->
+                            </Grid.RowDefinitions>
 
-                        <!--Destination Views Label-->
-                        <TextBlock Grid.Row="2" Text="Destination Views:" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,15">
+                                <CheckBox x:Name="UI_checkbox_src_views" Content="Views" IsChecked="True" Margin="0,0,20,0" Checked="Check_Source_Views_Changed" Unchecked="Check_Source_Views_Changed"/>
+                                <CheckBox x:Name="UI_checkbox_src_templates" Content="Templates" IsChecked="True" Checked="Check_Source_Views_Changed" Unchecked="Check_Source_Views_Changed"/>
+                            </StackPanel>
 
-                        <!--Destination Views ListBox-->
-                        <ListBox x:Name="UI_ListBox_Dest_Views" Grid.Row="3" Margin="0,0,0,10" SelectionMode="Single"
-                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <CheckBox Content="{Binding Name}" IsChecked="{Binding IsChecked}" 
-                                              Checked="Dest_View_Checked" Unchecked="Dest_View_Unchecked"/>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
+                            <TextBox x:Name="textbox_src_filter" Grid.Row="1" Margin="0,0,0,15" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0" Tag="Filter source views..." TextChanged="Filter_Source_TextChanged"/>
 
-                        <!--Separator-->
-                        <Separator Grid.Row="4" Margin="0,0,0,10" Background="{StaticResource SeparatorBrush}"/>
+                            <TextBlock Grid.Row="2" Text="Source View:" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,0,0,8"/>
 
-                        <!--Destination Filters Label-->
-                        <TextBlock x:Name="UI_Label_Dest_Filters" Grid.Row="5" Text="Existing Filters in Selected View:" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                            <ListBox x:Name="UI_ListBox_Src_Views" Grid.Row="3" Margin="0,0,0,15" SelectionMode="Single" BorderBrush="#E0E0E0" Padding="5" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <CheckBox Content="{Binding Name}" IsChecked="{Binding IsChecked}" Margin="2" Checked="Source_View_Checked" Unchecked="Source_View_Unchecked"/>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
 
-                        <!--Destination Filters Preview ListBox-->
-                        <ListBox x:Name="UI_ListBox_Dest_Filters" Grid.Row="6" Focusable="False" 
-                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderThickness="0" Background="Transparent">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Name}" Foreground="{DynamicResource StatusBrush}" Margin="2"/>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
+                            <Rectangle Grid.Row="4" Height="1" Fill="#E0E0E0" Margin="0,0,0,15"/>
+
+                            <TextBlock Grid.Row="5" Text="Select Filters to Copy:" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,0,0,8"/>
+
+                            <ListBox x:Name="UI_ListBox_Filters" Grid.Row="6" Margin="0,0,0,15" SelectionMode="Multiple" BorderBrush="#E0E0E0" Padding="5" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <CheckBox Content="{Binding Name}" IsChecked="{Binding IsChecked}" Margin="2" Checked="Filter_Checked" Unchecked="Filter_Unchecked"/>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+
+                            <StackPanel Grid.Row="7" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0">
+                                <Button Content="Select All" Click="Select_All_Filters_Click" Margin="0,0,10,0" Style="{StaticResource PremiumPrimaryButtonStyle}" Width="90"/>
+                                <Button Content="Select None" Click="Select_None_Filters_Click" Style="{StaticResource PremiumPrimaryButtonStyle}" Width="90"/>
+                            </StackPanel>
+                        </Grid>
                     </Grid>
+                </Border>
+
+                <!-- CENTER ARROW -->
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock Text="➔" FontSize="20" Foreground="{StaticResource BrandGradientBrush}" Opacity="0.8"/>
+                </StackPanel>
+
+                <!-- RIGHT PANEL: DESTINATION -->
+                <Border Grid.Column="2" Background="White" CornerRadius="8" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="1" Padding="0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Destination Header -->
+                        <Border Grid.Row="0" Background="#F8F9FA" Padding="15,12" CornerRadius="8,8,0,0" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,0,0,1">
+                            <TextBlock Text="Select Destination" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0"/>
+                        </Border>
+
+                        <!-- Destination Content -->
+                        <Grid Grid.Row="1" Margin="15">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/> <!-- Toggles -->
+                                <RowDefinition Height="Auto"/> <!-- Search -->
+                                <RowDefinition Height="Auto"/> <!-- Views Label -->
+                                <RowDefinition Height="3*"/>   <!-- Views List -->
+                                <RowDefinition Height="Auto"/> <!-- Separator -->
+                                <RowDefinition Height="Auto"/> <!-- Filters Label -->
+                                <RowDefinition Height="2*"/>   <!-- Filters List (Preview) -->
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,15">
+                                <CheckBox x:Name="UI_checkbox_dest_views" Content="Views" IsChecked="True" Margin="0,0,20,0" Checked="Check_Dest_Views_Changed" Unchecked="Check_Dest_Views_Changed"/>
+                                <CheckBox x:Name="UI_checkbox_dest_templates" Content="Templates" IsChecked="True" Checked="Check_Dest_Views_Changed" Unchecked="Check_Dest_Views_Changed"/>
+                            </StackPanel>
+
+                            <TextBox x:Name="textbox_dest_filter" Grid.Row="1" Margin="0,0,0,15" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0" Tag="Filter destination views..." TextChanged="Filter_Dest_TextChanged"/>
+
+                            <TextBlock Grid.Row="2" Text="Destination Views:" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,0,0,8"/>
+
+                            <ListBox x:Name="UI_ListBox_Dest_Views" Grid.Row="3" Margin="0,0,0,15" SelectionMode="Single" BorderBrush="#E0E0E0" Padding="5" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <CheckBox Content="{Binding Name}" IsChecked="{Binding IsChecked}" Margin="2" Checked="Dest_View_Checked" Unchecked="Dest_View_Unchecked"/>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+
+                            <Rectangle Grid.Row="4" Height="1" Fill="#E0E0E0" Margin="0,0,0,15"/>
+
+                            <TextBlock x:Name="UI_Label_Dest_Filters" Grid.Row="5" Text="Existing Filters in Selected View:" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,0,0,8"/>
+
+                            <ListBox x:Name="UI_ListBox_Dest_Filters" Grid.Row="6" Focusable="False" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderThickness="0" Background="#FAFAFA" Padding="10">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Name}" Foreground="#666666" Margin="0,2"/>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Grid>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- Footer -->
+            <Border Grid.Row="2" Background="#FAFAFA" Padding="20,15" CornerRadius="0,0,12,12" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,1,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock x:Name="UI_Status_Text" VerticalAlignment="Center" Foreground="#999999" Text="Select a source view and filters, then choose destination views"/>
+
+                    <Button Grid.Column="1" Content="Cancel" Width="100" Style="{StaticResource PremiumPrimaryButtonStyle}" Margin="0,0,12,0" Click="Close_Click"/>
+                    <Button x:Name="UI_CopyButton" Grid.Column="2" Content="Copy Filters" Width="140" Style="{StaticResource PremiumActionButtonStyle}" Click="CopyFilters_Click"/>
                 </Grid>
             </Border>
         </Grid>
-
-        <!--BOTTOM ACTION BAR-->
-        <Border Grid.Row="2" Background="White" BorderBrush="{StaticResource SeparatorBrush}" BorderThickness="0,1,0,0" Padding="{StaticResource FooterPadding}">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
-                <!--Status Info-->
-                <TextBlock x:Name="UI_Status_Text" Grid.Column="0" 
-                           Text="Select a source view and filters, then choose destination views" 
-                           Style="{StaticResource StatusLabelStyle}"/>
-
-                <!--Action Buttons-->
-                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button Content="Cancel" Click="Close_Click" Style="{StaticResource SecondaryButtonStyle}" Width="100" Margin="0,0,12,0"/>
-                    <Button x:Name="UI_CopyButton" Content="Copy Filters" Click="CopyFilters_Click" Style="{StaticResource PrimaryButtonStyle}" Width="140"/>
-                </StackPanel>
-            </Grid>
-        </Border>
-
-    </Grid>
+    </Border>
 </Window>

@@ -1,0 +1,140 @@
+<UserControl x:Class="antiGGGravity.StructuralRebar.UI.Panels.StripFootingRebarPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800">
+    <Grid Margin="0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="20"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- LEFT COLUMN: LONGITUDINAL BARS -->
+        <StackPanel Grid.Column="0">
+            <!-- Top Bars -->
+            <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,15">
+                <StackPanel>
+                    <CheckBox x:Name="UI_Check_TopBars" Content="Enable Top Bars" FontWeight="Bold" Foreground="#333333" IsChecked="True" Margin="0,0,0,15"/>
+                    <StackPanel IsEnabled="{Binding IsChecked, ElementName=UI_Check_TopBars}">
+                        <Grid Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="15"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Rebar Type" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                                <ComboBox x:Name="UI_Combo_TopType" Height="32" Padding="8,0" VerticalContentAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Count" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                                <TextBox x:Name="UI_Text_TopCount" Text="4" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock Text="Hook Start/End" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                        <ComboBox x:Name="UI_Combo_TopHook" Height="32" Padding="8,0" VerticalContentAlignment="Center"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Bottom Bars -->
+            <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,15">
+                <StackPanel>
+                    <CheckBox x:Name="UI_Check_BotBars" Content="Enable Bottom Bars" FontWeight="Bold" Foreground="#333333" IsChecked="True" Margin="0,0,0,15"/>
+                    <StackPanel IsEnabled="{Binding IsChecked, ElementName=UI_Check_BotBars}">
+                        <Grid Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="15"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Rebar Type" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                                <ComboBox x:Name="UI_Combo_BotType" Height="32" Padding="8,0" VerticalContentAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Count" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                                <TextBox x:Name="UI_Text_BotCount" Text="4" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock Text="Hook Start/End" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                        <ComboBox x:Name="UI_Combo_BotHook" Height="32" Padding="8,0" VerticalContentAlignment="Center"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Offsets -->
+            <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15">
+                <StackPanel>
+                    <TextBlock Text="Longitudinal Offsets (mm)" FontWeight="Bold" Foreground="#333333" Margin="0,0,0,15"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="15"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Start" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                            <TextBox x:Name="UI_Text_LongStartOff" Text="50" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="End" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                            <TextBox x:Name="UI_Text_LongEndOff" Text="50" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+
+        <!-- RIGHT COLUMN: STIRRUPS -->
+        <StackPanel Grid.Column="2">
+            <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,15">
+                <StackPanel>
+                    <TextBlock Text="Stirrups / Links" FontWeight="Bold" Foreground="#333333" Margin="0,0,0,15"/>
+                    
+                    <Grid Margin="0,0,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="15"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Rebar Type" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                            <ComboBox x:Name="UI_Combo_TransType" Height="32" Padding="8,0" VerticalContentAlignment="Center"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Spacing (mm)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                            <TextBox x:Name="UI_Text_TransSpacing" Text="200" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid Margin="0,0,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="15"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Hook Start" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                            <ComboBox x:Name="UI_Combo_HookStart" Height="32" Padding="8,0" VerticalContentAlignment="Center"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Hook End" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                            <ComboBox x:Name="UI_Combo_HookEnd" Height="32" Padding="8,0" VerticalContentAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <StackPanel Margin="0,0,0,15">
+                        <TextBlock Text="Start Offset (mm)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                        <TextBox x:Name="UI_Text_TransStartOff" Text="50" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
+                    </StackPanel>
+                    
+                    <CheckBox x:Name="UI_Check_RemoveExisting" Content="Clear existing rebar" IsChecked="True" FontSize="11" Foreground="#666666"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </Grid>
+</UserControl>

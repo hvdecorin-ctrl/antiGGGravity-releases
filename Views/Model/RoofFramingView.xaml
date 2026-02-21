@@ -4,133 +4,149 @@
         Title="Roof Framing (Purlin &amp; Rafter)" 
         Height="800" Width="800"
         MinHeight="600" MinWidth="600"
-        WindowStartupLocation="CenterScreen" Background="{DynamicResource WindowBackgroundBrush}" ShowInTaskbar="True">
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        WindowStartupLocation="CenterScreen" ShowInTaskbar="True" Topmost="True">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="70" CornerRadius="12" GlassFrameThickness="0" ResizeBorderThickness="4"/>
+    </WindowChrome.WindowChrome>
 
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/antiGGGravity;component/Resources/BrandStyles.xaml"/>
+                <ResourceDictionary Source="/antiGGGravity;component/Resources/Pre_BrandStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="{DynamicResource HeaderHeight}"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="{DynamicResource FooterHeight}"/>
-        </Grid.RowDefinitions>
+    <Border Style="{StaticResource PremiumBorderStyle}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="70"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <!-- HEADER -->
-        <Border Grid.Row="0" Background="White" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="{DynamicResource HeaderPadding}">
-                <TextBlock Style="{StaticResource BrandTitleStyle}"/>
-                <Rectangle Width="2" Height="24" Fill="{DynamicResource SeparatorBrush}" Margin="15,0" VerticalAlignment="Center"/>
-                <TextBlock Text="Purlin &amp; Rafter Generator" Style="{StaticResource BrandSubtitleStyle}"/>
-            </StackPanel>
-        </Border>
-
-        <!-- BODY -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-            <Grid Margin="{DynamicResource ContentMargin}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="20"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="16"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-
-                <!-- LEFT PANEL: RAFTER -->
-                <Border Grid.Column="0" Grid.Row="0" Style="{StaticResource SectionBorderStyle}">
-                    <StackPanel>
-                        <TextBlock Text="Rafter (Along Slope)" Style="{StaticResource SectionLabelStyle}"/>
-
-                        <TextBlock Text="Framing Type" FontSize="12" Foreground="{DynamicResource SubtitleBrush}" Margin="0,0,0,4"/>
-                        <ComboBox x:Name="UI_Combo_RafterType" Height="28" Margin="0,0,0,12"/>
-
-                        <TextBlock Text="Spacing (mm)" FontSize="12" Foreground="{DynamicResource SubtitleBrush}" Margin="0,0,0,4"/>
-                        <TextBox x:Name="UI_Text_RafterSpacing" Text="600" Style="{StaticResource FilterTextBoxStyle}" Height="28" Margin="0,0,0,12"/>
-
-                        <TextBlock Text="Start Offset (mm)" FontSize="12" Foreground="{DynamicResource SubtitleBrush}" Margin="0,0,0,4"/>
-                        <TextBox x:Name="UI_Text_RafterOffset" Text="0" Style="{StaticResource FilterTextBoxStyle}" Height="28"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- RIGHT PANEL: PURLIN -->
-                <Border Grid.Column="2" Grid.Row="0" Style="{StaticResource SectionBorderStyle}">
-                    <StackPanel>
-                        <TextBlock Text="Purlin (Perpendicular)" Style="{StaticResource SectionLabelStyle}"/>
-
-                        <TextBlock Text="Framing Type" FontSize="12" Foreground="{DynamicResource SubtitleBrush}" Margin="0,0,0,4"/>
-                        <ComboBox x:Name="UI_Combo_PurlinType" Height="28" Margin="0,0,0,12"/>
-
-                        <TextBlock Text="Spacing (mm)" FontSize="12" Foreground="{DynamicResource SubtitleBrush}" Margin="0,0,0,4"/>
-                        <TextBox x:Name="UI_Text_PurlinSpacing" Text="400" Style="{StaticResource FilterTextBoxStyle}" Height="28" Margin="0,0,0,12"/>
-
-                        <TextBlock Text="Start Offset (mm)" FontSize="12" Foreground="{DynamicResource SubtitleBrush}" Margin="0,0,0,4"/>
-                        <TextBox x:Name="UI_Text_PurlinOffset" Text="0" Style="{StaticResource FilterTextBoxStyle}" Height="28"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- OPTIONS PANEL -->
-                <Border Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2" Style="{StaticResource SectionBorderStyle}">
-                    <StackPanel>
-                        <TextBlock Text="Placement Options" Style="{StaticResource SectionLabelStyle}"/>
-
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <StackPanel Grid.Column="0">
-                                <TextBlock Text="Rafter &amp; Purlin Relationship" FontSize="12" Foreground="{DynamicResource SubtitleBrush}" Margin="0,0,0,8"/>
-                                <CheckBox x:Name="UI_Check_RafterUnder" Content="Rafter under bottom of purlin" IsChecked="True" FontSize="12" Margin="0,2"/>
-                                <CheckBox x:Name="UI_Check_RotateSlope" Content="Rotate cross-section to slope" IsChecked="True" FontSize="12" Margin="0,12,0,2"/>
-                            </StackPanel>
-
-                            <StackPanel Grid.Column="1">
-                                <TextBlock Text="Generate Model" FontSize="12" Foreground="{DynamicResource SubtitleBrush}" Margin="0,0,0,8"/>
-                                <CheckBox x:Name="UI_Check_Purlins" Content="Generate purlins" IsChecked="True" FontSize="12" Margin="0,2"/>
-                                <CheckBox x:Name="UI_Check_Rafters" Content="Generate rafters" IsChecked="True" FontSize="12" Margin="0,4"/>
-                                
-                                <StackPanel Margin="0,8,0,0">
-                                    <CheckBox x:Name="UI_Check_EdgeRafters" Content="Ridge / Hip / Valley (2+ faces)" IsChecked="True" FontSize="12" Margin="0,2"/>
-                                    <StackPanel Orientation="Horizontal" Margin="22,4,0,0">
-                                        <TextBlock Text="Edge Beam Type" FontSize="12" Foreground="{DynamicResource SubtitleBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                        <ComboBox x:Name="UI_Combo_EdgeType" Width="180" Height="24"/>
-                                    </StackPanel>
-                                </StackPanel>
-                            </StackPanel>
-                        </Grid>
-
-                        <StackPanel Orientation="Horizontal" Margin="0,15,0,0">
-                            <CheckBox x:Name="UI_Check_FinishingOffset" Content="Offset for roof finishing layer" IsChecked="False" VerticalAlignment="Center" Margin="0,0,15,0" FontSize="12"/>
-                            <TextBox x:Name="UI_Text_FinishingOffset" Text="50" Style="{StaticResource FilterTextBoxStyle}" Width="60" Height="24"/>
-                            <TextBlock Text="mm" FontSize="12" Foreground="{DynamicResource SubtitleBrush}" VerticalAlignment="Center" Margin="6,0,0,0"/>
+            <!-- Header -->
+            <Border Grid.Row="0" Background="{StaticResource BrandGradientBrush}" CornerRadius="12,12,0,0">
+                <Grid Margin="25,0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource CompanyLogoStyle}"/>
+                        <TextBlock Style="{StaticResource CompanyDividerStyle}"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Purlin &amp; Rafter" Style="{StaticResource PremiumTitleStyle}"/>
+                            <TextBlock Text="Generates framing based on roof slope" Style="{StaticResource PremiumSubtitleStyle}"/>
                         </StackPanel>
                     </StackPanel>
-                </Border>
-            </Grid>
-        </ScrollViewer>
+                    <Button HorizontalAlignment="Right" VerticalAlignment="Center" Content="✕" 
+                            Style="{StaticResource PremiumIconButtonStyle}" Width="30" Height="30"
+                            Click="UI_Button_Cancel_Click" WindowChrome.IsHitTestVisibleInChrome="True"/>
+                </Grid>
+            </Border>
 
-        <!-- FOOTER -->
-        <Border Grid.Row="2" Background="White" Padding="{DynamicResource FooterPadding}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock x:Name="UI_Status_Text" Text="Ready to generate • Pick a face first" Style="{StaticResource StatusLabelStyle}"/>
-                
-                <Button x:Name="UI_Button_Cancel" Grid.Column="1" Content="Cancel" Width="100" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,12,0" Click="UI_Button_Cancel_Click"/>
-                <Button x:Name="UI_Button_Generate" Grid.Column="2" Content="Generate" Width="160" Style="{StaticResource PrimaryButtonStyle}" Click="UI_Button_Generate_Click"/>
-            </Grid>
-        </Border>
-    </Grid>
+            <!-- Content -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <Grid Margin="25">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="20"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- LEFT PANEL: RAFTER -->
+                    <Border Grid.Column="0" Grid.Row="0" Background="#FAFAFA" CornerRadius="8" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="1" Padding="15">
+                        <StackPanel>
+                            <TextBlock Text="Rafter (Along Slope)" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,0,0,15"/>
+
+                            <TextBlock Text="Framing Type" Style="{StaticResource PremiumSectionLabelStyle}" FontSize="12" Margin="0,0,0,6"/>
+                            <ComboBox x:Name="UI_Combo_RafterType" Height="32" Margin="0,0,0,15" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0"/>
+
+                            <TextBlock Text="Spacing (mm)" Style="{StaticResource PremiumSectionLabelStyle}" FontSize="12" Margin="0,0,0,6"/>
+                            <TextBox x:Name="UI_Text_RafterSpacing" Text="600" Height="32" Margin="0,0,0,15" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0"/>
+
+                            <TextBlock Text="Start Offset (mm)" Style="{StaticResource PremiumSectionLabelStyle}" FontSize="12" Margin="0,0,0,6"/>
+                            <TextBox x:Name="UI_Text_RafterOffset" Text="0" Height="32" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- RIGHT PANEL: PURLIN -->
+                    <Border Grid.Column="2" Grid.Row="0" Background="#FAFAFA" CornerRadius="8" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="1" Padding="15">
+                        <StackPanel>
+                            <TextBlock Text="Purlin (Perpendicular)" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,0,0,15"/>
+
+                            <TextBlock Text="Framing Type" Style="{StaticResource PremiumSectionLabelStyle}" FontSize="12" Margin="0,0,0,6"/>
+                            <ComboBox x:Name="UI_Combo_PurlinType" Height="32" Margin="0,0,0,15" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0"/>
+
+                            <TextBlock Text="Spacing (mm)" Style="{StaticResource PremiumSectionLabelStyle}" FontSize="12" Margin="0,0,0,6"/>
+                            <TextBox x:Name="UI_Text_PurlinSpacing" Text="400" Height="32" Margin="0,0,0,15" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0"/>
+
+                            <TextBlock Text="Start Offset (mm)" Style="{StaticResource PremiumSectionLabelStyle}" FontSize="12" Margin="0,0,0,6"/>
+                            <TextBox x:Name="UI_Text_PurlinOffset" Text="0" Height="32" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- OPTIONS PANEL -->
+                    <Border Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2" Background="#FAFAFA" CornerRadius="8" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="1" Padding="15">
+                        <StackPanel>
+                            <TextBlock Text="Placement Options" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,0,0,15"/>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Rafter &amp; Purlin Relationship" Style="{StaticResource PremiumSectionLabelStyle}" FontSize="12" Margin="0,0,0,8"/>
+                                    <CheckBox x:Name="UI_Check_RafterUnder" Content="Rafter under bottom of purlin" IsChecked="True" Foreground="#666666" Margin="0,4"/>
+                                    <CheckBox x:Name="UI_Check_RotateSlope" Content="Rotate cross-section to slope" IsChecked="True" Foreground="#666666" Margin="0,12,0,4"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="Generate Model" Style="{StaticResource PremiumSectionLabelStyle}" FontSize="12" Margin="0,0,0,8"/>
+                                    <CheckBox x:Name="UI_Check_Purlins" Content="Generate purlins" IsChecked="True" Foreground="#666666" Margin="0,4"/>
+                                    <CheckBox x:Name="UI_Check_Rafters" Content="Generate rafters" IsChecked="True" Foreground="#666666" Margin="0,4"/>
+                                    
+                                    <StackPanel Margin="0,12,0,0">
+                                        <CheckBox x:Name="UI_Check_EdgeRafters" Content="Ridge / Hip / Valley (2+ faces)" IsChecked="True" Foreground="#666666" Margin="0,4"/>
+                                        <StackPanel Orientation="Horizontal" Margin="22,8,0,0">
+                                            <TextBlock Text="Edge Beam Type" Style="{StaticResource PremiumSectionLabelStyle}" FontSize="12" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                            <ComboBox x:Name="UI_Combo_EdgeType" Width="180" Height="28" Padding="6,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Grid>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
+                                <CheckBox x:Name="UI_Check_FinishingOffset" Content="Offset for roof finishing layer" IsChecked="False" VerticalAlignment="Center" Margin="0,0,15,0" Foreground="#666666"/>
+                                <TextBox x:Name="UI_Text_FinishingOffset" Text="50" Width="60" Height="28" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0"/>
+                                <TextBlock Text="mm" Foreground="#666666" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </ScrollViewer>
+
+            <!-- Footer -->
+            <Border Grid.Row="2" Background="#FAFAFA" Padding="20,15" CornerRadius="0,0,12,12" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,1,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <TextBlock Grid.Column="0" x:Name="UI_Status_Text" Text="Ready to generate • Pick a face first" VerticalAlignment="Center" Foreground="#999999"/>
+
+                    <Button x:Name="UI_Button_Cancel" Grid.Column="1" Content="Cancel" Width="90" Style="{StaticResource PremiumPrimaryButtonStyle}" Margin="0,0,12,0" Click="UI_Button_Cancel_Click"/>
+                    <Button x:Name="UI_Button_Generate" Grid.Column="2" Content="Generate" Width="140" Style="{StaticResource PremiumActionButtonStyle}" Click="UI_Button_Generate_Click"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
 </Window>

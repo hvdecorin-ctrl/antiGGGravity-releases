@@ -1,76 +1,87 @@
 <Window x:Class="antiGGGravity.Views.ThreeD.Auto3DView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Auto 3D View" Height="400" Width="700"
-        WindowStartupLocation="CenterScreen" ResizeMode="CanResize"
-        Background="{DynamicResource WindowBackgroundBrush}">
+        Title="Auto 3D View" Height="420" Width="600"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        WindowStartupLocation="CenterScreen" Topmost="True">
     
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="70" CornerRadius="12" GlassFrameThickness="0"/>
+    </WindowChrome.WindowChrome>
+
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/antiGGGravity;component/Resources/BrandStyles.xaml"/>
+                <ResourceDictionary Source="/antiGGGravity;component/Resources/Pre_BrandStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="{DynamicResource HeaderHeight}"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="{DynamicResource FooterHeight}"/>
-        </Grid.RowDefinitions>
+    <Border Style="{StaticResource PremiumBorderStyle}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="70"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <!-- Header -->
-        <Border Grid.Row="0" Background="White" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="{DynamicResource HeaderPadding}">
-                <TextBlock Style="{StaticResource BrandTitleStyle}"/>
-                <Rectangle Width="2" Height="24" Fill="{DynamicResource SeparatorBrush}" Margin="15,0" VerticalAlignment="Center"/>
-                <TextBlock Text="Auto 3D View" Style="{StaticResource BrandSubtitleStyle}"/>
-            </StackPanel>
-        </Border>
+            <!-- Header -->
+            <Border Grid.Row="0" Background="{StaticResource BrandGradientBrush}" CornerRadius="12,12,0,0">
+                <Grid Margin="25,0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource CompanyLogoStyle}"/>
+                        <TextBlock Style="{StaticResource CompanyDividerStyle}"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Auto 3D View" Style="{StaticResource PremiumTitleStyle}"/>
+                            <TextBlock Text="Generate a 3D view from the active 2D view" Style="{StaticResource PremiumSubtitleStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <Button HorizontalAlignment="Right" VerticalAlignment="Center" Content="✕" 
+                            Style="{StaticResource PremiumIconButtonStyle}" Width="30" Height="30"
+                            Click="Cancel_Click" WindowChrome.IsHitTestVisibleInChrome="True"/>
+                </Grid>
+            </Border>
 
-        <!-- Content -->
-        <StackPanel Grid.Row="1" Margin="{DynamicResource ContentMargin}">
-            <!-- Source View -->
-            <Grid Margin="0,0,0,10">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="150"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="Source View:" Style="{StaticResource SectionLabelStyle}"/>
-                <TextBlock Grid.Column="1" x:Name="lblSourceDescription" Text="View Name (from source)" Foreground="{DynamicResource SubtitleBrush}"/>
+            <!-- Content -->
+            <Grid Grid.Row="1" Margin="25">
+                <StackPanel>
+                    <!-- Source View -->
+                    <Grid Margin="0,0,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="150"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Source View:" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0"/>
+                        <TextBlock Grid.Column="1" x:Name="lblSourceDescription" Text="View Name (from source)" Foreground="#666666" VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <!-- 3D View Name -->
+                    <TextBlock Text="3D View Name:" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,0,0,5"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox x:Name="txtName" Height="30" VerticalContentAlignment="Center" Padding="5,0"/>
+                        <TextBlock Grid.Column="1" Text="- W" Foreground="#4A708B" VerticalAlignment="Center" Margin="10,0,0,0" FontWeight="Bold"/>
+                    </Grid>
+
+                    <!-- 3D View Template -->
+                    <TextBlock Text="3D View Template:" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,20,0,5"/>
+                    <ComboBox x:Name="cmbTemplates" Height="30" VerticalContentAlignment="Center"/>
+                </StackPanel>
             </Grid>
 
-            <!-- 3D View Name -->
-            <TextBlock Text="3D View Name:" Style="{StaticResource SectionLabelStyle}" Margin="0,10,0,5"/>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <TextBox x:Name="txtName" Style="{StaticResource FilterTextBoxStyle}"/>
-                <TextBlock Grid.Column="1" Text="- W" Foreground="{DynamicResource BrandPrimaryBrush}" VerticalAlignment="Center" Margin="10,0,0,0" FontWeight="Bold"/>
-            </Grid>
-
-            <!-- 3D View Template -->
-            <TextBlock Text="3D View Template:" Style="{StaticResource SectionLabelStyle}" Margin="0,15,0,5"/>
-            <ComboBox x:Name="cmbTemplates" Height="30" VerticalContentAlignment="Center"/>
-        </StackPanel>
-
-        <!-- Footer -->
-        <Border Grid.Row="2" Background="White" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Padding="{DynamicResource FooterPadding}">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                
-                <TextBlock Text="Ready to create • Auto 3D" Style="{StaticResource StatusLabelStyle}"/>
-                
-                <Button Grid.Column="1" Content="Cancel" Style="{StaticResource SecondaryButtonStyle}" Click="Cancel_Click" Margin="0,0,10,0" Width="100"/>
-                <Button Grid.Column="2" Content="Create" Style="{StaticResource PrimaryButtonStyle}" Click="Create_Click" Width="120"/>
-            </Grid>
-        </Border>
-    </Grid>
+            <!-- Footer -->
+            <Border Grid.Row="2" Padding="20,15" Background="#FAFAFA" CornerRadius="0,0,12,12" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,1,0,0">
+                <Grid>
+                    <TextBlock Text="Ready to create • Auto 3D" VerticalAlignment="Center" Foreground="#999999"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Cancel" Click="Cancel_Click" Style="{StaticResource PremiumPrimaryButtonStyle}" Margin="0,0,10,0"/>
+                        <Button Content="Create Model" Click="Create_Click" Style="{StaticResource PremiumActionButtonStyle}" Width="120"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
 </Window>

@@ -1,175 +1,188 @@
 <Window x:Class="antiGGGravity.Views.General.ViewFiltersLegendView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Create Filters Legend" Height="800" Width="600"
-        MinWidth="500" MinHeight="450"
-        WindowStartupLocation="CenterScreen" ResizeMode="CanResize" Topmost="True"
-        Background="{DynamicResource WindowBackgroundBrush}">
+        Title="Create Filters Legend" Height="800" Width="650"
+        MinWidth="600" MinHeight="500"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        WindowStartupLocation="CenterScreen" ShowInTaskbar="True" Topmost="True">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="70" CornerRadius="12" GlassFrameThickness="0" ResizeBorderThickness="4"/>
+    </WindowChrome.WindowChrome>
 
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/antiGGGravity;component/Resources/BrandStyles.xaml"/>
+                <ResourceDictionary Source="/antiGGGravity;component/Resources/Pre_BrandStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="{DynamicResource HeaderHeight}"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="{DynamicResource FooterHeight}"/>
-        </Grid.RowDefinitions>
+    <Border Style="{StaticResource PremiumBorderStyle}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="70"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <!-- HEADER -->
-        <Border Grid.Row="0" Background="White" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
-            <Grid Margin="{DynamicResource HeaderPadding}">
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Style="{StaticResource BrandTitleStyle}"/>
-                    <Rectangle Width="2" Height="20" Fill="{DynamicResource SeparatorBrush}" Margin="15,0"/>
-                    <TextBlock Text="FILTERS LEGEND" Style="{StaticResource BrandSubtitleStyle}"/>
-                </StackPanel>
-            </Grid>
-        </Border>
+            <!-- Header -->
+            <Border Grid.Row="0" Background="{StaticResource BrandGradientBrush}" CornerRadius="12,12,0,0">
+                <Grid Margin="25,0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource CompanyLogoStyle}"/>
+                        <TextBlock Style="{StaticResource CompanyDividerStyle}"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Filters Legend" Style="{StaticResource PremiumTitleStyle}"/>
+                            <TextBlock Text="Create a Legend of View Filters" Style="{StaticResource PremiumSubtitleStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <Button HorizontalAlignment="Right" VerticalAlignment="Center" Content="✕" 
+                            Style="{StaticResource PremiumIconButtonStyle}" Width="30" Height="30"
+                            Click="UI_Btn_Cancel_Click" WindowChrome.IsHitTestVisibleInChrome="True"/>
+                </Grid>
+            </Border>
 
-        <!-- CONTENT -->
-        <Grid Grid.Row="1" Margin="{DynamicResource ContentMargin}">
-             <Grid.ColumnDefinitions>
-                 <ColumnDefinition Width="220"/>
-                 <ColumnDefinition Width="20"/>
-                 <ColumnDefinition Width="*"/>
-             </Grid.ColumnDefinitions>
-             
-             <!-- LEFT: SETTINGS -->
-             <Border Grid.Column="0" Style="{StaticResource SectionBorderStyle}" Padding="15">
-                 <StackPanel>
-                     <TextBlock Text="Settings" Style="{StaticResource SectionLabelStyle}" Margin="0,0,0,10"/>
-                     
-                     <!-- Text Style -->
-                     <TextBlock Text="Text Style" Foreground="{StaticResource SubtitleBrush}" Margin="0,0,0,5"/>
-                     <ComboBox x:Name="UI_Combo_TextStyle" Height="28" Margin="0,0,0,15"/>
-                     
-                     <!-- Colour Source -->
-                     <TextBlock Text="Colour Source" Foreground="{StaticResource SubtitleBrush}" Margin="0,0,0,5"/>
-                     <ComboBox x:Name="UI_Combo_ColourSource" Height="28" Margin="0,0,0,15" SelectedIndex="0" SelectionChanged="UI_Combo_ColourSource_SelectionChanged">
-                         <ComboBoxItem Content="Projection"/>
-                         <ComboBoxItem Content="Cut"/>
-                     </ComboBox>
-                     
-                     <Separator Margin="0,5,0,15"/>
-                     
-                     <!-- Dimensions -->
-                     <TextBlock Text="Box Dimensions (mm)" Style="{StaticResource SectionLabelStyle}" Margin="0,0,0,10"/>
-                     
-                     <Grid Margin="0,0,0,10">
-                         <Grid.ColumnDefinitions>
-                             <ColumnDefinition Width="*"/>
-                             <ColumnDefinition Width="10"/>
-                             <ColumnDefinition Width="*"/>
-                         </Grid.ColumnDefinitions>
-                         <StackPanel Grid.Column="0">
-                             <TextBlock Text="Width" Foreground="{StaticResource SubtitleBrush}"/>
-                             <TextBox x:Name="UI_Txt_Width" Text="1200" Height="26" VerticalContentAlignment="Center" Padding="5,0"/>
-                         </StackPanel>
-                         <StackPanel Grid.Column="2">
-                             <TextBlock Text="Height" Foreground="{StaticResource SubtitleBrush}"/>
-                             <TextBox x:Name="UI_Txt_Height" Text="600" Height="26" VerticalContentAlignment="Center" Padding="5,0"/>
-                         </StackPanel>
-                     </Grid>
-                     
-                     <TextBlock Text="Vertical Offset (mm)" Foreground="{StaticResource SubtitleBrush}"/>
-                     <TextBox x:Name="UI_Txt_Offset" Text="300" Height="26" VerticalContentAlignment="Center" Padding="5,0"/>
-
-                 </StackPanel>
-             </Border>
-             
-             <!-- RIGHT: SOURCE SELECT & PREVIEW -->
-             <Grid Grid.Column="2">
-                 <Grid.RowDefinitions>
-                     <RowDefinition Height="*"/> <!-- View List -->
-                     <RowDefinition Height="5"/>
-                     <RowDefinition Height="Auto"/> <!-- Preview Header -->
-                     <RowDefinition Height="150"/> <!-- Preview List -->
-                 </Grid.RowDefinitions>
-
-                 <!-- TOP: SELECT SOURCE VIEW -->
-                 <Border Grid.Row="0" Style="{StaticResource SectionBorderStyle}" Padding="0">
-                     <Grid>
-                         <Grid.RowDefinitions>
-                             <RowDefinition Height="Auto"/>
-                             <RowDefinition Height="Auto"/>
-                             <RowDefinition Height="*"/>
-                         </Grid.RowDefinitions>
-                         
-                         <!-- Header -->
-                         <Border Grid.Row="0" Background="{DynamicResource WindowBackgroundBrush}" Padding="15,10" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
-                             <TextBlock Text="Select Source View" Style="{StaticResource SectionLabelStyle}" Margin="0"/>
-                         </Border>
-                         
-                         <!-- Filters -->
-                         <StackPanel Grid.Row="1" Margin="15,10">
-                             <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                                 <CheckBox x:Name="UI_Check_Views" Content="Views" IsChecked="True" Margin="0,0,15,0" Checked="OnViewFilterChanged" Unchecked="OnViewFilterChanged"/>
-                                 <CheckBox x:Name="UI_Check_Templates" Content="Templates" IsChecked="True" Checked="OnViewFilterChanged" Unchecked="OnViewFilterChanged"/>
-                             </StackPanel>
-                             <TextBox x:Name="UI_Txt_Search" Style="{StaticResource InputStyle}" Tag="Filter views..." TextChanged="OnViewSearchChanged"/>
-                         </StackPanel>
-                         
-                         <!-- List -->
-                         <ListBox x:Name="UI_List_Views" Grid.Row="2" Margin="15,0,15,15" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" SelectionChanged="UI_List_Views_SelectionChanged">
-                            <ListBox.ItemContainerStyle>
-                                <Style TargetType="ListBoxItem">
-                                    <Setter Property="Padding" Value="5,2"/>
-                                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                                </Style>
-                            </ListBox.ItemContainerStyle>
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Name}"/>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                         </ListBox>
-                     </Grid>
-                 </Border>
-
-                 <!-- BOTTOM: FILTER PREVIEW -->
-                 <Border Grid.Row="3" Style="{StaticResource SectionBorderStyle}" Padding="0">
-                     <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-                        <Border Grid.Row="0" Background="{DynamicResource WindowBackgroundBrush}" Padding="15,8" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
-                            <TextBlock x:Name="UI_Label_Filters" Text="Existing Filters in Selected View" Style="{StaticResource SectionLabelStyle}" FontSize="11" Margin="0"/>
-                        </Border>
-                        
-                        <ListBox x:Name="UI_List_Filters" Grid.Row="1" Margin="10" BorderThickness="0">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding}" Foreground="{DynamicResource LabelBrush}" Padding="2"/>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                     </Grid>
-                 </Border>
-             </Grid>
-        </Grid>
-
-        <!-- FOOTER -->
-        <Border Grid.Row="2" Background="White" Padding="{DynamicResource FooterPadding}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0">
-            <Grid>
+            <!-- Content -->
+            <Grid Grid.Row="1" Margin="25">
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="250"/>
+                    <ColumnDefinition Width="25"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 
-                <TextBlock Grid.Column="0" x:Name="UI_Status_Text" Text="Ready" VerticalAlignment="Center" Style="{StaticResource StatusLabelStyle}"/>
+                <!-- LEFT: SETTINGS -->
+                <Border Grid.Column="0" Background="#FAFAFA" CornerRadius="8" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="1" Padding="15">
+                    <StackPanel>
+                        <TextBlock Text="Settings" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,0,0,15"/>
+                        
+                        <!-- Text Style -->
+                        <TextBlock Text="Text Style" Style="{StaticResource PremiumSectionLabelStyle}" FontSize="12" Margin="0,0,0,6"/>
+                        <ComboBox x:Name="UI_Combo_TextStyle" Height="32" Margin="0,0,0,20" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0"/>
+                        
+                        <!-- Colour Source -->
+                        <TextBlock Text="Colour Source" Style="{StaticResource PremiumSectionLabelStyle}" FontSize="12" Margin="0,0,0,6"/>
+                        <ComboBox x:Name="UI_Combo_ColourSource" Height="32" Margin="0,0,0,20" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0" SelectedIndex="0" SelectionChanged="UI_Combo_ColourSource_SelectionChanged">
+                            <ComboBoxItem Content="Projection"/>
+                            <ComboBoxItem Content="Cut"/>
+                        </ComboBox>
+                        
+                        <Rectangle Height="1" Fill="#E0E0E0" Margin="0,5,0,20"/>
+                        
+                        <!-- Dimensions -->
+                        <TextBlock Text="Box Dimensions (mm)" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,0,0,12"/>
+                        
+                        <Grid Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="15"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Width" Foreground="#666666" FontSize="11" Margin="0,0,0,4"/>
+                                <TextBox x:Name="UI_Txt_Width" Text="1200" Height="32" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" BorderBrush="#E0E0E0"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Height" Foreground="#666666" FontSize="11" Margin="0,0,0,4"/>
+                                <TextBox x:Name="UI_Txt_Height" Text="600" Height="32" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" BorderBrush="#E0E0E0"/>
+                            </StackPanel>
+                        </Grid>
+                        
+                        <TextBlock Text="Vertical Offset (mm)" Foreground="#666666" FontSize="11" Margin="0,0,0,4"/>
+                        <TextBox x:Name="UI_Txt_Offset" Text="300" Height="32" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" BorderBrush="#E0E0E0"/>
+                    </StackPanel>
+                </Border>
+                
+                <!-- RIGHT: SOURCE SELECT & PREVIEW -->
+                <Grid Grid.Column="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/> <!-- View List -->
+                        <RowDefinition Height="20"/> <!-- Spacer -->
+                        <RowDefinition Height="Auto"/> <!-- Preview Header -->
+                        <RowDefinition Height="180"/> <!-- Preview List -->
+                    </Grid.RowDefinitions>
 
-                <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <Button x:Name="UI_Btn_Cancel" Content="Cancel" Width="90" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,12,0" Click="UI_Btn_Cancel_Click"/>
-                    <Button x:Name="UI_Btn_Create" Content="Run" Width="140" Style="{StaticResource PrimaryButtonStyle}" Click="UI_Btn_Create_Click"/>
-                </StackPanel>
+                    <!-- TOP: SELECT SOURCE VIEW -->
+                    <Border Grid.Row="0" Background="White" CornerRadius="8" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="1" Padding="0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            
+                            <!-- Header -->
+                            <Border Grid.Row="0" Background="#F8F9FA" Padding="15,12" CornerRadius="8,8,0,0" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,0,0,1">
+                                <TextBlock Text="Select Source View" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0"/>
+                            </Border>
+                            
+                            <!-- Filters -->
+                            <StackPanel Grid.Row="1" Margin="15,15,15,10">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                    <CheckBox x:Name="UI_Check_Views" Content="Views" IsChecked="True" Margin="0,0,20,0" Checked="OnViewFilterChanged" Unchecked="OnViewFilterChanged"/>
+                                    <CheckBox x:Name="UI_Check_Templates" Content="Templates" IsChecked="True" Checked="OnViewFilterChanged" Unchecked="OnViewFilterChanged"/>
+                                </StackPanel>
+                                <TextBox x:Name="UI_Txt_Search" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0" Tag="Filter views..." TextChanged="OnViewSearchChanged"/>
+                            </StackPanel>
+                            
+                            <!-- List -->
+                            <ListBox x:Name="UI_List_Views" Grid.Row="2" Margin="15,0,15,15" BorderThickness="1" BorderBrush="#E0E0E0" Padding="5" SelectionChanged="UI_List_Views_SelectionChanged" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                               <ListBox.ItemContainerStyle>
+                                   <Style TargetType="ListBoxItem">
+                                       <Setter Property="Padding" Value="8,6"/>
+                                       <Setter Property="Margin" Value="0,1"/>
+                                       <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                       <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                                       <Setter Property="BorderBrush" Value="#F0F0F0"/>
+                                   </Style>
+                               </ListBox.ItemContainerStyle>
+                               <ListBox.ItemTemplate>
+                                   <DataTemplate>
+                                       <TextBlock Text="{Binding Name}" Foreground="#333333"/>
+                                   </DataTemplate>
+                               </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Grid>
+                    </Border>
+
+                    <!-- BOTTOM: FILTER PREVIEW -->
+                    <Border Grid.Row="3" Background="White" CornerRadius="8" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="1" Padding="0">
+                        <Grid>
+                           <Grid.RowDefinitions>
+                               <RowDefinition Height="Auto"/>
+                               <RowDefinition Height="*"/>
+                           </Grid.RowDefinitions>
+                           <Border Grid.Row="0" Background="#F8F9FA" Padding="15,12" CornerRadius="8,8,0,0" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,0,0,1">
+                               <TextBlock x:Name="UI_Label_Filters" Text="Existing Filters in Selected View" Style="{StaticResource PremiumSectionLabelStyle}" FontSize="12" Margin="0"/>
+                           </Border>
+                           
+                           <ListBox x:Name="UI_List_Filters" Grid.Row="1" Margin="15" BorderThickness="0" Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                               <ListBox.ItemTemplate>
+                                   <DataTemplate>
+                                       <TextBlock Text="{Binding}" Foreground="#666666" Padding="4"/>
+                                   </DataTemplate>
+                               </ListBox.ItemTemplate>
+                           </ListBox>
+                        </Grid>
+                    </Border>
+                </Grid>
             </Grid>
-        </Border>
-    </Grid>
+
+            <!-- Footer -->
+            <Border Grid.Row="2" Background="#FAFAFA" Padding="20,15" CornerRadius="0,0,12,12" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,1,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <TextBlock Grid.Column="0" x:Name="UI_Status_Text" Text="Ready" VerticalAlignment="Center" Foreground="#999999"/>
+
+                    <Button x:Name="UI_Btn_Cancel" Grid.Column="1" Content="Cancel" Width="90" Style="{StaticResource PremiumPrimaryButtonStyle}" Margin="0,0,12,0" Click="UI_Btn_Cancel_Click"/>
+                    <Button x:Name="UI_Btn_Create" Grid.Column="2" Content="Run" Width="140" Style="{StaticResource PremiumActionButtonStyle}" Click="UI_Btn_Create_Click"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
 </Window>

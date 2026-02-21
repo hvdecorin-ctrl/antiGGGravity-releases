@@ -1,131 +1,121 @@
 <Window x:Class="antiGGGravity.Views.ProjectAudit.FamilyLoadingView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d"
         Title="Family Loading" Height="800" Width="1200"
         MinHeight="600" MinWidth="650"
-        WindowStartupLocation="CenterScreen" Topmost="True"
-        Background="#F5F5F5">
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        WindowStartupLocation="CenterScreen" Topmost="True">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="70" CornerRadius="12" GlassFrameThickness="0"/>
+    </WindowChrome.WindowChrome>
 
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/antiGGGravity;component/Resources/BrandStyles.xaml"/>
+                <ResourceDictionary Source="/antiGGGravity;component/Resources/Pre_BrandStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="70"/>  <!-- Header -->
-            <RowDefinition Height="*"/>   <!-- Content -->
-            <RowDefinition Height="70"/>  <!-- Footer -->
-        </Grid.RowDefinitions>
-
-        <!-- HEADER -->
-        <Border Grid.Row="0" Background="White" BorderBrush="#E5E5E5" BorderThickness="0,0,0,1">
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="25,0">
-                <TextBlock Text="antiGGGravity" FontSize="18" FontWeight="Bold" VerticalAlignment="Center">
-                    <TextBlock.Foreground>
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                            <GradientStop Color="#4A708B" Offset="0.0"/>
-                            <GradientStop Color="#5A8A8A" Offset="0.4"/>
-                            <GradientStop Color="#8B8B4A" Offset="0.7"/>
-                            <GradientStop Color="#B4A050" Offset="1.0"/>
-                        </LinearGradientBrush>
-                    </TextBlock.Foreground>
-                </TextBlock>
-                <Rectangle Width="2" Height="24" Fill="#E0E0E0" Margin="15,0" VerticalAlignment="Center"/>
-                <TextBlock Text="Family Loading" FontSize="16" Foreground="#666666" VerticalAlignment="Center"/>
-            </StackPanel>
-        </Border>
-
-        <!-- CONTENT -->
-        <Grid Grid.Row="1" Margin="25,15,25,15">
+    <Border Style="{StaticResource PremiumBorderStyle}">
+        <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>   <!-- Folder label -->
-                <RowDefinition Height="Auto"/>   <!-- Folder combo -->
-                <RowDefinition Height="Auto"/>   <!-- Family label -->
-                <RowDefinition Height="Auto"/>   <!-- Family filter -->
-                <RowDefinition Height="*"/>      <!-- Family list -->
-                <RowDefinition Height="Auto"/>   <!-- Types label -->
-                <RowDefinition Height="Auto"/>   <!-- Types filter -->
-                <RowDefinition Height="*"/>      <!-- Types list -->
+                <RowDefinition Height="70"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- Folder Section -->
-            <TextBlock Grid.Row="0" Text="Family Folder:" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8"/>
-            <ComboBox x:Name="UI_Combo_Folder" Grid.Row="1" Height="32" Padding="8,0"
-                      VerticalContentAlignment="Center" Margin="0,0,0,12"
-                      SelectionChanged="UI_Combo_Folder_SelectionChanged"/>
+            <!-- HEADER -->
+            <Border Grid.Row="0" Background="{StaticResource BrandGradientBrush}" CornerRadius="12,12,0,0">
+                <Grid Margin="25,0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource CompanyLogoStyle}"/>
+                        <TextBlock Style="{StaticResource CompanyDividerStyle}"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Family Loading" Style="{StaticResource PremiumTitleStyle}"/>
+                            <TextBlock Text="Bulk load families and types from library" Style="{StaticResource PremiumSubtitleStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <Button HorizontalAlignment="Right" VerticalAlignment="Center" Content="✕" 
+                            Style="{StaticResource PremiumIconButtonStyle}" Width="30" Height="30"
+                            Click="UI_Btn_Close_Click" WindowChrome.IsHitTestVisibleInChrome="True"/>
+                </Grid>
+            </Border>
 
-            <!-- Family Section -->
-            <TextBlock Grid.Row="2" Text="Select Family:" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8"/>
-            <TextBox x:Name="UI_Text_FamilyFilter" Grid.Row="3" Height="30" Padding="8,0"
-                     VerticalContentAlignment="Center" Background="#F9F9F9"
-                     BorderBrush="#DDE0E3" BorderThickness="1" Margin="0,0,0,8"
-                     Text="Type to filter families..."
-                     GotFocus="UI_Text_FamilyFilter_GotFocus"
-                     LostFocus="UI_Text_FamilyFilter_LostFocus"
-                     TextChanged="UI_Text_FamilyFilter_TextChanged"/>
-            <ListBox x:Name="UI_List_Families" Grid.Row="4" Background="White"
-                     BorderBrush="#E0E0E0" SelectionMode="Single" Margin="0,0,0,12"
-                     SelectionChanged="UI_List_Families_SelectionChanged"/>
+            <!-- CONTENT -->
+            <Grid Grid.Row="1" Margin="25">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>   <!-- Folder label -->
+                    <RowDefinition Height="Auto"/>   <!-- Folder combo -->
+                    <RowDefinition Height="Auto"/>   <!-- Family label -->
+                    <RowDefinition Height="Auto"/>   <!-- Family filter -->
+                    <RowDefinition Height="*"/>      <!-- Family list -->
+                    <RowDefinition Height="Auto"/>   <!-- Types label -->
+                    <RowDefinition Height="Auto"/>   <!-- Types filter -->
+                    <RowDefinition Height="*"/>      <!-- Types list -->
+                </Grid.RowDefinitions>
 
-            <!-- Types Section -->
-            <TextBlock Grid.Row="5" Text="Select Types to Load:" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8"/>
-            <TextBox x:Name="UI_Text_TypesFilter" Grid.Row="6" Height="30" Padding="8,0"
-                     VerticalContentAlignment="Center" Background="#F9F9F9"
-                     BorderBrush="#DDE0E3" BorderThickness="1" Margin="0,0,0,8"
-                     Text="Type to filter types..."
-                     GotFocus="UI_Text_TypesFilter_GotFocus"
-                     LostFocus="UI_Text_TypesFilter_LostFocus"
-                     TextChanged="UI_Text_TypesFilter_TextChanged"/>
+                <!-- Folder Section -->
+                <TextBlock Grid.Row="0" Text="Family Folder:" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,0,0,8"/>
+                <ComboBox x:Name="UI_Combo_Folder" Grid.Row="1" Height="32" Padding="8,0"
+                          VerticalContentAlignment="Center" Margin="0,0,0,12"
+                          SelectionChanged="UI_Combo_Folder_SelectionChanged"/>
 
-            <!-- Types CheckedListBox equivalent using ListBox with CheckBoxes -->
-            <ListBox x:Name="UI_List_Types" Grid.Row="7" Background="White"
-                     BorderBrush="#E0E0E0" SelectionMode="Extended">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <CheckBox Content="{Binding Name}" IsChecked="{Binding IsChecked, Mode=TwoWay}"
-                                  Margin="4,2" FontSize="12"/>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-        </Grid>
+                <!-- Family Section -->
+                <TextBlock Grid.Row="2" Text="Select Family:" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,0,0,8"/>
+                <TextBox x:Name="UI_Text_FamilyFilter" Grid.Row="3" Height="30" Padding="8,0"
+                         VerticalContentAlignment="Center" Background="#F9F9F9"
+                         BorderBrush="#DDE0E3" BorderThickness="1" Margin="0,0,0,8"
+                         Text="Type to filter families..."
+                         GotFocus="UI_Text_FamilyFilter_GotFocus"
+                         LostFocus="UI_Text_FamilyFilter_LostFocus"
+                         TextChanged="UI_Text_FamilyFilter_TextChanged"/>
+                <ListBox x:Name="UI_List_Families" Grid.Row="4" Background="White"
+                         BorderBrush="#E0E0E0" SelectionMode="Single" Margin="0,0,0,12"
+                         SelectionChanged="UI_List_Families_SelectionChanged"/>
 
-        <!-- FOOTER -->
-        <Border Grid.Row="2" Background="White" BorderBrush="#E5E5E5" BorderThickness="0,1,0,0">
-            <Grid Margin="25,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>    <!-- Status -->
-                    <ColumnDefinition Width="Auto"/> <!-- Uncheck All -->
-                    <ColumnDefinition Width="Auto"/> <!-- Check All -->
-                    <ColumnDefinition Width="Auto"/> <!-- Cancel -->
-                    <ColumnDefinition Width="Auto"/> <!-- Load -->
-                </Grid.ColumnDefinitions>
+                <!-- Types Section -->
+                <TextBlock Grid.Row="5" Text="Select Types to Load:" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,0,0,8"/>
+                <TextBox x:Name="UI_Text_TypesFilter" Grid.Row="6" Height="30" Padding="8,0"
+                         VerticalContentAlignment="Center" Background="#F9F9F9"
+                         BorderBrush="#DDE0E3" BorderThickness="1" Margin="0,0,0,8"
+                         Text="Type to filter types..."
+                         GotFocus="UI_Text_TypesFilter_GotFocus"
+                         LostFocus="UI_Text_TypesFilter_LostFocus"
+                         TextChanged="UI_Text_TypesFilter_TextChanged"/>
 
-                <TextBlock x:Name="UI_Status" Grid.Column="0" VerticalAlignment="Center"
-                           Foreground="#999999" FontSize="12" Text="Ready to load • Family Loader"/>
-
-                <Button Grid.Column="1" Content="Uncheck All" Width="110" 
-                        Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,10,0"
-                        Click="UI_Btn_UncheckAll_Click"/>
-
-                <Button Grid.Column="2" Content="Check All" Width="110" 
-                        Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,10,0"
-                        Click="UI_Btn_CheckAll_Click"/>
-
-                <Button Grid.Column="3" Content="Cancel" Width="100" 
-                        Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,10,0"
-                        Click="UI_Btn_Close_Click"/>
-
-                <Button x:Name="UI_Btn_Load" Grid.Column="4" Content="Load" Width="160" 
-                        Style="{StaticResource PrimaryButtonStyle}"
-                        Click="UI_Btn_Load_Click"/>
+                <!-- Types CheckedListBox equivalent using ListBox with CheckBoxes -->
+                <ListBox x:Name="UI_List_Types" Grid.Row="7" Background="White"
+                         BorderBrush="#E0E0E0" SelectionMode="Extended">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <CheckBox Content="{Binding Name}" IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                                      Margin="4,2" FontSize="12"/>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
             </Grid>
-        </Border>
-    </Grid>
+
+            <!-- FOOTER -->
+            <Border Grid.Row="2" Background="#FAFAFA" Padding="20,15" CornerRadius="0,0,12,12" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,1,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock x:Name="UI_Status" Grid.Column="0" VerticalAlignment="Center" Foreground="#999999" Text="Ready to load • Family Loader"/>
+
+                    <Button Grid.Column="1" Content="Uncheck All" Width="110" Style="{StaticResource PremiumPrimaryButtonStyle}" Margin="0,0,10,0" Click="UI_Btn_UncheckAll_Click"/>
+                    <Button Grid.Column="2" Content="Check All" Width="110" Style="{StaticResource PremiumPrimaryButtonStyle}" Margin="0,0,10,0" Click="UI_Btn_CheckAll_Click"/>
+                    <Button Grid.Column="3" Content="Cancel" Width="100" Style="{StaticResource PremiumPrimaryButtonStyle}" Margin="0,0,10,0" Click="UI_Btn_Close_Click"/>
+                    <Button x:Name="UI_Btn_Load" Grid.Column="4" Content="Load Families" Width="160" Style="{StaticResource PremiumActionButtonStyle}" Click="UI_Btn_Load_Click"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
 </Window>

@@ -4,148 +4,180 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Color Splasher" Height="700" Width="1000"
-        WindowStartupLocation="CenterScreen" Topmost="True"
-        Background="{DynamicResource WindowBackgroundBrush}">
+        Title="Color Splasher" Height="750" Width="1050"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        WindowStartupLocation="CenterScreen" Topmost="True">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="70" CornerRadius="12" GlassFrameThickness="0"/>
+    </WindowChrome.WindowChrome>
 
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/antiGGGravity;component/Resources/BrandStyles.xaml"/>
+                <ResourceDictionary Source="/antiGGGravity;component/Resources/Pre_BrandStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
             <Style TargetType="DataGridColumnHeader">
-                <Setter Property="Height" Value="32"/>
-                <Setter Property="Background" Value="White"/>
-                <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                <Setter Property="Height" Value="36"/>
+                <Setter Property="Background" Value="#F8F9FA"/>
+                <Setter Property="BorderBrush" Value="{StaticResource PremiumBorderBrush}"/>
                 <Setter Property="BorderThickness" Value="0,0,0,1"/>
                 <Setter Property="FontWeight" Value="SemiBold"/>
-                <Setter Property="Padding" Value="10,0"/>
+                <Setter Property="Padding" Value="15,0"/>
+                <Setter Property="Foreground" Value="#333333"/>
+            </Style>
+            
+            <Style TargetType="DataGridCell">
+                 <Setter Property="Padding" Value="15,0"/>
+                 <Setter Property="VerticalContentAlignment" Value="Center"/>
+                 <Setter Property="BorderThickness" Value="0"/>
+                 <!-- Ensure content fits nicely without inner borders -->
+                 <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             </Style>
         </ResourceDictionary>
     </Window.Resources>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="{DynamicResource HeaderHeight}"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="{DynamicResource FooterHeight}"/>
-        </Grid.RowDefinitions>
+    <Border Style="{StaticResource PremiumBorderStyle}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="70"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <!-- Header -->
-        <Border Grid.Row="0" Background="White" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="{DynamicResource HeaderPadding}">
-                <TextBlock Style="{StaticResource BrandTitleStyle}"/>
-                <Rectangle Width="2" Height="24" Fill="{DynamicResource SeparatorBrush}" Margin="15,0" VerticalAlignment="Center"/>
-                <TextBlock Text="Color Splasher" Style="{StaticResource BrandSubtitleStyle}"/>
-            </StackPanel>
-        </Border>
+            <!-- Header -->
+            <Border Grid.Row="0" Background="{StaticResource BrandGradientBrush}" CornerRadius="12,12,0,0">
+                <Grid Margin="25,0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource CompanyLogoStyle}"/>
+                        <TextBlock Style="{StaticResource CompanyDividerStyle}"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Color Splasher" Style="{StaticResource PremiumTitleStyle}"/>
+                            <TextBlock Text="Visualize parameter values with color overrides" Style="{StaticResource PremiumSubtitleStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <Button HorizontalAlignment="Right" VerticalAlignment="Center" Content="✕" 
+                            Style="{StaticResource PremiumIconButtonStyle}" Width="30" Height="30"
+                            Click="UI_Btn_Reset_Click" WindowChrome.IsHitTestVisibleInChrome="True"/>  <!-- Using Reset for Close as it's the safest non-destructive action, or we map it to close in code behind if added later -->
+                </Grid>
+            </Border>
 
-        <!-- Content -->
-        <Grid Grid.Row="1" Margin="{DynamicResource ContentMargin}">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="300"/>
-                <ColumnDefinition Width="20"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-
-            <!-- Left Panel: Selection -->
-            <Grid Grid.Column="0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/> <!-- Search Box -->
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-
-                <TextBlock Text="Category" Style="{StaticResource SectionLabelStyle}"/>
-                <ComboBox x:Name="UI_Combo_Category" Grid.Row="1" Height="30" Margin="0,0,0,20"
-                          Padding="5" SelectionChanged="UI_Combo_Category_SelectionChanged"/>
-
-                <TextBlock Grid.Row="2" Text="Parameter" Style="{StaticResource SectionLabelStyle}"/>
-                
-                <!-- Search Box -->
-                <TextBox x:Name="UI_Txt_Search" Grid.Row="3" Style="{StaticResource FilterTextBoxStyle}" 
-                         Margin="0,0,0,10" TextChanged="UI_Txt_Search_TextChanged"
-                         Tag="Search parameters..."/>
-
-                <ListBox x:Name="UI_List_Parameters" Grid.Row="4" Background="White" BorderBrush="{DynamicResource BorderBrush}"
-                         SelectionMode="Single" SelectionChanged="UI_List_Parameters_SelectionChanged">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding Name}" Padding="5"/>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </Grid>
-
-            <!-- Right Panel: Values -->
-            <Grid Grid.Column="2">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                    <TextBlock Text="Values &amp; Colors" Style="{StaticResource SectionLabelStyle}" VerticalAlignment="Center" Margin="0"/>
-                    <Button x:Name="UI_Btn_Randomize" Content="Random Colors" Margin="20,0,0,0" Width="120"
-                            Style="{StaticResource PrimaryButtonStyle}" Click="UI_Btn_Randomize_Click"/>
-                    <Button x:Name="UI_Btn_Gradient" Content="Gradient" Margin="10,0,0,0" Width="100"
-                            Style="{StaticResource PrimaryButtonStyle}" Click="UI_Btn_Gradient_Click"/>
-                </StackPanel>
-
-                <DataGrid Grid.Row="1" x:Name="UI_Grid_Values" AutoGenerateColumns="False" 
-                          CanUserAddRows="False" Background="White" BorderBrush="{DynamicResource BorderBrush}"
-                          RowHeight="32" AlternatingRowBackground="#FAFAFA" GridLinesVisibility="Horizontal"
-                          HorizontalGridLinesBrush="#F0F0F0">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Value" Binding="{Binding Value}" Width="*" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="Count" Binding="{Binding Count}" Width="80" IsReadOnly="True"/>
-                        
-                        <!-- Color Column -->
-                        <DataGridTemplateColumn Header="Color" Width="80">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <Border Background="{Binding ColorBrush}" Width="60" Height="20" 
-                                            CornerRadius="4" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
-                                            Cursor="Hand"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        
-                    </DataGrid.Columns>
-                </DataGrid>
-            </Grid>
-        </Grid>
-
-        <!-- Footer -->
-        <Border Grid.Row="2" Background="White" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Padding="{DynamicResource FooterPadding}">
-            <Grid>
+            <!-- Content -->
+            <Grid Grid.Row="1" Margin="25">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="320"/>
+                    <ColumnDefinition Width="20"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <Button Grid.Column="0" Content="Create Legend" Width="120"
-                        Style="{StaticResource PrimaryButtonStyle}"
-                        Click="UI_Btn_Legend_Click"/>
+                <!-- Left Panel: Selection -->
+                <Border Grid.Column="0" Background="White" CornerRadius="8" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="1" Padding="15">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/> <!-- Search Box -->
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
 
-                <Button Grid.Column="1" Content="Create Filters" Width="120" Margin="10,0,0,0"
-                        Style="{StaticResource PrimaryButtonStyle}"
-                        Click="UI_Btn_Filters_Click"/>
+                        <TextBlock Text="Category:" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,0,0,8"/>
+                        <ComboBox x:Name="UI_Combo_Category" Grid.Row="1" Height="32" Margin="0,0,0,20"
+                                  VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0"
+                                  SelectionChanged="UI_Combo_Category_SelectionChanged"/>
 
-                <Button Grid.Column="3" Content="Reset" Width="100" Margin="0,0,10,0"
-                        Style="{StaticResource SecondaryButtonStyle}"
-                        Click="UI_Btn_Reset_Click"/>
+                        <TextBlock Grid.Row="2" Text="Parameter:" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,0,0,8"/>
+                        
+                        <!-- Search Box -->
+                        <TextBox x:Name="UI_Txt_Search" Grid.Row="3" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0"
+                                 Margin="0,0,0,10" TextChanged="UI_Txt_Search_TextChanged"
+                                 Tag="Search parameters..."/>
 
-                <Button Grid.Column="4" Content="Apply" Width="100" 
-                        Style="{StaticResource PrimaryButtonStyle}"
-                        Click="UI_Btn_Apply_Click"/>
+                        <ListBox x:Name="UI_List_Parameters" Grid.Row="4" Background="White" BorderBrush="#E0E0E0"
+                                 SelectionMode="Single" SelectionChanged="UI_List_Parameters_SelectionChanged">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}" Padding="8,5"/>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+                </Border>
+
+                <!-- Right Panel: Values -->
+                <Border Grid.Column="2" Background="White" CornerRadius="8" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="1" Padding="0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <Border Grid.Row="0" Background="#F8F9FA" Padding="15,10" CornerRadius="8,8,0,0" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,0,0,1">
+                            <Grid>
+                                <TextBlock Text="Values &amp; Colors" Style="{StaticResource PremiumSectionLabelStyle}" VerticalAlignment="Center" Margin="0"/>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <Button x:Name="UI_Btn_Randomize" Content="Random Colors" Width="120" Height="28" Padding="10,0" FontSize="12"
+                                            Style="{StaticResource PremiumPrimaryButtonStyle}" Margin="0,0,10,0" Click="UI_Btn_Randomize_Click"/>
+                                    <Button x:Name="UI_Btn_Gradient" Content="Gradient" Width="100" Height="28" Padding="10,0" FontSize="12"
+                                            Style="{StaticResource PremiumPrimaryButtonStyle}" Click="UI_Btn_Gradient_Click"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <DataGrid Grid.Row="1" x:Name="UI_Grid_Values" AutoGenerateColumns="False" 
+                                  CanUserAddRows="False" Background="White" BorderBrush="Transparent" BorderThickness="0"
+                                  RowHeight="36" AlternatingRowBackground="#FAFAFA" GridLinesVisibility="Horizontal"
+                                  HorizontalGridLinesBrush="#F0F0F0" Margin="1">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Value" Binding="{Binding Value}" Width="*" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Count" Binding="{Binding Count}" Width="80" IsReadOnly="True" />
+                                
+                                <!-- Color Column -->
+                                <DataGridTemplateColumn Header="Color" Width="100">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Border Background="{Binding ColorBrush}" Width="70" Height="24" HorizontalAlignment="Left"
+                                                    CornerRadius="4" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="1"
+                                                    Cursor="Hand"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </Border>
             </Grid>
-        </Border>
-    </Grid>
+
+            <!-- Footer -->
+            <Border Grid.Row="2" Background="#FAFAFA" Padding="20,15" CornerRadius="0,0,12,12" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,1,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="0" Content="Create Legend" Width="140"
+                            Style="{StaticResource PremiumPrimaryButtonStyle}"
+                            Click="UI_Btn_Legend_Click"/>
+
+                    <Button Grid.Column="1" Content="Create Filters" Width="140" Margin="12,0,0,0"
+                            Style="{StaticResource PremiumPrimaryButtonStyle}"
+                            Click="UI_Btn_Filters_Click"/>
+
+                    <Button Grid.Column="3" Content="Reset View" Width="110" Margin="0,0,12,0"
+                            Style="{StaticResource PremiumPrimaryButtonStyle}"
+                            Click="UI_Btn_Reset_Click"/>
+
+                    <Button Grid.Column="4" Content="Apply Colors" Width="140" 
+                            Style="{StaticResource PremiumActionButtonStyle}"
+                            Click="UI_Btn_Apply_Click"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
 </Window>
