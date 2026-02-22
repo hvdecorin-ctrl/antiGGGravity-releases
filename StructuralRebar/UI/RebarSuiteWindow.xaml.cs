@@ -42,6 +42,7 @@ namespace antiGGGravity.StructuralRebar.UI
             {
                 SelectedHostType = ElementHostType.Beam;
                 if (_beamPanel == null) _beamPanel = new BeamRebarPanel(_doc);
+                _beamPanel.UpdateZoneInfo(DesignCode);
                 UI_PanelHost.Content = _beamPanel;
             }
             else if (UI_Radio_Wall?.IsChecked == true)
@@ -54,6 +55,7 @@ namespace antiGGGravity.StructuralRebar.UI
             {
                 SelectedHostType = ElementHostType.Column;
                 if (_columnPanel == null) _columnPanel = new ColumnRebarPanel(_doc);
+                _columnPanel.UpdateZoneInfo(DesignCode);
                 UI_PanelHost.Content = _columnPanel;
             }
             else if (UI_Radio_StripFooting?.IsChecked == true)
@@ -125,8 +127,42 @@ namespace antiGGGravity.StructuralRebar.UI
             else if (UI_PanelHost.Content is WallCornerUPanel wcu) wcu.SaveSettings();
         }
 
+        private void DesignCode_Changed(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            // Guard: fires during XAML init before panels exist
+            if (_doc == null) return;
+
+            var code = DesignCode;
+            _beamPanel?.UpdateZoneInfo(code);
+            _columnPanel?.UpdateZoneInfo(code);
+        }
+
+        private void CodeReference_Click(object sender, RoutedEventArgs e)
+        {
+            var refWindow = new DesignCodeReferenceWindow();
+            refWindow.Owner = this;
+            refWindow.Show();
+        }
+
         // --- Accessors for the handler ---
         public bool RemoveExisting => UI_Check_RemoveExisting.IsChecked == true;
+        
+        public DesignCodeStandard DesignCode 
+        {
+            get
+            {
+                if (UI_Combo_DesignCode.SelectedItem is System.Windows.Controls.ComboBoxItem item)
+                {
+                    string content = item.Content.ToString();
+                    if (content == "ACI 318") return DesignCodeStandard.ACI318;
+                    if (content == "AS 3600") return DesignCodeStandard.AS3600;
+                    if (content == "Eurocode 2") return DesignCodeStandard.EC2;
+                    if (content == "NZS 3101") return DesignCodeStandard.NZS3101;
+                }
+                return DesignCodeStandard.Custom;
+            }
+        }
+
         public BeamRebarPanel BeamPanel => _beamPanel;
         public WallRebarPanel WallPanel => _wallPanel;
         public ColumnRebarPanel ColumnPanel => _columnPanel;

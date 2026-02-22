@@ -113,6 +113,7 @@ namespace antiGGGravity.StructuralRebar.Core
             if (beams.Count == 0) return null;
 
             var request = _window.BeamPanel.BuildRequest(_window.RemoveExisting);
+            request.DesignCode = _window.DesignCode;
             var engine = new RebarEngine(doc);
             var (processed, total) = engine.GenerateBeamRebar(beams, request);
             return $"Successfully reinforced {processed} of {total} beams.";
@@ -133,6 +134,7 @@ namespace antiGGGravity.StructuralRebar.Core
 
             var request = _window.WallPanel.GetRequest();
             request.RemoveExisting = _window.RemoveExisting;
+            request.DesignCode = _window.DesignCode;
             var engine = new RebarEngine(doc);
             var (processed, total) = engine.GenerateWallRebar(walls, request);
             return $"Successfully reinforced {processed} of {total} walls.";
@@ -153,6 +155,7 @@ namespace antiGGGravity.StructuralRebar.Core
 
             var request = _window.ColumnPanel.GetRequest();
             request.RemoveExisting = _window.RemoveExisting;
+            request.DesignCode = _window.DesignCode;
             var engine = new RebarEngine(doc);
             var (processed, total) = engine.GenerateColumnRebar(columns, request);
             return $"Successfully reinforced {processed} of {total} columns.";
@@ -173,6 +176,7 @@ namespace antiGGGravity.StructuralRebar.Core
 
             var request = _window.StripFootingPanel.GetRequest();
             request.RemoveExisting = _window.RemoveExisting;
+            request.DesignCode = _window.DesignCode;
             var engine = new RebarEngine(doc);
             var (processed, total) = engine.GenerateStripFootingRebar(foundations, request);
             return $"Successfully reinforced {processed} of {total} strip footings.";
@@ -193,6 +197,7 @@ namespace antiGGGravity.StructuralRebar.Core
 
             var request = _window.FootingPadPanel.GetRequest();
             request.RemoveExisting = _window.RemoveExisting;
+            request.DesignCode = _window.DesignCode;
             var engine = new RebarEngine(doc);
             var (processed, total) = engine.GenerateFootingPadRebar(foundations, request);
             return $"Successfully reinforced {processed} of {total} footing pads.";
@@ -213,6 +218,7 @@ namespace antiGGGravity.StructuralRebar.Core
 
             var request = _window.WallCornerLPanel.GetRequest();
             request.RemoveExisting = _window.RemoveExisting;
+            request.DesignCode = _window.DesignCode;
             var engine = new RebarEngine(doc);
             var (processed, total) = engine.GenerateWallCornerRebar(walls, request);
             return $"Successfully generated rebar at {processed} of {total} identified corners.";
@@ -233,6 +239,7 @@ namespace antiGGGravity.StructuralRebar.Core
 
             var request = _window.WallCornerUPanel.GetRequest();
             request.RemoveExisting = _window.RemoveExisting;
+            request.DesignCode = _window.DesignCode;
             var engine = new RebarEngine(doc);
             var (processed, total) = engine.GenerateWallCornerRebar(walls, request);
             return $"Successfully generated rebar at {processed} of {total} identified corners.";

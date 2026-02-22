@@ -1,0 +1,291 @@
+<Window x:Class="antiGGGravity.StructuralRebar.UI.DesignCodeReferenceWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Design Code Reference" 
+        Height="700" Width="850" 
+        MinHeight="500" MinWidth="700"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        WindowStartupLocation="CenterScreen" ShowInTaskbar="True">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="50" CornerRadius="12" GlassFrameThickness="0" ResizeBorderThickness="4"/>
+    </WindowChrome.WindowChrome>
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/antiGGGravity;component/Resources/Pre_BrandStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Border Style="{StaticResource PremiumBorderStyle}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- HEADER -->
+            <Border Grid.Row="0" Background="{StaticResource BrandGradientBrush}" CornerRadius="12,12,0,0">
+                <Grid Margin="20,0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="📖" FontSize="20" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="Design Code Reference" Style="{StaticResource PremiumTitleStyle}"/>
+                    </StackPanel>
+                    <Button HorizontalAlignment="Right" VerticalAlignment="Center" Content="✕" 
+                            Style="{StaticResource PremiumIconButtonStyle}" Width="28" Height="28"
+                            Click="Close_Click" WindowChrome.IsHitTestVisibleInChrome="True"/>
+                </Grid>
+            </Border>
+
+            <!-- CONTENT -->
+            <TabControl Grid.Row="1" Margin="15" Background="Transparent" BorderThickness="0">
+                
+                <!-- TAB 1: CODE COMPARISON -->
+                <TabItem Header="  Code Comparison  " FontSize="13" FontWeight="SemiBold">
+                    <Grid Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Input bar for comparison -->
+                        <Border Grid.Row="0" Background="#F5F7FA" CornerRadius="8" Padding="15" Margin="0,0,0,10">
+                            <StackPanel>
+                                <TextBlock Text="PARAMETERS" FontSize="11" FontWeight="SemiBold" Foreground="#888" Margin="0,0,0,8"/>
+                                <WrapPanel>
+                                    <StackPanel Margin="0,0,15,0">
+                                        <TextBlock Text="Concrete" FontSize="10" Foreground="#666" Margin="0,0,0,2"/>
+                                        <ComboBox x:Name="UI_CompGrade" Width="80" Height="28" SelectionChanged="CompParam_Changed">
+                                            <ComboBoxItem Content="C25"/>
+                                            <ComboBoxItem Content="C30" IsSelected="True"/>
+                                            <ComboBoxItem Content="C35"/>
+                                            <ComboBoxItem Content="C40"/>
+                                            <ComboBoxItem Content="C50"/>
+                                        </ComboBox>
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,15,0">
+                                        <TextBlock Text="Steel" FontSize="10" Foreground="#666" Margin="0,0,0,2"/>
+                                        <ComboBox x:Name="UI_CompSteel" Width="80" Height="28" SelectionChanged="CompParam_Changed">
+                                            <ComboBoxItem Content="300E"/>
+                                            <ComboBoxItem Content="500E" IsSelected="True"/>
+                                        </ComboBox>
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,15,0">
+                                        <TextBlock Text="Bar ⌀ (mm)" FontSize="10" Foreground="#666" Margin="0,0,0,2"/>
+                                        <ComboBox x:Name="UI_CompBarDia" Width="80" Height="28" SelectionChanged="CompParam_Changed">
+                                            <ComboBoxItem Content="10"/>
+                                            <ComboBoxItem Content="12"/>
+                                            <ComboBoxItem Content="16" IsSelected="True"/>
+                                            <ComboBoxItem Content="20"/>
+                                            <ComboBoxItem Content="25"/>
+                                            <ComboBoxItem Content="32"/>
+                                        </ComboBox>
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,15,0">
+                                        <TextBlock Text="Beam h (mm)" FontSize="10" Foreground="#666" Margin="0,0,0,2"/>
+                                        <TextBox x:Name="UI_CompBeamDepth" Text="600" Width="70" Height="28" VerticalContentAlignment="Center" Padding="6,0"
+                                                 TextChanged="CompParam_Changed"/>
+                                    </StackPanel>
+                                    <StackPanel>
+                                        <TextBlock Text="Column D (mm)" FontSize="10" Foreground="#666" Margin="0,0,0,2"/>
+                                        <TextBox x:Name="UI_CompColDim" Text="400" Width="70" Height="28" VerticalContentAlignment="Center" Padding="6,0"
+                                                 TextChanged="CompParam_Changed"/>
+                                    </StackPanel>
+                                </WrapPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Comparison DataGrid -->
+                        <DataGrid Grid.Row="2" x:Name="UI_ComparisonGrid" 
+                                  AutoGenerateColumns="False" IsReadOnly="True"
+                                  CanUserAddRows="False" CanUserDeleteRows="False"
+                                  HeadersVisibility="Column" GridLinesVisibility="Horizontal"
+                                  BorderThickness="1" BorderBrush="#E0E0E0"
+                                  Background="White" RowBackground="White" AlternatingRowBackground="#F9FAFB"
+                                  FontSize="12" RowHeight="32"
+                                  ColumnHeaderHeight="36">
+                            <DataGrid.ColumnHeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="Background" Value="#4A759C"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                    <Setter Property="FontSize" Value="11"/>
+                                    <Setter Property="Padding" Value="8,0"/>
+                                    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                </Style>
+                            </DataGrid.ColumnHeaderStyle>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Parameter" Binding="{Binding Parameter}" Width="180" FontWeight="SemiBold">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="#333"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                            <Setter Property="Padding" Value="8,0"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="ACI 318" Binding="{Binding ACI318}" Width="*">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="AS 3600" Binding="{Binding AS3600}" Width="*">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Eurocode 2" Binding="{Binding EC2}" Width="*">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="NZS 3101" Binding="{Binding NZS3101}" Width="*">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </TabItem>
+
+                <!-- TAB 2: CALCULATOR -->
+                <TabItem Header="  Calculator  " FontSize="13" FontWeight="SemiBold">
+                    <Grid Margin="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="280"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Inputs -->
+                        <Border Grid.Column="0" Background="#F5F7FA" CornerRadius="8" Padding="15" Margin="0,0,10,0">
+                            <StackPanel>
+                                <TextBlock Text="INPUT PARAMETERS" FontSize="11" FontWeight="SemiBold" Foreground="#888" Margin="0,0,0,12"/>
+                                
+                                <TextBlock Text="Design Code" FontSize="11" Foreground="#666" Margin="0,0,0,4"/>
+                                <ComboBox x:Name="UI_CalcCode" Height="30" Margin="0,0,0,10">
+                                    <ComboBoxItem Content="ACI 318"/>
+                                    <ComboBoxItem Content="AS 3600"/>
+                                    <ComboBoxItem Content="Eurocode 2"/>
+                                    <ComboBoxItem Content="NZS 3101" IsSelected="True"/>
+                                    <ComboBoxItem Content="Custom"/>
+                                </ComboBox>
+
+                                <TextBlock Text="Concrete Grade" FontSize="11" Foreground="#666" Margin="0,0,0,4"/>
+                                <ComboBox x:Name="UI_CalcGrade" Height="30" Margin="0,0,0,10">
+                                    <ComboBoxItem Content="C25"/>
+                                    <ComboBoxItem Content="C30" IsSelected="True"/>
+                                    <ComboBoxItem Content="C35"/>
+                                    <ComboBoxItem Content="C40"/>
+                                    <ComboBoxItem Content="C50"/>
+                                </ComboBox>
+
+                                <TextBlock Text="Steel Grade" FontSize="11" Foreground="#666" Margin="0,0,0,4"/>
+                                <ComboBox x:Name="UI_CalcSteel" Height="30" Margin="0,0,0,10">
+                                    <ComboBoxItem Content="300E"/>
+                                    <ComboBoxItem Content="500E" IsSelected="True"/>
+                                </ComboBox>
+
+                                <TextBlock Text="Bar Diameter (mm)" FontSize="11" Foreground="#666" Margin="0,0,0,4"/>
+                                <ComboBox x:Name="UI_CalcBarDia" Height="30" Margin="0,0,0,10">
+                                    <ComboBoxItem Content="10"/>
+                                    <ComboBoxItem Content="12"/>
+                                    <ComboBoxItem Content="16"/>
+                                    <ComboBoxItem Content="20" IsSelected="True"/>
+                                    <ComboBoxItem Content="25"/>
+                                    <ComboBoxItem Content="32"/>
+                                    <ComboBoxItem Content="40"/>
+                                </ComboBox>
+
+                                <TextBlock Text="Beam Depth (mm)" FontSize="11" Foreground="#666" Margin="0,0,0,4"/>
+                                <TextBox x:Name="UI_CalcBeamDepth" Text="600" Height="30" VerticalContentAlignment="Center" Padding="8,0" Margin="0,0,0,10"/>
+
+                                <TextBlock Text="Column Dimension (mm)" FontSize="11" Foreground="#666" Margin="0,0,0,4"/>
+                                <TextBox x:Name="UI_CalcColDim" Text="400" Height="30" VerticalContentAlignment="Center" Padding="8,0" Margin="0,0,0,15"/>
+
+                                <Button x:Name="UI_CalcButton" Content="Calculate" Height="36" FontSize="13" FontWeight="SemiBold"
+                                        Click="Calculate_Click" Cursor="Hand"
+                                        Background="#4A759C" Foreground="White" BorderThickness="0">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="15,0">
+                                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Results -->
+                        <Border Grid.Column="1" Background="White" CornerRadius="8" BorderBrush="#E0E0E0" BorderThickness="1" Padding="15">
+                            <StackPanel>
+                                <TextBlock x:Name="UI_ResultTitle" Text="RESULTS" FontSize="11" FontWeight="SemiBold" Foreground="#888" Margin="0,0,0,12"/>
+                                <DataGrid x:Name="UI_ResultGrid"
+                                          AutoGenerateColumns="False" IsReadOnly="True"
+                                          CanUserAddRows="False" CanUserDeleteRows="False"
+                                          HeadersVisibility="Column" GridLinesVisibility="Horizontal"
+                                          BorderThickness="0" Background="White"
+                                          RowBackground="White" AlternatingRowBackground="#F9FAFB"
+                                          FontSize="12" RowHeight="32" ColumnHeaderHeight="32">
+                                    <DataGrid.ColumnHeaderStyle>
+                                        <Style TargetType="DataGridColumnHeader">
+                                            <Setter Property="Background" Value="#4A759C"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                            <Setter Property="FontSize" Value="11"/>
+                                            <Setter Property="Padding" Value="8,0"/>
+                                        </Style>
+                                    </DataGrid.ColumnHeaderStyle>
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Parameter" Binding="{Binding Name}" Width="200">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="#333"/>
+                                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                    <Setter Property="Padding" Value="8,0"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Header="Value" Binding="{Binding Value}" Width="*">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                    <Setter Property="FontWeight" Value="Bold"/>
+                                                    <Setter Property="Foreground" Value="#2C5F8A"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+        </Grid>
+    </Border>
+</Window>

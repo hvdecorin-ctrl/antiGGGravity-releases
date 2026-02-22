@@ -1,5 +1,6 @@
 using Autodesk.Revit.DB;
 using antiGGGravity.StructuralRebar.DTO;
+using System;
 using System.Collections.Generic;
 
 namespace antiGGGravity.StructuralRebar.Core.Layout
@@ -105,6 +106,66 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                 Line.CreateBound(p1, p2),
                 Line.CreateBound(p2, p3)
             };
+        }
+
+        /// <summary>
+        /// Creates multiple stirrup definitions, one per spacing zone.
+        /// Each zone has its own spacing and array length, allowing 
+        /// end-zone densification for beams and columns.
+        /// </summary>
+        public static List<RebarDefinition> CreateZonedBeamStirrups(
+            HostGeometry host,
+            string barTypeName,
+            double barDiameter,
+            List<SpacingZone> zones,
+            string hookStartName,
+            string hookEndName,
+            double zMin,
+            double zMax)
+        {
+            var defs = new List<RebarDefinition>();
+
+            double stW = host.Width - 2 * host.CoverOther;
+            double stH = host.Height - host.CoverTop - host.CoverBottom;
+            double hCenterOff = (host.CoverBottom - host.CoverTop) / 2.0;
+
+            foreach (var zone in zones)
+            {
+                double arrLen = zone.EndOffset - zone.StartOffset;
+                if (arrLen <= 0 || zone.Spacing <= 0) continue;
+
+                XYZ stirrupOrigin;
+                List<Curve> curves;
+
+                if (host.IsSlanted)
+                {
+                    stirrupOrigin = host.StartPoint + host.LAxis * zone.StartOffset;
+                    curves = CreateStirrupLoopLCS(stirrupOrigin, host.WAxis, host.HAxis, stW, stH, hCenterOff);
+                }
+                else
+                {
+                    XYZ xyOrigin = host.StartPoint + host.LAxis * zone.StartOffset;
+                    stirrupOrigin = new XYZ(xyOrigin.X, xyOrigin.Y, (zMax + zMin) / 2.0);
+                    curves = CreateStirrupLoopFlat(stirrupOrigin, host.WAxis, stW, stH, hCenterOff);
+                }
+
+                defs.Add(new RebarDefinition
+                {
+                    Curves = curves,
+                    Style = Autodesk.Revit.DB.Structure.RebarStyle.StirrupTie,
+                    BarTypeName = barTypeName,
+                    BarDiameter = barDiameter,
+                    Spacing = zone.Spacing,
+                    ArrayLength = arrLen,
+                    ArrayDirection = host.LAxis,
+                    Normal = host.LAxis,
+                    HookStartName = hookStartName,
+                    HookEndName = hookEndName,
+                    Label = $"Stirrup ({zone.Label})"
+                });
+            }
+
+            return defs;
         }
     }
 }

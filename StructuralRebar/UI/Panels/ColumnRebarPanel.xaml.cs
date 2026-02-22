@@ -99,6 +99,10 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 SelectHookByName(UI_Combo_VHookTop, SettingsManager.Get(VIEW_NAME, "VHookTop"));
                 SelectHookByName(UI_Combo_HookStart, SettingsManager.Get(VIEW_NAME, "HookStart"));
                 SelectHookByName(UI_Combo_HookEnd, SettingsManager.Get(VIEW_NAME, "HookEnd"));
+
+                UI_Radio_TieUnEQ.IsChecked = SettingsManager.GetBool(VIEW_NAME, "TieDistUnEQ", false);
+                UI_Radio_TieEQ.IsChecked = !(UI_Radio_TieUnEQ.IsChecked == true);
+                TieDist_Changed(null, null);
             }
             catch { }
         }
@@ -128,6 +132,8 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 SettingsManager.Set(VIEW_NAME, "VHookTop", HookName(UI_Combo_VHookTop));
                 SettingsManager.Set(VIEW_NAME, "HookStart", HookName(UI_Combo_HookStart));
                 SettingsManager.Set(VIEW_NAME, "HookEnd", HookName(UI_Combo_HookEnd));
+
+                SettingsManager.Set(VIEW_NAME, "TieDistUnEQ", (UI_Radio_TieUnEQ.IsChecked == true).ToString());
 
                 SettingsManager.SaveAll();
             }
@@ -161,7 +167,8 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 VerticalBottomExtension = UI_Check_BotExt.IsChecked == true ? UnitConversion.MmToFeet(ParseDouble(UI_Text_BotExtValue.Text, 300)) : 0,
                 
                 // Vertical Hooks
-                Layers = new List<RebarLayerConfig>() 
+                Layers = new List<RebarLayerConfig>(),
+                EnableZoneSpacing = (UI_Radio_TieUnEQ.IsChecked == true),
             };
  
             // Simplified: vertical bars use First Layer template for hooks
@@ -174,6 +181,62 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             });
 
             return request;
+        }
+
+        public void TieDist_Changed(object sender, System.Windows.RoutedEventArgs e)
+        {
+            if (UI_TieZoneInfo == null) return;
+            UI_TieZoneInfo.Visibility = (UI_Radio_TieUnEQ.IsChecked == true)
+                ? System.Windows.Visibility.Visible
+                : System.Windows.Visibility.Collapsed;
+        }
+
+        public void UpdateZoneInfo(DesignCodeStandard code)
+        {
+            if (UI_TieZoneTitle == null) return;
+
+            switch (code)
+            {
+                case DesignCodeStandard.ACI318:
+                    UI_TieZoneTitle.Text = "3-Zone Layout (ACI 318):";
+                    UI_TieZoneLine1.Text = "├─ Bottom Confinement: l_o length, s_o spacing";
+                    UI_TieZoneLine2.Text = "├─ Mid Span:           H-2×l_o,   2×s_o";
+                    UI_TieZoneLine3.Text = "└─ Top Confinement:    l_o length, s_o spacing";
+                    UI_TieZoneNote.Text = "l_o = max(H/6, D, 450mm), s_o = min(D/4, 6db, 150mm)";
+                    break;
+
+                case DesignCodeStandard.AS3600:
+                    UI_TieZoneTitle.Text = "3-Zone Layout (AS 3600):";
+                    UI_TieZoneLine1.Text = "├─ Bottom Confinement: l_o length, s_o spacing";
+                    UI_TieZoneLine2.Text = "├─ Mid Span:           H-2×l_o,   2×s_o";
+                    UI_TieZoneLine3.Text = "└─ Top Confinement:    l_o length, s_o spacing";
+                    UI_TieZoneNote.Text = "l_o = max(H/6, D, 450mm), s_o = min(D/2, 15db, 300mm)";
+                    break;
+
+                case DesignCodeStandard.EC2:
+                    UI_TieZoneTitle.Text = "3-Zone Layout (Eurocode 2):";
+                    UI_TieZoneLine1.Text = "├─ Bottom Confinement: l_o length, s_o spacing";
+                    UI_TieZoneLine2.Text = "├─ Mid Span:           H-2×l_o,   relaxed";
+                    UI_TieZoneLine3.Text = "└─ Top Confinement:    l_o length, s_o spacing";
+                    UI_TieZoneNote.Text = "l_o = max(H/6, D, 450mm), s_o = min(D/2, 8db, 175mm)";
+                    break;
+
+                case DesignCodeStandard.NZS3101:
+                    UI_TieZoneTitle.Text = "3-Zone Layout (NZS 3101):";
+                    UI_TieZoneLine1.Text = "├─ Bottom Confinement: l_o length, D/4 spacing";
+                    UI_TieZoneLine2.Text = "├─ Mid Span:           H-2×l_o,   D/2";
+                    UI_TieZoneLine3.Text = "└─ Top Confinement:    l_o length, D/4 spacing";
+                    UI_TieZoneNote.Text = "l_o = max(H/6, D, 450mm), end = min(D/4, 100mm)";
+                    break;
+
+                default:
+                    UI_TieZoneTitle.Text = "3-Zone Layout (Custom):";
+                    UI_TieZoneLine1.Text = "├─ Bottom Confinement: l_o length, 100mm spacing";
+                    UI_TieZoneLine2.Text = "├─ Mid Span:           H-2×l_o,   200mm";
+                    UI_TieZoneLine3.Text = "└─ Top Confinement:    l_o length, 100mm spacing";
+                    UI_TieZoneNote.Text = "l_o = max(H/6, D, 450mm)";
+                    break;
+            }
         }
 
         // --- Helpers ---

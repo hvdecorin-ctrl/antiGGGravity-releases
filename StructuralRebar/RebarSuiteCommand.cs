@@ -22,6 +22,13 @@ namespace antiGGGravity.StructuralRebar
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIApplication uiApp = commandData.Application;
+
+            if (uiApp.ActiveUIDocument == null)
+            {
+                TaskDialog.Show("Rebar Suite", "Please open a project first.");
+                return Result.Cancelled;
+            }
+
             Document doc = uiApp.ActiveUIDocument.Document;
 
             // If window is already open, bring it to front
@@ -52,9 +59,15 @@ namespace antiGGGravity.StructuralRebar
             _window.Closed += (s, e) =>
             {
                 _window = null;
-                _externalEvent?.Dispose();
-                _externalEvent = null;
-                _handler = null;
+                try
+                {
+                    _externalEvent?.Dispose();
+                }
+                finally
+                {
+                    _externalEvent = null;
+                    _handler = null;
+                }
             };
 
             _window.Show();

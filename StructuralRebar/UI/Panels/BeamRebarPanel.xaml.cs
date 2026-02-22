@@ -101,7 +101,11 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 SelectHookByName(UI_Combo_BotHookStart, SettingsManager.Get(VIEW_NAME, "BotHookStart"));
                 SelectHookByName(UI_Combo_BotHookEnd, SettingsManager.Get(VIEW_NAME, "BotHookEnd"));
 
+                UI_Radio_StirrupUnEQ.IsChecked = SettingsManager.GetBool(VIEW_NAME, "StirrupDistUnEQ", false);
+                UI_Radio_StirrupEQ.IsChecked = !(UI_Radio_StirrupUnEQ.IsChecked == true);
+
                 toggle_visibility(null, null);
+                StirrupDist_Changed(null, null);
             }
             catch { }
         }
@@ -135,6 +139,8 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 SettingsManager.Set(VIEW_NAME, "BotHookStart", HookName(UI_Combo_BotHookStart));
                 SettingsManager.Set(VIEW_NAME, "BotHookEnd", HookName(UI_Combo_BotHookEnd));
 
+                SettingsManager.Set(VIEW_NAME, "StirrupDistUnEQ", (UI_Radio_StirrupUnEQ.IsChecked == true).ToString());
+
                 SettingsManager.SaveAll();
             }
             catch { }
@@ -147,6 +153,62 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             UI_Group_T2.Visibility = UI_Check_T2.IsChecked == true ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
             UI_Group_B1.Visibility = UI_Check_B1.IsChecked == true ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
             UI_Group_B2.Visibility = UI_Check_B2.IsChecked == true ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+        }
+
+        public void StirrupDist_Changed(object sender, RoutedEventArgs e)
+        {
+            if (UI_ZoneInfo == null) return;
+            UI_ZoneInfo.Visibility = (UI_Radio_StirrupUnEQ.IsChecked == true)
+                ? System.Windows.Visibility.Visible
+                : System.Windows.Visibility.Collapsed;
+        }
+
+        public void UpdateZoneInfo(DesignCodeStandard code)
+        {
+            if (UI_ZoneTitle == null) return;
+
+            switch (code)
+            {
+                case DesignCodeStandard.ACI318:
+                    UI_ZoneTitle.Text = "3-Zone Layout (ACI 318):";
+                    UI_ZoneLine1.Text = "├─ Left End Zone:  2h length, d/4 spacing";
+                    UI_ZoneLine2.Text = "├─ Mid Zone:       remainder, user spacing";
+                    UI_ZoneLine3.Text = "└─ Right End Zone: 2h length, d/4 spacing";
+                    UI_ZoneNote.Text = "h = beam depth, spacing = min(h/4, s/2, 150mm)";
+                    break;
+
+                case DesignCodeStandard.AS3600:
+                    UI_ZoneTitle.Text = "3-Zone Layout (AS 3600):";
+                    UI_ZoneLine1.Text = "├─ Left End Zone:  2D length, D/4 spacing";
+                    UI_ZoneLine2.Text = "├─ Mid Zone:       remainder, user spacing";
+                    UI_ZoneLine3.Text = "└─ Right End Zone: 2D length, D/4 spacing";
+                    UI_ZoneNote.Text = "D = beam depth, spacing = min(D/4, s/2, 150mm)";
+                    break;
+
+                case DesignCodeStandard.EC2:
+                    UI_ZoneTitle.Text = "3-Zone Layout (Eurocode 2):";
+                    UI_ZoneLine1.Text = "├─ Left End Zone:  1.5h length, h/4 spacing";
+                    UI_ZoneLine2.Text = "├─ Mid Zone:       remainder, user spacing";
+                    UI_ZoneLine3.Text = "└─ Right End Zone: 1.5h length, h/4 spacing";
+                    UI_ZoneNote.Text = "h = beam depth, spacing = min(h/4, s/2, 200mm)";
+                    break;
+
+                case DesignCodeStandard.NZS3101:
+                    UI_ZoneTitle.Text = "3-Zone Layout (NZS 3101):";
+                    UI_ZoneLine1.Text = "├─ Left End Zone:  2h length, d/4 spacing";
+                    UI_ZoneLine2.Text = "├─ Mid Zone:       remainder, d/2 spacing";
+                    UI_ZoneLine3.Text = "└─ Right End Zone: 2h length, d/4 spacing";
+                    UI_ZoneNote.Text = "d = beam depth, end = min(d/4, s/2, 100mm)";
+                    break;
+
+                default:
+                    UI_ZoneTitle.Text = "3-Zone Layout (Custom):";
+                    UI_ZoneLine1.Text = "├─ Left End Zone:  2h length, s/2 spacing";
+                    UI_ZoneLine2.Text = "├─ Mid Zone:       remainder, user spacing";
+                    UI_ZoneLine3.Text = "└─ Right End Zone: 2h length, s/2 spacing";
+                    UI_ZoneNote.Text = "h = beam depth, s = user spacing";
+                    break;
+            }
         }
 
         /// <summary>
@@ -164,6 +226,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 TransverseStartOffset = UnitConversion.MmToFeet(ParseDouble(UI_Text_TransStartOffset.Text, 50)),
                 TransverseHookStartName = HookName(UI_Combo_HookStart),
                 TransverseHookEndName = HookName(UI_Combo_HookEnd),
+                EnableZoneSpacing = (UI_Radio_StirrupUnEQ.IsChecked == true),
             };
 
             // Top layers

@@ -368,9 +368,9 @@ panels:
         tooltip: Unified structural reinforcement generator for beams, walls, columns, and footings.
       # --- Column 2 ---
       - type: pulldown
-        name: Selection
-        icon: RebarSelection
-        tooltip: Rebar selection and visibility tools.
+        name: Rebar Tools
+        icon: RebarTools
+        tooltip: Rebar visibility, selection, and host-based management tools.
         buttons:
           - name: Set Obscured
             command: SetObscuredCommand
@@ -392,65 +392,27 @@ panels:
 
           - separator: true
 
-          - name: Select All Rebar By Host
-            command: SelectRebarCommand
-            icon: SelectRebar
-
-          - name: Select & Delete Rebar By Host
-            command: SelectDeleteRebarCommand
-            icon: SelectDeleteRebar
-      # --- Column 3 ---
-      - type: pulldown
-        name: Setting
-        icon: RebarSetting
-        tooltip: Rebar host visibility settings.
-        buttons:
-          - name: Hide Rebar By Host
+          - name: Hide By Host
             command: HideRebarByHostCommand
             icon: HideRebarByHost
 
-          - separator: true
-
-          - name: Show Rebar By Host
+          - name: Show By Host
             command: ShowRebarByHostCommand
             icon: ShowRebarByHost
 
-          - name: Show Rebar By Host Only
+          - name: Show By Host Only
             command: ShowRebarByHostOnlyCommand
             icon: ShowRebarByHostOnly
-      # --- Column 4 ---
-      - type: pulldown
-        name: Reinforcing
-        icon: RebarReinforcing
-        tooltip: Create reinforcement for structural elements.
-        buttons:
-          - name: Strip Footing
-            command: StripFootingRebarCommand
-            icon: StripFootingRebar
 
-          - name: Footing Pad
-            command: FootingPadRebarCommand
-            icon: FootingPadRebar
+          - separator: true
 
-          - name: Wall Rebar
-            command: WallRebarCommand
-            icon: WallRebar
+          - name: Select By Host
+            command: SelectRebarCommand
+            icon: SelectRebar
 
-          - name: Wall Corner L
-            command: WallCornerLCommand
-            icon: WallCornerL
-
-          - name: Wall Corner U
-            command: WallCornerUCommand
-            icon: WallCornerU
-
-          - name: Column Rebar
-            command: ColumnRebarCommand
-            icon: ColumnRebar
-
-          - name: Beam Rebar
-            command: BeamRebarCommand
-            icon: BeamRebar
+          - name: Delete By Host
+            command: SelectDeleteRebarCommand
+            icon: SelectDeleteRebar
 
   # ============================================================
   # GENERAL PANEL

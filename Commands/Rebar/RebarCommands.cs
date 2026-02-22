@@ -7,7 +7,6 @@ using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
 using antiGGGravity.Utilities;
 
-using antiGGGravity.Views.Rebar;
 
 using antiGGGravity.Commands;
 

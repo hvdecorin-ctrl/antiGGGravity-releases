@@ -1,5 +1,6 @@
 using Autodesk.Revit.DB;
 using antiGGGravity.StructuralRebar.Constants;
+using antiGGGravity.StructuralRebar.Core.Calculators;
 using antiGGGravity.StructuralRebar.Core.Creation;
 using antiGGGravity.StructuralRebar.Core.Geometry;
 using antiGGGravity.StructuralRebar.Core.Layout;
@@ -148,12 +149,28 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
             // Stirrups
             if (!string.IsNullOrEmpty(request.TransverseBarTypeName))
             {
-                var stirrupDef = StirrupLayoutGenerator.CreateBeamStirrup(
-                    host, request.TransverseBarTypeName, transDia,
-                    request.TransverseSpacing, request.TransverseStartOffset,
-                    request.TransverseHookStartName, request.TransverseHookEndName,
-                    zMin, zMax);
-                definitions.Add(stirrupDef);
+                if (request.EnableZoneSpacing)
+                {
+                    // Zone-based stirrups (end zone densification)
+                    var zones = ZoneSpacingCalculator.CalculateBeamZones(
+                        host.Length, host.Height, request.TransverseSpacing,
+                        request.TransverseStartOffset, request.DesignCode);
+                    var zonedDefs = StirrupLayoutGenerator.CreateZonedBeamStirrups(
+                        host, request.TransverseBarTypeName, transDia,
+                        zones, request.TransverseHookStartName, request.TransverseHookEndName,
+                        zMin, zMax);
+                    definitions.AddRange(zonedDefs);
+                }
+                else
+                {
+                    // Uniform spacing (original behaviour)
+                    var stirrupDef = StirrupLayoutGenerator.CreateBeamStirrup(
+                        host, request.TransverseBarTypeName, transDia,
+                        request.TransverseSpacing, request.TransverseStartOffset,
+                        request.TransverseHookStartName, request.TransverseHookEndName,
+                        zMin, zMax);
+                    definitions.Add(stirrupDef);
+                }
             }
 
             // Top layers
@@ -166,12 +183,42 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                 if (count < 1) continue;
 
                 double z = topZ - barDia / 2.0;
-                var def = ParallelLayoutGenerator.CreateLayerFlat(
-                    host, layer.VerticalBarTypeName, barDia,
-                    count, z, transDia, true,
-                    layer.HookStartName, layer.HookEndName, "Top Layer");
 
-                if (def != null) definitions.Add(def);
+                // Check if bar needs splitting for 12m lap
+                double barLen = host.Length - 2 * host.CoverOther;
+                var segments = LapSpliceCalculator.SplitBarForLap(barLen, barDia, request.DesignCode);
+
+                foreach (var seg in segments)
+                {
+                    // Create a sub-bar for this segment
+                    double innerOffset = host.CoverOther + transDia;
+                    double distWidthSeg = host.Width - 2 * innerOffset;
+
+                    XYZ s = host.StartPoint + host.LAxis * (host.CoverOther + seg.Start);
+                    XYZ e = host.StartPoint + host.LAxis * (host.CoverOther + seg.End);
+                    XYZ barStart = new XYZ(s.X, s.Y, z) - host.WAxis * (distWidthSeg / 2.0);
+                    XYZ barEnd = new XYZ(e.X, e.Y, z) - host.WAxis * (distWidthSeg / 2.0);
+
+                    Curve barLine = Line.CreateBound(barStart, barEnd);
+                    var segDef = new RebarDefinition
+                    {
+                        Curves = new List<Curve> { barLine },
+                        Style = Autodesk.Revit.DB.Structure.RebarStyle.Standard,
+                        BarTypeName = layer.VerticalBarTypeName,
+                        BarDiameter = barDia,
+                        Spacing = 0,
+                        ArrayLength = 0,
+                        ArrayDirection = host.WAxis,
+                        FixedCount = count,
+                        DistributionWidth = distWidthSeg,
+                        Normal = host.WAxis,
+                        HookStartName = (seg.Start == 0) ? layer.HookStartName : null,
+                        HookEndName = (seg.End >= barLen - 0.001) ? layer.HookEndName : null,
+                        Label = segments.Count > 1 ? "Top Layer (lapped)" : "Top Layer"
+                    };
+                    definitions.Add(segDef);
+                }
+
                 topZ -= (barDia + minLayerGap);
             }
 
@@ -185,12 +232,40 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                 if (count < 1) continue;
 
                 double z = botZ + barDia / 2.0;
-                var def = ParallelLayoutGenerator.CreateLayerFlat(
-                    host, layer.VerticalBarTypeName, barDia,
-                    count, z, transDia, false,
-                    layer.HookStartName, layer.HookEndName, "Bottom Layer");
 
-                if (def != null) definitions.Add(def);
+                // Check if bar needs splitting for 12m lap
+                double barLen = host.Length - 2 * host.CoverOther;
+                var segments = LapSpliceCalculator.SplitBarForLap(barLen, barDia, request.DesignCode);
+
+                foreach (var seg in segments)
+                {
+                    XYZ s = host.StartPoint + host.LAxis * (host.CoverOther + seg.Start);
+                    XYZ e = host.StartPoint + host.LAxis * (host.CoverOther + seg.End);
+                    double innerOffset = host.CoverOther + transDia;
+                    double distWidthSeg = host.Width - 2 * innerOffset;
+                    XYZ barStart = new XYZ(s.X, s.Y, z) - host.WAxis * (distWidthSeg / 2.0);
+                    XYZ barEnd = new XYZ(e.X, e.Y, z) - host.WAxis * (distWidthSeg / 2.0);
+
+                    Curve barLine = Line.CreateBound(barStart, barEnd);
+                    var segDef = new RebarDefinition
+                    {
+                        Curves = new List<Curve> { barLine },
+                        Style = Autodesk.Revit.DB.Structure.RebarStyle.Standard,
+                        BarTypeName = layer.VerticalBarTypeName,
+                        BarDiameter = barDia,
+                        Spacing = 0,
+                        ArrayLength = 0,
+                        ArrayDirection = host.WAxis,
+                        FixedCount = count,
+                        DistributionWidth = distWidthSeg,
+                        Normal = host.WAxis,
+                        HookStartName = (seg.Start == 0) ? layer.HookStartName : null,
+                        HookEndName = (seg.End >= barLen - 0.001) ? layer.HookEndName : null,
+                        Label = segments.Count > 1 ? "Bottom Layer (lapped)" : "Bottom Layer"
+                    };
+                    definitions.Add(segDef);
+                }
+
                 botZ += (barDia + minLayerGap);
             }
         }
@@ -205,13 +280,28 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
             // Stirrups — origin at startPt along slope, loop in WAxis × HAxis plane
             if (!string.IsNullOrEmpty(request.TransverseBarTypeName))
             {
-                // For slanted beams, zMin/zMax are not used (LCS mode)
-                var stirrupDef = StirrupLayoutGenerator.CreateBeamStirrup(
-                    host, request.TransverseBarTypeName, transDia,
-                    request.TransverseSpacing, request.TransverseStartOffset,
-                    request.TransverseHookStartName, request.TransverseHookEndName,
-                    0, 0); // zMin/zMax ignored for slanted (uses LCS internally)
-                definitions.Add(stirrupDef);
+                if (request.EnableZoneSpacing)
+                {
+                    // Zone-based stirrups for slanted beams
+                    var zones = ZoneSpacingCalculator.CalculateBeamZones(
+                        host.Length, host.Height, request.TransverseSpacing,
+                        request.TransverseStartOffset, request.DesignCode);
+                    var zonedDefs = StirrupLayoutGenerator.CreateZonedBeamStirrups(
+                        host, request.TransverseBarTypeName, transDia,
+                        zones, request.TransverseHookStartName, request.TransverseHookEndName,
+                        0, 0); // zMin/zMax ignored for slanted (uses LCS internally)
+                    definitions.AddRange(zonedDefs);
+                }
+                else
+                {
+                    // Uniform spacing (original behaviour)
+                    var stirrupDef = StirrupLayoutGenerator.CreateBeamStirrup(
+                        host, request.TransverseBarTypeName, transDia,
+                        request.TransverseSpacing, request.TransverseStartOffset,
+                        request.TransverseHookStartName, request.TransverseHookEndName,
+                        0, 0); // zMin/zMax ignored for slanted (uses LCS internally)
+                    definitions.Add(stirrupDef);
+                }
             }
 
             // For slanted beams, bar positions are offsets from section center along HAxis
@@ -360,12 +450,33 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
             if (!string.IsNullOrEmpty(request.TransverseBarTypeName))
             {
                 double tDia = GetBarDiameter(request.TransverseBarTypeName);
-                var tieDef = ColumnLayoutGenerator.CreateColumnTie(
-                    host, request.TransverseBarTypeName, tDia,
-                    request.TransverseSpacing, request.TransverseStartOffset, request.TransverseEndOffset,
-                    request.TransverseHookStartName, request.TransverseHookEndName);
 
-                if (tieDef != null) definitions.Add(tieDef);
+                if (request.EnableZoneSpacing)
+                {
+                    // Zone-based ties (confinement end zones)
+                    double maxDim = Math.Max(host.Width, host.Height);
+                    double mainBarDia = 0;
+                    if (!string.IsNullOrEmpty(request.VerticalBarTypeNameX))
+                        mainBarDia = Math.Max(mainBarDia, GetBarDiameter(request.VerticalBarTypeNameX));
+                    if (!string.IsNullOrEmpty(request.VerticalBarTypeNameY))
+                        mainBarDia = Math.Max(mainBarDia, GetBarDiameter(request.VerticalBarTypeNameY));
+
+                    double clearHeight = host.Length - request.TransverseStartOffset - request.TransverseEndOffset;
+                    var zones = ZoneSpacingCalculator.CalculateColumnZones(
+                        clearHeight, maxDim, mainBarDia > 0 ? mainBarDia : tDia, tDia, request.DesignCode);
+                    var zonedDefs = ColumnLayoutGenerator.CreateZonedColumnTies(
+                        host, request.TransverseBarTypeName, tDia,
+                        zones, request.TransverseHookStartName, request.TransverseHookEndName);
+                    definitions.AddRange(zonedDefs);
+                }
+                else
+                {
+                    var tieDef = ColumnLayoutGenerator.CreateColumnTie(
+                        host, request.TransverseBarTypeName, tDia,
+                        request.TransverseSpacing, request.TransverseStartOffset, request.TransverseEndOffset,
+                        request.TransverseHookStartName, request.TransverseHookEndName);
+                    if (tieDef != null) definitions.Add(tieDef);
+                }
             }
 
             // 2. Vertical Main Bars
@@ -388,7 +499,62 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                         layerTempl.HookStartName, layerTempl.HookEndName,
                         layerTempl.HookStartOutward, layerTempl.HookEndOutward);
 
-                    if (vertDefs != null) definitions.AddRange(vertDefs);
+                    if (vertDefs != null)
+                    {
+                        // Check if vertical bars need lap splice splitting (column height > 12m)
+                        double barLen = host.Length + request.VerticalTopExtension + request.VerticalBottomExtension - 2 * host.CoverExterior;
+                        double maxBarDia = Math.Max(vDiaX, vDiaY);
+
+                        if (barLen > LapSpliceCalculator.MaxStockLengthFt && maxBarDia > 0)
+                        {
+                            var lappedDefs = new List<RebarDefinition>();
+                            foreach (var vDef in vertDefs)
+                            {
+                                var segments = LapSpliceCalculator.SplitBarForLap(
+                                    barLen, vDef.BarDiameter, request.DesignCode);
+
+                                if (segments.Count <= 1)
+                                {
+                                    lappedDefs.Add(vDef);
+                                    continue;
+                                }
+
+                                // Get bar direction from the original curve
+                                var origLine = vDef.Curves[0] as Line;
+                                if (origLine == null) { lappedDefs.Add(vDef); continue; }
+                                XYZ barDir = (origLine.GetEndPoint(1) - origLine.GetEndPoint(0)).Normalize();
+                                XYZ barStart = origLine.GetEndPoint(0);
+
+                                for (int si = 0; si < segments.Count; si++)
+                                {
+                                    var seg = segments[si];
+                                    XYZ segStart = barStart + barDir * seg.Start;
+                                    XYZ segEnd = barStart + barDir * seg.End;
+                                    Curve segLine = Line.CreateBound(segStart, segEnd);
+
+                                    var segDef = new RebarDefinition
+                                    {
+                                        Curves = new List<Curve> { segLine },
+                                        Style = vDef.Style,
+                                        BarTypeName = vDef.BarTypeName,
+                                        BarDiameter = vDef.BarDiameter,
+                                        Normal = vDef.Normal,
+                                        HookStartName = (si == 0) ? vDef.HookStartName : null,
+                                        HookEndName = (si == segments.Count - 1) ? vDef.HookEndName : null,
+                                        HookStartOrientation = vDef.HookStartOrientation,
+                                        HookEndOrientation = vDef.HookEndOrientation,
+                                        Label = "Main Vertical Bar (lapped)"
+                                    };
+                                    lappedDefs.Add(segDef);
+                                }
+                            }
+                            definitions.AddRange(lappedDefs);
+                        }
+                        else
+                        {
+                            definitions.AddRange(vertDefs);
+                        }
+                    }
                 }
             }
 

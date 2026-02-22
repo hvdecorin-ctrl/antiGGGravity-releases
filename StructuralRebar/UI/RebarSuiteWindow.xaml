@@ -81,7 +81,20 @@
                         <Separator Margin="5,15,5,10" Background="#E0E0E0"/>
 
                         <TextBlock Text="OPTIONS" FontSize="11" FontWeight="SemiBold" Foreground="#888888" Margin="8,0,0,10"/>
-                        <CheckBox x:Name="UI_Check_RemoveExisting" Content="Remove existing" FontSize="13" Foreground="#555" Margin="8,0,0,6"/>
+                        <CheckBox x:Name="UI_Check_RemoveExisting" Content="Remove existing" FontSize="13" Foreground="#555" Margin="8,0,0,15"/>
+
+                        <TextBlock Text="DESIGN CODE" FontSize="11" FontWeight="SemiBold" Foreground="#888888" Margin="8,0,0,4"/>
+                        <ComboBox x:Name="UI_Combo_DesignCode" Margin="8,0,8,0" Height="28" SelectionChanged="DesignCode_Changed">
+                            <ComboBoxItem Content="ACI 318" IsSelected="True"/>
+                            <ComboBoxItem Content="AS 3600"/>
+                            <ComboBoxItem Content="Eurocode 2"/>
+                            <ComboBoxItem Content="NZS 3101"/>
+                            <ComboBoxItem Content="Custom"/>
+                        </ComboBox>
+
+                        <Button Content="📖 Code Reference" FontSize="12" Foreground="#4A759C" Background="Transparent"
+                                BorderThickness="0" HorizontalAlignment="Left" Margin="8,8,0,0" Cursor="Hand"
+                                Click="CodeReference_Click" WindowChrome.IsHitTestVisibleInChrome="True"/>
                     </StackPanel>
                 </Border>
 

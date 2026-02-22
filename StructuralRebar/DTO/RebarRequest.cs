@@ -21,6 +21,9 @@ namespace antiGGGravity.StructuralRebar.DTO
         /// <summary>Whether to delete existing rebar on host before generating.</summary>
         public bool RemoveExisting { get; set; }
 
+        /// <summary>Selected design code for structural calculations.</summary>
+        public DesignCodeStandard DesignCode { get; set; } = DesignCodeStandard.ACI318;
+
         // === TRANSVERSE (Stirrups / Ties) ===
         /// <summary>Name of bar type for stirrups/ties.</summary>
         public string TransverseBarTypeName { get; set; }

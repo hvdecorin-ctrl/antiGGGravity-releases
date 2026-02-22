@@ -212,6 +212,31 @@
                 </StackPanel>
             </Border>
 
+            <!-- STIRRUP DISTRIBUTION -->
+            <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#E8E8E8" BorderThickness="1" Padding="15" Margin="0,0,0,15">
+                <StackPanel>
+                    <TextBlock Text="STIRRUP DISTRIBUTION" FontSize="12" FontWeight="SemiBold" Foreground="#4A759C" Margin="0,0,0,12"/>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <RadioButton x:Name="UI_Radio_StirrupEQ" Content="Equal (EQ)" IsChecked="True" GroupName="StirrupDist" 
+                                     FontSize="12" Foreground="#333" Margin="0,0,20,0" Click="StirrupDist_Changed"/>
+                        <RadioButton x:Name="UI_Radio_StirrupUnEQ" Content="Unequal (Code)" GroupName="StirrupDist" 
+                                     FontSize="12" Foreground="#333" Click="StirrupDist_Changed"/>
+                    </StackPanel>
+
+                    <!-- Zone Info (visible when UnEQ selected) -->
+                    <Border x:Name="UI_ZoneInfo" Background="#EDF6FF" CornerRadius="4" BorderBrush="#C8DFF0" BorderThickness="1" Padding="10" Visibility="Collapsed">
+                        <StackPanel>
+                            <TextBlock x:Name="UI_ZoneTitle" Text="3-Zone Layout (ACI 318):" FontSize="11" FontWeight="SemiBold" Foreground="#3A6D99" Margin="0,0,0,6"/>
+                            <TextBlock x:Name="UI_ZoneLine1" Text="├─ Left End Zone:  2h length, d/4 spacing" FontSize="10" Foreground="#555" FontFamily="Consolas"/>
+                            <TextBlock x:Name="UI_ZoneLine2" Text="├─ Mid Zone:       remainder, user spacing" FontSize="10" Foreground="#555" FontFamily="Consolas"/>
+                            <TextBlock x:Name="UI_ZoneLine3" Text="└─ Right End Zone: 2h length, d/4 spacing" FontSize="10" Foreground="#555" FontFamily="Consolas"/>
+                            <TextBlock x:Name="UI_ZoneNote" Text="h = beam depth, spacing = min(h/4, s/2, 150mm)" FontSize="9" Foreground="#888" Margin="0,6,0,0" FontStyle="Italic"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+
             <!-- RULE OFFSETS -->
             <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#E8E8E8" BorderThickness="1" Padding="15">
                 <StackPanel>

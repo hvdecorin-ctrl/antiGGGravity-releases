@@ -68,6 +68,71 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
             };
         }
 
+        /// <summary>
+        /// Creates zone-based column ties for confinement regions.
+        /// </summary>
+        public static List<RebarDefinition> CreateZonedColumnTies(
+            HostGeometry host,
+            string barTypeName,
+            double barDiameter,
+            List<SpacingZone> zones,
+            string hookStartName,
+            string hookEndName)
+        {
+            var defs = new List<RebarDefinition>();
+
+            XYZ basisX = host.LAxis;
+            XYZ basisY = host.WAxis;
+            XYZ basisZ = host.HAxis;
+            XYZ origin = host.Origin;
+
+            double width = host.Width;
+            double depth = host.Height;
+            double cover = host.CoverExterior;
+
+            double wTie = width - 2 * cover;
+            double dTie = depth - 2 * cover;
+
+            foreach (var zone in zones)
+            {
+                double arrLen = zone.EndOffset - zone.StartOffset;
+                if (arrLen <= 0 || zone.Spacing <= 0) continue;
+
+                XYZ tieOrigin = origin + basisZ * zone.StartOffset;
+
+                XYZ p1 = tieOrigin - basisX * (wTie / 2.0) - basisY * (dTie / 2.0);
+                XYZ p2 = tieOrigin + basisX * (wTie / 2.0) - basisY * (dTie / 2.0);
+                XYZ p3 = tieOrigin + basisX * (wTie / 2.0) + basisY * (dTie / 2.0);
+                XYZ p4 = tieOrigin - basisX * (wTie / 2.0) + basisY * (dTie / 2.0);
+
+                var curves = new List<Curve>
+                {
+                    Line.CreateBound(p1, p2),
+                    Line.CreateBound(p2, p3),
+                    Line.CreateBound(p3, p4),
+                    Line.CreateBound(p4, p1)
+                };
+
+                defs.Add(new RebarDefinition
+                {
+                    Curves = curves,
+                    Style = RebarStyle.StirrupTie,
+                    BarTypeName = barTypeName,
+                    BarDiameter = barDiameter,
+                    Spacing = zone.Spacing,
+                    ArrayLength = arrLen,
+                    Normal = basisZ,
+                    HookStartName = hookStartName,
+                    HookEndName = hookEndName,
+                    HookStartOrientation = RebarHookOrientation.Left,
+                    HookEndOrientation = RebarHookOrientation.Left,
+                    Label = $"Column Tie ({zone.Label})"
+                });
+            }
+
+            return defs;
+        }
+
         public static List<RebarDefinition> CreateColumnVerticals(
             HostGeometry host,
             string barTypeNameX,
