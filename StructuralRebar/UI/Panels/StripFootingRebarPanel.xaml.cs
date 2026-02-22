@@ -16,7 +16,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
         private const string VIEW_NAME = "RebarSuite_StripFooting";
         private Document _doc;
         private List<RebarBarType> _rebarTypes;
-        private List<RebarHookType> _hookList;
+        private List<HookViewModel> _hookList;
 
         public StripFootingRebarPanel(Document doc)
         {
@@ -54,19 +54,23 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 .OrderBy(x => x.Name)
                 .ToList();
 
-            _hookList = new List<RebarHookType> { null };
-            _hookList.AddRange(hookTypes);
+            _hookList = new List<HookViewModel> { new HookViewModel(null) };
+            _hookList.AddRange(hookTypes.Select(h => new HookViewModel(h)));
 
             UI_Combo_TopHook.ItemsSource = _hookList;
+            UI_Combo_TopHook.DisplayMemberPath = "Name";
             UI_Combo_TopHook.SelectedIndex = 0;
 
             UI_Combo_BotHook.ItemsSource = _hookList;
+            UI_Combo_BotHook.DisplayMemberPath = "Name";
             UI_Combo_BotHook.SelectedIndex = 0;
 
             UI_Combo_HookStart.ItemsSource = _hookList;
+            UI_Combo_HookStart.DisplayMemberPath = "Name";
             UI_Combo_HookStart.SelectedIndex = 0;
 
             UI_Combo_HookEnd.ItemsSource = _hookList;
+            UI_Combo_HookEnd.DisplayMemberPath = "Name";
             UI_Combo_HookEnd.SelectedIndex = 0;
         }
 
@@ -131,8 +135,8 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 TransverseBarTypeName = (UI_Combo_TransType.SelectedItem as RebarBarType)?.Name,
                 TransverseSpacing = UnitConversion.MmToFeet(ParseDouble(UI_Text_TransSpacing.Text, 200)),
                 TransverseStartOffset = UnitConversion.MmToFeet(ParseDouble(UI_Text_TransStartOff.Text, 50)),
-                TransverseHookStartName = (UI_Combo_HookStart.SelectedItem as RebarHookType)?.Name,
-                TransverseHookEndName = (UI_Combo_HookEnd.SelectedItem as RebarHookType)?.Name,
+                TransverseHookStartName = HookName(UI_Combo_HookStart),
+                TransverseHookEndName = HookName(UI_Combo_HookEnd),
 
                 // Longitudinal Offsets - Now handled automatically by Engine/Generator
                 StockLength = 0, 
@@ -149,8 +153,8 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                     Side = RebarSide.Top,
                     VerticalBarTypeName = (UI_Combo_TopType.SelectedItem as RebarBarType)?.Name,
                     VerticalCount = (int)ParseDouble(UI_Text_TopCount.Text, 4),
-                    HookStartName = (UI_Combo_TopHook.SelectedItem as RebarHookType)?.Name,
-                    HookEndName = (UI_Combo_TopHook.SelectedItem as RebarHookType)?.Name,
+                    HookStartName = HookName(UI_Combo_TopHook),
+                    HookEndName = HookName(UI_Combo_TopHook),
                     HookStartOutward = false, // Not used for footings
                     HookEndOutward = false
                 });
@@ -164,8 +168,8 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                     Side = RebarSide.Bottom,
                     VerticalBarTypeName = (UI_Combo_BotType.SelectedItem as RebarBarType)?.Name,
                     VerticalCount = (int)ParseDouble(UI_Text_BotCount.Text, 4),
-                    HookStartName = (UI_Combo_BotHook.SelectedItem as RebarHookType)?.Name,
-                    HookEndName = (UI_Combo_BotHook.SelectedItem as RebarHookType)?.Name,
+                    HookStartName = HookName(UI_Combo_BotHook),
+                    HookEndName = HookName(UI_Combo_BotHook),
                     HookStartOutward = false,
                     HookEndOutward = false
                 });
@@ -185,13 +189,13 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
         private void SelectHookByName(ComboBox combo, string name)
         {
             if (string.IsNullOrEmpty(name)) { combo.SelectedIndex = 0; return; }
-            var match = _hookList.FirstOrDefault(x => x?.Name == name);
+            var match = _hookList.FirstOrDefault(x => x?.Hook?.Name == name);
             if (match != null) combo.SelectedItem = match;
             else combo.SelectedIndex = 0;
         }
 
         private static string TransTypeName(ComboBox combo) => (combo.SelectedItem as RebarBarType)?.Name ?? "";
-        private static string HookName(ComboBox combo) => (combo.SelectedItem as RebarHookType)?.Name ?? "";
+        private static string HookName(ComboBox combo) => (combo.SelectedItem as HookViewModel)?.Hook?.Name ?? "";
 
         private double ParseDouble(string text, double defaultValue)
         {

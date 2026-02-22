@@ -16,7 +16,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
         private const string VIEW_NAME = "RebarSuite_Column";
         private Document _doc;
         private List<RebarBarType> _rebarTypes;
-        private List<RebarHookType> _hookList;
+        private List<HookViewModel> _hookList;
 
         public ColumnRebarPanel(Document doc)
         {
@@ -54,19 +54,23 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 .OrderBy(x => x.Name)
                 .ToList();
 
-            _hookList = new List<RebarHookType> { null };
-            _hookList.AddRange(hookTypes);
+            _hookList = new List<HookViewModel> { new HookViewModel(null) };
+            _hookList.AddRange(hookTypes.Select(h => new HookViewModel(h)));
 
             UI_Combo_VHookBot.ItemsSource = _hookList;
+            UI_Combo_VHookBot.DisplayMemberPath = "Name";
             UI_Combo_VHookBot.SelectedIndex = 0;
 
             UI_Combo_VHookTop.ItemsSource = _hookList;
+            UI_Combo_VHookTop.DisplayMemberPath = "Name";
             UI_Combo_VHookTop.SelectedIndex = 0;
 
             UI_Combo_HookStart.ItemsSource = _hookList;
+            UI_Combo_HookStart.DisplayMemberPath = "Name";
             UI_Combo_HookStart.SelectedIndex = 0;
 
             UI_Combo_HookEnd.ItemsSource = _hookList;
+            UI_Combo_HookEnd.DisplayMemberPath = "Name";
             UI_Combo_HookEnd.SelectedIndex = 0;
         }
 
@@ -183,13 +187,13 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
         private void SelectHookByName(ComboBox combo, string name)
         {
             if (string.IsNullOrEmpty(name)) { combo.SelectedIndex = 0; return; }
-            var match = _hookList.FirstOrDefault(x => x?.Name == name);
+            var match = _hookList.FirstOrDefault(x => x?.Hook?.Name == name);
             if (match != null) combo.SelectedItem = match;
             else combo.SelectedIndex = 0;
         }
 
         private static string TransTypeName(ComboBox combo) => (combo.SelectedItem as RebarBarType)?.Name ?? "";
-        private static string HookName(ComboBox combo) => (combo.SelectedItem as RebarHookType)?.Name ?? "";
+        private static string HookName(ComboBox combo) => (combo.SelectedItem as HookViewModel)?.Hook?.Name ?? "";
 
         private double ParseDouble(string text, double defaultValue)
         {

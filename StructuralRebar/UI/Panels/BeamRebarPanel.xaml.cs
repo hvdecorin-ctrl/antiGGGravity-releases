@@ -16,7 +16,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
         private readonly Document _doc;
         private const string VIEW_NAME = "RebarSuite_Beam";
         private List<RebarBarType> _rebarTypes;
-        private List<RebarHookType> _hookList;
+        private List<HookViewModel> _hookList;
 
         public BeamRebarPanel(Document doc)
         {
@@ -59,14 +59,15 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 .OrderBy(x => x.Name)
                 .ToList();
 
-            _hookList = new List<RebarHookType> { null };
-            _hookList.AddRange(hooks);
+            _hookList = new List<HookViewModel> { new HookViewModel(null) };
+            _hookList.AddRange(hooks.Select(h => new HookViewModel(h)));
 
             foreach (var combo in new[] { UI_Combo_HookStart, UI_Combo_HookEnd,
                 UI_Combo_TopHookStart, UI_Combo_TopHookEnd,
                 UI_Combo_BotHookStart, UI_Combo_BotHookEnd })
             {
                 combo.ItemsSource = _hookList;
+                combo.DisplayMemberPath = "Name";
                 combo.SelectedIndex = 0;
             }
         }
@@ -161,8 +162,8 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 TransverseBarTypeName = (UI_Combo_TransType.SelectedItem as RebarBarType)?.Name,
                 TransverseSpacing = UnitConversion.MmToFeet(ParseDouble(UI_Text_TransSpacing.Text, 200)),
                 TransverseStartOffset = UnitConversion.MmToFeet(ParseDouble(UI_Text_TransStartOffset.Text, 50)),
-                TransverseHookStartName = (UI_Combo_HookStart.SelectedItem as RebarHookType)?.Name,
-                TransverseHookEndName = (UI_Combo_HookEnd.SelectedItem as RebarHookType)?.Name,
+                TransverseHookStartName = HookName(UI_Combo_HookStart),
+                TransverseHookEndName = HookName(UI_Combo_HookEnd),
             };
 
             // Top layers
@@ -174,8 +175,8 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                     VerticalBarTypeName = (UI_Combo_T1Type.SelectedItem as RebarBarType)?.Name,
                     VerticalSpacing = ParseInt(UI_Text_T1Count.Text, 2),  // Count stored in spacing field
                     VerticalOffset = 1, // Positive = top
-                    HookStartName = (UI_Combo_TopHookStart.SelectedItem as RebarHookType)?.Name,
-                    HookEndName = (UI_Combo_TopHookEnd.SelectedItem as RebarHookType)?.Name,
+                    HookStartName = HookName(UI_Combo_TopHookStart),
+                    HookEndName = HookName(UI_Combo_TopHookEnd),
                 });
             }
             if (UI_Check_T2.IsChecked == true)
@@ -186,8 +187,8 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                     VerticalBarTypeName = (UI_Combo_T2Type.SelectedItem as RebarBarType)?.Name,
                     VerticalSpacing = ParseInt(UI_Text_T2Count.Text, 3),
                     VerticalOffset = 1,
-                    HookStartName = (UI_Combo_TopHookStart.SelectedItem as RebarHookType)?.Name,
-                    HookEndName = (UI_Combo_TopHookEnd.SelectedItem as RebarHookType)?.Name,
+                    HookStartName = HookName(UI_Combo_TopHookStart),
+                    HookEndName = HookName(UI_Combo_TopHookEnd),
                 });
             }
 
@@ -200,8 +201,8 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                     VerticalBarTypeName = (UI_Combo_B1Type.SelectedItem as RebarBarType)?.Name,
                     VerticalSpacing = ParseInt(UI_Text_B1Count.Text, 2),
                     VerticalOffset = -1, // Negative = bottom
-                    HookStartName = (UI_Combo_BotHookStart.SelectedItem as RebarHookType)?.Name,
-                    HookEndName = (UI_Combo_BotHookEnd.SelectedItem as RebarHookType)?.Name,
+                    HookStartName = HookName(UI_Combo_BotHookStart),
+                    HookEndName = HookName(UI_Combo_BotHookEnd),
                 });
             }
             if (UI_Check_B2.IsChecked == true)
@@ -212,8 +213,8 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                     VerticalBarTypeName = (UI_Combo_B2Type.SelectedItem as RebarBarType)?.Name,
                     VerticalSpacing = ParseInt(UI_Text_B2Count.Text, 3),
                     VerticalOffset = -1,
-                    HookStartName = (UI_Combo_BotHookStart.SelectedItem as RebarHookType)?.Name,
-                    HookEndName = (UI_Combo_BotHookEnd.SelectedItem as RebarHookType)?.Name,
+                    HookStartName = HookName(UI_Combo_BotHookStart),
+                    HookEndName = HookName(UI_Combo_BotHookEnd),
                 });
             }
 
@@ -231,13 +232,13 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
         private void SelectHookByName(ComboBox combo, string name)
         {
             if (string.IsNullOrEmpty(name)) { combo.SelectedIndex = 0; return; }
-            var match = _hookList.FirstOrDefault(x => x?.Name == name);
+            var match = _hookList.FirstOrDefault(x => x?.Hook?.Name == name);
             if (match != null) combo.SelectedItem = match;
             else combo.SelectedIndex = 0;
         }
 
         private static string TransTypeName(ComboBox combo) => (combo.SelectedItem as RebarBarType)?.Name ?? "";
-        private static string HookName(ComboBox combo) => (combo.SelectedItem as RebarHookType)?.Name ?? "";
+        private static string HookName(ComboBox combo) => (combo.SelectedItem as HookViewModel)?.Hook?.Name ?? "";
         private static double ParseDouble(string s, double def) => double.TryParse(s, out double d) ? d : def;
         private static int ParseInt(string s, int def) => int.TryParse(s, out int i) ? i : def;
     }

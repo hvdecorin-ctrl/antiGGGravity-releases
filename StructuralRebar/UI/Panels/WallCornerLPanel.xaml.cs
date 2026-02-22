@@ -66,8 +66,16 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                         break;
                     }
                 }
+
+                toggle_visibility(null, null);
             }
             catch { }
+        }
+
+        public void toggle_visibility(object sender, RoutedEventArgs e)
+        {
+            if (UI_Group_Trimmers == null) return;
+            UI_Group_Trimmers.Visibility = UI_Check_Trimmers.IsChecked == true ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
         }
 
         public void SaveSettings()

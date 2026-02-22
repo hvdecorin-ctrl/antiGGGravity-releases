@@ -34,13 +34,7 @@
                             </StackPanel>
                         </Grid>
                         <TextBlock Text="Hook Start/End" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                        <ComboBox x:Name="UI_Combo_TopHook" Height="32" Padding="8,0" VerticalContentAlignment="Center">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Name, TargetNullValue='(None)'}"/>
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
+                        <ComboBox x:Name="UI_Combo_TopHook" Height="32" Padding="8,0" VerticalContentAlignment="Center" />
                     </StackPanel>
                 </StackPanel>
             </Border>
@@ -68,13 +62,7 @@
                             </StackPanel>
                         </Grid>
                         <TextBlock Text="Hook Start/End" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                        <ComboBox x:Name="UI_Combo_BotHook" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,15">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Name, TargetNullValue='(None)'}"/>
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
+                        <ComboBox x:Name="UI_Combo_BotHook" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,15" />
                     </StackPanel>
                 </StackPanel>
             </Border>

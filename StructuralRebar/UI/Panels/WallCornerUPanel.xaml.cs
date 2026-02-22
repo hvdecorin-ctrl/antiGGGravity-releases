@@ -56,8 +56,16 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
 
                 SelectByName(UI_Combo_HorizType, SettingsManager.Get(VIEW_NAME, "HorizType"));
                 SelectByName(UI_Combo_TrimmerType, SettingsManager.Get(VIEW_NAME, "TrimmerType"));
+
+                toggle_visibility(null, null);
             }
             catch { }
+        }
+
+        public void toggle_visibility(object sender, RoutedEventArgs e)
+        {
+            if (UI_Group_Trimmers == null) return;
+            UI_Group_Trimmers.Visibility = UI_Check_Trimmers.IsChecked == true ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
         }
 
         public void SaveSettings()

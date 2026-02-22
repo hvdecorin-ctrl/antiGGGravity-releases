@@ -31,16 +31,15 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
             XYZ adjNormal2 = corner.Normal2;
             if (corner.Normal2.DotProduct(-dir1) < 0) adjNormal2 = -corner.Normal2;
 
-            double cExt = 0.15; // Placeholder or calculate
-            double cInt = 0.15; 
-            // In a real scenario, we'd pull these from corner.Wall1 if available in HostGeometry
+            double cExt = GetCoverDist(corner.Wall1, BuiltInParameter.CLEAR_COVER_EXTERIOR);
+            double cInt = GetCoverDist(corner.Wall1, BuiltInParameter.CLEAR_COVER_INTERIOR); 
 
             double hExt = (thickness / 2.0) - cExt - (barDia / 2.0);
             double hInt = (thickness / 2.0) - cInt - (barDia / 2.0);
 
             var layerOffsets = new List<double>();
             string config = request.WallLayerConfig;
-            if (config == "Centre") layerOffsets.Add(0);
+            if (config == "Centre") layerOffsets.Add(barDia); // Offset by bar diameter to avoid vertical wall bars / trimmers
             else if (config == "Both faces") { layerOffsets.Add(hExt); layerOffsets.Add(-hInt); }
             else if (config == "External face") layerOffsets.Add(hExt);
             else if (config == "Internal face") layerOffsets.Add(-hInt);
@@ -88,6 +87,7 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                     },
                     Style = RebarStyle.Standard,
                     BarTypeName = request.TrimmerBarTypeName,
+                    Normal = adjNormal1,
                     Label = "Wall Corner Trimmer"
                 });
             }
@@ -112,9 +112,10 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
             // In a better DTO, we'd have thicknesses for both walls, but for now assuming same
             double t2 = corner.Thickness;
 
-            double cExt1 = 0.15; // Covers
-            double cExt2 = 0.15;
+            double cExt1 = GetCoverDist(corner.Wall1, BuiltInParameter.CLEAR_COVER_EXTERIOR);
+            double cExt2 = GetCoverDist(corner.Wall2, BuiltInParameter.CLEAR_COVER_EXTERIOR);
             
+            // Offset inside by exactly half a bar diameter to fit inside vertical bars
             double offset1 = (t1 / 2.0) - cExt1 - (barDia / 2.0);
             double offset2 = (t2 / 2.0) - cExt2 - (barDia / 2.0);
 
@@ -150,6 +151,7 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                                 new XYZ(pos.X, pos.Y, zMax - request.TransverseEndOffset))
                         },
                         BarTypeName = request.TrimmerBarTypeName,
+                        Normal = normal1,
                         Label = "Corner Trimmer (U)"
                     });
                 }
@@ -227,6 +229,24 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
             double dy = p2.Y - p1.Y;
             double t = (dx * d2.Y - dy * d2.X) / cross;
             return new XYZ(p1.X + t * d1.X, p1.Y + t * d1.Y, p1.Z);
+        }
+
+        private static double GetCoverDist(Wall wall, BuiltInParameter param)
+        {
+            Parameter coverParam = wall.get_Parameter(param);
+            if (coverParam != null)
+            {
+                ElementId coverId = coverParam.AsElementId();
+                if (coverId != ElementId.InvalidElementId)
+                {
+                    RebarCoverType coverType = wall.Document.GetElement(coverId) as RebarCoverType;
+                    if (coverType != null)
+                    {
+                        return coverType.CoverDistance;
+                    }
+                }
+            }
+            return 50.0 / 304.8; // 50mm fallback
         }
     }
 }
