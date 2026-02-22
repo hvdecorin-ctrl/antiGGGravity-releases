@@ -13,6 +13,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
 {
     public partial class WallCornerLPanel : UserControl
     {
+        private const string VIEW_NAME = "RebarSuite_WallCornerL";
         private Document _doc;
         private List<RebarBarType> _rebarTypes;
 
@@ -21,6 +22,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             InitializeComponent();
             _doc = doc;
             LoadData();
+            LoadSettings();
         }
 
         private void LoadData()
@@ -40,12 +42,62 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             UI_Combo_TrimmerType.SelectedItem = _rebarTypes.FirstOrDefault(x => x.Name.Contains("D16")) ?? _rebarTypes.FirstOrDefault();
         }
 
+        private void LoadSettings()
+        {
+            try
+            {
+                UI_Text_HorizSpacing.Text = SettingsManager.Get(VIEW_NAME, "HorizSpacing", "200");
+                UI_Text_Leg1.Text = SettingsManager.Get(VIEW_NAME, "Leg1", "600");
+                UI_Text_Leg2.Text = SettingsManager.Get(VIEW_NAME, "Leg2", "600");
+                UI_Text_BotOffset.Text = SettingsManager.Get(VIEW_NAME, "BotOffset", "50");
+                UI_Text_TopOffset.Text = SettingsManager.Get(VIEW_NAME, "TopOffset", "50");
+
+                UI_Check_Trimmers.IsChecked = SettingsManager.GetBool(VIEW_NAME, "TrimmersEnabled", true);
+
+                SelectByName(UI_Combo_HorizType, SettingsManager.Get(VIEW_NAME, "HorizType"));
+                SelectByName(UI_Combo_TrimmerType, SettingsManager.Get(VIEW_NAME, "TrimmerType"));
+
+                string layers = SettingsManager.Get(VIEW_NAME, "Layers", "Both faces");
+                foreach (ComboBoxItem item in UI_Combo_Layers.Items)
+                {
+                    if (item.Content.ToString() == layers)
+                    {
+                        UI_Combo_Layers.SelectedItem = item;
+                        break;
+                    }
+                }
+            }
+            catch { }
+        }
+
+        public void SaveSettings()
+        {
+            try
+            {
+                SettingsManager.Set(VIEW_NAME, "HorizSpacing", UI_Text_HorizSpacing.Text);
+                SettingsManager.Set(VIEW_NAME, "Leg1", UI_Text_Leg1.Text);
+                SettingsManager.Set(VIEW_NAME, "Leg2", UI_Text_Leg2.Text);
+                SettingsManager.Set(VIEW_NAME, "BotOffset", UI_Text_BotOffset.Text);
+                SettingsManager.Set(VIEW_NAME, "TopOffset", UI_Text_TopOffset.Text);
+
+                SettingsManager.Set(VIEW_NAME, "TrimmersEnabled", (UI_Check_Trimmers.IsChecked == true).ToString());
+
+                SettingsManager.Set(VIEW_NAME, "HorizType", TransTypeName(UI_Combo_HorizType));
+                SettingsManager.Set(VIEW_NAME, "TrimmerType", TransTypeName(UI_Combo_TrimmerType));
+
+                SettingsManager.Set(VIEW_NAME, "Layers", (UI_Combo_Layers.SelectedItem as ComboBoxItem)?.Content.ToString());
+
+                SettingsManager.SaveAll();
+            }
+            catch { }
+        }
+
         public RebarRequest GetRequest()
         {
             var request = new RebarRequest
             {
                 HostType = ElementHostType.WallCornerL,
-                RemoveExisting = UI_Check_RemoveExisting.IsChecked == true,
+                RemoveExisting = false, // Handled by Window level
 
                 // Primary Horizontal Settings (reusing existing DTO fields where possible)
                 VerticalBarTypeName = (UI_Combo_HorizType.SelectedItem as RebarBarType)?.Name,
@@ -69,6 +121,16 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
 
             return request;
         }
+
+        // --- Helpers ---
+        private void SelectByName(ComboBox combo, string name)
+        {
+            if (string.IsNullOrEmpty(name)) return;
+            var match = _rebarTypes.FirstOrDefault(x => x.Name == name);
+            if (match != null) combo.SelectedItem = match;
+        }
+
+        private static string TransTypeName(ComboBox combo) => (combo.SelectedItem as RebarBarType)?.Name ?? "";
 
         private double ParseDouble(string text, double defaultValue)
         {

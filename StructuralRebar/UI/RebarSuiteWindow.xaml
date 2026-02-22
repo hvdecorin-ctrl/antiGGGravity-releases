@@ -5,7 +5,7 @@
         Height="900" Width="950" 
         MinHeight="700" MinWidth="900"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
-        WindowStartupLocation="CenterScreen" ShowInTaskbar="True" Topmost="True">
+        WindowStartupLocation="CenterScreen" ShowInTaskbar="True">
 
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="70" CornerRadius="12" GlassFrameThickness="0" ResizeBorderThickness="4"/>
@@ -56,21 +56,21 @@
                     <StackPanel Margin="10,15">
                         <TextBlock Text="ELEMENT TYPE" FontSize="11" FontWeight="SemiBold" Foreground="#888888" Margin="8,0,0,10"/>
                         
-                        <RadioButton x:Name="UI_Radio_Beam" Content="Beam" IsChecked="True" 
-                                     GroupName="ElementType" FontSize="14" Foreground="#444" Margin="0,4" Padding="10,8"
-                                     Checked="ElementType_Changed"/>
-                        <RadioButton x:Name="UI_Radio_Wall" Content="Wall" 
-                                     GroupName="ElementType" FontSize="14" Foreground="#444" Margin="0,4" Padding="10,8"
-                                     Checked="ElementType_Changed"/>
-                        <RadioButton x:Name="UI_Radio_Column" Content="Column" 
-                                     GroupName="ElementType" FontSize="14" Foreground="#444" Margin="0,4" Padding="10,8"
-                                     Checked="ElementType_Changed" IsEnabled="True"/>
-                        <RadioButton x:Name="UI_Radio_StripFooting" Content="Strip Footing" 
+                        <RadioButton x:Name="UI_Radio_StripFooting" Content="Strip Footing" IsChecked="True"
                                      GroupName="ElementType" FontSize="14" Foreground="#444" Margin="0,4" Padding="10,8"
                                      Checked="ElementType_Changed" IsEnabled="True"/>
                         <RadioButton x:Name="UI_Radio_FootingPad" Content="Footing Pad" 
                                      GroupName="ElementType" FontSize="14" Foreground="#444" Margin="0,4" Padding="10,8"
                                      Checked="ElementType_Changed" IsEnabled="True"/>
+                        <RadioButton x:Name="UI_Radio_Beam" Content="Beam" 
+                                     GroupName="ElementType" FontSize="14" Foreground="#444" Margin="0,4" Padding="10,8"
+                                     Checked="ElementType_Changed"/>
+                        <RadioButton x:Name="UI_Radio_Column" Content="Column" 
+                                     GroupName="ElementType" FontSize="14" Foreground="#444" Margin="0,4" Padding="10,8"
+                                     Checked="ElementType_Changed" IsEnabled="True"/>
+                        <RadioButton x:Name="UI_Radio_Wall" Content="Wall" 
+                                     GroupName="ElementType" FontSize="14" Foreground="#444" Margin="0,4" Padding="10,8"
+                                     Checked="ElementType_Changed"/>
                         <RadioButton x:Name="UI_Radio_WallCornerL" Content="Wall Corner L" 
                                      GroupName="ElementType" FontSize="14" Foreground="#444" Margin="0,4" Padding="10,8"
                                      Checked="ElementType_Changed" IsEnabled="True"/>
@@ -96,7 +96,7 @@
                 <Grid>
                     <TextBlock VerticalAlignment="Center" FontSize="11" Foreground="#AAAAAA" Text="antiGGGravity © 2026 HV Decorin"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button Content="Cancel" Width="100" Height="36" Margin="0,0,10,0"
+                        <Button Content="Close" Width="100" Height="36" Margin="0,0,10,0"
                                 Style="{StaticResource PremiumPrimaryButtonStyle}" Click="UI_Button_Cancel_Click"
                                 WindowChrome.IsHitTestVisibleInChrome="True"/>
                         <Button Content="Generate" Width="140" Height="36"

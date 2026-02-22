@@ -5,6 +5,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="800">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </UserControl.Resources>
     <Grid Margin="0">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -18,7 +21,7 @@
             <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,15">
                 <StackPanel>
                     <CheckBox x:Name="UI_Check_TopBars" Content="Enable Top Bars" FontWeight="Bold" Foreground="#333333" IsChecked="True" Margin="0,0,0,15"/>
-                    <StackPanel IsEnabled="{Binding IsChecked, ElementName=UI_Check_TopBars}">
+                    <StackPanel Visibility="{Binding IsChecked, ElementName=UI_Check_TopBars, Converter={StaticResource BoolToVis}}">
                         <Grid Margin="0,0,0,15">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="2*"/>
@@ -35,7 +38,13 @@
                             </StackPanel>
                         </Grid>
                         <TextBlock Text="Hook Start/End" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                        <ComboBox x:Name="UI_Combo_TopHook" Height="32" Padding="8,0" VerticalContentAlignment="Center"/>
+                        <ComboBox x:Name="UI_Combo_TopHook" Height="32" Padding="8,0" VerticalContentAlignment="Center">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name, TargetNullValue='(None)'}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
                     </StackPanel>
                 </StackPanel>
             </Border>
@@ -44,7 +53,7 @@
             <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,15">
                 <StackPanel>
                     <CheckBox x:Name="UI_Check_BotBars" Content="Enable Bottom Bars" FontWeight="Bold" Foreground="#333333" IsChecked="True" Margin="0,0,0,15"/>
-                    <StackPanel IsEnabled="{Binding IsChecked, ElementName=UI_Check_BotBars}">
+                    <StackPanel Visibility="{Binding IsChecked, ElementName=UI_Check_BotBars, Converter={StaticResource BoolToVis}}">
                         <Grid Margin="0,0,0,15">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="2*"/>
@@ -61,32 +70,17 @@
                             </StackPanel>
                         </Grid>
                         <TextBlock Text="Hook Start/End" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                        <ComboBox x:Name="UI_Combo_BotHook" Height="32" Padding="8,0" VerticalContentAlignment="Center"/>
+                        <ComboBox x:Name="UI_Combo_BotHook" Height="32" Padding="8,0" VerticalContentAlignment="Center">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name, TargetNullValue='(None)'}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
                     </StackPanel>
                 </StackPanel>
             </Border>
 
-            <!-- Offsets -->
-            <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15">
-                <StackPanel>
-                    <TextBlock Text="Longitudinal Offsets (mm)" FontWeight="Bold" Foreground="#333333" Margin="0,0,0,15"/>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="15"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Start" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                            <TextBox x:Name="UI_Text_LongStartOff" Text="50" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="End" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                            <TextBox x:Name="UI_Text_LongEndOff" Text="50" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
-                        </StackPanel>
-                    </Grid>
-                </StackPanel>
-            </Border>
         </StackPanel>
 
         <!-- RIGHT COLUMN: STIRRUPS -->
@@ -119,11 +113,23 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0">
                             <TextBlock Text="Hook Start" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                            <ComboBox x:Name="UI_Combo_HookStart" Height="32" Padding="8,0" VerticalContentAlignment="Center"/>
+                            <ComboBox x:Name="UI_Combo_HookStart" Height="32" Padding="8,0" VerticalContentAlignment="Center">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Name, TargetNullValue='(None)'}"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
                         </StackPanel>
                         <StackPanel Grid.Column="2">
                             <TextBlock Text="Hook End" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                            <ComboBox x:Name="UI_Combo_HookEnd" Height="32" Padding="8,0" VerticalContentAlignment="Center"/>
+                            <ComboBox x:Name="UI_Combo_HookEnd" Height="32" Padding="8,0" VerticalContentAlignment="Center">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Name, TargetNullValue='(None)'}"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
                         </StackPanel>
                     </Grid>
 
@@ -132,7 +138,6 @@
                         <TextBox x:Name="UI_Text_TransStartOff" Text="50" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
                     </StackPanel>
                     
-                    <CheckBox x:Name="UI_Check_RemoveExisting" Content="Clear existing rebar" IsChecked="True" FontSize="11" Foreground="#666666"/>
                 </StackPanel>
             </Border>
         </StackPanel>

@@ -1,5 +1,6 @@
 using System.Windows;
 using Autodesk.Revit.DB;
+using Autodesk.Revit.UI;
 using antiGGGravity.StructuralRebar.Constants;
 using antiGGGravity.StructuralRebar.UI.Panels;
 
@@ -8,8 +9,9 @@ namespace antiGGGravity.StructuralRebar.UI
     public partial class RebarSuiteWindow : Window
     {
         private readonly Document _doc;
-        public bool IsConfirmed { get; private set; } = false;
-        public ElementHostType SelectedHostType { get; private set; } = ElementHostType.Beam;
+        private readonly ExternalEvent _externalEvent;
+
+        public ElementHostType SelectedHostType { get; private set; } = ElementHostType.StripFooting;
 
         // Active panels
         private BeamRebarPanel _beamPanel;
@@ -20,14 +22,15 @@ namespace antiGGGravity.StructuralRebar.UI
         private WallCornerLPanel _wallCornerLPanel;
         private WallCornerUPanel _wallCornerUPanel;
         
-        public RebarSuiteWindow(Document doc)
+        public RebarSuiteWindow(Document doc, ExternalEvent externalEvent)
         {
             _doc = doc;
+            _externalEvent = externalEvent;
             InitializeComponent();
 
-            // Initialize Beam panel (default) — after InitializeComponent so _doc is set
-            _beamPanel = new BeamRebarPanel(_doc);
-            UI_PanelHost.Content = _beamPanel;
+            // Initialize Strip Footing panel (default)
+            _stripFootingPanel = new StripFootingRebarPanel(_doc);
+            UI_PanelHost.Content = _stripFootingPanel;
         }
 
         private void ElementType_Changed(object sender, RoutedEventArgs e)
@@ -77,27 +80,52 @@ namespace antiGGGravity.StructuralRebar.UI
                 if (_wallCornerUPanel == null) _wallCornerUPanel = new WallCornerUPanel(_doc);
                 UI_PanelHost.Content = _wallCornerUPanel;
             }
-            // Future: Wall, Column, etc. panels will be added here
         }
 
         private void UI_Button_Generate_Click(object sender, RoutedEventArgs e)
         {
             // Save settings on active panel
-            if (UI_PanelHost.Content is BeamRebarPanel bp) bp.SaveSettings();
-            // WallRebarPanel doesn't have SaveSettings yet (using direct DTO extraction), 
-            // but we can add it if we implement local persistence later.
+            SaveActivePanel();
 
-            IsConfirmed = true;
-            Close();
+            // Hide the window so the user can interact with Revit (select elements)
+            Hide();
+
+            // Raise the external event — Revit will call our handler on the main thread
+            _externalEvent?.Raise();
         }
 
         private void UI_Button_Cancel_Click(object sender, RoutedEventArgs e)
         {
-            IsConfirmed = false;
+            // Save settings before closing
+            SaveActivePanel();
             Close();
         }
 
-        // --- Accessors for the engine ---
+        /// <summary>
+        /// Called by RebarGenerateHandler after execution to bring the window back.
+        /// </summary>
+        public void ReShow()
+        {
+            // Must dispatch to the WPF thread since the handler runs on the Revit thread
+            Dispatcher.Invoke(() =>
+            {
+                Show();
+                Activate();
+            });
+        }
+
+        private void SaveActivePanel()
+        {
+            if (UI_PanelHost.Content is BeamRebarPanel bp) bp.SaveSettings();
+            else if (UI_PanelHost.Content is WallRebarPanel wp) wp.SaveSettings();
+            else if (UI_PanelHost.Content is ColumnRebarPanel cp) cp.SaveSettings();
+            else if (UI_PanelHost.Content is StripFootingRebarPanel sfp) sfp.SaveSettings();
+            else if (UI_PanelHost.Content is FootingPadRebarPanel fpp) fpp.SaveSettings();
+            else if (UI_PanelHost.Content is WallCornerLPanel wcl) wcl.SaveSettings();
+            else if (UI_PanelHost.Content is WallCornerUPanel wcu) wcu.SaveSettings();
+        }
+
+        // --- Accessors for the handler ---
         public bool RemoveExisting => UI_Check_RemoveExisting.IsChecked == true;
         public BeamRebarPanel BeamPanel => _beamPanel;
         public WallRebarPanel WallPanel => _wallPanel;

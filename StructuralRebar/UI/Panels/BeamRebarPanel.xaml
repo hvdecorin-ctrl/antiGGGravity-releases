@@ -38,11 +38,23 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="Hook Start" FontSize="12" Foreground="#666" Margin="0,0,0,4"/>
-                        <ComboBox x:Name="UI_Combo_HookStart" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0"/>
+                        <ComboBox x:Name="UI_Combo_HookStart" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name, TargetNullValue='(None)'}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
                     </StackPanel>
                     <StackPanel Grid.Column="2">
                         <TextBlock Text="Hook End" FontSize="12" Foreground="#666" Margin="0,0,0,4"/>
-                        <ComboBox x:Name="UI_Combo_HookEnd" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0"/>
+                        <ComboBox x:Name="UI_Combo_HookEnd" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name, TargetNullValue='(None)'}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
                     </StackPanel>
                 </Grid>
             </StackPanel>
@@ -110,11 +122,23 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="Hook Start" FontSize="12" Foreground="#666" Margin="0,0,0,4"/>
-                        <ComboBox x:Name="UI_Combo_TopHookStart" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0"/>
+                        <ComboBox x:Name="UI_Combo_TopHookStart" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name, TargetNullValue='(None)'}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
                     </StackPanel>
                     <StackPanel Grid.Column="2">
                         <TextBlock Text="Hook End" FontSize="12" Foreground="#666" Margin="0,0,0,4"/>
-                        <ComboBox x:Name="UI_Combo_TopHookEnd" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0"/>
+                        <ComboBox x:Name="UI_Combo_TopHookEnd" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name, TargetNullValue='(None)'}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
                     </StackPanel>
                 </Grid>
             </StackPanel>
@@ -182,11 +206,23 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="Hook Start" FontSize="12" Foreground="#666" Margin="0,0,0,4"/>
-                        <ComboBox x:Name="UI_Combo_BotHookStart" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0"/>
+                        <ComboBox x:Name="UI_Combo_BotHookStart" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name, TargetNullValue='(None)'}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
                     </StackPanel>
                     <StackPanel Grid.Column="2">
                         <TextBlock Text="Hook End" FontSize="12" Foreground="#666" Margin="0,0,0,4"/>
-                        <ComboBox x:Name="UI_Combo_BotHookEnd" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0"/>
+                        <ComboBox x:Name="UI_Combo_BotHookEnd" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name, TargetNullValue='(None)'}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
                     </StackPanel>
                 </Grid>
             </StackPanel>

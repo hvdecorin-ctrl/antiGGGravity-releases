@@ -97,10 +97,8 @@
 
                     <StackPanel x:Name="UI_Group_Trimmers" IsEnabled="{Binding IsChecked, ElementName=UI_Check_Trimmers}">
                         <TextBlock Text="Trimmer Bar Type" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                        <ComboBox x:Name="UI_Combo_TrimmerType" Height="32" Padding="8,0" VerticalContentAlignment="Center"/>
+                        <ComboBox x:Name="UI_Combo_TrimmerType" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,10"/>
                     </StackPanel>
-
-                    <CheckBox x:Name="UI_Check_RemoveExisting" Content="Clear existing rebar" IsChecked="True" FontSize="11" Foreground="#666666" Margin="0,15,0,0"/>
                 </StackPanel>
             </Border>
         </StackPanel>

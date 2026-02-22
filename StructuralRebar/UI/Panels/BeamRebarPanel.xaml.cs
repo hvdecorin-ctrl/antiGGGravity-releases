@@ -67,7 +67,6 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 UI_Combo_BotHookStart, UI_Combo_BotHookEnd })
             {
                 combo.ItemsSource = _hookList;
-                combo.DisplayMemberPath = "Name";
                 combo.SelectedIndex = 0;
             }
         }

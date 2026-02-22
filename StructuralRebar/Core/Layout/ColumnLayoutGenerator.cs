@@ -70,8 +70,10 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
 
         public static List<RebarDefinition> CreateColumnVerticals(
             HostGeometry host,
-            string barTypeName,
-            double barDiameter,
+            string barTypeNameX,
+            double barDiameterX,
+            string barTypeNameY,
+            double barDiameterY,
             int nx,
             int ny,
             double topExt,
@@ -94,11 +96,10 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
             double coverSide = host.CoverExterior;
             double totalHeight = host.Length;
 
-            // Inner offset for vertical bars (Accounting for tie diameter)
-            // Hardcoded tDia approx if not known? Original code uses tDia.
-            // Let's assume tDia = 10mm (0.0328 feet) as fallback or pass it.
+            // Inner offset for vertical bars (Account for largest bar diameter and tie)
             double tDia = 0.0328; 
-            double innerOff = coverSide + tDia + barDiameter / 2.0;
+            double maxBarDia = Math.Max(barDiameterX, barDiameterY);
+            double innerOff = coverSide + tDia + maxBarDia / 2.0;
 
             // X and Y grid points
             List<double> xPts = new List<double>();
@@ -150,8 +151,8 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                         {
                             Curves = new List<Curve> { vLine },
                             Style = RebarStyle.Standard,
-                            BarTypeName = barTypeName,
-                            BarDiameter = barDiameter,
+                            BarTypeName = (!isXEdge) ? barTypeNameY : barTypeNameX, // X edge (Top/Bot face) uses X type, else Y
+                            BarDiameter = (!isXEdge) ? barDiameterY : barDiameterX,
                             Normal = hookNormal,
                             HookStartName = hookStartName,
                             HookEndName = hookEndName,

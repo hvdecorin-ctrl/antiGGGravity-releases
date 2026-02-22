@@ -120,8 +120,9 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
             }
 
             // Start/End points of the FIRST bar in the set (Far Left)
-            XYZ barStart = host.StartPoint + basisL * startOff + basisH * zPos - basisW * (distWidth / 2.0);
-            XYZ barEnd = host.EndPoint - basisL * endOff + basisH * zPos - basisW * (distWidth / 2.0);
+            // Now using host.CoverExterior instead of manual startOff/endOff
+            XYZ barStart = host.StartPoint + basisL * host.CoverExterior + basisH * zPos - basisW * (distWidth / 2.0);
+            XYZ barEnd = host.EndPoint - basisL * host.CoverExterior + basisH * zPos - basisW * (distWidth / 2.0);
 
             List<Curve> curves = new List<Curve> { Line.CreateBound(barStart, barEnd) };
 

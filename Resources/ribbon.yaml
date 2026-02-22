@@ -360,8 +360,13 @@ panels:
   # ============================================================
   - name: Rebar
     items:
-
       # --- Column 1 ---
+      - type: pushbutton
+        name: Rebar Suite
+        command: RebarSuiteCommand
+        icon: RebarSuite
+        tooltip: Unified structural reinforcement generator for beams, walls, columns, and footings.
+      # --- Column 2 ---
       - type: pulldown
         name: Selection
         icon: RebarSelection
@@ -394,7 +399,7 @@ panels:
           - name: Select & Delete Rebar By Host
             command: SelectDeleteRebarCommand
             icon: SelectDeleteRebar
-      # --- Column 2 ---
+      # --- Column 3 ---
       - type: pulldown
         name: Setting
         icon: RebarSetting
@@ -413,7 +418,7 @@ panels:
           - name: Show Rebar By Host Only
             command: ShowRebarByHostOnlyCommand
             icon: ShowRebarByHostOnly
-      # --- Column 3 ---
+      # --- Column 4 ---
       - type: pulldown
         name: Reinforcing
         icon: RebarReinforcing
@@ -446,13 +451,6 @@ panels:
           - name: Beam Rebar
             command: BeamRebarCommand
             icon: BeamRebar
-
-      # --- Column 4 ---
-      - type: pushbutton
-        name: Rebar Suite
-        command: RebarSuiteCommand
-        icon: RebarSuite
-        tooltip: Unified structural reinforcement generator for beams, walls, columns, and footings.
 
   # ============================================================
   # GENERAL PANEL

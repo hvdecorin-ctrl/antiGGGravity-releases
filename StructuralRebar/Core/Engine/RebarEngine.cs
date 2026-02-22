@@ -369,18 +369,24 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
             }
 
             // 2. Vertical Main Bars
-            if (request.Layers.Count > 0)
+            if (!string.IsNullOrEmpty(request.VerticalBarTypeNameX) || !string.IsNullOrEmpty(request.VerticalBarTypeNameY))
             {
-                var layer = request.Layers[0];
-                double vDia = GetBarDiameter(layer.VerticalBarTypeName);
-                if (vDia > 0)
+                double vDiaX = GetBarDiameter(request.VerticalBarTypeNameX);
+                double vDiaY = GetBarDiameter(request.VerticalBarTypeNameY);
+
+                if (vDiaX > 0 || vDiaY > 0)
                 {
+                    // For Column, we use the first layer in the list to store Hook settings
+                    var layerTempl = request.Layers.FirstOrDefault() ?? new RebarLayerConfig();
+
                     var vertDefs = ColumnLayoutGenerator.CreateColumnVerticals(
-                        host, layer.VerticalBarTypeName, vDia,
+                        host, 
+                        request.VerticalBarTypeNameX, vDiaX,
+                        request.VerticalBarTypeNameY, vDiaY,
                         request.ColumnCountX, request.ColumnCountY,
                         request.VerticalTopExtension, request.VerticalBottomExtension,
-                        layer.HookStartName, layer.HookEndName,
-                        layer.HookStartOutward, layer.HookEndOutward);
+                        layerTempl.HookStartName, layerTempl.HookEndName,
+                        layerTempl.HookStartOutward, layerTempl.HookEndOutward);
 
                     if (vertDefs != null) definitions.AddRange(vertDefs);
                 }
@@ -459,17 +465,37 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
         {
             var corners = WallCornerGeometryModule.FindCorners(walls);
             int count = 0;
-            
-            // Wall corners are processed in a specialized way, not via GenerateRebarInternal
-            foreach (var corner in corners)
+
+            using (Transaction t = new Transaction(_doc, "Generate Wall Corner Rebar"))
             {
-                bool success = false;
-                if (request.HostType == ElementHostType.WallCornerL)
-                    success = ProcessWallCornerL(corner, request);
-                else if (request.HostType == ElementHostType.WallCornerU)
-                    success = ProcessWallCornerU(corner, request);
-                
-                if (success) count++;
+                t.Start();
+
+                foreach (var corner in corners)
+                {
+                    try
+                    {
+                        if (request.RemoveExisting)
+                        {
+                            // Delete rebar from both walls involved in the corner
+                            _creationService.DeleteExistingRebar(corner.Wall1);
+                            _creationService.DeleteExistingRebar(corner.Wall2);
+                        }
+
+                        bool success = false;
+                        if (request.HostType == ElementHostType.WallCornerL)
+                            success = ProcessWallCornerL(corner, request);
+                        else if (request.HostType == ElementHostType.WallCornerU)
+                            success = ProcessWallCornerU(corner, request);
+
+                        if (success) count++;
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Wall Corner failed: {ex.Message}");
+                    }
+                }
+
+                t.Commit();
             }
 
             return (count, corners.Count);

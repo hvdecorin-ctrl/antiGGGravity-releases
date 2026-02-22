@@ -82,6 +82,9 @@ namespace antiGGGravity.StructuralRebar.DTO
         /// <summary>Number of bars along Y direction (columns).</summary>
         public int ColumnCountY { get; set; }
 
+        public string VerticalBarTypeNameX { get; set; }
+        public string VerticalBarTypeNameY { get; set; }
+
         // === FOOTING-SPECIFIC ===
         /// <summary>Number of bottom bars (footings).</summary>
         public int BottomBarCount { get; set; }

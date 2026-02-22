@@ -13,6 +13,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
 {
     public partial class FootingPadRebarPanel : UserControl
     {
+        private const string VIEW_NAME = "RebarSuite_FootingPad";
         private Document _doc;
         private List<RebarBarType> _rebarTypes;
         private List<RebarHookType> _hookList;
@@ -22,6 +23,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             InitializeComponent();
             _doc = doc;
             LoadData();
+            LoadSettings();
         }
 
         private void LoadData()
@@ -50,12 +52,50 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             _hookList.AddRange(hookTypes);
 
             UI_Combo_TopHook.ItemsSource = _hookList;
-            UI_Combo_TopHook.DisplayMemberPath = "Name";
             UI_Combo_TopHook.SelectedIndex = 0;
 
             UI_Combo_BotHook.ItemsSource = _hookList;
-            UI_Combo_BotHook.DisplayMemberPath = "Name";
             UI_Combo_BotHook.SelectedIndex = 0;
+        }
+
+        private void LoadSettings()
+        {
+            try
+            {
+                UI_Text_TopSpacing.Text = SettingsManager.Get(VIEW_NAME, "TopSpacing", "200");
+                UI_Text_BotSpacing.Text = SettingsManager.Get(VIEW_NAME, "BotSpacing", "200");
+
+                UI_Check_TopBars.IsChecked = SettingsManager.GetBool(VIEW_NAME, "TopBarsEnabled", true);
+                UI_Check_BotBars.IsChecked = SettingsManager.GetBool(VIEW_NAME, "BotBarsEnabled", true);
+
+                SelectByName(UI_Combo_TopType, SettingsManager.Get(VIEW_NAME, "TopType"));
+                SelectByName(UI_Combo_BotType, SettingsManager.Get(VIEW_NAME, "BotType"));
+
+                SelectHookByName(UI_Combo_TopHook, SettingsManager.Get(VIEW_NAME, "TopHook"));
+                SelectHookByName(UI_Combo_BotHook, SettingsManager.Get(VIEW_NAME, "BotHook"));
+            }
+            catch { }
+        }
+
+        public void SaveSettings()
+        {
+            try
+            {
+                SettingsManager.Set(VIEW_NAME, "TopSpacing", UI_Text_TopSpacing.Text);
+                SettingsManager.Set(VIEW_NAME, "BotSpacing", UI_Text_BotSpacing.Text);
+
+                SettingsManager.Set(VIEW_NAME, "TopBarsEnabled", (UI_Check_TopBars.IsChecked == true).ToString());
+                SettingsManager.Set(VIEW_NAME, "BotBarsEnabled", (UI_Check_BotBars.IsChecked == true).ToString());
+
+                SettingsManager.Set(VIEW_NAME, "TopType", TransTypeName(UI_Combo_TopType));
+                SettingsManager.Set(VIEW_NAME, "BotType", TransTypeName(UI_Combo_BotType));
+
+                SettingsManager.Set(VIEW_NAME, "TopHook", HookName(UI_Combo_TopHook));
+                SettingsManager.Set(VIEW_NAME, "BotHook", HookName(UI_Combo_BotHook));
+
+                SettingsManager.SaveAll();
+            }
+            catch { }
         }
 
         public RebarRequest GetRequest()
@@ -63,7 +103,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             var request = new RebarRequest
             {
                 HostType = ElementHostType.FootingPad,
-                RemoveExisting = UI_Check_RemoveExisting.IsChecked == true,
+                RemoveExisting = false, // Handled by Window level
                 Layers = new List<RebarLayerConfig>()
             };
 
@@ -95,6 +135,25 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
 
             return request;
         }
+
+        // --- Helpers ---
+        private void SelectByName(ComboBox combo, string name)
+        {
+            if (string.IsNullOrEmpty(name)) return;
+            var match = _rebarTypes.FirstOrDefault(x => x.Name == name);
+            if (match != null) combo.SelectedItem = match;
+        }
+
+        private void SelectHookByName(ComboBox combo, string name)
+        {
+            if (string.IsNullOrEmpty(name)) { combo.SelectedIndex = 0; return; }
+            var match = _hookList.FirstOrDefault(x => x?.Name == name);
+            if (match != null) combo.SelectedItem = match;
+            else combo.SelectedIndex = 0;
+        }
+
+        private static string TransTypeName(ComboBox combo) => (combo.SelectedItem as RebarBarType)?.Name ?? "";
+        private static string HookName(ComboBox combo) => (combo.SelectedItem as RebarHookType)?.Name ?? "";
 
         private double ParseDouble(string text, double defaultValue)
         {
