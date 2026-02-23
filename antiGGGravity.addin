@@ -4,7 +4,7 @@
     <Name>antiGGGravity</Name>
     <FullClassName>antiGGGravity.App</FullClassName>
     <Assembly>antiGGGravity.dll</Assembly>
-    <AddInId>7E8A1D3B-E2F4-4C5A-9D8B-123456789ABC</AddInId>
+    <AddInId>35A1E7B9-940B-4D95-8E39-9C17FD430692</AddInId>
     <VendorId>ADSK</VendorId>
     <VendorDescription>Duy, Revit Developer</VendorDescription>
   </AddIn>

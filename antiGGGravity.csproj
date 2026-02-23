@@ -41,25 +41,29 @@
   </PropertyGroup>
 
   <!-- Post-Build Event for Automatic Revit Installation -->
-  <!-- ContinueOnError="WarnAndContinue" ensures VS won't crash if Revit is open and locking files -->
   <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(DeployToRevit)' == 'true'">
-    <PropertyGroup>
-      <RevitAddinsDir>$(AppData)\Autodesk\Revit\Addins\2026</RevitAddinsDir>
-    </PropertyGroup>
-    <MakeDir Directories="$(RevitAddinsDir)" Condition="!Exists('$(RevitAddinsDir)')" />
-    <Copy SourceFiles="antiGGGravity.addin" 
-          DestinationFolder="$(RevitAddinsDir)" 
-          SkipUnchangedFiles="true"
-          ContinueOnError="WarnAndContinue" />
-    
-    <!-- Copy the main DLL and all dependencies -->
     <ItemGroup>
+      <RevitVersions Include="2025;2026" />
       <AllOutputFiles Include="$(OutputPath)*.dll" />
     </ItemGroup>
-    <Copy SourceFiles="@(AllOutputFiles)" 
-          DestinationFolder="$(RevitAddinsDir)" 
+    
+    <!-- Deploy to each version if directory exists -->
+    <Message Text="Deploying to Revit versions: @(RevitVersions)" Importance="high" />
+    
+    <MakeDir Directories="$(AppData)\Autodesk\Revit\Addins\%(RevitVersions.Identity)" 
+             Condition="Exists('C:\ProgramData\Autodesk\Revit\Addins\%(RevitVersions.Identity)')" />
+    
+    <Copy SourceFiles="antiGGGravity.addin" 
+          DestinationFolder="$(AppData)\Autodesk\Revit\Addins\%(RevitVersions.Identity)" 
           SkipUnchangedFiles="true"
-          ContinueOnError="WarnAndContinue" />
+          ContinueOnError="WarnAndContinue"
+          Condition="Exists('C:\ProgramData\Autodesk\Revit\Addins\%(RevitVersions.Identity)')" />
+    
+    <Copy SourceFiles="@(AllOutputFiles)" 
+          DestinationFolder="$(AppData)\Autodesk\Revit\Addins\%(RevitVersions.Identity)" 
+          SkipUnchangedFiles="true"
+          ContinueOnError="WarnAndContinue"
+          Condition="Exists('C:\ProgramData\Autodesk\Revit\Addins\%(RevitVersions.Identity)')" />
   </Target>
 
 </Project>

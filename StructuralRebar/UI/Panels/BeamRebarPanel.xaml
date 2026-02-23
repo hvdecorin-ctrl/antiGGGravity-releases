@@ -242,6 +242,8 @@
                 <StackPanel>
                     <TextBlock Text="RULE OFFSETS" FontSize="12" FontWeight="SemiBold" Foreground="#4A759C" Margin="0,0,0,12"/>
                     
+                    <CheckBox x:Name="UI_Check_CutRebar" Content="Cut Rebar (>12m)" FontSize="12" Foreground="#333" FontWeight="SemiBold" IsChecked="True" Margin="0,0,0,12"/>
+
                     <TextBlock Text="Stirrup Start Offset (mm)" FontSize="11" Foreground="#666" Margin="0,0,0,4"/>
                     <TextBox x:Name="UI_Text_TransStartOffset" Text="100" Height="30" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0"/>
                 </StackPanel>

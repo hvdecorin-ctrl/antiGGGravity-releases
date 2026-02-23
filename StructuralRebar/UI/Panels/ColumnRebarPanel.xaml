@@ -21,6 +21,8 @@
                 <StackPanel>
                     <TextBlock Text="Vertical Main Bars" FontWeight="Bold" Foreground="#333333" Margin="0,0,0,15"/>
                     
+                    <CheckBox x:Name="UI_Check_CutRebar" Content="Cut Rebar (>12m)" FontSize="12" Foreground="#333" FontWeight="SemiBold" IsChecked="True" Margin="0,0,0,15"/>
+
                     <Grid Margin="0,0,0,15">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>

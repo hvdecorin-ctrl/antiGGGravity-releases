@@ -90,6 +90,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 UI_Check_BotExt.IsChecked = SettingsManager.GetBool(VIEW_NAME, "BotExtEnabled", false);
                 UI_Check_VHookBotOut.IsChecked = SettingsManager.GetBool(VIEW_NAME, "VHookBotOut", false);
                 UI_Check_VHookTopOut.IsChecked = SettingsManager.GetBool(VIEW_NAME, "VHookTopOut", false);
+                UI_Check_CutRebar.IsChecked = SettingsManager.GetBool(VIEW_NAME, "CutRebarEnabled", true);
 
                 SelectByName(UI_Combo_VerticalTypeX, SettingsManager.Get(VIEW_NAME, "VerticalTypeX"));
                 SelectByName(UI_Combo_VerticalTypeY, SettingsManager.Get(VIEW_NAME, "VerticalTypeY"));
@@ -123,6 +124,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 SettingsManager.Set(VIEW_NAME, "BotExtEnabled", (UI_Check_BotExt.IsChecked == true).ToString());
                 SettingsManager.Set(VIEW_NAME, "VHookBotOut", (UI_Check_VHookBotOut.IsChecked == true).ToString());
                 SettingsManager.Set(VIEW_NAME, "VHookTopOut", (UI_Check_VHookTopOut.IsChecked == true).ToString());
+                SettingsManager.Set(VIEW_NAME, "CutRebarEnabled", (UI_Check_CutRebar.IsChecked == true).ToString());
 
                 SettingsManager.Set(VIEW_NAME, "VerticalTypeX", TransTypeName(UI_Combo_VerticalTypeX));
                 SettingsManager.Set(VIEW_NAME, "VerticalTypeY", TransTypeName(UI_Combo_VerticalTypeY));
@@ -169,6 +171,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 // Vertical Hooks
                 Layers = new List<RebarLayerConfig>(),
                 EnableZoneSpacing = (UI_Radio_TieUnEQ.IsChecked == true),
+                EnableLapSplice = (UI_Check_CutRebar.IsChecked == true),
             };
  
             // Simplified: vertical bars use First Layer template for hooks

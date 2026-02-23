@@ -186,7 +186,9 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
 
                 // Check if bar needs splitting for 12m lap
                 double barLen = host.Length - 2 * host.CoverOther;
-                var segments = LapSpliceCalculator.SplitBarForLap(barLen, barDia, request.DesignCode, 0, LapSpliceCalculator.GetCrankRun(barDia));
+var segments = request.EnableLapSplice 
+                    ? LapSpliceCalculator.SplitBarForLap(barLen, barDia, request.DesignCode, 0, LapSpliceCalculator.GetCrankRun(barDia))
+                    : new List<(double Start, double End)> { (0.0, barLen) };
 
                 for (int si = 0; si < segments.Count; si++)
                 {
@@ -209,7 +211,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                         double lapLen = LapSpliceCalculator.CalculateTensionLapLength(barDia, request.DesignCode);
                         double straightLap = lapLen + crankRun; // entire overlap at offset, crank outside
 
-                        XYZ crankDir = -XYZ.BasisZ; // Top bars offset downward (into beam)
+                        XYZ crankDir = -host.HAxis; // Top bars offset downward (into beam)
 
                         // ptA: start at offset Z (lowered)
                         XYZ ptA = barStart + crankDir * crankOff;
@@ -239,8 +241,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                         FixedCount = count,
                         DistributionWidth = distWidthSeg,
                         Normal = host.WAxis,
-                        HookStartOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Left,
-                        HookEndOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Left,
+                        HookStartOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Right,
+                        HookEndOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Right,
                         HookStartName = (seg.Start == 0) ? layer.HookStartName : null,
                         HookEndName = (seg.End >= barLen - 0.001) ? layer.HookEndName : null,
                         Label = segments.Count > 1 ? "Top Layer (lapped)" : "Top Layer"
@@ -264,7 +266,9 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
 
                 // Check if bar needs splitting for 12m lap
                 double barLen = host.Length - 2 * host.CoverOther;
-                var segments = LapSpliceCalculator.SplitBarForLap(barLen, barDia, request.DesignCode, 0, LapSpliceCalculator.GetCrankRun(barDia));
+var segments = request.EnableLapSplice 
+                    ? LapSpliceCalculator.SplitBarForLap(barLen, barDia, request.DesignCode, 0, LapSpliceCalculator.GetCrankRun(barDia))
+                    : new List<(double Start, double End)> { (0.0, barLen) };
 
                 for (int si = 0; si < segments.Count; si++)
                 {
@@ -286,7 +290,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                         double lapLen = LapSpliceCalculator.CalculateTensionLapLength(barDia, request.DesignCode);
                         double straightLap = lapLen + crankRun; // entire overlap at offset, crank outside
 
-                        XYZ crankDir = XYZ.BasisZ; // Bottom bars offset upward (into beam)
+                        XYZ crankDir = host.HAxis; // Bottom bars offset upward (into beam)
 
                         // ptA: start at offset Z (raised)
                         XYZ ptA = barStart + crankDir * crankOff;
@@ -564,7 +568,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                         double barLen = host.Length + request.VerticalTopExtension + request.VerticalBottomExtension - 2 * host.CoverExterior;
                         double maxBarDia = Math.Max(vDiaX, vDiaY);
 
-                        if (barLen > LapSpliceCalculator.MaxStockLengthFt && maxBarDia > 0)
+                        if (request.EnableLapSplice && barLen > LapSpliceCalculator.MaxStockLengthFt && maxBarDia > 0)
                         {
                             var lappedDefs = new List<RebarDefinition>();
                             foreach (var vDef in vertDefs)
@@ -600,7 +604,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                                         double lapLen = LapSpliceCalculator.CalculateTensionLapLength(vDef.BarDiameter, request.DesignCode);
                                         double straightLap = lapLen + crankRun; // entire overlap at offset, crank outside
 
-                                        XYZ crankDir = vDef.Normal.Normalize();
+                                        XYZ inDir = -vDef.Normal.CrossProduct(barDir).Normalize();
+                                        XYZ crankDir = inDir;
 
                                         // ptA: start at offset position
                                         XYZ ptA = segStart + crankDir * crankOff;

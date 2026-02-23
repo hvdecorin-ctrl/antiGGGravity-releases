@@ -104,6 +104,8 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 UI_Radio_StirrupUnEQ.IsChecked = SettingsManager.GetBool(VIEW_NAME, "StirrupDistUnEQ", false);
                 UI_Radio_StirrupEQ.IsChecked = !(UI_Radio_StirrupUnEQ.IsChecked == true);
 
+                UI_Check_CutRebar.IsChecked = SettingsManager.GetBool(VIEW_NAME, "CutRebarEnabled", true);
+
                 toggle_visibility(null, null);
                 StirrupDist_Changed(null, null);
             }
@@ -140,6 +142,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 SettingsManager.Set(VIEW_NAME, "BotHookEnd", HookName(UI_Combo_BotHookEnd));
 
                 SettingsManager.Set(VIEW_NAME, "StirrupDistUnEQ", (UI_Radio_StirrupUnEQ.IsChecked == true).ToString());
+                SettingsManager.Set(VIEW_NAME, "CutRebarEnabled", (UI_Check_CutRebar.IsChecked == true).ToString());
 
                 SettingsManager.SaveAll();
             }
@@ -227,6 +230,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 TransverseHookStartName = HookName(UI_Combo_HookStart),
                 TransverseHookEndName = HookName(UI_Combo_HookEnd),
                 EnableZoneSpacing = (UI_Radio_StirrupUnEQ.IsChecked == true),
+                EnableLapSplice = (UI_Check_CutRebar.IsChecked == true),
             };
 
             // Top layers
