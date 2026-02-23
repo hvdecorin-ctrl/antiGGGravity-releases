@@ -133,32 +133,33 @@ namespace antiGGGravity.Commands.Rebar
             double lapLen = LapSpliceCalculator.CalculateTensionLapLength(barDia, DesignCodeStandard.NZS3101);
             double straightLap = lapLen + crankRun;
 
-            // Determine in-plane crank direction (must be perpendicular to bar and lie in the normal plane)
-            // Cross product of plane normal and bar direction = in-plane perpendicular direction
-            XYZ dir1 = normal.CrossProduct(barDir).Normalize();
-            XYZ dir2 = -dir1;
-
+            // Determine crank direction: must be perpendicular to bar and point INWARD toward host center
             BoundingBoxXYZ hostBox = host.get_BoundingBox(null);
-            // Which direction brings the crank closer to the center of the concrete?
             XYZ crankDir;
             if (hostBox != null)
             {
                 XYZ hostCenter = (hostBox.Min + hostBox.Max) / 2.0;
-                XYZ testCenter = (barStart + barEnd) / 2.0;
+                XYZ barMid = (barStart + barEnd) / 2.0;
                 
-                // Which direction brings the crank closer to the center of the concrete?
-                if (testCenter.Add(dir1).DistanceTo(hostCenter) < testCenter.Add(dir2).DistanceTo(hostCenter))
+                // Vector from bar midpoint toward host center
+                XYZ toCenter = hostCenter - barMid;
+                
+                // Remove the component along the bar direction (we only want perpendicular movement)
+                XYZ perpToCenter = toCenter - barDir * toCenter.DotProduct(barDir);
+                
+                if (perpToCenter.GetLength() > 1e-9)
                 {
-                    crankDir = dir1;
+                    crankDir = perpToCenter.Normalize();
                 }
                 else
                 {
-                    crankDir = dir2;
+                    // Bar is at host center — use normal cross barDir as fallback
+                    crankDir = normal.CrossProduct(barDir).Normalize();
                 }
             }
             else
             {
-                crankDir = dir1; // Fallback
+                crankDir = normal.CrossProduct(barDir).Normalize();
             }
 
             // Ensure we have enough room for the crank

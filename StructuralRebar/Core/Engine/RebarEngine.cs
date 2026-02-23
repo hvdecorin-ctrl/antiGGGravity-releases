@@ -241,8 +241,8 @@ var segments = request.EnableLapSplice
                         FixedCount = count,
                         DistributionWidth = distWidthSeg,
                         Normal = host.WAxis,
-                        HookStartOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Right,
-                        HookEndOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Right,
+                        HookStartOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Left,
+                        HookEndOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Left,
                         HookStartName = (seg.Start == 0) ? layer.HookStartName : null,
                         HookEndName = (seg.End >= barLen - 0.001) ? layer.HookEndName : null,
                         Label = segments.Count > 1 ? "Top Layer (lapped)" : "Top Layer"
