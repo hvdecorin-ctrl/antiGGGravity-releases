@@ -63,12 +63,14 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
         /// <summary>
         /// Splits a main bar into segments when total length exceeds maxStockLength.
         /// Each segment overlaps the previous by the required lap splice length.
+        /// When crankRun > 0, the total overlap = lapLen + crankRun so that
+        /// the full lap length is measured from the end of the angled crank.
         /// Returns a list of (segmentStart, segmentEnd) offsets along the bar axis.
         /// If the bar fits within one stock length, returns a single segment covering the full length.
         /// </summary>
         public static List<(double Start, double End)> SplitBarForLap(
             double totalLength, double barDia, DesignCodeStandard code,
-            double maxStockLength = 0)
+            double maxStockLength = 0, double crankRun = 0)
         {
             if (maxStockLength <= 0) maxStockLength = MaxStockLengthFt;
 
@@ -82,9 +84,10 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
             }
 
             double lapLen = CalculateTensionLapLength(barDia, code);
+            double totalOverlap = lapLen + crankRun; // Full overlap: lap + crank transition
 
-            // Effective advance per segment = stock length minus one lap overlap
-            double advance = maxStockLength - lapLen;
+            // Effective advance per segment = stock length minus total overlap
+            double advance = maxStockLength - totalOverlap;
             if (advance <= 0)
             {
                 // Bar diameter is so large the lap fills the stock length; just use one bar
@@ -100,11 +103,23 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
 
                 if (segEnd >= totalLength) break;
 
-                // Next segment starts at (end - lap) to create the overlap
-                cursor = segEnd - lapLen;
+                // Next segment starts at (end - totalOverlap) to create the overlap
+                cursor = segEnd - totalOverlap;
             }
 
             return segments;
         }
+
+        /// <summary>
+        /// Crank offset perpendicular to bar axis (1× bar diameter).
+        /// The bar shifts by this amount to sit beside the continuing bar.
+        /// </summary>
+        public static double GetCrankOffset(double barDia) => barDia;
+
+        /// <summary>
+        /// Horizontal run of the crank along the bar axis (6× bar diameter).
+        /// This gives the standard 1-in-6 slope.
+        /// </summary>
+        public static double GetCrankRun(double barDia) => 6.0 * barDia;
     }
 }

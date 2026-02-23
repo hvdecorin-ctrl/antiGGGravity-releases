@@ -414,6 +414,12 @@ panels:
             command: SelectDeleteRebarCommand
             icon: SelectDeleteRebar
 
+          - separator: true
+
+          - name: Rebar Cranked
+            command: RebarCrankCommand
+            icon: RebarCranked
+
   # ============================================================
   # GENERAL PANEL
   # ============================================================

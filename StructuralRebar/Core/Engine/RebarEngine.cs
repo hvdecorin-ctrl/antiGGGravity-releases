@@ -186,11 +186,11 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
 
                 // Check if bar needs splitting for 12m lap
                 double barLen = host.Length - 2 * host.CoverOther;
-                var segments = LapSpliceCalculator.SplitBarForLap(barLen, barDia, request.DesignCode);
+                var segments = LapSpliceCalculator.SplitBarForLap(barLen, barDia, request.DesignCode, 0, LapSpliceCalculator.GetCrankRun(barDia));
 
-                foreach (var seg in segments)
+                for (int si = 0; si < segments.Count; si++)
                 {
-                    // Create a sub-bar for this segment
+                    var seg = segments[si];
                     double innerOffset = host.CoverOther + transDia;
                     double distWidthSeg = host.Width - 2 * innerOffset;
 
@@ -199,10 +199,37 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                     XYZ barStart = new XYZ(s.X, s.Y, z) - host.WAxis * (distWidthSeg / 2.0);
                     XYZ barEnd = new XYZ(e.X, e.Y, z) - host.WAxis * (distWidthSeg / 2.0);
 
-                    Curve barLine = Line.CreateBound(barStart, barEnd);
+                    // Build curves: cranked start for segments after the first
+                    var curves = new List<Curve>();
+                    if (si > 0 && segments.Count > 1)
+                    {
+                        // Cranked bar: straight at offset → angled 1:6 → straight at main
+                        double crankOff = LapSpliceCalculator.GetCrankOffset(barDia);
+                        double crankRun = LapSpliceCalculator.GetCrankRun(barDia);
+                        double lapLen = LapSpliceCalculator.CalculateTensionLapLength(barDia, request.DesignCode);
+                        double straightLap = lapLen + crankRun; // entire overlap at offset, crank outside
+
+                        XYZ crankDir = -XYZ.BasisZ; // Top bars offset downward (into beam)
+
+                        // ptA: start at offset Z (lowered)
+                        XYZ ptA = barStart + crankDir * crankOff;
+                        // ptB: end of straight at offset, where crank begins
+                        XYZ ptB = ptA + host.LAxis * straightLap;
+                        // ptC: end of angled transition, back at main Z
+                        XYZ ptC = barStart + host.LAxis * (straightLap + crankRun);
+
+                        curves.Add(Line.CreateBound(ptA, ptB));    // straight at offset level
+                        curves.Add(Line.CreateBound(ptB, ptC));    // angled crank (offset→main)
+                        curves.Add(Line.CreateBound(ptC, barEnd)); // straight at main level
+                    }
+                    else
+                    {
+                        curves.Add(Line.CreateBound(barStart, barEnd));
+                    }
+
                     var segDef = new RebarDefinition
                     {
-                        Curves = new List<Curve> { barLine },
+                        Curves = curves,
                         Style = Autodesk.Revit.DB.Structure.RebarStyle.Standard,
                         BarTypeName = layer.VerticalBarTypeName,
                         BarDiameter = barDia,
@@ -212,6 +239,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                         FixedCount = count,
                         DistributionWidth = distWidthSeg,
                         Normal = host.WAxis,
+                        HookStartOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Left,
+                        HookEndOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Left,
                         HookStartName = (seg.Start == 0) ? layer.HookStartName : null,
                         HookEndName = (seg.End >= barLen - 0.001) ? layer.HookEndName : null,
                         Label = segments.Count > 1 ? "Top Layer (lapped)" : "Top Layer"
@@ -235,10 +264,11 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
 
                 // Check if bar needs splitting for 12m lap
                 double barLen = host.Length - 2 * host.CoverOther;
-                var segments = LapSpliceCalculator.SplitBarForLap(barLen, barDia, request.DesignCode);
+                var segments = LapSpliceCalculator.SplitBarForLap(barLen, barDia, request.DesignCode, 0, LapSpliceCalculator.GetCrankRun(barDia));
 
-                foreach (var seg in segments)
+                for (int si = 0; si < segments.Count; si++)
                 {
+                    var seg = segments[si];
                     XYZ s = host.StartPoint + host.LAxis * (host.CoverOther + seg.Start);
                     XYZ e = host.StartPoint + host.LAxis * (host.CoverOther + seg.End);
                     double innerOffset = host.CoverOther + transDia;
@@ -246,10 +276,37 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                     XYZ barStart = new XYZ(s.X, s.Y, z) - host.WAxis * (distWidthSeg / 2.0);
                     XYZ barEnd = new XYZ(e.X, e.Y, z) - host.WAxis * (distWidthSeg / 2.0);
 
-                    Curve barLine = Line.CreateBound(barStart, barEnd);
+                    // Build curves: cranked start for segments after the first
+                    var curves = new List<Curve>();
+                    if (si > 0 && segments.Count > 1)
+                    {
+                        // Cranked bar: straight at offset → angled 1:6 → straight at main
+                        double crankOff = LapSpliceCalculator.GetCrankOffset(barDia);
+                        double crankRun = LapSpliceCalculator.GetCrankRun(barDia);
+                        double lapLen = LapSpliceCalculator.CalculateTensionLapLength(barDia, request.DesignCode);
+                        double straightLap = lapLen + crankRun; // entire overlap at offset, crank outside
+
+                        XYZ crankDir = XYZ.BasisZ; // Bottom bars offset upward (into beam)
+
+                        // ptA: start at offset Z (raised)
+                        XYZ ptA = barStart + crankDir * crankOff;
+                        // ptB: end of straight at offset, where crank begins
+                        XYZ ptB = ptA + host.LAxis * straightLap;
+                        // ptC: end of angled transition, back at main Z
+                        XYZ ptC = barStart + host.LAxis * (straightLap + crankRun);
+
+                        curves.Add(Line.CreateBound(ptA, ptB));    // straight at offset level
+                        curves.Add(Line.CreateBound(ptB, ptC));    // angled crank (offset→main)
+                        curves.Add(Line.CreateBound(ptC, barEnd)); // straight at main level
+                    }
+                    else
+                    {
+                        curves.Add(Line.CreateBound(barStart, barEnd));
+                    }
+
                     var segDef = new RebarDefinition
                     {
-                        Curves = new List<Curve> { barLine },
+                        Curves = curves,
                         Style = Autodesk.Revit.DB.Structure.RebarStyle.Standard,
                         BarTypeName = layer.VerticalBarTypeName,
                         BarDiameter = barDia,
@@ -259,6 +316,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                         FixedCount = count,
                         DistributionWidth = distWidthSeg,
                         Normal = host.WAxis,
+                        HookStartOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Right,
+                        HookEndOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Right,
                         HookStartName = (seg.Start == 0) ? layer.HookStartName : null,
                         HookEndName = (seg.End >= barLen - 0.001) ? layer.HookEndName : null,
                         Label = segments.Count > 1 ? "Bottom Layer (lapped)" : "Bottom Layer"
@@ -511,7 +570,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                             foreach (var vDef in vertDefs)
                             {
                                 var segments = LapSpliceCalculator.SplitBarForLap(
-                                    barLen, vDef.BarDiameter, request.DesignCode);
+                                    barLen, vDef.BarDiameter, request.DesignCode, 0, LapSpliceCalculator.GetCrankRun(vDef.BarDiameter));
 
                                 if (segments.Count <= 1)
                                 {
@@ -530,15 +589,47 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                                     var seg = segments[si];
                                     XYZ segStart = barStart + barDir * seg.Start;
                                     XYZ segEnd = barStart + barDir * seg.End;
-                                    Curve segLine = Line.CreateBound(segStart, segEnd);
+
+                                    // Build curves: cranked start for segments after the first
+                                    var curves = new List<Curve>();
+                                    if (si > 0)
+                                    {
+                                        // Cranked bar: straight at offset → angled 1:6 → straight at main
+                                        double crankOff = LapSpliceCalculator.GetCrankOffset(vDef.BarDiameter);
+                                        double crankRun = LapSpliceCalculator.GetCrankRun(vDef.BarDiameter);
+                                        double lapLen = LapSpliceCalculator.CalculateTensionLapLength(vDef.BarDiameter, request.DesignCode);
+                                        double straightLap = lapLen + crankRun; // entire overlap at offset, crank outside
+
+                                        XYZ crankDir = vDef.Normal.Normalize();
+
+                                        // ptA: start at offset position
+                                        XYZ ptA = segStart + crankDir * crankOff;
+                                        // ptB: end of straight at offset
+                                        XYZ ptB = ptA + barDir * straightLap;
+                                        // ptC: back at main position
+                                        XYZ ptC = segStart + barDir * (straightLap + crankRun);
+
+                                        curves.Add(Line.CreateBound(ptA, ptB));    // straight at offset
+                                        curves.Add(Line.CreateBound(ptB, ptC));    // angled crank
+                                        curves.Add(Line.CreateBound(ptC, segEnd));  // straight at main
+                                    }
+                                    else
+                                    {
+                                        curves.Add(Line.CreateBound(segStart, segEnd));
+                                    }
 
                                     var segDef = new RebarDefinition
                                     {
-                                        Curves = new List<Curve> { segLine },
+                                        Curves = curves,
                                         Style = vDef.Style,
                                         BarTypeName = vDef.BarTypeName,
                                         BarDiameter = vDef.BarDiameter,
                                         Normal = vDef.Normal,
+                                        Spacing = vDef.Spacing,
+                                        ArrayLength = vDef.ArrayLength,
+                                        ArrayDirection = vDef.ArrayDirection,
+                                        FixedCount = vDef.FixedCount,
+                                        DistributionWidth = vDef.DistributionWidth,
                                         HookStartName = (si == 0) ? vDef.HookStartName : null,
                                         HookEndName = (si == segments.Count - 1) ? vDef.HookEndName : null,
                                         HookStartOrientation = vDef.HookStartOrientation,
