@@ -51,19 +51,19 @@
     <Message Text="Deploying to Revit versions: @(RevitVersions)" Importance="high" />
     
     <MakeDir Directories="$(AppData)\Autodesk\Revit\Addins\%(RevitVersions.Identity)" 
-             Condition="Exists('C:\ProgramData\Autodesk\Revit\Addins\%(RevitVersions.Identity)')" />
+             Condition="Exists('$(AppData)\Autodesk\Revit\Addins\%(RevitVersions.Identity)')" />
     
     <Copy SourceFiles="antiGGGravity.addin" 
           DestinationFolder="$(AppData)\Autodesk\Revit\Addins\%(RevitVersions.Identity)" 
           SkipUnchangedFiles="true"
           ContinueOnError="WarnAndContinue"
-          Condition="Exists('C:\ProgramData\Autodesk\Revit\Addins\%(RevitVersions.Identity)')" />
+          Condition="Exists('$(AppData)\Autodesk\Revit\Addins\%(RevitVersions.Identity)')" />
     
     <Copy SourceFiles="@(AllOutputFiles)" 
           DestinationFolder="$(AppData)\Autodesk\Revit\Addins\%(RevitVersions.Identity)" 
           SkipUnchangedFiles="true"
           ContinueOnError="WarnAndContinue"
-          Condition="Exists('C:\ProgramData\Autodesk\Revit\Addins\%(RevitVersions.Identity)')" />
+          Condition="Exists('$(AppData)\Autodesk\Revit\Addins\%(RevitVersions.Identity)')" />
   </Target>
 
 </Project>
