@@ -367,58 +367,11 @@ panels:
         icon: RebarSuite
         tooltip: Unified structural reinforcement generator for beams, walls, columns, and footings.
       # --- Column 2 ---
-      - type: pulldown
-        name: Rebar Tools
+      - type: pushbutton
+        name: Rebar Palette
+        command: RebarPaletteCommand
         icon: RebarTools
-        tooltip: Rebar visibility, selection, and host-based management tools.
-        buttons:
-          - name: Set Obscured
-            command: SetObscuredCommand
-            icon: SetObscured
-
-          - name: Set Unobscured
-            command: SetUnobscuredCommand
-            icon: SetUnobscured
-
-          - separator: true
-
-          - name: Show Rebar
-            command: ShowRebarCommand
-            icon: ShowRebar
-
-          - name: Hide Rebar
-            command: HideRebarCommand
-            icon: HideRebar
-
-          - separator: true
-
-          - name: Hide By Host
-            command: HideRebarByHostCommand
-            icon: HideRebarByHost
-
-          - name: Show By Host
-            command: ShowRebarByHostCommand
-            icon: ShowRebarByHost
-
-          - name: Show By Host Only
-            command: ShowRebarByHostOnlyCommand
-            icon: ShowRebarByHostOnly
-
-          - separator: true
-
-          - name: Select By Host
-            command: SelectRebarCommand
-            icon: SelectRebar
-
-          - name: Delete By Host
-            command: SelectDeleteRebarCommand
-            icon: SelectDeleteRebar
-
-          - separator: true
-
-          - name: Rebar Cranked
-            command: RebarCrankCommand
-            icon: RebarCranked
+        tooltip: Open a floating palette containing all rebar visibility, selection, and host-based tools.
 
   # ============================================================
   # GENERAL PANEL

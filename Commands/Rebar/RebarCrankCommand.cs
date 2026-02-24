@@ -37,7 +37,12 @@ namespace antiGGGravity.Commands.Rebar
     {
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            UIDocument uidoc = commandData.Application.ActiveUIDocument;
+            return Run(commandData.Application);
+        }
+
+        public Result Run(UIApplication app)
+        {
+            UIDocument uidoc = app.ActiveUIDocument;
             Document doc = uidoc.Document;
 
             // 1. Select a rebar element

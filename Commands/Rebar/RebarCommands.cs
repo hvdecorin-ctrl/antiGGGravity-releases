@@ -42,7 +42,12 @@ namespace antiGGGravity.Commands.Rebar
     {
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            Document doc = commandData.Application.ActiveUIDocument.Document;
+            return Run(commandData.Application);
+        }
+
+        public Result Run(UIApplication app)
+        {
+            Document doc = app.ActiveUIDocument.Document;
             View activeView = doc.ActiveView;
 
             var collector = new FilteredElementCollector(doc, activeView.Id);
@@ -87,7 +92,12 @@ namespace antiGGGravity.Commands.Rebar
     {
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            Document doc = commandData.Application.ActiveUIDocument.Document;
+            return Run(commandData.Application);
+        }
+
+        public Result Run(UIApplication app)
+        {
+            Document doc = app.ActiveUIDocument.Document;
             View activeView = doc.ActiveView;
 
             var collector = new FilteredElementCollector(doc, activeView.Id);
@@ -130,7 +140,12 @@ namespace antiGGGravity.Commands.Rebar
     {
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            Document doc = commandData.Application.ActiveUIDocument.Document;
+            return Run(commandData.Application);
+        }
+
+        public Result Run(UIApplication app)
+        {
+            Document doc = app.ActiveUIDocument.Document;
             View activeView = doc.ActiveView;
 
             var collector = new FilteredElementCollector(doc, activeView.Id); // Changed to Active View only for performance/safety?
@@ -165,7 +180,12 @@ namespace antiGGGravity.Commands.Rebar
     {
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            Document doc = commandData.Application.ActiveUIDocument.Document;
+            return Run(commandData.Application);
+        }
+
+        public Result Run(UIApplication app)
+        {
+            Document doc = app.ActiveUIDocument.Document;
             View activeView = doc.ActiveView;
 
             // Hide only rebar in active view logic
@@ -192,7 +212,12 @@ namespace antiGGGravity.Commands.Rebar
     {
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            UIDocument uidoc = commandData.Application.ActiveUIDocument;
+            return Run(commandData.Application);
+        }
+
+        public Result Run(UIApplication app)
+        {
+            UIDocument uidoc = app.ActiveUIDocument;
             Document doc = uidoc.Document;
 
             List<ElementId> hostIds = new List<ElementId>();
@@ -265,7 +290,12 @@ namespace antiGGGravity.Commands.Rebar
     {
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-             UIDocument uidoc = commandData.Application.ActiveUIDocument;
+            return Run(commandData.Application);
+        }
+
+        public Result Run(UIApplication app)
+        {
+             UIDocument uidoc = app.ActiveUIDocument;
             Document doc = uidoc.Document;
 
             List<ElementId> hostIds = new List<ElementId>();
@@ -346,7 +376,12 @@ namespace antiGGGravity.Commands.Rebar
     {
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            UIDocument uidoc = commandData.Application.ActiveUIDocument;
+            return Run(commandData.Application);
+        }
+
+        public Result Run(UIApplication app)
+        {
+            UIDocument uidoc = app.ActiveUIDocument;
             Document doc = uidoc.Document;
             View activeView = doc.ActiveView;
 
@@ -444,7 +479,12 @@ namespace antiGGGravity.Commands.Rebar
     {
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            UIDocument uidoc = commandData.Application.ActiveUIDocument;
+            return Run(commandData.Application);
+        }
+
+        public Result Run(UIApplication app)
+        {
+            UIDocument uidoc = app.ActiveUIDocument;
             Document doc = uidoc.Document;
             View activeView = doc.ActiveView;
 
@@ -541,7 +581,12 @@ namespace antiGGGravity.Commands.Rebar
     {
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            UIDocument uidoc = commandData.Application.ActiveUIDocument;
+            return Run(commandData.Application);
+        }
+
+        public Result Run(UIApplication app)
+        {
+            UIDocument uidoc = app.ActiveUIDocument;
             Document doc = uidoc.Document;
             View activeView = doc.ActiveView;
 
