@@ -54,7 +54,7 @@
                 <!-- SIDEBAR -->
                 <Border Grid.Column="0" Background="#F5F5F5" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,0,1,0">
                     <StackPanel Margin="10,15">
-                        <TextBlock Text="ELEMENT TYPE" FontSize="11" FontWeight="SemiBold" Foreground="#888888" Margin="8,0,0,10"/>
+                        <TextBlock Text="Element Type" FontSize="11" FontWeight="SemiBold" Foreground="#888888" Margin="8,0,0,10"/>
                         
                         <RadioButton x:Name="UI_Radio_StripFooting" Content="Strip Footing" IsChecked="True"
                                      GroupName="ElementType" FontSize="14" Foreground="#444" Margin="0,4" Padding="10,8"
@@ -80,10 +80,10 @@
 
                         <Separator Margin="5,15,5,10" Background="#E0E0E0"/>
 
-                        <TextBlock Text="OPTIONS" FontSize="11" FontWeight="SemiBold" Foreground="#888888" Margin="8,0,0,10"/>
-                        <CheckBox x:Name="UI_Check_RemoveExisting" Content="Remove existing" FontSize="13" Foreground="#555" Margin="8,0,0,15"/>
+                        <TextBlock Text="Options" FontSize="11" FontWeight="SemiBold" Foreground="#888888" Margin="8,0,0,10"/>
+                        <CheckBox x:Name="UI_Check_RemoveExisting" Content="Remove Existing" FontSize="13" Foreground="#555" Margin="8,0,0,15" IsChecked="True"/>
 
-                        <TextBlock Text="DESIGN CODE" FontSize="11" FontWeight="SemiBold" Foreground="#888888" Margin="8,0,0,4"/>
+                        <TextBlock Text="Design Code" FontSize="11" FontWeight="SemiBold" Foreground="#888888" Margin="8,0,0,4"/>
                         <ComboBox x:Name="UI_Combo_DesignCode" Margin="8,0,8,0" Height="28" SelectionChanged="DesignCode_Changed">
                             <ComboBoxItem Content="ACI 318" IsSelected="True"/>
                             <ComboBoxItem Content="AS 3600"/>

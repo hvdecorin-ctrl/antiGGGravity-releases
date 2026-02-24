@@ -20,7 +20,7 @@
             <!-- Top Bars -->
             <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,15">
                 <StackPanel>
-                    <CheckBox x:Name="UI_Check_TopBars" Content="Enable Top Bars" FontWeight="Bold" Foreground="#333333" IsChecked="True" Margin="0,0,0,15"/>
+                    <CheckBox x:Name="UI_Check_TopBars" Content="Enable Top Bars" FontWeight="Bold" Foreground="#333333" IsChecked="False" Margin="0,0,0,15"/>
                     <StackPanel Visibility="{Binding IsChecked, ElementName=UI_Check_TopBars, Converter={StaticResource BoolToVis}}">
                         <Grid Margin="0,0,0,15">
                             <Grid.ColumnDefinitions>
@@ -46,7 +46,7 @@
             <!-- Bottom Bars -->
             <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,15">
                 <StackPanel>
-                    <CheckBox x:Name="UI_Check_BotBars" Content="Enable Bottom Bars" FontWeight="Bold" Foreground="#333333" IsChecked="True" Margin="0,0,0,15"/>
+                    <CheckBox x:Name="UI_Check_BotBars" Content="Enable Bottom Bars" FontWeight="Bold" Foreground="#333333" IsChecked="False" Margin="0,0,0,15"/>
                     <StackPanel Visibility="{Binding IsChecked, ElementName=UI_Check_BotBars, Converter={StaticResource BoolToVis}}">
                         <Grid Margin="0,0,0,15">
                             <Grid.ColumnDefinitions>

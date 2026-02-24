@@ -14,12 +14,12 @@
             <!-- TOP REINFORCEMENT -->
             <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#E8E8E8" BorderThickness="1" Padding="15" Margin="0,0,0,15">
                 <StackPanel>
-                    <TextBlock Text="TOP REINFORCEMENT" FontSize="12" FontWeight="SemiBold" Foreground="#4A759C" Margin="0,0,0,12"/>
+                    <TextBlock Text="Top Reinforcement" FontSize="12" FontWeight="SemiBold" Foreground="#4A759C" Margin="0,0,0,12"/>
 
                     <!-- T1 -->
                     <Border Background="White" BorderBrush="#E8E8E8" BorderThickness="1" CornerRadius="4" Padding="12" Margin="0,0,0,8">
                         <StackPanel>
-                            <CheckBox x:Name="UI_Check_T1" Content="T1 - Top Layer 1 (Corner/Outer)" FontSize="12" Foreground="#333" FontWeight="SemiBold" IsChecked="True" Margin="0,0,0,8" Click="toggle_visibility"/>
+                            <CheckBox x:Name="UI_Check_T1" Content="T1 - Top Layer 1 (Corner/Outer)" FontSize="12" Foreground="#333" FontWeight="SemiBold" Margin="0,0,0,8" Click="toggle_visibility"/>
                             <StackPanel x:Name="UI_Group_T1">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -91,7 +91,7 @@
             <!-- BOTTOM REINFORCEMENT -->
             <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#E8E8E8" BorderThickness="1" Padding="15">
                 <StackPanel>
-                    <TextBlock Text="BOTTOM REINFORCEMENT" FontSize="12" FontWeight="SemiBold" Foreground="#4A759C" Margin="0,0,0,12"/>
+                    <TextBlock Text="Bottom Reinforcement" FontSize="12" FontWeight="SemiBold" Foreground="#4A759C" Margin="0,0,0,12"/>
 
                     <!-- B2 -->
                     <Border Background="White" BorderBrush="#E8E8E8" BorderThickness="1" CornerRadius="4" Padding="12" Margin="0,0,0,8">
@@ -120,7 +120,7 @@
                     <!-- B1 -->
                     <Border Background="White" BorderBrush="#E8E8E8" BorderThickness="1" CornerRadius="4" Padding="12" Margin="0,0,0,8">
                         <StackPanel>
-                            <CheckBox x:Name="UI_Check_B1" Content="B1 - Bottom Layer 1 (Corner/Outer)" FontSize="12" Foreground="#333" FontWeight="SemiBold" IsChecked="True" Margin="0,0,0,8" Click="toggle_visibility"/>
+                            <CheckBox x:Name="UI_Check_B1" Content="B1 - Bottom Layer 1 (Corner/Outer)" FontSize="12" Foreground="#333" FontWeight="SemiBold" Margin="0,0,0,8" Click="toggle_visibility"/>
                             <StackPanel x:Name="UI_Group_B1">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -164,6 +164,11 @@
                     </Border>
                 </StackPanel>
             </Border>
+            
+            <!-- MAIN REINFORCEMENT OPTIONS -->
+            <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#E8E8E8" BorderThickness="1" Padding="15" Margin="0,15,0,0">
+                <CheckBox x:Name="UI_Check_CutRebar" Content="Cut Rebar (>12m)" FontSize="12" Foreground="#333" FontWeight="SemiBold"/>
+            </Border>>
         </StackPanel>
 
         <!-- RIGHT COLUMN: STIRRUPS & RULE OFFSETS -->
@@ -171,7 +176,7 @@
             <!-- STIRRUPS / LINKS -->
             <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#E8E8E8" BorderThickness="1" Padding="15" Margin="0,0,0,15">
                 <StackPanel>
-                    <TextBlock Text="STIRRUPS / LINKS" FontSize="12" FontWeight="SemiBold" Foreground="#4A759C" Margin="0,0,0,12"/>
+                    <TextBlock Text="Stirrups / Links" FontSize="12" FontWeight="SemiBold" Foreground="#4A759C" Margin="0,0,0,12"/>
                     
                     <TextBlock Text="Rebar Shape" FontSize="11" Foreground="#666" Margin="0,0,0,4"/>
                     <ComboBox x:Name="UI_Combo_TransShape" Height="30" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0" Margin="0,0,0,8" IsEnabled="False">
@@ -215,7 +220,7 @@
             <!-- STIRRUP DISTRIBUTION -->
             <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#E8E8E8" BorderThickness="1" Padding="15" Margin="0,0,0,15">
                 <StackPanel>
-                    <TextBlock Text="STIRRUP DISTRIBUTION" FontSize="12" FontWeight="SemiBold" Foreground="#4A759C" Margin="0,0,0,12"/>
+                    <TextBlock Text="Stirrup Distribution" FontSize="12" FontWeight="SemiBold" Foreground="#4A759C" Margin="0,0,0,12"/>
 
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                         <RadioButton x:Name="UI_Radio_StirrupEQ" Content="Equal (EQ)" IsChecked="True" GroupName="StirrupDist" 
@@ -240,10 +245,8 @@
             <!-- RULE OFFSETS -->
             <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#E8E8E8" BorderThickness="1" Padding="15">
                 <StackPanel>
-                    <TextBlock Text="RULE OFFSETS" FontSize="12" FontWeight="SemiBold" Foreground="#4A759C" Margin="0,0,0,12"/>
+                    <TextBlock Text="Rule Offsets" FontSize="12" FontWeight="SemiBold" Foreground="#4A759C" Margin="0,0,0,12"/>
                     
-                    <CheckBox x:Name="UI_Check_CutRebar" Content="Cut Rebar (>12m)" FontSize="12" Foreground="#333" FontWeight="SemiBold" IsChecked="True" Margin="0,0,0,12"/>
-
                     <TextBlock Text="Stirrup Start Offset (mm)" FontSize="11" Foreground="#666" Margin="0,0,0,4"/>
                     <TextBox x:Name="UI_Text_TransStartOffset" Text="100" Height="30" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0"/>
                 </StackPanel>

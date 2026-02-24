@@ -76,7 +76,7 @@
 
                     <Border Background="#F0F5FA" BorderBrush="#D1E4F3" BorderThickness="1" CornerRadius="4" Padding="12">
                         <StackPanel>
-                            <CheckBox x:Name="UI_Check_Trimmers" Content="Add 4x Vertical Trimmers" FontWeight="SemiBold" Foreground="#333333" IsChecked="True" Margin="0,0,0,10" Click="toggle_visibility"/>
+                            <CheckBox x:Name="UI_Check_Trimmers" Content="Add 4x Vertical Trimmers" FontWeight="SemiBold" Foreground="#333333" IsChecked="False" Margin="0,0,0,10" Click="toggle_visibility"/>
                             <StackPanel x:Name="UI_Group_Trimmers">
                                 <TextBlock Text="Trimmer Bar Type" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
                                 <ComboBox x:Name="UI_Combo_TrimmerType" Height="32" Padding="8,0" VerticalContentAlignment="Center"/>

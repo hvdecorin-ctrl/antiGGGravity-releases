@@ -177,8 +177,8 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             // Simplified: vertical bars use First Layer template for hooks
             request.Layers.Add(new RebarLayerConfig
             {
-                HookStartName = (UI_Combo_VHookBot.SelectedItem as RebarHookType)?.Name,
-                HookEndName = (UI_Combo_VHookTop.SelectedItem as RebarHookType)?.Name,
+                HookStartName = (UI_Combo_VHookBot.SelectedItem as HookViewModel)?.Hook?.Name,
+                HookEndName = (UI_Combo_VHookTop.SelectedItem as HookViewModel)?.Hook?.Name,
                 HookStartOutward = UI_Check_VHookBotOut.IsChecked == true,
                 HookEndOutward = UI_Check_VHookTopOut.IsChecked == true
             });

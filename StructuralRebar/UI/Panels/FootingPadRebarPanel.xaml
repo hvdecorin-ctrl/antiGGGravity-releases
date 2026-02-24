@@ -16,7 +16,7 @@
         <StackPanel Grid.Column="0">
             <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,15">
                 <StackPanel>
-                    <CheckBox x:Name="UI_Check_TopBars" Content="Top Reinforcement" FontWeight="Bold" Foreground="#333333" IsChecked="True" Margin="0,0,0,15"/>
+                    <CheckBox x:Name="UI_Check_TopBars" Content="Top Reinforcement" FontWeight="Bold" Foreground="#333333" IsChecked="False" Margin="0,0,0,15"/>
                     <StackPanel IsEnabled="{Binding IsChecked, ElementName=UI_Check_TopBars}">
                         <Grid Margin="0,0,0,15">
                             <Grid.ColumnDefinitions>
@@ -44,7 +44,7 @@
         <StackPanel Grid.Column="2">
             <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,15">
                 <StackPanel>
-                    <CheckBox x:Name="UI_Check_BotBars" Content="Bottom Reinforcement" FontWeight="Bold" Foreground="#333333" IsChecked="True" Margin="0,0,0,15"/>
+                    <CheckBox x:Name="UI_Check_BotBars" Content="Bottom Reinforcement" FontWeight="Bold" Foreground="#333333" IsChecked="False" Margin="0,0,0,15"/>
                     <StackPanel IsEnabled="{Binding IsChecked, ElementName=UI_Check_BotBars}">
                         <Grid Margin="0,0,0,15">
                             <Grid.ColumnDefinitions>

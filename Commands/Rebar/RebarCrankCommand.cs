@@ -112,11 +112,74 @@ namespace antiGGGravity.Commands.Rebar
             XYZ barDir = (barEnd - barStart).Normalize();
             double barLength = barLine.Length;
 
-            // Compute rebar normal: perpendicular to bar in the distribution plane
-            XYZ normal = barDir.CrossProduct(XYZ.BasisZ);
-            if (normal.IsZeroLength())
-                normal = barDir.CrossProduct(XYZ.BasisX); // vertical bars
-            normal = normal.Normalize();
+            // CRITICAL: Ensure barStart/barEnd align with the original bar's end 0 / end 1.
+            // GetCenterlineCurves returns an ordered chain where:
+            //   curves[0].GetEndPoint(0) = bar's END 0 (where hookStartType lives)
+            //   curves[last].GetEndPoint(1) = bar's END 1 (where hookEndType lives)
+            // The longest line segment might be reversed relative to this chain.
+            XYZ chainStart = curves[0].GetEndPoint(0);
+            XYZ chainEnd = curves[curves.Count - 1].GetEndPoint(1);
+            if (barStart.DistanceTo(chainEnd) < barStart.DistanceTo(chainStart))
+            {
+                // barLine is reversed relative to the chain — swap endpoints
+                XYZ temp = barStart;
+                barStart = barEnd;
+                barEnd = temp;
+                barDir = -barDir;
+            }
+
+            // === Read the REAL normal from the original rebar ===
+            // Method 1 (most reliable): For multi-bar arrays, the distribution
+            //   direction between bar positions IS the normal.
+            // Method 2 (fallback): For single bars, try each transform basis axis
+            //   and pick the one perpendicular to barDir.
+            // Using the original normal preserves hook Left/Right meanings exactly.
+            int barCount = rebar.NumberOfBarPositions;
+            XYZ normal = null;
+
+            if (barCount > 1)
+            {
+                // Multi-bar: normal = direction from first to second bar position
+                try
+                {
+                    XYZ p0 = accessor.GetBarPositionTransform(0).Origin;
+                    XYZ p1 = accessor.GetBarPositionTransform(1).Origin;
+                    XYZ distDir = (p1 - p0);
+                    if (distDir.GetLength() > 1e-9)
+                        normal = distDir.Normalize();
+                }
+                catch { /* fall through to fallback */ }
+            }
+
+            if (normal == null)
+            {
+                // Single bar or multi-bar fallback: try transform axes
+                // The normal should be perpendicular to the bar direction
+                Transform barTransform = accessor.GetBarPositionTransform(0);
+                XYZ[] candidates = { barTransform.BasisZ, barTransform.BasisY, barTransform.BasisX };
+                foreach (var candidate in candidates)
+                {
+                    if (!candidate.IsZeroLength())
+                    {
+                        XYZ cNorm = candidate.Normalize();
+                        // Normal must be approximately perpendicular to bar direction
+                        if (Math.Abs(cNorm.DotProduct(barDir)) < 0.1)
+                        {
+                            normal = cNorm;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Last resort fallback: compute from bar direction
+            if (normal == null)
+            {
+                normal = XYZ.BasisZ.CrossProduct(barDir);
+                if (normal.IsZeroLength())
+                    normal = XYZ.BasisX.CrossProduct(barDir);
+                normal = normal.Normalize();
+            }
 
             // Project pick point onto bar axis
             double splitDist = barDir.DotProduct(pickPoint - barStart);
@@ -133,7 +196,11 @@ namespace antiGGGravity.Commands.Rebar
             double lapLen = LapSpliceCalculator.CalculateTensionLapLength(barDia, DesignCodeStandard.NZS3101);
             double straightLap = lapLen + crankRun;
 
-            // Determine crank direction: must be perpendicular to bar and point INWARD toward host center
+            // Crank direction: perpendicular to BOTH bar direction and the real normal
+            // For horizontal beams: normal is horizontal (width), barDir is horizontal (length),
+            // so crankPerp is VERTICAL — pure height direction, no lateral shift.
+            XYZ crankPerp = normal.CrossProduct(barDir).Normalize();
+
             BoundingBoxXYZ hostBox = host.get_BoundingBox(null);
             XYZ crankDir;
             if (hostBox != null)
@@ -141,25 +208,13 @@ namespace antiGGGravity.Commands.Rebar
                 XYZ hostCenter = (hostBox.Min + hostBox.Max) / 2.0;
                 XYZ barMid = (barStart + barEnd) / 2.0;
                 
-                // Vector from bar midpoint toward host center
-                XYZ toCenter = hostCenter - barMid;
-                
-                // Remove the component along the bar direction (we only want perpendicular movement)
-                XYZ perpToCenter = toCenter - barDir * toCenter.DotProduct(barDir);
-                
-                if (perpToCenter.GetLength() > 1e-9)
-                {
-                    crankDir = perpToCenter.Normalize();
-                }
-                else
-                {
-                    // Bar is at host center — use normal cross barDir as fallback
-                    crankDir = normal.CrossProduct(barDir).Normalize();
-                }
+                // Sign check: which direction points inward toward host center?
+                double dot = (hostCenter - barMid).DotProduct(crankPerp);
+                crankDir = dot >= 0 ? crankPerp : -crankPerp;
             }
             else
             {
-                crankDir = normal.CrossProduct(barDir).Normalize();
+                crankDir = crankPerp; // Fallback
             }
 
             // Ensure we have enough room for the crank
@@ -176,7 +231,7 @@ namespace antiGGGravity.Commands.Rebar
                 }
             }
 
-            // 7. Read original hooks and layout
+            // 7. Read original hook types and layout
             RebarHookType hookStartType = null;
             RebarHookType hookEndType = null;
             var hookStartParam = rebar.get_Parameter(BuiltInParameter.REBAR_ELEM_HOOK_START_TYPE);
@@ -186,11 +241,38 @@ namespace antiGGGravity.Commands.Rebar
             if (hookEndParam != null && hookEndParam.AsElementId() != ElementId.InvalidElementId)
                 hookEndType = doc.GetElement(hookEndParam.AsElementId()) as RebarHookType;
 
-            var hookStartOrient = rebar.GetHookOrientation(0);
-            var hookEndOrient = rebar.GetHookOrientation(1);
+            // === UNIVERSAL INWARD HOOK COMPUTATION ===
+            // Instead of preserving original hook orientation (which depends on the
+            // original bar's unknown normal), we COMPUTE which Left/Right value
+            // produces inward-bending hooks for OUR specific normal.
+            //
+            // Revit convention: "Left" hook bends in the direction of (normal × barDir).
+            // So we check: does (normal × barDir) point INWARD toward host center?
+            //   If yes → Left = inward
+            //   If no  → Right = inward
+            RebarHookOrientation inwardOrient = RebarHookOrientation.Left; // default
+            if (hostBox != null)
+            {
+                XYZ hostCenter = (hostBox.Min + hostBox.Max) / 2.0;
+                XYZ barMid = (barStart + barEnd) / 2.0;
 
-            // Read layout info from built-in parameters
-            int barCount = rebar.NumberOfBarPositions;
+                // Direction from bar toward host center, perpendicular to bar axis
+                XYZ toCenter = hostCenter - barMid;
+                XYZ toCenterPerp = toCenter - barDir * toCenter.DotProduct(barDir);
+
+                // The "Left" hook bend direction for this normal/barDir combination
+                XYZ hookLeftDir = normal.CrossProduct(barDir);
+
+                if (toCenterPerp.GetLength() > 1e-9 && hookLeftDir.GetLength() > 1e-9)
+                {
+                    // If "Left" bends toward center → use Left; otherwise Right
+                    inwardOrient = hookLeftDir.DotProduct(toCenterPerp) > 0
+                        ? RebarHookOrientation.Left
+                        : RebarHookOrientation.Right;
+                }
+            }
+
+            // Read layout info
             double spacing = 0;
             double distWidth = 0;
 
@@ -203,9 +285,8 @@ namespace antiGGGravity.Commands.Rebar
             {
                 try
                 {
-                    var acc = rebar.GetShapeDrivenAccessor();
-                    XYZ posFirst = acc.GetBarPositionTransform(0).Origin;
-                    XYZ posLast = acc.GetBarPositionTransform(barCount - 1).Origin;
+                    XYZ posFirst = accessor.GetBarPositionTransform(0).Origin;
+                    XYZ posLast = accessor.GetBarPositionTransform(barCount - 1).Origin;
                     distWidth = posFirst.DistanceTo(posLast);
                 }
                 catch
@@ -251,7 +332,7 @@ namespace antiGGGravity.Commands.Rebar
                         doc, RebarStyle.Standard, barType,
                         hookStartType, null, // start hook only
                         host, normal, curves1,
-                        hookStartOrient, RebarHookOrientation.Left,
+                        inwardOrient, inwardOrient,
                         true, true);
 
                     // Create segment 2 (cranked, with original end hook)
@@ -259,32 +340,38 @@ namespace antiGGGravity.Commands.Rebar
                         doc, RebarStyle.Standard, barType,
                         null, hookEndType, // end hook only
                         host, normal, curves2,
-                        RebarHookOrientation.Left, hookEndOrient,
+                        inwardOrient, inwardOrient,
                         true, true);
 
-                    // Apply layout to both new rebars
-                    if (rebar1 != null && rebar2 != null)
+                    // SAFETY: if either bar creation failed, rollback to preserve original
+                    if (rebar1 == null || rebar2 == null)
                     {
-                        var acc1 = rebar1.GetShapeDrivenAccessor();
-                        var acc2 = rebar2.GetShapeDrivenAccessor();
+                        t.RollBack();
+                        TaskDialog.Show("Rebar Crank", "Failed to create cranked bars. Original rebar has been preserved.\n\nThis may happen if the bar geometry is incompatible with the crank operation.");
+                        return Result.Failed;
+                    }
 
-                        if (barCount > 1 && distWidth > 0)
-                        {
-                            acc1.SetLayoutAsFixedNumber(barCount, distWidth, true, true, true);
-                            acc2.SetLayoutAsFixedNumber(barCount, distWidth, true, true, true);
-                        }
-                        else if (barCount > 1 && spacing > 0)
-                        {
-                            acc1.SetLayoutAsMaximumSpacing(spacing, barLine.Length, true, true, true);
-                            acc2.SetLayoutAsMaximumSpacing(spacing, barLine.Length, true, true, true);
-                        }
+                    // Apply layout to both new rebars
+                    var acc1 = rebar1.GetShapeDrivenAccessor();
+                    var acc2 = rebar2.GetShapeDrivenAccessor();
+
+                    if (barCount > 1 && distWidth > 0)
+                    {
+                        acc1.SetLayoutAsFixedNumber(barCount, distWidth, true, true, true);
+                        acc2.SetLayoutAsFixedNumber(barCount, distWidth, true, true, true);
+                    }
+                    else if (barCount > 1 && spacing > 0)
+                    {
+                        acc1.SetLayoutAsMaximumSpacing(spacing, barLine.Length, true, true, true);
+                        acc2.SetLayoutAsMaximumSpacing(spacing, barLine.Length, true, true, true);
                     }
 
                     t.Commit();
                 }
                 catch (Exception ex)
                 {
-                    t.RollBack();
+                    if (t.GetStatus() == TransactionStatus.Started)
+                        t.RollBack();
                     TaskDialog.Show("Rebar Crank", $"Failed to apply crank:\n{ex.Message}");
                     return Result.Failed;
                 }
