@@ -90,6 +90,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 UI_Check_VertHookEndOut.IsChecked = SettingsManager.GetBool(VIEW_NAME, "VertHookEndOut", false);
                 UI_Check_HorizHookStartOut.IsChecked = SettingsManager.GetBool(VIEW_NAME, "HorizHookStartOut", false);
                 UI_Check_HorizHookEndOut.IsChecked = SettingsManager.GetBool(VIEW_NAME, "HorizHookEndOut", false);
+                UI_Check_CutRebar.IsChecked = SettingsManager.GetBool(VIEW_NAME, "CutRebarEnabled", true);
 
                 SelectByName(UI_Combo_VertType, SettingsManager.Get(VIEW_NAME, "VertType"));
                 SelectByName(UI_Combo_HorizType, SettingsManager.Get(VIEW_NAME, "HorizType"));
@@ -135,6 +136,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 SettingsManager.Set(VIEW_NAME, "VertHookEndOut", (UI_Check_VertHookEndOut.IsChecked == true).ToString());
                 SettingsManager.Set(VIEW_NAME, "HorizHookStartOut", (UI_Check_HorizHookStartOut.IsChecked == true).ToString());
                 SettingsManager.Set(VIEW_NAME, "HorizHookEndOut", (UI_Check_HorizHookEndOut.IsChecked == true).ToString());
+                SettingsManager.Set(VIEW_NAME, "CutRebarEnabled", (UI_Check_CutRebar.IsChecked == true).ToString());
 
                 SettingsManager.Set(VIEW_NAME, "VertType", TransTypeName(UI_Combo_VertType));
                 SettingsManager.Set(VIEW_NAME, "HorizType", TransTypeName(UI_Combo_HorizType));
@@ -166,6 +168,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             {
                 HostType = ElementHostType.Wall,
                 RemoveExisting = false, // Handled by Window level now
+                EnableLapSplice = UI_Check_CutRebar.IsChecked == true,
 
                 // Transverse (Vertical Bars)
                 TransverseBarTypeName = (UI_Combo_VertType.SelectedItem as RebarBarType)?.Name,

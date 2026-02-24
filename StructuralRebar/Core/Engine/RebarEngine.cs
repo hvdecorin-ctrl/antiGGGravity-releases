@@ -478,7 +478,81 @@ var segments = request.EnableLapSplice
                         request.TransverseHookStartName, request.TransverseHookEndName,
                         request.TransverseHookStartOut, request.TransverseHookEndOut);
 
-                    if (vertDef != null) definitions.Add(vertDef);
+                    if (vertDef != null)
+                    {
+                        double barLen = (host.SolidZMax - host.SolidZMin) + request.VerticalTopExtension + request.VerticalBottomExtension - 2 * host.CoverOther;
+                        
+                        if (request.EnableLapSplice && barLen > LapSpliceCalculator.MaxStockLengthFt)
+                        {
+                            var segments = LapSpliceCalculator.SplitBarForLap(
+                                barLen, vertDef.BarDiameter, request.DesignCode, 0, LapSpliceCalculator.GetCrankRun(vertDef.BarDiameter));
+
+                            if (segments.Count <= 1)
+                            {
+                                definitions.Add(vertDef);
+                            }
+                            else
+                            {
+                                var origLine = vertDef.Curves[0] as Line;
+                                XYZ barDir = (origLine.GetEndPoint(1) - origLine.GetEndPoint(0)).Normalize();
+                                XYZ barStart = origLine.GetEndPoint(0);
+
+                                for (int si = 0; si < segments.Count; si++)
+                                {
+                                    var seg = segments[si];
+                                    XYZ segStart = barStart + barDir * seg.Start;
+                                    XYZ segEnd = barStart + barDir * seg.End;
+
+                                    var curves = new List<Curve>();
+                                    if (si > 0)
+                                    {
+                                        double crankOff = LapSpliceCalculator.GetCrankOffset(vertDef.BarDiameter);
+                                        double crankRun = LapSpliceCalculator.GetCrankRun(vertDef.BarDiameter);
+                                        double lapLen = LapSpliceCalculator.CalculateTensionLapLength(vertDef.BarDiameter, request.DesignCode);
+                                        double straightLap = lapLen + crankRun;
+
+                                        // Crank inward (towards center of wall)
+                                        XYZ inwardDir = host.WAxis;
+                                        if (vOff > 0) inwardDir = -host.WAxis; 
+                                        else if (vOff < 0) inwardDir = host.WAxis;
+                                        else inwardDir = host.WAxis; // if center, just pick one direction
+
+                                        XYZ ptA = segStart + inwardDir * crankOff;
+                                        XYZ ptB = ptA + barDir * straightLap;
+                                        XYZ ptC = segStart + barDir * (straightLap + crankRun);
+
+                                        curves.Add(Line.CreateBound(ptA, ptB));
+                                        curves.Add(Line.CreateBound(ptB, ptC));
+                                        curves.Add(Line.CreateBound(ptC, segEnd));
+                                    }
+                                    else
+                                    {
+                                        curves.Add(Line.CreateBound(segStart, segEnd));
+                                    }
+
+                                    definitions.Add(new RebarDefinition
+                                    {
+                                        Curves = curves,
+                                        Style = vertDef.Style,
+                                        BarTypeName = vertDef.BarTypeName,
+                                        BarDiameter = vertDef.BarDiameter,
+                                        Spacing = vertDef.Spacing,
+                                        ArrayLength = vertDef.ArrayLength,
+                                        Normal = vertDef.Normal,
+                                        HookStartName = (si == 0) ? vertDef.HookStartName : null,
+                                        HookEndName = (si == segments.Count - 1) ? vertDef.HookEndName : null,
+                                        HookStartOrientation = vertDef.HookStartOrientation,
+                                        HookEndOrientation = vertDef.HookEndOrientation,
+                                        Label = "Vertical Bar (lapped)"
+                                    });
+                                }
+                            }
+                        }
+                        else
+                        {
+                            definitions.Add(vertDef);
+                        }
+                    }
                 }
 
                 // 2. Horizontal Bars
@@ -493,7 +567,81 @@ var segments = request.EnableLapSplice
                         layer.HookStartName, layer.HookEndName,
                         layer.HookStartOutward, layer.HookEndOutward);
 
-                    if (horizDef != null) definitions.Add(horizDef);
+                    if (horizDef != null)
+                    {
+                        double barLen = host.Length - 2 * host.CoverOther;
+                        
+                        if (request.EnableLapSplice && barLen > LapSpliceCalculator.MaxStockLengthFt)
+                        {
+                            var segments = LapSpliceCalculator.SplitBarForLap(
+                                barLen, horizDef.BarDiameter, request.DesignCode, 0, LapSpliceCalculator.GetCrankRun(horizDef.BarDiameter));
+
+                            if (segments.Count <= 1)
+                            {
+                                definitions.Add(horizDef);
+                            }
+                            else
+                            {
+                                var origLine = horizDef.Curves[0] as Line;
+                                XYZ barDir = (origLine.GetEndPoint(1) - origLine.GetEndPoint(0)).Normalize();
+                                XYZ barStart = origLine.GetEndPoint(0);
+
+                                for (int si = 0; si < segments.Count; si++)
+                                {
+                                    var seg = segments[si];
+                                    XYZ segStart = barStart + barDir * seg.Start;
+                                    XYZ segEnd = barStart + barDir * seg.End;
+
+                                    var curves = new List<Curve>();
+                                    if (si > 0)
+                                    {
+                                        double crankOff = LapSpliceCalculator.GetCrankOffset(horizDef.BarDiameter);
+                                        double crankRun = LapSpliceCalculator.GetCrankRun(horizDef.BarDiameter);
+                                        double lapLen = LapSpliceCalculator.CalculateTensionLapLength(horizDef.BarDiameter, request.DesignCode);
+                                        double straightLap = lapLen + crankRun;
+
+                                        // Crank inward (towards center of wall)
+                                        XYZ inwardDir = host.WAxis;
+                                        if (hOff > 0) inwardDir = -host.WAxis; 
+                                        else if (hOff < 0) inwardDir = host.WAxis;
+                                        else inwardDir = host.WAxis;
+
+                                        XYZ ptA = segStart + inwardDir * crankOff;
+                                        XYZ ptB = ptA + barDir * straightLap;
+                                        XYZ ptC = segStart + barDir * (straightLap + crankRun);
+
+                                        curves.Add(Line.CreateBound(ptA, ptB));
+                                        curves.Add(Line.CreateBound(ptB, ptC));
+                                        curves.Add(Line.CreateBound(ptC, segEnd));
+                                    }
+                                    else
+                                    {
+                                        curves.Add(Line.CreateBound(segStart, segEnd));
+                                    }
+
+                                    definitions.Add(new RebarDefinition
+                                    {
+                                        Curves = curves,
+                                        Style = horizDef.Style,
+                                        BarTypeName = horizDef.BarTypeName,
+                                        BarDiameter = horizDef.BarDiameter,
+                                        Spacing = horizDef.Spacing,
+                                        ArrayLength = horizDef.ArrayLength,
+                                        Normal = horizDef.Normal,
+                                        HookStartName = (si == 0) ? horizDef.HookStartName : null,
+                                        HookEndName = (si == segments.Count - 1) ? horizDef.HookEndName : null,
+                                        HookStartOrientation = horizDef.HookStartOrientation,
+                                        HookEndOrientation = horizDef.HookEndOrientation,
+                                        Label = "Horizontal Bar (lapped)"
+                                    });
+                                }
+                            }
+                        }
+                        else
+                        {
+                            definitions.Add(horizDef);
+                        }
+                    }
                 }
             }
 
@@ -689,9 +837,82 @@ var segments = request.EnableLapSplice
                 layer.BarDiameter_Backing = GetBarDiameter(layer.VerticalBarTypeName);
                 if (layer.BarDiameter_Backing > 0)
                 {
+                    double barLen = host.Length - 2 * host.CoverExterior;
+                    
                     var longDef = StripFootingLayoutGenerator.CreateLongitudinalLayer(
                         host, layer, transDia, startOff, endOff);
-                    if (longDef != null) definitions.Add(longDef);
+
+                    if (longDef != null)
+                    {
+                        if (request.EnableLapSplice && barLen > LapSpliceCalculator.MaxStockLengthFt)
+                        {
+                            var segments = LapSpliceCalculator.SplitBarForLap(
+                                barLen, longDef.BarDiameter, request.DesignCode, 0, LapSpliceCalculator.GetCrankRun(longDef.BarDiameter));
+
+                            if (segments.Count <= 1)
+                            {
+                                definitions.Add(longDef);
+                            }
+                            else
+                            {
+                                var origLine = longDef.Curves[0] as Line;
+                                XYZ barDir = (origLine.GetEndPoint(1) - origLine.GetEndPoint(0)).Normalize();
+                                XYZ barStart = origLine.GetEndPoint(0);
+
+                                for (int si = 0; si < segments.Count; si++)
+                                {
+                                    var seg = segments[si];
+                                    XYZ segStart = barStart + barDir * seg.Start;
+                                    XYZ segEnd = barStart + barDir * seg.End;
+
+                                    var curves = new List<Curve>();
+                                    if (si > 0)
+                                    {
+                                        double crankOff = LapSpliceCalculator.GetCrankOffset(longDef.BarDiameter);
+                                        double crankRun = LapSpliceCalculator.GetCrankRun(longDef.BarDiameter);
+                                        double lapLen = LapSpliceCalculator.CalculateTensionLapLength(longDef.BarDiameter, request.DesignCode);
+                                        double straightLap = lapLen + crankRun;
+
+                                        // Crank vertically inward (up for bottom, down for top)
+                                        XYZ crankDir = (layer.Side == RebarSide.Top) ? -host.HAxis : host.HAxis;
+
+                                        XYZ ptA = segStart + crankDir * crankOff;
+                                        XYZ ptB = ptA + barDir * straightLap;
+                                        XYZ ptC = segStart + barDir * (straightLap + crankRun);
+
+                                        curves.Add(Line.CreateBound(ptA, ptB));
+                                        curves.Add(Line.CreateBound(ptB, ptC));
+                                        curves.Add(Line.CreateBound(ptC, segEnd));
+                                    }
+                                    else
+                                    {
+                                        curves.Add(Line.CreateBound(segStart, segEnd));
+                                    }
+
+                                    definitions.Add(new RebarDefinition
+                                    {
+                                        Curves = curves,
+                                        Style = longDef.Style,
+                                        BarTypeName = longDef.BarTypeName,
+                                        BarDiameter = longDef.BarDiameter,
+                                        FixedCount = longDef.FixedCount,
+                                        DistributionWidth = longDef.DistributionWidth,
+                                        ArrayDirection = longDef.ArrayDirection,
+                                        Normal = longDef.Normal,
+                                        HookStartName = (si == 0) ? longDef.HookStartName : null,
+                                        HookEndName = (si == segments.Count - 1) ? longDef.HookEndName : null,
+                                        HookStartOrientation = longDef.HookStartOrientation,
+                                        HookEndOrientation = longDef.HookEndOrientation,
+                                        Label = $"Footing Long. {layer.Side} (lapped)"
+                                    });
+                                }
+                            }
+                        }
+                        else
+                        {
+                            definitions.Add(longDef);
+                        }
+                    }
                 }
             }
 
