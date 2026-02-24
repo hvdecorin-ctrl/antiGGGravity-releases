@@ -73,12 +73,6 @@ namespace antiGGGravity.Views.General
             if (UI_Check_Left.IsChecked == true) SelectedDirections.Add("Left");
             if (UI_Check_Right.IsChecked == true) SelectedDirections.Add("Right");
 
-            if (SelectedDirections.Count == 0)
-            {
-                MessageBox.Show("Please select at least one direction.", "antiGGGravity");
-                return;
-            }
-
             DialogResult = true;
             Close();
         }

@@ -1,9 +1,9 @@
 <Window x:Class="antiGGGravity.Views.General.ToggleGridsView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Toggle Grid Bubbles" Height="480" Width="450"
+        Title="Toggle Grid Bubbles" Height="320" Width="300"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
-        WindowStartupLocation="CenterScreen" ResizeMode="NoResize" ShowInTaskbar="False" Topmost="True">
+        WindowStartupLocation="CenterScreen" ShowInTaskbar="False" Topmost="True">
 
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="70" CornerRadius="12" GlassFrameThickness="0"/>
@@ -27,85 +27,81 @@
 
             <!-- Header -->
             <Border Grid.Row="0" Background="{StaticResource BrandGradientBrush}" CornerRadius="12,12,0,0">
-                <Grid Margin="25,0">
+                <Grid Margin="15,0">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Style="{StaticResource CompanyLogoStyle}"/>
                         <TextBlock Style="{StaticResource CompanyDividerStyle}"/>
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="Grid Bubbles" Style="{StaticResource PremiumTitleStyle}"/>
-                            <TextBlock Text="Toggle Grid Bubbles On/Off" Style="{StaticResource PremiumSubtitleStyle}"/>
+                            <TextBlock Text="Toggle Bubbles" Style="{StaticResource PremiumSubtitleStyle}"/>
                         </StackPanel>
                     </StackPanel>
                     <Button HorizontalAlignment="Right" VerticalAlignment="Center" Content="✕" 
-                            Style="{StaticResource PremiumIconButtonStyle}" Width="30" Height="30"
+                            Style="{StaticResource PremiumIconButtonStyle}" Width="24" Height="24"
                             Click="UI_Btn_Cancel_Click" WindowChrome.IsHitTestVisibleInChrome="True"/>
                 </Grid>
             </Border>
 
             <!-- Content -->
-            <StackPanel Grid.Row="1" Margin="25">
-                <TextBlock Text="Select which grid bubble directions to show:" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,0,0,20"/>
-
+            <Grid Grid.Row="1" Margin="15">
                 <!-- Directional Selector Grid -->
                 <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="80"/>
-                        <RowDefinition Height="80"/>
-                        <RowDefinition Height="80"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="100"/>
-                        <ColumnDefinition Width="80"/>
-                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
                     <!-- TOP -->
-                    <StackPanel Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <TextBlock Text="Top" FontSize="16" FontWeight="SemiBold" Foreground="#333333" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                    <StackPanel Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,15">
+                        <TextBlock Text="Top" FontSize="14" FontWeight="SemiBold" Foreground="#333333" HorizontalAlignment="Center" Margin="0,0,0,4"/>
                         <CheckBox x:Name="UI_Check_Top" HorizontalAlignment="Center" IsChecked="True"/>
                     </StackPanel>
 
                     <!-- LEFT -->
-                    <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                        <TextBlock Text="Left" FontSize="16" FontWeight="SemiBold" Foreground="#333333" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,15,0">
+                        <TextBlock Text="Left" FontSize="14" FontWeight="SemiBold" Foreground="#333333" VerticalAlignment="Center" Margin="0,0,6,0"/>
                         <CheckBox x:Name="UI_Check_Left" VerticalAlignment="Center" IsChecked="True"/>
                     </StackPanel>
 
                     <!-- CENTER INDICATOR -->
-                    <Border Grid.Row="1" Grid.Column="1" Background="#E8EAF6" CornerRadius="8" Margin="10">
+                    <Border Grid.Row="1" Grid.Column="1" Background="#E8EAF6" CornerRadius="8" Padding="15,10" MinWidth="60" MinHeight="40">
                         <TextBlock Text="GRID" FontSize="12" FontWeight="Bold" Foreground="#3F51B5" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
 
                     <!-- RIGHT -->
-                    <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="15,0,0,0">
                         <CheckBox x:Name="UI_Check_Right" VerticalAlignment="Center" IsChecked="True"/>
-                        <TextBlock Text="Right" FontSize="16" FontWeight="SemiBold" Foreground="#333333" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                        <TextBlock Text="Right" FontSize="14" FontWeight="SemiBold" Foreground="#333333" VerticalAlignment="Center" Margin="6,0,0,0"/>
                     </StackPanel>
 
                     <!-- BOTTOM -->
-                    <StackPanel Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <StackPanel Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,15,0,0">
                         <CheckBox x:Name="UI_Check_Bottom" HorizontalAlignment="Center" IsChecked="True"/>
-                        <TextBlock Text="Bottom" FontSize="16" FontWeight="SemiBold" Foreground="#333333" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                        <TextBlock Text="Bottom" FontSize="14" FontWeight="SemiBold" Foreground="#333333" HorizontalAlignment="Center" Margin="0,4,0,0"/>
                     </StackPanel>
                 </Grid>
 
                 <!-- Select All -->
-                <CheckBox x:Name="UI_Check_All" Content="Select All" FontWeight="SemiBold" Foreground="#666666" Margin="0,20,0,0" Click="UI_Check_All_Click" IsChecked="True"/>
-            </StackPanel>
+                <CheckBox x:Name="UI_Check_All" Content="Select All" FontWeight="SemiBold" Foreground="#666666" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0,0,0,0" Click="UI_Check_All_Click" IsChecked="True"/>
+            </Grid>
 
             <!-- Footer -->
-            <Border Grid.Row="2" Background="#FAFAFA" Padding="20,15" CornerRadius="0,0,12,12" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,1,0,0">
+            <Border Grid.Row="2" Background="#FAFAFA" Padding="15,10" CornerRadius="0,0,12,12" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,1,0,0">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     
                     <TextBlock x:Name="UI_Status_Text" Text="Ready" VerticalAlignment="Center" Foreground="#999999"/>
 
-                    <Button Grid.Column="1" Content="Cancel" Click="UI_Btn_Cancel_Click" Width="80" Margin="0,0,12,0" Style="{StaticResource PremiumPrimaryButtonStyle}"/>
-                    <Button Grid.Column="2" Content="Apply" Click="UI_Btn_Run_Click" Width="100" Style="{StaticResource PremiumActionButtonStyle}"/>
+                    <Button Grid.Column="1" Content="Apply" Click="UI_Btn_Run_Click" Width="80" Style="{StaticResource PremiumActionButtonStyle}"/>
                 </Grid>
             </Border>
         </Grid>
