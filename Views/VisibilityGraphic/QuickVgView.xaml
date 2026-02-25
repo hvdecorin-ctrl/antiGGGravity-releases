@@ -4,10 +4,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Quick VG" Height="500" Width="680"
+        Title="Quick VG" Height="500" Width="380"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         WindowStartupLocation="CenterScreen" ShowInTaskbar="False"
-        MinHeight="400" MinWidth="550" Topmost="True">
+        MinHeight="400" MinWidth="340" Topmost="True">
 
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="70" 
@@ -23,9 +23,14 @@
             </ResourceDictionary.MergedDictionaries>
             
             <DataTemplate x:Key="CategoryItemTemplate">
-                <CheckBox IsChecked="{Binding IsVisible, UpdateSourceTrigger=PropertyChanged}" Margin="5,4" VerticalContentAlignment="Center">
-                    <TextBlock Text="{Binding Name}" FontSize="13" Margin="8,0,0,0"/>
-                </CheckBox>
+                <Grid Margin="5,4" Background="Transparent" ToolTip="Click checkbox to toggle visibility. Click text or row to select item.">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <CheckBox IsChecked="{Binding IsVisible, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="13" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                </Grid>
             </DataTemplate>
             
             <Style x:Key="CategoryItemContainerStyle" TargetType="ListBoxItem">
@@ -33,10 +38,12 @@
                 <Setter Property="BorderThickness" Value="0"/>
                 <Setter Property="Padding" Value="0"/>
                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                <Setter Property="Focusable" Value="False"/>
                 <Style.Triggers>
                     <Trigger Property="IsSelected" Value="True">
-                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="Background" Value="#E6F2FA"/>
+                    </Trigger>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="#F5F5F5"/>
                     </Trigger>
                 </Style.Triggers>
             </Style>
@@ -73,7 +80,7 @@
             <Grid Grid.Row="1" Margin="20,15">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="40"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
@@ -86,11 +93,11 @@
                         <RowDefinition Height="*"/>    <!-- List -->
                     </Grid.RowDefinitions>
                     
-                    <TextBlock Text="Structural" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,0,0,10"/>
+                    <TextBlock Text="Custom Parameter" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,0,0,10"/>
                     
                     <Border Grid.Row="1" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="1" CornerRadius="4" Margin="0,0,0,10" Background="White">
                         <Grid>
-                            <TextBlock Text="Search Structural..." Foreground="#A0A0A0" Margin="10,0" VerticalAlignment="Center" IsHitTestVisible="False">
+                            <TextBlock Text="Search Custom..." Foreground="#A0A0A0" Margin="10,0" VerticalAlignment="Center" IsHitTestVisible="False">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -118,12 +125,27 @@
                     <ListBox x:Name="StructListBox" Grid.Row="3" BorderThickness="0" Background="Transparent" 
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                             SelectionMode="Extended"
+                             MouseDoubleClick="StructListBox_MouseDoubleClick"
                              ItemTemplate="{StaticResource CategoryItemTemplate}"
                              ItemContainerStyle="{StaticResource CategoryItemContainerStyle}"/>
                 </Grid>
 
-                <!-- Vertical Divider -->
-                <Rectangle Grid.Column="1" Fill="#EAEAEA" Width="1" Margin="0,5" HorizontalAlignment="Center"/>
+                <!-- Vertical Divider and Buttons -->
+                <Grid Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Button x:Name="BtnAdd" Grid.Row="0" Width="32" Height="32" Margin="0,0,0,10" 
+                            ToolTip="Add to Custom Parameter" Click="BtnAdd_Click" Style="{StaticResource PremiumActionButtonStyle}">
+                        <Path Data="M 12 4 L 12 20 M 4 12 L 20 12" Stroke="#333333" StrokeThickness="2.5" StrokeEndLineCap="Round" StrokeStartLineCap="Round" StrokeLineJoin="Round" Stretch="Uniform" Width="14" Height="14"/>
+                    </Button>
+                    <Button x:Name="BtnRemove" Grid.Row="1" Width="32" Height="32" 
+                            ToolTip="Remove from Custom Parameter" Click="BtnRemove_Click" Style="{StaticResource PremiumActionButtonStyle}">
+                        <Path Data="M 4 12 L 20 12" Stroke="#333333" StrokeThickness="2.5" StrokeEndLineCap="Round" StrokeStartLineCap="Round" StrokeLineJoin="Round" Stretch="Uniform" Width="14" Height="14"/>
+                    </Button>
+                </Grid>
 
                 <!-- Coordinate Column -->
                 <Grid Grid.Column="2">
@@ -134,11 +156,11 @@
                         <RowDefinition Height="*"/>    <!-- List -->
                     </Grid.RowDefinitions>
                     
-                    <TextBlock Text="Coordinate" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,0,0,10"/>
+                    <TextBlock Text="All Categories" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,0,0,10"/>
                     
                     <Border Grid.Row="1" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="1" CornerRadius="4" Margin="0,0,0,10" Background="White">
                         <Grid>
-                            <TextBlock Text="Search Coordinate..." Foreground="#A0A0A0" Margin="10,0" VerticalAlignment="Center" IsHitTestVisible="False">
+                            <TextBlock Text="Search Categories..." Foreground="#A0A0A0" Margin="10,0" VerticalAlignment="Center" IsHitTestVisible="False">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -166,6 +188,8 @@
                     <ListBox x:Name="CoordListBox" Grid.Row="3" BorderThickness="0" Background="Transparent" 
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                             SelectionMode="Extended"
+                             MouseDoubleClick="CoordListBox_MouseDoubleClick"
                              ItemTemplate="{StaticResource CategoryItemTemplate}"
                              ItemContainerStyle="{StaticResource CategoryItemContainerStyle}"/>
                 </Grid>

@@ -6,6 +6,7 @@ using Autodesk.Revit.UI.Events;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Data;
+using System.Collections.ObjectModel;
 using antiGGGravity.Commands.VisibilityGraphic;
 
 namespace antiGGGravity.Views.VisibilityGraphic
@@ -13,8 +14,8 @@ namespace antiGGGravity.Views.VisibilityGraphic
     public partial class QuickVgView : Window
     {
         private View _activeView;
-        private List<CategoryVisibilityModel> _structCategories;
-        private List<CategoryVisibilityModel> _coordCategories;
+        private ObservableCollection<CategoryVisibilityModel> _structCategories;
+        private ObservableCollection<CategoryVisibilityModel> _coordCategories;
 
         private readonly ExternalEvent _externalEvent;
         private readonly QuickVgEventHandler _handler;
@@ -66,13 +67,18 @@ namespace antiGGGravity.Views.VisibilityGraphic
                 if (_activeView == null || !_activeView.IsValidObject) return;
                 
                 var states = QuickVgLogic.GetCategoryStates(_activeView);
-                _structCategories = states.Structural;
-                _coordCategories = states.Coordinate;
+                _structCategories = new ObservableCollection<CategoryVisibilityModel>(states.Structural);
+                _coordCategories = new ObservableCollection<CategoryVisibilityModel>(states.Coordinate);
                 
                 Dispatcher.Invoke(() =>
                 {
                     StructListBox.ItemsSource = _structCategories;
                     CoordListBox.ItemsSource = _coordCategories;
+
+                    var structView = CollectionViewSource.GetDefaultView(StructListBox.ItemsSource);
+                    structView.SortDescriptions.Clear();
+                    structView.SortDescriptions.Add(new System.ComponentModel.SortDescription("Name", System.ComponentModel.ListSortDirection.Ascending));
+
                     StructSearchBox_TextChanged(null, null);
                     CoordSearchBox_TextChanged(null, null);
                 });
@@ -151,6 +157,82 @@ namespace antiGGGravity.Views.VisibilityGraphic
             if (view != null)
             {
                 foreach (CategoryVisibilityModel item in view) { item.IsVisible = state; }
+            }
+        }
+
+        private void BtnAdd_Click(object sender, RoutedEventArgs e)
+        {
+            var selectedItems = CoordListBox.SelectedItems.Cast<CategoryVisibilityModel>().ToList();
+            if (!selectedItems.Any()) return;
+
+            bool changed = false;
+            foreach (var item in selectedItems)
+            {
+                if (!_structCategories.Any(c => c.Id == item.Id))
+                {
+                    _structCategories.Add(new CategoryVisibilityModel 
+                    { 
+                        Name = item.Name, 
+                        Id = item.Id, 
+                        IsVisible = item.IsVisible 
+                    });
+                    changed = true;
+                }
+            }
+
+            if (changed)
+            {
+                QuickVgLogic.SaveCustomCategoryIds(_structCategories.Select(c => c.Id.Value));
+            }
+        }
+
+        private void BtnRemove_Click(object sender, RoutedEventArgs e)
+        {
+            var selectedItems = StructListBox.SelectedItems.Cast<CategoryVisibilityModel>().ToList();
+            if (!selectedItems.Any()) return;
+
+            foreach (var item in selectedItems)
+            {
+                var existing = _structCategories.FirstOrDefault(c => c.Id == item.Id);
+                if (existing != null)
+                {
+                    _structCategories.Remove(existing);
+                }
+            }
+
+            QuickVgLogic.SaveCustomCategoryIds(_structCategories.Select(c => c.Id.Value));
+        }
+
+        private void StructListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (e.OriginalSource is FrameworkElement el && el.DataContext is CategoryVisibilityModel item)
+            {
+                var existing = _structCategories.FirstOrDefault(c => c.Id == item.Id);
+                if (existing != null)
+                {
+                    _structCategories.Remove(existing);
+                    QuickVgLogic.SaveCustomCategoryIds(_structCategories.Select(c => c.Id.Value));
+                    e.Handled = true;
+                }
+            }
+        }
+
+        private void CoordListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (e.OriginalSource is FrameworkElement el && el.DataContext is CategoryVisibilityModel item)
+            {
+                if (!_structCategories.Any(c => c.Id == item.Id))
+                {
+                    _structCategories.Add(new CategoryVisibilityModel 
+                    { 
+                        Name = item.Name, 
+                        Id = item.Id, 
+                        IsVisible = item.IsVisible 
+                    });
+                    
+                    QuickVgLogic.SaveCustomCategoryIds(_structCategories.Select(c => c.Id.Value));
+                    e.Handled = true;
+                }
             }
         }
 

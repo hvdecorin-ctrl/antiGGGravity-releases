@@ -31,30 +31,12 @@ namespace antiGGGravity.Commands.VisibilityGraphic
             
             var dict = allModels.ToDictionary(x => x.Id, x => x);
 
-            var structuralBics = new List<BuiltInCategory>
-            {
-                BuiltInCategory.OST_StructuralFoundation,
-                BuiltInCategory.OST_Walls,
-                BuiltInCategory.OST_Floors,
-                BuiltInCategory.OST_StructuralColumns,
-                BuiltInCategory.OST_StructuralFraming,
-                BuiltInCategory.OST_Roofs,
-                BuiltInCategory.OST_Stairs,
-                BuiltInCategory.OST_Rebar,
-                BuiltInCategory.OST_StructConnections,
-                BuiltInCategory.OST_Grids,
-                BuiltInCategory.OST_Levels,
-                BuiltInCategory.OST_CLines,
-                BuiltInCategory.OST_VolumeOfInterest,
-                BuiltInCategory.OST_RvtLinks
-            };
-
+            var customIds = LoadCustomCategoryIds();
             var structModels = new List<CategoryVisibilityModel>();
-            var doc = view.Document;
-            foreach (var bic in structuralBics)
+            foreach (var id in customIds)
             {
-                var cat = Category.GetCategory(doc, bic);
-                if (cat != null && dict.TryGetValue(cat.Id, out var model))
+                var eid = new ElementId(id);
+                if (dict.TryGetValue(eid, out var model))
                 {
                     structModels.Add(new CategoryVisibilityModel 
                     {
@@ -66,6 +48,54 @@ namespace antiGGGravity.Commands.VisibilityGraphic
             }
 
             return (structModels, allModels.OrderBy(x => x.Name).ToList());
+        }
+
+        private static string GetConfigFilePath()
+        {
+            string appData = System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData);
+            string configDir = System.IO.Path.Combine(appData, "antiGGGravity", "Config");
+            if (!System.IO.Directory.Exists(configDir))
+                System.IO.Directory.CreateDirectory(configDir);
+            return System.IO.Path.Combine(configDir, "QuickVgCustomCategories.txt");
+        }
+
+        public static List<long> LoadCustomCategoryIds()
+        {
+            string path = GetConfigFilePath();
+            if (!System.IO.File.Exists(path))
+            {
+                return new List<BuiltInCategory>
+                {
+                    BuiltInCategory.OST_StructuralFoundation,
+                    BuiltInCategory.OST_Walls,
+                    BuiltInCategory.OST_Floors,
+                    BuiltInCategory.OST_StructuralColumns,
+                    BuiltInCategory.OST_StructuralFraming,
+                    BuiltInCategory.OST_Roofs,
+                    BuiltInCategory.OST_Stairs,
+                    BuiltInCategory.OST_Rebar,
+                    BuiltInCategory.OST_StructConnections,
+                    BuiltInCategory.OST_Grids,
+                    BuiltInCategory.OST_Levels,
+                    BuiltInCategory.OST_CLines,
+                    BuiltInCategory.OST_VolumeOfInterest,
+                    BuiltInCategory.OST_RvtLinks
+                }.Select(b => (long)b).ToList();
+            }
+
+            var ids = new List<long>();
+            foreach (var line in System.IO.File.ReadAllLines(path))
+            {
+                if (long.TryParse(line, out long id))
+                    ids.Add(id);
+            }
+            return ids;
+        }
+
+        public static void SaveCustomCategoryIds(IEnumerable<long> ids)
+        {
+            string path = GetConfigFilePath();
+            System.IO.File.WriteAllLines(path, ids.Select(id => id.ToString()).ToArray());
         }
 
         public static void ApplyVisibility(View view, List<CategoryVisibilityModel> models)

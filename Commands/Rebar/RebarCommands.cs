@@ -13,6 +13,22 @@ using antiGGGravity.Commands;
 namespace antiGGGravity.Commands.Rebar
 {
     // --- HELPER CLASSES ---
+    public static class RebarHelper
+    {
+        public static ElementId GetHostIdSafe(Element rebarElem)
+        {
+            if (rebarElem is Autodesk.Revit.DB.Structure.Rebar r) return r.GetHostId();
+            if (rebarElem is Autodesk.Revit.DB.Structure.RebarInSystem ris) return ris.GetHostId();
+            return ElementId.InvalidElementId;
+        }
+
+        public static void SetUnobscuredInViewSafe(Element rebarElem, View view, bool unobscured)
+        {
+            if (rebarElem is Autodesk.Revit.DB.Structure.Rebar r) r.SetUnobscuredInView(view, unobscured);
+            else if (rebarElem is Autodesk.Revit.DB.Structure.RebarInSystem ris) ris.SetUnobscuredInView(view, unobscured);
+        }
+    }
+
     public class HostSelectionFilter : ISelectionFilter
     {
         public bool AllowElement(Element elem)
@@ -21,7 +37,7 @@ namespace antiGGGravity.Commands.Rebar
             if (elem.ViewSpecific) return false;
 
             // 2. Exclude Rebar
-            if (elem is Autodesk.Revit.DB.Structure.Rebar) return false;
+            if (elem.Category != null && elem.Category.Id.Value == (long)BuiltInCategory.OST_Rebar) return false;
             
             // 3. Ensure it has a category (safety)
             if (elem.Category == null) return false;
@@ -53,7 +69,6 @@ namespace antiGGGravity.Commands.Rebar
             var collector = new FilteredElementCollector(doc, activeView.Id);
             var rebars = collector.OfCategory(BuiltInCategory.OST_Rebar)
                                   .WhereElementIsNotElementType()
-                                  .Cast<Autodesk.Revit.DB.Structure.Rebar>()
                                   .ToList();
 
             if (rebars.Count == 0)
@@ -70,8 +85,8 @@ namespace antiGGGravity.Commands.Rebar
                 {
                     try
                     {
-                        // SetUnobscuredInView(view, false) -> Obscured (hidden by concrete)
-                        rebar.SetUnobscuredInView(activeView, false);
+                        // SetUnobscuredInViewSafe(rebar, view, false) -> Obscured (hidden by concrete)
+                        RebarHelper.SetUnobscuredInViewSafe(rebar, activeView, false);
 
                         // Note: In Revit 2023+, solidity is controlled by Detail Level (Fine).
                         // SetSolidInView is not needed or removed in newer API.
@@ -103,7 +118,6 @@ namespace antiGGGravity.Commands.Rebar
             var collector = new FilteredElementCollector(doc, activeView.Id);
             var rebars = collector.OfCategory(BuiltInCategory.OST_Rebar)
                                   .WhereElementIsNotElementType()
-                                  .Cast<Autodesk.Revit.DB.Structure.Rebar>()
                                   .ToList();
 
             if (rebars.Count == 0)
@@ -120,8 +134,8 @@ namespace antiGGGravity.Commands.Rebar
                 {
                     try
                     {
-                        // SetUnobscuredInView(view, true) -> Unobscured (visible over concrete)
-                        rebar.SetUnobscuredInView(activeView, true);
+                        // SetUnobscuredInViewSafe(rebar, view, true) -> Unobscured (visible over concrete)
+                        RebarHelper.SetUnobscuredInViewSafe(rebar, activeView, true);
                         
                         // Note: In Revit 2023+, solidity is controlled by Detail Level (Fine).
                         count++;
@@ -229,7 +243,7 @@ namespace antiGGGravity.Commands.Rebar
                 foreach (var id in selection)
                 {
                     Element el = doc.GetElement(id);
-                    if (el != null && !el.ViewSpecific && !(el is Autodesk.Revit.DB.Structure.Rebar))
+                    if (el != null && !el.ViewSpecific && (el.Category == null || el.Category.Id.Value != (long)BuiltInCategory.OST_Rebar))
                     {
                         hostIds.Add(id);
                     }
@@ -259,13 +273,12 @@ namespace antiGGGravity.Commands.Rebar
             var allRebars = new FilteredElementCollector(doc)
                                 .OfCategory(BuiltInCategory.OST_Rebar)
                                 .WhereElementIsNotElementType()
-                                .Cast<Autodesk.Revit.DB.Structure.Rebar>()
                                 .ToList();
 
             List<ElementId> hostedRebarIds = new List<ElementId>();
             foreach (var rebar in allRebars)
             {
-                if (hostIds.Contains(rebar.GetHostId()))
+                if (hostIds.Contains(RebarHelper.GetHostIdSafe(rebar)))
                 {
                     hostedRebarIds.Add(rebar.Id);
                 }
@@ -337,13 +350,12 @@ namespace antiGGGravity.Commands.Rebar
             var allRebars = new FilteredElementCollector(doc)
                                 .OfCategory(BuiltInCategory.OST_Rebar)
                                 .WhereElementIsNotElementType()
-                                .Cast<Autodesk.Revit.DB.Structure.Rebar>()
                                 .ToList();
 
             List<ElementId> hostedRebarIds = new List<ElementId>();
             foreach (var rebar in allRebars)
             {
-                if (hostIds.Contains(rebar.GetHostId()))
+                if (hostIds.Contains(RebarHelper.GetHostIdSafe(rebar)))
                 {
                     hostedRebarIds.Add(rebar.Id);
                 }
@@ -393,7 +405,7 @@ namespace antiGGGravity.Commands.Rebar
                 foreach (var eid in selectionIds)
                 {
                     Element elem = doc.GetElement(eid);
-                    if (elem != null && !elem.ViewSpecific && !(elem is Autodesk.Revit.DB.Structure.Rebar))
+                    if (elem != null && !elem.ViewSpecific && (elem.Category == null || elem.Category.Id.Value != (long)BuiltInCategory.OST_Rebar))
                     {
                         preSelectedHosts.Add(elem);
                     }
@@ -441,7 +453,6 @@ namespace antiGGGravity.Commands.Rebar
             var rebarsInView = new FilteredElementCollector(doc, view.Id)
                                 .OfCategory(BuiltInCategory.OST_Rebar)
                                 .WhereElementIsNotElementType()
-                                .Cast<Autodesk.Revit.DB.Structure.Rebar>()
                                 .ToList();
 
             var hostIds = new HashSet<ElementId>(hostElems.Select(e => e.Id));
@@ -449,7 +460,7 @@ namespace antiGGGravity.Commands.Rebar
 
             foreach (var r in rebarsInView)
             {
-                if (hostIds.Contains(r.GetHostId()))
+                if (hostIds.Contains(RebarHelper.GetHostIdSafe(r)))
                 {
                     idsToHide.Add(r.Id);
                 }
@@ -496,7 +507,7 @@ namespace antiGGGravity.Commands.Rebar
                 foreach (var eid in selectionIds)
                 {
                     Element elem = doc.GetElement(eid);
-                    if (elem != null && !elem.ViewSpecific && !(elem is Autodesk.Revit.DB.Structure.Rebar))
+                    if (elem != null && !elem.ViewSpecific && (elem.Category == null || elem.Category.Id.Value != (long)BuiltInCategory.OST_Rebar))
                     {
                         preSelectedHosts.Add(elem);
                     }
@@ -543,7 +554,6 @@ namespace antiGGGravity.Commands.Rebar
             var rebars = new FilteredElementCollector(doc)
                             .OfCategory(BuiltInCategory.OST_Rebar)
                             .WhereElementIsNotElementType()
-                            .Cast<Autodesk.Revit.DB.Structure.Rebar>()
                             .ToList();
 
             var hostIds = new HashSet<ElementId>(hostElems.Select(e => e.Id));
@@ -551,7 +561,7 @@ namespace antiGGGravity.Commands.Rebar
 
             foreach (var r in rebars)
             {
-                if (hostIds.Contains(r.GetHostId()))
+                if (hostIds.Contains(RebarHelper.GetHostIdSafe(r)))
                 {
                     idsToShow.Add(r.Id);
                 }
@@ -598,7 +608,7 @@ namespace antiGGGravity.Commands.Rebar
                 foreach (var eid in selectionIds)
                 {
                     Element elem = doc.GetElement(eid);
-                    if (elem != null && !elem.ViewSpecific && !(elem is Autodesk.Revit.DB.Structure.Rebar))
+                    if (elem != null && !elem.ViewSpecific && (elem.Category == null || elem.Category.Id.Value != (long)BuiltInCategory.OST_Rebar))
                     {
                         preSelectedHosts.Add(elem);
                     }
@@ -645,7 +655,6 @@ namespace antiGGGravity.Commands.Rebar
             var allRebars = new FilteredElementCollector(doc)
                                 .OfCategory(BuiltInCategory.OST_Rebar)
                                 .WhereElementIsNotElementType()
-                                .Cast<Autodesk.Revit.DB.Structure.Rebar>()
                                 .ToList();
 
             var hostIds = new HashSet<ElementId>(hostElems.Select(e => e.Id));
@@ -654,7 +663,7 @@ namespace antiGGGravity.Commands.Rebar
 
             foreach (var r in allRebars)
             {
-                if (hostIds.Contains(r.GetHostId()))
+                if (hostIds.Contains(RebarHelper.GetHostIdSafe(r)))
                     idsToShow.Add(r.Id);
                 else
                     idsToHide.Add(r.Id);
