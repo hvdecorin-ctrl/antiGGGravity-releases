@@ -47,6 +47,21 @@
                     </Trigger>
                 </Style.Triggers>
             </Style>
+
+            <ControlTemplate x:Key="CircularButtonTemplate" TargetType="Button">
+                <Grid>
+                    <Ellipse x:Name="BackgroundEllipse" Fill="White" Stroke="{TemplateBinding BorderBrush}" StrokeThickness="2.5"/>
+                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Grid>
+                <ControlTemplate.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter TargetName="BackgroundEllipse" Property="Fill" Value="#F0F0F0"/>
+                    </Trigger>
+                    <Trigger Property="IsPressed" Value="True">
+                        <Setter TargetName="BackgroundEllipse" Property="Fill" Value="#E0E0E0"/>
+                    </Trigger>
+                </ControlTemplate.Triggers>
+            </ControlTemplate>
         </ResourceDictionary>
     </Window.Resources>
 
@@ -138,12 +153,14 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Button x:Name="BtnAdd" Grid.Row="0" Width="32" Height="32" Margin="0,0,0,10" 
-                            ToolTip="Add to Custom Parameter" Click="BtnAdd_Click" Style="{StaticResource PremiumActionButtonStyle}">
-                        <Path Data="M 12 4 L 12 20 M 4 12 L 20 12" Stroke="#333333" StrokeThickness="2.5" StrokeEndLineCap="Round" StrokeStartLineCap="Round" StrokeLineJoin="Round" Stretch="Uniform" Width="14" Height="14"/>
+                            ToolTip="Add to Custom Parameter" Click="BtnAdd_Click" 
+                            BorderBrush="#008855" Background="Transparent" Template="{StaticResource CircularButtonTemplate}">
+                        <Path Data="M 12 4 L 12 20 M 4 12 L 20 12" Stroke="#008855" StrokeThickness="3" StrokeEndLineCap="Round" StrokeStartLineCap="Round" StrokeLineJoin="Round" Stretch="Uniform" Width="14" Height="14"/>
                     </Button>
                     <Button x:Name="BtnRemove" Grid.Row="1" Width="32" Height="32" 
-                            ToolTip="Remove from Custom Parameter" Click="BtnRemove_Click" Style="{StaticResource PremiumActionButtonStyle}">
-                        <Path Data="M 4 12 L 20 12" Stroke="#333333" StrokeThickness="2.5" StrokeEndLineCap="Round" StrokeStartLineCap="Round" StrokeLineJoin="Round" Stretch="Uniform" Width="14" Height="14"/>
+                            ToolTip="Remove from Custom Parameter" Click="BtnRemove_Click" 
+                            BorderBrush="#FF5500" Background="Transparent" Template="{StaticResource CircularButtonTemplate}">
+                        <Path Data="M 4 12 L 20 12" Stroke="#FF5500" StrokeThickness="3" StrokeEndLineCap="Round" StrokeStartLineCap="Round" StrokeLineJoin="Round" Stretch="Uniform" Width="14" Height="14"/>
                     </Button>
                 </Grid>
 

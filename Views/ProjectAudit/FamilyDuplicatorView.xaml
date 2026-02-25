@@ -24,6 +24,7 @@
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="70"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
@@ -45,39 +46,90 @@
                 </Grid>
             </Border>
 
+            <!-- INSTRUCTIONS -->
+            <TextBlock Grid.Row="1" Margin="25,12,25,0" Foreground="#666666" FontSize="12"
+                       Text="Enter family data below. Paste from Excel (Ctrl+V), or type directly. Type Comment filters the Base Type dropdown."/>
+
             <!-- CONTENT -->
-            <Grid Grid.Row="1" Margin="25">
+            <Grid Grid.Row="2" Margin="25,10,25,10">
                 <Border Background="White" CornerRadius="8" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="1" Padding="0">
                     <DataGrid x:Name="UI_Grid" AutoGenerateColumns="False" CanUserAddRows="True" Background="White" 
                               BorderBrush="Transparent" RowHeight="32" AlternatingRowBackground="#FAFAFA"
                               GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#F0F0F0"
-                              BorderThickness="0" Margin="1">
+                              BorderThickness="0" Margin="1"
+                              SelectionUnit="CellOrRowHeader" RowHeaderWidth="30" ClipboardCopyMode="IncludeHeader"
+                              CellEditEnding="UI_Grid_CellEditEnding"
+                              PreparingCellForEdit="UI_Grid_PreparingCellForEdit">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Type Mark *" Binding="{Binding TypeMark}" Width="150"/>
                             <DataGridTextColumn Header="Type Comment" Binding="{Binding TypeComment}" Width="200"/>
                             <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="350"/>
-                            <DataGridComboBoxColumn Header="Base Family Type *" x:Name="UI_Col_BaseType" 
-                                                    SelectedValueBinding="{Binding BaseType}" Width="*"/>
+                            <DataGridTemplateColumn Header="Base Family Type *" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding BaseType}" VerticalAlignment="Center" Margin="5,0"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <ComboBox ItemsSource="{Binding FilteredBaseTypes}" 
+                                                  SelectedValue="{Binding BaseType, UpdateSourceTrigger=PropertyChanged}"
+                                                  IsEditable="True" IsDropDownOpen="True" 
+                                                  Loaded="UI_BaseTypeCombo_Loaded"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
                         </DataGrid.Columns>
+                        <DataGrid.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Copy" Click="UI_Menu_Copy_Click" InputGestureText="Ctrl+C"/>
+                                <MenuItem Header="Paste" Click="UI_Menu_Paste_Click" InputGestureText="Ctrl+V"/>
+                                <Separator/>
+                                <MenuItem Header="Delete Row" Click="UI_Menu_DeleteRow_Click" InputGestureText="Del"/>
+                            </ContextMenu>
+                        </DataGrid.ContextMenu>
                     </DataGrid>
                 </Border>
             </Grid>
 
             <!-- FOOTER -->
-            <Border Grid.Row="2" Background="#FAFAFA" Padding="20,15" CornerRadius="0,0,12,12" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,1,0,0">
+            <Border Grid.Row="3" Background="#FAFAFA" Padding="20,15" CornerRadius="0,0,12,12" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,1,0,0">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock x:Name="UI_Status" Grid.Column="0" Text="Enter data or paste from Excel (Type Mark-Description-BaseType)" VerticalAlignment="Center" Foreground="#999999"/>
+                    <TextBlock x:Name="UI_Status" Grid.Column="0" Text="Enter data or paste from Excel • Family Duplicator" 
+                               VerticalAlignment="Center" Foreground="#999999" FontSize="12"/>
 
-                    <Button Grid.Column="1" Content="Clear" Width="100" Style="{StaticResource PremiumPrimaryButtonStyle}" Margin="0,0,12,0" Click="UI_Btn_Clear_Click"/>
-                    <Button Grid.Column="2" Content="Duplicate All" Width="160" Style="{StaticResource PremiumActionButtonStyle}" Margin="0,0,12,0" Click="UI_Btn_Create_Click"/>
-                    <Button Grid.Column="3" Content="Close" Width="100" Style="{StaticResource PremiumPrimaryButtonStyle}" Click="UI_Btn_Close_Click"/>
+                    <Button Grid.Column="1" Content="+ Row" Width="80" Margin="0,0,8,0"
+                            Style="{StaticResource PremiumPrimaryButtonStyle}" Click="UI_Btn_AddRow_Click"
+                            WindowChrome.IsHitTestVisibleInChrome="True"/>
+                    <Button Grid.Column="2" Content="- Row" Width="80" Margin="0,0,8,0"
+                            Style="{StaticResource PremiumPrimaryButtonStyle}" Click="UI_Btn_DeleteRow_Click"
+                            WindowChrome.IsHitTestVisibleInChrome="True"/>
+                    <Button Grid.Column="3" Content="Clear" Width="80" Margin="0,0,8,0"
+                            Style="{StaticResource PremiumPrimaryButtonStyle}" Click="UI_Btn_Clear_Click"
+                            WindowChrome.IsHitTestVisibleInChrome="True"/>
+                    <Button Grid.Column="4" Content="Load" Width="80" Margin="0,0,8,0" ToolTip="Load .rfa families from folder"
+                            Style="{StaticResource PremiumPrimaryButtonStyle}" Click="UI_Btn_Load_Click"
+                            WindowChrome.IsHitTestVisibleInChrome="True"/>
+                    <Button Grid.Column="5" Content="Refresh" Width="80" Margin="0,0,8,0" ToolTip="Refresh base type list"
+                            Style="{StaticResource PremiumPrimaryButtonStyle}" Click="UI_Btn_Refresh_Click"
+                            WindowChrome.IsHitTestVisibleInChrome="True"/>
+                    <Button Grid.Column="6" Content="Duplicate All" Width="120" Margin="0,0,8,0"
+                            Style="{StaticResource PremiumActionButtonStyle}" Click="UI_Btn_Create_Click"
+                            WindowChrome.IsHitTestVisibleInChrome="True"/>
+                    <Button Grid.Column="7" Content="Close" Width="80"
+                            Style="{StaticResource PremiumPrimaryButtonStyle}" Click="UI_Btn_Close_Click"
+                            WindowChrome.IsHitTestVisibleInChrome="True"/>
                 </Grid>
             </Border>
         </Grid>

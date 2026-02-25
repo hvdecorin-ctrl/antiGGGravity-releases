@@ -34,6 +34,15 @@
     <EmbeddedResource Include="Resources\ribbon.yaml" />
   </ItemGroup>
 
+  <!-- Exclude Python reference source from compilation -->
+  <ItemGroup>
+    <None Remove="Reference\**" />
+    <Compile Remove="Reference\**" />
+    <EmbeddedResource Remove="Reference\**" />
+    <Page Remove="Reference\**" />
+    <Resource Remove="Reference\**" />
+  </ItemGroup>
+
   <PropertyGroup>
     <!-- Set to true to automatically copy files to Revit Addins folder -->
     <!-- We set default to true so F5 always tries to update your Revit -->

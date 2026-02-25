@@ -25,7 +25,19 @@ namespace antiGGGravity.Commands.ProjectAudit
             var handler = new FamilyDuplicationHandler();
             var dupEvent = ExternalEvent.Create(handler);
             
-            _view = new FamilyDuplicatorView(doc, dupEvent, handler);
+            // Create events for the FamilyLoading window
+            var loadHandler = new LoadFamilyTypesHandler();
+            var loadEvent = ExternalEvent.Create(loadHandler);
+
+            var symbolsHandler = new GetSymbolsHandler();
+            var symbolsEvent = ExternalEvent.Create(symbolsHandler);
+            
+            _view = new FamilyDuplicatorView(doc, dupEvent, handler, loadEvent, loadHandler, symbolsEvent, symbolsHandler);
+            
+            // Set Revit as the owner of the window to fix keyboard focus issues (so users can type into DataGrid)
+            var wrapper = new System.Windows.Interop.WindowInteropHelper(_view);
+            wrapper.Owner = commandData.Application.MainWindowHandle;
+
             _view.Show();
 
             return Result.Succeeded;
