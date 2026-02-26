@@ -40,7 +40,8 @@
                         <TextBlock Text="Select a style to apply project-wide" Style="{StaticResource PremiumSubtitleStyle}" FontSize="11"/>
                     </StackPanel>
                     <Button HorizontalAlignment="Right" VerticalAlignment="Center" 
-                            Style="{StaticResource PremiumIconButtonStyle}" Content="✕" Click="Cancel_Click"/>
+                            Style="{StaticResource PremiumIconButtonStyle}" Content="✕" Click="Cancel_Click"
+                            WindowChrome.IsHitTestVisibleInChrome="True"/>
                 </Grid>
             </Border>
 

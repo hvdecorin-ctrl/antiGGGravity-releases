@@ -73,10 +73,7 @@
 
         <!-- RIGHT COLUMN: STIRRUPS & OPTIONS -->
         <StackPanel Grid.Column="2">
-            <!-- RULE OFFSETS -->
-            <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,15">
-                <CheckBox x:Name="UI_Check_CutRebar" Content="Cut Rebar (>12m)" FontSize="12" FontWeight="Bold" Foreground="#333333" IsChecked="True"/>
-            </Border>
+
 
             <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,15">
                 <StackPanel>

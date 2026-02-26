@@ -16,10 +16,40 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/antiGGGravity;component/Resources/Pre_BrandStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+            
+            <Style x:Key="PremiumSidebarButtonStyle" TargetType="RadioButton">
+                <Setter Property="Height" Value="36"/>
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="Foreground" Value="#444444"/>
+                <Setter Property="Margin" Value="0,2"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="RadioButton">
+                            <Border x:Name="border" Background="{TemplateBinding Background}" 
+                                    BorderBrush="{TemplateBinding BorderBrush}" 
+                                    BorderThickness="0" CornerRadius="6">
+                                <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center" Margin="12,0"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="border" Property="Background" Value="#E0E0E0"/>
+                                </Trigger>
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Setter TargetName="border" Property="Background" Value="#4A759C"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
         </ResourceDictionary>
     </Window.Resources>
     
     <Border Style="{StaticResource PremiumBorderStyle}">
+
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="70"/>
@@ -57,31 +87,32 @@
                         <TextBlock Text="Element Type" FontSize="11" FontWeight="SemiBold" Foreground="#888888" Margin="8,0,0,10"/>
                         
                         <RadioButton x:Name="UI_Radio_StripFooting" Content="Strip Footing" IsChecked="True"
-                                     GroupName="ElementType" FontSize="14" Foreground="#444" Margin="0,4" Padding="10,8"
+                                     GroupName="ElementType" Style="{StaticResource PremiumSidebarButtonStyle}"
                                      Checked="ElementType_Changed" IsEnabled="True"/>
                         <RadioButton x:Name="UI_Radio_FootingPad" Content="Footing Pad" 
-                                     GroupName="ElementType" FontSize="14" Foreground="#444" Margin="0,4" Padding="10,8"
+                                     GroupName="ElementType" Style="{StaticResource PremiumSidebarButtonStyle}"
                                      Checked="ElementType_Changed" IsEnabled="True"/>
                         <RadioButton x:Name="UI_Radio_Beam" Content="Beam" 
-                                     GroupName="ElementType" FontSize="14" Foreground="#444" Margin="0,4" Padding="10,8"
+                                     GroupName="ElementType" Style="{StaticResource PremiumSidebarButtonStyle}"
                                      Checked="ElementType_Changed"/>
                         <RadioButton x:Name="UI_Radio_Column" Content="Column" 
-                                     GroupName="ElementType" FontSize="14" Foreground="#444" Margin="0,4" Padding="10,8"
+                                     GroupName="ElementType" Style="{StaticResource PremiumSidebarButtonStyle}"
                                      Checked="ElementType_Changed" IsEnabled="True"/>
                         <RadioButton x:Name="UI_Radio_Wall" Content="Wall" 
-                                     GroupName="ElementType" FontSize="14" Foreground="#444" Margin="0,4" Padding="10,8"
+                                     GroupName="ElementType" Style="{StaticResource PremiumSidebarButtonStyle}"
                                      Checked="ElementType_Changed"/>
                         <RadioButton x:Name="UI_Radio_WallCornerL" Content="Wall Corner L" 
-                                     GroupName="ElementType" FontSize="14" Foreground="#444" Margin="0,4" Padding="10,8"
+                                     GroupName="ElementType" Style="{StaticResource PremiumSidebarButtonStyle}"
                                      Checked="ElementType_Changed" IsEnabled="True"/>
                         <RadioButton x:Name="UI_Radio_WallCornerU" Content="Wall Corner U" 
-                                     GroupName="ElementType" FontSize="14" Foreground="#444" Margin="0,4" Padding="10,8"
+                                     GroupName="ElementType" Style="{StaticResource PremiumSidebarButtonStyle}"
                                      Checked="ElementType_Changed" IsEnabled="True"/>
 
                         <Separator Margin="5,15,5,10" Background="#E0E0E0"/>
 
                         <TextBlock Text="Options" FontSize="11" FontWeight="SemiBold" Foreground="#888888" Margin="8,0,0,10"/>
-                        <CheckBox x:Name="UI_Check_RemoveExisting" Content="Remove Existing" FontSize="13" Foreground="#555" Margin="8,0,0,15" IsChecked="True"/>
+                        <CheckBox x:Name="UI_Check_RemoveExisting" Content="Remove Existing" FontSize="13" Foreground="#555" Margin="8,0,0,8" IsChecked="True"/>
+                        <CheckBox x:Name="UI_Check_CutRebar" Content="Cut Rebar (>12m)" FontSize="13" Foreground="#555" Margin="8,0,0,15" IsChecked="True"/>
 
                         <TextBlock Text="Design Code" FontSize="11" FontWeight="SemiBold" Foreground="#888888" Margin="8,0,0,4"/>
                         <ComboBox x:Name="UI_Combo_DesignCode" Margin="8,0,8,0" Height="28" SelectionChanged="DesignCode_Changed">

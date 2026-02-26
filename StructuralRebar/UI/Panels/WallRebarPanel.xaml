@@ -144,7 +144,7 @@
 
                 <TextBlock Text="Placement Config" FontSize="13" FontWeight="SemiBold" Foreground="#333333" Margin="0,0,0,8"/>
                 
-                <CheckBox x:Name="UI_Check_CutRebar" Content="Cut Rebar (>12m)" FontSize="12" Foreground="#333333" FontWeight="SemiBold" Margin="0,0,0,12" IsChecked="True"/>
+
                 
                 <TextBlock Text="Layer Layout" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
                 <ComboBox x:Name="UI_Combo_LayerConfig" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0">

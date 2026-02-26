@@ -146,6 +146,7 @@ namespace antiGGGravity.StructuralRebar.UI
 
         // --- Accessors for the handler ---
         public bool RemoveExisting => UI_Check_RemoveExisting.IsChecked == true;
+        public bool EnableLapSplice => UI_Check_CutRebar.IsChecked == true;
         
         public DesignCodeStandard DesignCode 
         {

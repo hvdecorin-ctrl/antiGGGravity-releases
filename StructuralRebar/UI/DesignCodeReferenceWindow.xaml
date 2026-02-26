@@ -285,6 +285,140 @@
                         </Border>
                     </Grid>
                 </TabItem>
+
+                <!-- TAB 3: BEAM DETAILING -->
+                <TabItem Header="  Beam Detailing  " FontSize="13" FontWeight="SemiBold">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="15">
+                            <!-- Section Title -->
+                            <TextBlock Text="BEAM REBAR CUT / SPLICE LOCATIONS" FontSize="14" FontWeight="Bold" Foreground="#333" Margin="0,0,0,5"/>
+                            <TextBlock Text="Standard detailing rules for lap splice placement in reinforced concrete beams" 
+                                       FontSize="12" Foreground="#888" Margin="0,0,0,15"/>
+
+                            <!-- Diagram -->
+                            <Border Background="White" CornerRadius="8" BorderBrush="#E0E0E0" BorderThickness="1" Padding="10" Margin="0,0,0,15">
+                                <Image Source="/antiGGGravity;component/Resources/beam_cut_diagram.png" 
+                                       Stretch="Uniform" MaxHeight="300"
+                                       RenderOptions.BitmapScalingMode="HighQuality"/>
+                            </Border>
+
+                            <!-- Rules Table -->
+                            <Border Background="#F5F7FA" CornerRadius="8" Padding="20" Margin="0,0,0,15">
+                                <StackPanel>
+                                    <TextBlock Text="STANDARD RULES" FontSize="12" FontWeight="Bold" Foreground="#4A759C" Margin="0,0,0,12"/>
+                                    
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="140"/>
+                                            <ColumnDefinition Width="200"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="36"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <!-- Header Row -->
+                                        <Border Grid.Row="0" Grid.Column="0" Background="#4A759C" CornerRadius="4,0,0,0" Padding="8,0">
+                                            <TextBlock Text="Bar Position" Foreground="White" FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <Border Grid.Row="0" Grid.Column="1" Background="#4A759C" Padding="8,0">
+                                            <TextBlock Text="Cut / Splice Location" Foreground="White" FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <Border Grid.Row="0" Grid.Column="2" Background="#4A759C" CornerRadius="0,4,0,0" Padding="8,0">
+                                            <TextBlock Text="Reason" Foreground="White" FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center"/>
+                                        </Border>
+
+                                        <!-- Top Bars Row -->
+                                        <Border Grid.Row="1" Grid.Column="0" Background="White" BorderBrush="#E8E8E8" BorderThickness="1,0,1,1" Padding="10,12">
+                                            <TextBlock Text="Top Bars" FontWeight="Bold" FontSize="13" Foreground="#333"/>
+                                        </Border>
+                                        <Border Grid.Row="1" Grid.Column="1" Background="White" BorderBrush="#E8E8E8" BorderThickness="0,0,1,1" Padding="10,12">
+                                            <StackPanel>
+                                                <TextBlock Text="L/3 from support" FontWeight="Bold" FontSize="14" Foreground="#2C5F8A"/>
+                                                <TextBlock Text="(splice near mid-span)" FontSize="11" Foreground="#888" Margin="0,2,0,0"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <Border Grid.Row="1" Grid.Column="2" Background="White" BorderBrush="#E8E8E8" BorderThickness="0,0,1,1" Padding="10,12">
+                                            <TextBlock Text="Hogging moment is lowest at mid-span. Splices placed here avoid the high-stress zone near supports." 
+                                                       FontSize="12" Foreground="#555" TextWrapping="Wrap"/>
+                                        </Border>
+
+                                        <!-- Bottom Bars Row -->
+                                        <Border Grid.Row="2" Grid.Column="0" Background="#F9FAFB" BorderBrush="#E8E8E8" BorderThickness="1,0,1,1" CornerRadius="0,0,0,4" Padding="10,12">
+                                            <TextBlock Text="Bottom Bars" FontWeight="Bold" FontSize="13" Foreground="#333"/>
+                                        </Border>
+                                        <Border Grid.Row="2" Grid.Column="1" Background="#F9FAFB" BorderBrush="#E8E8E8" BorderThickness="0,0,1,1" Padding="10,12">
+                                            <StackPanel>
+                                                <TextBlock Text="L/4 from support" FontWeight="Bold" FontSize="14" Foreground="#C45C2B"/>
+                                                <TextBlock Text="(splice near supports)" FontSize="11" Foreground="#888" Margin="0,2,0,0"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <Border Grid.Row="2" Grid.Column="2" Background="#F9FAFB" BorderBrush="#E8E8E8" BorderThickness="0,0,1,1" CornerRadius="0,0,4,0" Padding="10,12">
+                                            <TextBlock Text="Sagging moment is lowest near supports. Splices placed here avoid the high-stress zone at mid-span." 
+                                                       FontSize="12" Foreground="#555" TextWrapping="Wrap"/>
+                                        </Border>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Code Reference Notes -->
+                            <Border Background="#FFF8F0" CornerRadius="8" BorderBrush="#F0D9B5" BorderThickness="1" Padding="15" Margin="0,0,0,15">
+                                <StackPanel>
+                                    <TextBlock Text="⚠ IMPORTANT NOTES" FontSize="12" FontWeight="Bold" Foreground="#B8860B" Margin="0,0,0,8"/>
+                                    <TextBlock FontSize="12" Foreground="#666" TextWrapping="Wrap" LineHeight="22">
+                                        <Run FontWeight="SemiBold">1.</Run>
+                                        <Run> Lap splices must never be placed at points of maximum moment (mid-span for bottom bars, supports for top bars).</Run>
+                                        <LineBreak/>
+                                        <Run FontWeight="SemiBold">2.</Run>
+                                        <Run> The lap length must comply with the selected design code (see Calculator tab).</Run>
+                                        <LineBreak/>
+                                        <Run FontWeight="SemiBold">3.</Run>
+                                        <Run> Max straight bar length = 11.5m. Bend/hook ends add to total length, so stock bars (12m) are limited to 11.5m straight.</Run>
+                                        <LineBreak/>
+                                        <Run FontWeight="SemiBold">4.</Run>
+                                        <Run> Stagger laps: no more than 50% of bars should be spliced at the same cross-section.</Run>
+                                        <LineBreak/>
+                                        <Run FontWeight="SemiBold">5.</Run>
+                                        <Run> These rules apply to simply supported and continuous beams under standard loading. Complex loading may require engineering review.</Run>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Design Code Cross-Reference -->
+                            <Border Background="White" CornerRadius="8" BorderBrush="#E0E0E0" BorderThickness="1" Padding="15">
+                                <StackPanel>
+                                    <TextBlock Text="DESIGN CODE REFERENCES" FontSize="12" FontWeight="Bold" Foreground="#4A759C" Margin="0,0,0,10"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="140"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="28"/>
+                                            <RowDefinition Height="28"/>
+                                            <RowDefinition Height="28"/>
+                                            <RowDefinition Height="28"/>
+                                        </Grid.RowDefinitions>
+                                        
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="ACI 318-19" FontWeight="SemiBold" FontSize="12" Foreground="#333" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="§9.7.3 (negative moment) / §9.7.3.8 (positive moment curtailment)" FontSize="11" Foreground="#666" VerticalAlignment="Center"/>
+                                        
+                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="AS 3600" FontWeight="SemiBold" FontSize="12" Foreground="#333" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="§8.1.10 (arrangement of reinforcement) / Cl.8.1.10.5 (splicing at low-moment zones)" FontSize="11" Foreground="#666" VerticalAlignment="Center"/>
+                                        
+                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Eurocode 2" FontWeight="SemiBold" FontSize="12" Foreground="#333" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Row="2" Grid.Column="1" Text="EN 1992-1-1 §9.2.1 (beams) / §8.7.3 (laps of bars in tension)" FontSize="11" Foreground="#666" VerticalAlignment="Center"/>
+                                        
+                                        <TextBlock Grid.Row="3" Grid.Column="0" Text="NZS 3101" FontWeight="SemiBold" FontSize="12" Foreground="#333" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Row="3" Grid.Column="1" Text="§8.6.12 (development, splicing) / §9.4.3.3 (termination of flexural reinforcement)" FontSize="11" Foreground="#666" VerticalAlignment="Center"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
             </TabControl>
         </Grid>
     </Border>

@@ -74,7 +74,7 @@
                         </StackPanel>
                     </Grid>
 
-                    <CheckBox x:Name="UI_Check_CutRebar" Content="Cut Rebar (>12m)" FontSize="12" Foreground="#333" FontWeight="SemiBold" IsChecked="False" Margin="0,15,0,0"/>
+
                 </StackPanel>
             </Border>
         </StackPanel>

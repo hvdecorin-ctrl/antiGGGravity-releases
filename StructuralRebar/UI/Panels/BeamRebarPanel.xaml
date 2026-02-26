@@ -165,10 +165,7 @@
                 </StackPanel>
             </Border>
             
-            <!-- MAIN REINFORCEMENT OPTIONS -->
-            <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#E8E8E8" BorderThickness="1" Padding="15" Margin="0,15,0,0">
-                <CheckBox x:Name="UI_Check_CutRebar" Content="Cut Rebar (>12m)" FontSize="12" Foreground="#333" FontWeight="SemiBold"/>
-            </Border>
+
         </StackPanel>
 
         <!-- RIGHT COLUMN: STIRRUPS & RULE OFFSETS -->

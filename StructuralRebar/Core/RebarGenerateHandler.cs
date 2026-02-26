@@ -113,6 +113,7 @@ namespace antiGGGravity.StructuralRebar.Core
             if (beams.Count == 0) return null;
 
             var request = _window.BeamPanel.BuildRequest(_window.RemoveExisting);
+            request.EnableLapSplice = _window.EnableLapSplice;
             request.DesignCode = _window.DesignCode;
             var engine = new RebarEngine(doc);
             var (processed, total) = engine.GenerateBeamRebar(beams, request);
@@ -134,6 +135,7 @@ namespace antiGGGravity.StructuralRebar.Core
 
             var request = _window.WallPanel.GetRequest();
             request.RemoveExisting = _window.RemoveExisting;
+            request.EnableLapSplice = _window.EnableLapSplice;
             request.DesignCode = _window.DesignCode;
             var engine = new RebarEngine(doc);
             var (processed, total) = engine.GenerateWallRebar(walls, request);
@@ -155,6 +157,7 @@ namespace antiGGGravity.StructuralRebar.Core
 
             var request = _window.ColumnPanel.GetRequest();
             request.RemoveExisting = _window.RemoveExisting;
+            request.EnableLapSplice = _window.EnableLapSplice;
             request.DesignCode = _window.DesignCode;
             var engine = new RebarEngine(doc);
             var (processed, total) = engine.GenerateColumnRebar(columns, request);
@@ -176,6 +179,7 @@ namespace antiGGGravity.StructuralRebar.Core
 
             var request = _window.StripFootingPanel.GetRequest();
             request.RemoveExisting = _window.RemoveExisting;
+            request.EnableLapSplice = _window.EnableLapSplice;
             request.DesignCode = _window.DesignCode;
             var engine = new RebarEngine(doc);
             var (processed, total) = engine.GenerateStripFootingRebar(foundations, request);
@@ -197,6 +201,7 @@ namespace antiGGGravity.StructuralRebar.Core
 
             var request = _window.FootingPadPanel.GetRequest();
             request.RemoveExisting = _window.RemoveExisting;
+            request.EnableLapSplice = _window.EnableLapSplice;
             request.DesignCode = _window.DesignCode;
             var engine = new RebarEngine(doc);
             var (processed, total) = engine.GenerateFootingPadRebar(foundations, request);
@@ -218,6 +223,7 @@ namespace antiGGGravity.StructuralRebar.Core
 
             var request = _window.WallCornerLPanel.GetRequest();
             request.RemoveExisting = _window.RemoveExisting;
+            request.EnableLapSplice = _window.EnableLapSplice;
             request.DesignCode = _window.DesignCode;
             var engine = new RebarEngine(doc);
             var (processed, total) = engine.GenerateWallCornerRebar(walls, request);
@@ -239,6 +245,7 @@ namespace antiGGGravity.StructuralRebar.Core
 
             var request = _window.WallCornerUPanel.GetRequest();
             request.RemoveExisting = _window.RemoveExisting;
+            request.EnableLapSplice = _window.EnableLapSplice;
             request.DesignCode = _window.DesignCode;
             var engine = new RebarEngine(doc);
             var (processed, total) = engine.GenerateWallCornerRebar(walls, request);

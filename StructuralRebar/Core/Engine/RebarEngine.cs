@@ -175,6 +175,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
 
             // Top layers
             double topZ = zMax - host.CoverTop - transDia;
+            int topLayerIdx = 0;
             foreach (var layer in request.Layers.Where(l =>
                 l.Face == RebarLayerFace.Exterior || l.VerticalOffset > 0))
             {
@@ -184,10 +185,10 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
 
                 double z = topZ - barDia / 2.0;
 
-                // Check if bar needs splitting for 12m lap
+                // Check if bar needs splitting — stagger laps between layers
                 double barLen = host.Length - 2 * host.CoverOther;
 var segments = request.EnableLapSplice 
-                    ? LapSpliceCalculator.SplitBarForLap(barLen, barDia, request.DesignCode, 0, LapSpliceCalculator.GetCrankRun(barDia))
+                    ? LapSpliceCalculator.SplitBeamBarForLap(barLen, barDia, request.DesignCode, isTopBar: true, layerIndex: topLayerIdx)
                     : new List<(double Start, double End)> { (0.0, barLen) };
 
                 for (int si = 0; si < segments.Count; si++)
@@ -251,10 +252,12 @@ var segments = request.EnableLapSplice
                 }
 
                 topZ -= (barDia + minLayerGap);
+                topLayerIdx++;
             }
 
             // Bottom layers
             double botZ = zMin + host.CoverBottom + transDia;
+            int botLayerIdx = 0;
             foreach (var layer in request.Layers.Where(l =>
                 l.Face == RebarLayerFace.Interior || l.VerticalOffset < 0))
             {
@@ -264,10 +267,10 @@ var segments = request.EnableLapSplice
 
                 double z = botZ + barDia / 2.0;
 
-                // Check if bar needs splitting for 12m lap
+                // Check if bar needs splitting — stagger laps between layers
                 double barLen = host.Length - 2 * host.CoverOther;
 var segments = request.EnableLapSplice 
-                    ? LapSpliceCalculator.SplitBarForLap(barLen, barDia, request.DesignCode, 0, LapSpliceCalculator.GetCrankRun(barDia))
+                    ? LapSpliceCalculator.SplitBeamBarForLap(barLen, barDia, request.DesignCode, isTopBar: false, layerIndex: botLayerIdx)
                     : new List<(double Start, double End)> { (0.0, barLen) };
 
                 for (int si = 0; si < segments.Count; si++)
@@ -330,6 +333,7 @@ var segments = request.EnableLapSplice
                 }
 
                 botZ += (barDia + minLayerGap);
+                botLayerIdx++;
             }
         }
 

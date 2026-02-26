@@ -85,7 +85,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
 
                 UI_Check_TopBars.IsChecked = SettingsManager.GetBool(VIEW_NAME, "TopBarsEnabled", true);
                 UI_Check_BotBars.IsChecked = SettingsManager.GetBool(VIEW_NAME, "BotBarsEnabled", true);
-                UI_Check_CutRebar.IsChecked = SettingsManager.GetBool(VIEW_NAME, "CutRebarEnabled", true);
+
 
                 SelectByName(UI_Combo_TopType, SettingsManager.Get(VIEW_NAME, "TopType"));
                 SelectByName(UI_Combo_BotType, SettingsManager.Get(VIEW_NAME, "BotType"));
@@ -110,7 +110,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
 
                 SettingsManager.Set(VIEW_NAME, "TopBarsEnabled", (UI_Check_TopBars.IsChecked == true).ToString());
                 SettingsManager.Set(VIEW_NAME, "BotBarsEnabled", (UI_Check_BotBars.IsChecked == true).ToString());
-                SettingsManager.Set(VIEW_NAME, "CutRebarEnabled", (UI_Check_CutRebar.IsChecked == true).ToString());
+
 
                 SettingsManager.Set(VIEW_NAME, "TopType", TransTypeName(UI_Combo_TopType));
                 SettingsManager.Set(VIEW_NAME, "BotType", TransTypeName(UI_Combo_BotType));
@@ -132,7 +132,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             {
                 HostType = ElementHostType.StripFooting,
                 RemoveExisting = false, // Handled by Window level
-                EnableLapSplice = UI_Check_CutRebar.IsChecked == true,
+                EnableLapSplice = false, // Set by window/handler now
 
                 // Stirrups (Transverse)
                 TransverseBarTypeName = (UI_Combo_TransType.SelectedItem as RebarBarType)?.Name,
