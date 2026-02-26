@@ -35,7 +35,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 .OrderBy(x => x.Name)
                 .ToList();
 
-            foreach (var combo in new[] { UI_Combo_T1Type, UI_Combo_T2Type, UI_Combo_B1Type, UI_Combo_B2Type, UI_Combo_TransType })
+            foreach (var combo in new[] { UI_Combo_T1Type, UI_Combo_T2Type, UI_Combo_B1Type, UI_Combo_B2Type, UI_Combo_TransType, UI_Combo_SideType })
             {
                 combo.ItemsSource = _rebarTypes;
                 combo.DisplayMemberPath = "Name";
@@ -51,6 +51,11 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                    ?? _rebarTypes.FirstOrDefault(x => x.Name.Contains("R6"))
                    ?? _rebarTypes.FirstOrDefault();
             UI_Combo_TransType.SelectedItem = r10;
+
+            var h12 = _rebarTypes.FirstOrDefault(x => x.Name.Contains("H12"))
+                   ?? _rebarTypes.FirstOrDefault(x => x.Name.Contains("D12"))
+                   ?? d16;
+            UI_Combo_SideType.SelectedItem = h12;
 
             // Hook Types
             var hooks = new FilteredElementCollector(_doc)
@@ -104,6 +109,10 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 UI_Radio_StirrupUnEQ.IsChecked = SettingsManager.GetBool(VIEW_NAME, "StirrupDistUnEQ", false);
                 UI_Radio_StirrupEQ.IsChecked = !(UI_Radio_StirrupUnEQ.IsChecked == true);
 
+                UI_Check_SideRebar.IsChecked = SettingsManager.GetBool(VIEW_NAME, "SideRebarEnabled", false);
+                UI_Text_SideRows.Text = SettingsManager.Get(VIEW_NAME, "SideRows", "2");
+                SelectByName(UI_Combo_SideType, SettingsManager.Get(VIEW_NAME, "SideType"));
+
 
 
                 toggle_visibility(null, null);
@@ -143,6 +152,10 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
 
                 SettingsManager.Set(VIEW_NAME, "StirrupDistUnEQ", (UI_Radio_StirrupUnEQ.IsChecked == true).ToString());
 
+                SettingsManager.Set(VIEW_NAME, "SideRebarEnabled", (UI_Check_SideRebar.IsChecked == true).ToString());
+                SettingsManager.Set(VIEW_NAME, "SideRows", UI_Text_SideRows.Text);
+                SettingsManager.Set(VIEW_NAME, "SideType", TransTypeName(UI_Combo_SideType));
+
 
                 SettingsManager.SaveAll();
             }
@@ -156,6 +169,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             UI_Group_T2.Visibility = UI_Check_T2.IsChecked == true ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
             UI_Group_B1.Visibility = UI_Check_B1.IsChecked == true ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
             UI_Group_B2.Visibility = UI_Check_B2.IsChecked == true ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+            UI_Group_SideRebar.Visibility = UI_Check_SideRebar.IsChecked == true ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
         }
 
         public void StirrupDist_Changed(object sender, RoutedEventArgs e)
@@ -283,6 +297,14 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                     HookStartName = HookName(UI_Combo_BotHookStart),
                     HookEndName = HookName(UI_Combo_BotHookEnd),
                 });
+            }
+
+            // Side rebar
+            if (UI_Check_SideRebar.IsChecked == true)
+            {
+                request.EnableSideRebar = true;
+                request.SideRebarTypeName = (UI_Combo_SideType.SelectedItem as RebarBarType)?.Name;
+                request.SideRebarRows = ParseInt(UI_Text_SideRows.Text, 2);
             }
 
             return request;

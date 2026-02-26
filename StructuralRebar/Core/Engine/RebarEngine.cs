@@ -335,6 +335,83 @@ var segments = request.EnableLapSplice
                 botZ += (barDia + minLayerGap);
                 botLayerIdx++;
             }
+
+            // Side bars (skin reinforcement)
+            if (request.EnableSideRebar && request.SideRebarRows > 0 && !string.IsNullOrEmpty(request.SideRebarTypeName))
+            {
+                double sideDia = GetBarDiameter(request.SideRebarTypeName);
+                int rows = request.SideRebarRows;
+
+                // Evenly space rows between top and bottom rebar zones
+                double sideZTop = zMax - host.CoverTop - transDia - sideDia;
+                double sideZBot = zMin + host.CoverBottom + transDia + sideDia;
+                double availableHeight = sideZTop - sideZBot;
+                double rowSpacing = availableHeight / (rows + 1);
+
+                double barLen = host.Length - 2 * host.CoverOther;
+
+                // Side bars use generic stock-length splitting only (no code-based lap zones)
+                var segments = (request.EnableLapSplice && barLen > LapSpliceCalculator.MaxStockLengthFt)
+                    ? LapSpliceCalculator.SplitBarForLap(barLen, sideDia, request.DesignCode, 0, LapSpliceCalculator.GetCrankRun(sideDia))
+                    : new List<(double Start, double End)> { (0.0, barLen) };
+
+                // Distribution width: distance between the two side bar positions
+                double innerOffset = host.CoverOther + transDia;
+                double distWidth = host.Width - 2 * innerOffset;
+
+                for (int row = 1; row <= rows; row++)
+                {
+                    double z = sideZBot + rowSpacing * row;
+
+                    for (int si = 0; si < segments.Count; si++)
+                    {
+                        var seg = segments[si];
+                        XYZ s = host.StartPoint + host.LAxis * (host.CoverOther + seg.Start);
+                        XYZ e = host.StartPoint + host.LAxis * (host.CoverOther + seg.End);
+
+                        // Position bar at near side — FixedCount=2 distributes to both faces
+                        XYZ barStart = new XYZ(s.X, s.Y, z) - host.WAxis * (distWidth / 2.0);
+                        XYZ barEnd = new XYZ(e.X, e.Y, z) - host.WAxis * (distWidth / 2.0);
+
+                        var curves = new List<Curve>();
+
+                        if (si > 0 && segments.Count > 1)
+                        {
+                            double crankOff = LapSpliceCalculator.GetCrankOffset(sideDia);
+                            double crankRun = LapSpliceCalculator.GetCrankRun(sideDia);
+                            double lapLen = LapSpliceCalculator.CalculateTensionLapLength(sideDia, request.DesignCode);
+                            double straightLap = lapLen + crankRun;
+
+                            XYZ crankDir = host.HAxis; // Offset upward for side bars
+                            XYZ ptA = barStart + crankDir * crankOff;
+                            XYZ ptB = ptA + host.LAxis * straightLap;
+                            XYZ ptC = barStart + host.LAxis * (straightLap + crankRun);
+                            curves.Add(Line.CreateBound(ptA, ptB));
+                            curves.Add(Line.CreateBound(ptB, ptC));
+                            curves.Add(Line.CreateBound(ptC, barEnd));
+                        }
+                        else
+                        {
+                            curves.Add(Line.CreateBound(barStart, barEnd));
+                        }
+
+                        definitions.Add(new RebarDefinition
+                        {
+                            Curves = curves,
+                            Style = Autodesk.Revit.DB.Structure.RebarStyle.Standard,
+                            BarTypeName = request.SideRebarTypeName,
+                            BarDiameter = sideDia,
+                            Spacing = 0,
+                            ArrayLength = 0,
+                            ArrayDirection = host.WAxis,
+                            FixedCount = 2,
+                            DistributionWidth = distWidth,
+                            Normal = host.WAxis,
+                            Label = $"Side Bar R{row}"
+                        });
+                    }
+                }
+            }
         }
 
         // ==============================================================

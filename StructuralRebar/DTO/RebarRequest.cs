@@ -102,5 +102,13 @@ namespace antiGGGravity.StructuralRebar.DTO
         public double LegLength2 { get; set; }
         public bool AddTrimmers { get; set; }
         public string TrimmerBarTypeName { get; set; }
+
+        // === SIDE REBAR (Skin Reinforcement for Beams) ===
+        /// <summary>Whether to add side/skin reinforcement bars.</summary>
+        public bool EnableSideRebar { get; set; }
+        /// <summary>Bar type name for side reinforcement.</summary>
+        public string SideRebarTypeName { get; set; }
+        /// <summary>Number of rows per side face.</summary>
+        public int SideRebarRows { get; set; }
     }
 }
