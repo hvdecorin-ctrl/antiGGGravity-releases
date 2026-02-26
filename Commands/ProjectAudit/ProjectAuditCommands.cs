@@ -20,25 +20,52 @@ namespace antiGGGravity.Commands.ProjectAudit
 
             try
             {
-                ModelPath centralPath = doc.GetWorksharingCentralModelPath();
-                string path = centralPath != null 
-                    ? ModelPathUtils.ConvertModelPathToUserVisiblePath(centralPath) 
-                    : doc.PathName;
+                string path = doc.PathName;
+
+                // For workshared projects (not in cloud), prioritize the Central Model path
+                if (doc.IsWorkshared && !doc.IsModelInCloud)
+                {
+                    ModelPath centralPath = doc.GetWorksharingCentralModelPath();
+                    if (centralPath != null)
+                    {
+                        string userPath = ModelPathUtils.ConvertModelPathToUserVisiblePath(centralPath);
+                        // Only switch to central path if it actually looks like a local/network file path
+                        if (!string.IsNullOrEmpty(userPath) && (userPath.Contains("\\") || userPath.Contains("/")))
+                        {
+                            path = userPath;
+                        }
+                    }
+                }
 
                 if (string.IsNullOrEmpty(path))
                 {
-                    TaskDialog.Show("Error", "Document has not been saved yet.");
+                    TaskDialog.Show("Project Folder", "Document has not been saved yet.");
                     return Result.Failed;
                 }
 
+                // If path is a Cloud URN or similar, Directory.Exists will fail.
+                // We'll try to find the directory, or fall back to doc.PathName if central failed.
                 string directory = Path.GetDirectoryName(path);
-                if (Directory.Exists(directory))
+
+                if (!string.IsNullOrEmpty(directory) && Directory.Exists(directory))
                 {
-                    Process.Start("explorer.exe", directory);
+                    // Use "/select" to open the folder AND highlight the file
+                    Process.Start("explorer.exe", $"/select,\"{path}\"");
                     return Result.Succeeded;
                 }
                 
-                TaskDialog.Show("Error", "Could not find directory: " + directory);
+                // Fallback for Cloud Models or disconnected centrals: try the local path
+                if (path != doc.PathName && !string.IsNullOrEmpty(doc.PathName))
+                {
+                    string localDir = Path.GetDirectoryName(doc.PathName);
+                    if (!string.IsNullOrEmpty(localDir) && Directory.Exists(localDir))
+                    {
+                        Process.Start("explorer.exe", $"/select,\"{doc.PathName}\"");
+                        return Result.Succeeded;
+                    }
+                }
+
+                TaskDialog.Show("Project Folder", "Could not find a valid directory on disk for this model.\n\nPath: " + path);
                 return Result.Failed;
             }
             catch (Exception ex)

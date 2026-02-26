@@ -41,7 +41,8 @@ namespace antiGGGravity.Commands.Overrides
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            return OverrideUtils.ApplyStyle(commandData, new Color(0, 0, 0), 1, true, 100);
+            // Black, Weight 1, Halftone, 50% Transparency
+            return OverrideUtils.ApplyStyle(commandData, new Color(0, 0, 0), 1, true, 50);
         }
     }
 
@@ -50,8 +51,8 @@ namespace antiGGGravity.Commands.Overrides
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            // Red, Weight 6, No Halftone, No Transparency
-            return OverrideUtils.ApplyStyle(commandData, new Color(255, 0, 0), 6, false, 0);
+            // Orange, Weight 1, Halftone, 50% Transparency
+            return OverrideUtils.ApplyStyle(commandData, new Color(255, 128, 0), 1, true, 50);
         }
     }
 
@@ -60,8 +61,8 @@ namespace antiGGGravity.Commands.Overrides
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            // Blue, Weight 6, No Halftone, No Transparency
-            return OverrideUtils.ApplyStyle(commandData, new Color(0, 0, 255), 6, false, 0);
+            // Blue, Weight 1, Halftone, 50% Transparency
+            return OverrideUtils.ApplyStyle(commandData, new Color(0, 0, 255), 1, true, 50);
         }
     }
 
@@ -70,8 +71,18 @@ namespace antiGGGravity.Commands.Overrides
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            // Green, Weight 6, No Halftone, No Transparency
-            return OverrideUtils.ApplyStyle(commandData, new Color(0, 128, 0), 6, false, 0);
+            // Green, Weight 1, Halftone, 50% Transparency
+            return OverrideUtils.ApplyStyle(commandData, new Color(0, 150, 0), 1, true, 50);
+        }
+    }
+
+    [Transaction(TransactionMode.Manual)]
+    public class Style5Command : IExternalCommand
+    {
+        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        {
+            // Purple-Blue (128, 128, 255), Weight 3, Halftone, 50% Transparency, Hidden Pattern
+            return OverrideUtils.ApplyStyle(commandData, new Color(128, 128, 255), 3, true, 50, "Hidden");
         }
     }
 
@@ -294,13 +305,123 @@ namespace antiGGGravity.Commands.Overrides
         }
     }
 
+    [Transaction(TransactionMode.Manual)]
+    public class ProjectCadOverrideCommand : IExternalCommand
+    {
+        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        {
+            UIApplication uiapp = commandData.Application;
+            UIDocument uidoc = uiapp.ActiveUIDocument;
+            Document doc = uidoc.Document;
+
+            // 1. Show Selection UI
+            var selectionView = new CadStyleSelectionView();
+            try
+            {
+                var process = System.Diagnostics.Process.GetCurrentProcess();
+                var wrapper = new System.Windows.Interop.WindowInteropHelper(selectionView);
+                wrapper.Owner = process.MainWindowHandle;
+            }
+            catch { }
+
+            if (selectionView.ShowDialog() != true || selectionView.IsCancelled) return Result.Cancelled;
+
+            int styleIdx = selectionView.SelectedStyle;
+            bool applyProject = selectionView.ApplyToProject;
+
+            try
+            {
+                // 2. Define Style Settings
+                OverrideGraphicSettings ogs = new OverrideGraphicSettings();
+                Color color = new Color(0, 0, 0);
+                string patternName = null;
+
+                switch (styleIdx)
+                {
+                    case 1: color = new Color(0, 0, 0); break;
+                    case 2: color = new Color(255, 128, 0); break;
+                    case 3: color = new Color(0, 0, 255); break;
+                    case 4: color = new Color(0, 150, 0); break;
+                    case 5: color = new Color(128, 128, 255); patternName = "Hidden"; break;
+                }
+
+                ogs.SetProjectionLineColor(color);
+                ogs.SetProjectionLineWeight(styleIdx == 5 ? 3 : 1);
+                ogs.SetCutLineColor(color);
+                ogs.SetCutLineWeight(styleIdx == 5 ? 3 : 1);
+                ogs.SetHalftone(true);
+                ogs.SetSurfaceTransparency(50);
+
+                if (!string.IsNullOrEmpty(patternName))
+                {
+                    ElementId patternId = OverrideUtils.GetLinePatternId(doc, patternName);
+                    if (patternId != ElementId.InvalidElementId)
+                    {
+                        ogs.SetProjectionLinePatternId(patternId);
+                    }
+                }
+
+                // 3. Collect CAD Elements
+                var cadIds = new FilteredElementCollector(doc)
+                    .OfClass(typeof(ImportInstance))
+                    .ToElementIds();
+
+                if (!cadIds.Any())
+                {
+                    TaskDialog.Show("Project CAD Override", "No CAD files found in the project.");
+                    return Result.Succeeded;
+                }
+
+                using (Transaction t = new Transaction(doc, "Project CAD Override"))
+                {
+                    t.Start();
+
+                    if (!applyProject)
+                    {
+                        // Current View Only
+                        View activeView = doc.ActiveView;
+                        foreach (ElementId id in cadIds)
+                        {
+                            try { activeView.SetElementOverrides(id, ogs); } catch { }
+                        }
+                    }
+                    else
+                    {
+                        // All Views
+                        var views = new FilteredElementCollector(doc)
+                            .OfClass(typeof(View))
+                            .Cast<View>()
+                            .Where(v => !v.IsTemplate && v.ViewType != ViewType.ProjectBrowser && v.ViewType != ViewType.SystemBrowser);
+
+                        foreach (View v in views)
+                        {
+                            foreach (ElementId id in cadIds)
+                            {
+                                try { v.SetElementOverrides(id, ogs); } catch { }
+                            }
+                        }
+                    }
+
+                    t.Commit();
+                }
+
+                return Result.Succeeded;
+            }
+            catch (Exception ex)
+            {
+                message = ex.Message;
+                return Result.Failed;
+            }
+        }
+    }
+
     // ===================================================================================
     // UTILITIES
     // ===================================================================================
 
     internal static class OverrideUtils
     {
-        public static Result ApplyStyle(ExternalCommandData commandData, Autodesk.Revit.DB.Color color, int weight, bool halftone, int transparency)
+        public static Result ApplyStyle(ExternalCommandData commandData, Autodesk.Revit.DB.Color color, int weight, bool halftone, int transparency, string patternName = null)
         {
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;
@@ -330,6 +451,15 @@ namespace antiGGGravity.Commands.Overrides
                 ogs.SetHalftone(halftone);
                 ogs.SetSurfaceTransparency(transparency);
 
+                if (!string.IsNullOrEmpty(patternName))
+                {
+                    ElementId patternId = GetLinePatternId(doc, patternName);
+                    if (patternId != ElementId.InvalidElementId)
+                    {
+                        ogs.SetProjectionLinePatternId(patternId);
+                    }
+                }
+
                 foreach (ElementId id in selectedIds)
                 {
                     activeView.SetElementOverrides(id, ogs);
@@ -338,6 +468,16 @@ namespace antiGGGravity.Commands.Overrides
             }
 
             return Result.Succeeded;
+        }
+
+        public static ElementId GetLinePatternId(Document doc, string patternName)
+        {
+            var pattern = new FilteredElementCollector(doc)
+                .OfClass(typeof(LinePatternElement))
+                .Cast<LinePatternElement>()
+                .FirstOrDefault(x => x.Name.Contains(patternName));
+
+            return pattern?.Id ?? ElementId.InvalidElementId;
         }
 
         public static Result ApplyTransparency(ExternalCommandData commandData, int transparency)

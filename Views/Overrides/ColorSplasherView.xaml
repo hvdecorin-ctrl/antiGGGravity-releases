@@ -59,7 +59,7 @@
                     </StackPanel>
                     <Button HorizontalAlignment="Right" VerticalAlignment="Center" Content="✕" 
                             Style="{StaticResource PremiumIconButtonStyle}" Width="30" Height="30"
-                            Click="UI_Btn_Reset_Click" WindowChrome.IsHitTestVisibleInChrome="True"/>  <!-- Using Reset for Close as it's the safest non-destructive action, or we map it to close in code behind if added later -->
+                            Click="UI_Btn_Close_Click" WindowChrome.IsHitTestVisibleInChrome="True"/>
                 </Grid>
             </Border>
 
@@ -159,6 +159,7 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
                     <Button Grid.Column="0" Content="Create Legend" Width="140"
@@ -175,7 +176,11 @@
 
                     <Button Grid.Column="4" Content="Apply Colors" Width="140" 
                             Style="{StaticResource PremiumActionButtonStyle}"
-                            Click="UI_Btn_Apply_Click"/>
+                            Click="UI_Btn_Apply_Click" Margin="0,0,12,0"/>
+
+                    <Button Grid.Column="5" Content="Close" Width="100" 
+                            Style="{StaticResource PremiumPrimaryButtonStyle}"
+                            Click="UI_Btn_Close_Click"/>
                 </Grid>
             </Border>
         </Grid>

@@ -105,21 +105,31 @@ panels:
             icon: CadOverride
             tooltip: Quick graphic override styles.
             buttons:
-              - name: Style 1 (Black/Half/Trans)
+              - name: Black / Half / Trans
                 command: Style1Command
                 icon: Style1
               
-              - name: Style 2 (Red/Solid)
+              - name: Orange / Half / Trans
                 command: Style2Command
                 icon: Style2
               
-              - name: Style 3 (Blue/Solid)
+              - name: Blue / Half / Trans
                 command: Style3Command
                 icon: Style3
               
-              - name: Style 4 (Green/Solid)
+              - name: Green / Half / Trans
                 command: Style4Command
                 icon: Style4
+
+              - name: Purple-Blue / Hidden / Half
+                command: Style5Command
+                icon: Style5
+
+              - separator: true
+
+              - name: Project CAD Override
+                command: ProjectCadOverrideCommand
+                icon: CadOverride
       # --- Column 3 ---
       - type: stacked
         buttons:

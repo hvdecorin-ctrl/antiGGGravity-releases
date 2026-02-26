@@ -30,34 +30,20 @@ namespace antiGGGravity.Views.VisibilityGraphic
             _activeView = uiApp.ActiveUIDocument.ActiveView;
 
             LoadCategories();
-
-            // Subscribe to view activation to refresh the list automatically
-            try
-            {
-                _uiApp.ViewActivated += OnViewActivated;
-            }
-            catch { }
             
             this.Closed += (s, e) => 
             { 
-                try { _uiApp.ViewActivated -= OnViewActivated; } catch { }
                 _activeView = null;
                 StructListBox.ItemsSource = null;
                 CoordListBox.ItemsSource = null;
             };
         }
 
-        private void OnViewActivated(object sender, Autodesk.Revit.UI.Events.ViewActivatedEventArgs e)
+        public void RefreshView(View view)
         {
-            try
-            {
-                _activeView = e.CurrentActiveView;
-                LoadCategories();
-            }
-            catch (System.Exception ex)
-            {
-                // Silently fail or log for view activation
-            }
+            if (view == null) return;
+            _activeView = view;
+            LoadCategories();
         }
 
         private void LoadCategories()

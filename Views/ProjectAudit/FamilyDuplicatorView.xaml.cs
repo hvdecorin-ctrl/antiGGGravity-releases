@@ -39,7 +39,8 @@ namespace antiGGGravity.Views.ProjectAudit
             { "Framings", BuiltInCategory.OST_StructuralFraming }
         };
 
-        private Dictionary<string, List<string>> _categoryTypesCache = new Dictionary<string, List<string>>();
+        private Dictionary<string, List<TypeInfo>> _categoryTypesCache = new Dictionary<string, List<TypeInfo>>();
+        private List<TypeInfo> _allTypeInfos = new List<TypeInfo>();
         private List<string> _allBaseTypes = new List<string>();
 
         public FamilyDuplicatorView(Document doc, ExternalEvent dupEvent, FamilyDuplicationHandler handler,
@@ -71,14 +72,14 @@ namespace antiGGGravity.Views.ProjectAudit
             _categoryTypesCache.Clear();
             foreach (var kvp in SupportedCategories)
             {
-                _categoryTypesCache[kvp.Key] = GetTypeNamesForCategory(kvp.Value);
+                _categoryTypesCache[kvp.Key] = GetTypeInfosForCategory(kvp.Value);
             }
             RefreshAllBaseTypes();
         }
 
-        private List<string> GetTypeNamesForCategory(BuiltInCategory cat)
+        private List<TypeInfo> GetTypeInfosForCategory(BuiltInCategory cat)
         {
-            var types = new List<string>();
+            var types = new List<TypeInfo>();
             try
             {
                 var collector = new FilteredElementCollector(_doc)
@@ -93,23 +94,32 @@ namespace antiGGGravity.Views.ProjectAudit
                         familyName = fs.Family?.Name ?? "";
 
                     string fullName = string.IsNullOrEmpty(familyName) ? name : $"{familyName}:{name}";
-                    types.Add(fullName);
+
+                    // Read the Type Comments parameter to enable filtering
+                    string typeComment = "";
+                    var tcParam = el.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_COMMENTS);
+                    if (tcParam != null) typeComment = tcParam.AsString() ?? "";
+
+                    types.Add(new TypeInfo { FullName = fullName, TypeComment = typeComment });
                 }
             }
             catch { }
-            return types.Distinct().OrderBy(t => t).ToList();
+            return types.GroupBy(t => t.FullName).Select(g => g.First()).OrderBy(t => t.FullName).ToList();
         }
 
         private void RefreshAllBaseTypes()
         {
-            _allBaseTypes = _categoryTypesCache.Values
+            _allTypeInfos = _categoryTypesCache.Values
                 .SelectMany(t => t)
-                .Distinct()
-                .OrderBy(t => t)
+                .GroupBy(t => t.FullName)
+                .Select(g => g.First())
+                .OrderBy(t => t.FullName)
                 .ToList();
 
+            _allBaseTypes = _allTypeInfos.Select(t => t.FullName).ToList();
+
             // Refresh all existing rows' filters
-            foreach (var row in Rows) row.UpdateFilteredTypes(_allBaseTypes);
+            foreach (var row in Rows) row.UpdateFilteredTypes(_allTypeInfos);
         }
 
         /// <summary>
@@ -119,7 +129,7 @@ namespace antiGGGravity.Views.ProjectAudit
         {
             foreach (var kvp in _categoryTypesCache)
             {
-                if (kvp.Value.Contains(baseType))
+                if (kvp.Value.Any(t => t.FullName == baseType))
                     return kvp.Key;
             }
             return null;
@@ -193,7 +203,7 @@ namespace antiGGGravity.Views.ProjectAudit
                     {
                         // Add new row at the bottom
                         row = new DuplicationRow();
-                        row.UpdateFilteredTypes(_allBaseTypes);
+                        row.UpdateFilteredTypes(_allTypeInfos);
                         Rows.Add(row);
                     }
 
@@ -259,6 +269,10 @@ namespace antiGGGravity.Views.ProjectAudit
                     var textBox = e.EditingElement as System.Windows.Controls.TextBox;
                     string newValue = textBox?.Text?.Trim() ?? "";
 
+                    // Commit the new TypeComment value early so filtering uses it
+                    // (CellEditEnding fires before the binding commits)
+                    row.TypeComment = newValue;
+
                     // Auto-copy to Description if Description is empty (matches Python)
                     if (string.IsNullOrEmpty(row.Description))
                     {
@@ -266,7 +280,7 @@ namespace antiGGGravity.Views.ProjectAudit
                     }
 
                     // Pre-filter the Base Types list for this row
-                    row.UpdateFilteredTypes(_allBaseTypes);
+                    row.UpdateFilteredTypes(_allTypeInfos);
                 }
             }
         }
@@ -295,7 +309,7 @@ namespace antiGGGravity.Views.ProjectAudit
         private void UI_Btn_AddRow_Click(object sender, RoutedEventArgs e)
         {
             var row = new DuplicationRow();
-            row.UpdateFilteredTypes(_allBaseTypes);
+            row.UpdateFilteredTypes(_allTypeInfos);
             Rows.Add(row);
         }
 
@@ -370,6 +384,7 @@ namespace antiGGGravity.Views.ProjectAudit
 
             _handler.RowsToProcess = validRows;
             _handler.CategoryTypesCache = _categoryTypesCache;
+            _handler.StatusCallback = msg => Dispatcher.Invoke(() => UI_Status.Text = msg);
             _dupEvent.Raise();
             UI_Status.Text = "Duplication started...";
         }
@@ -401,6 +416,15 @@ namespace antiGGGravity.Views.ProjectAudit
     // ================================================================
     // DATA MODEL
     // ================================================================
+    /// <summary>
+    /// Stores a family type name alongside its Type Comments parameter value for filtering.
+    /// </summary>
+    public class TypeInfo
+    {
+        public string FullName { get; set; }
+        public string TypeComment { get; set; } = "";
+    }
+
     public class DuplicationRow : System.ComponentModel.INotifyPropertyChanged
     {
         private string _typeMark;
@@ -436,23 +460,49 @@ namespace antiGGGravity.Views.ProjectAudit
             set { _filteredBaseTypes = value; OnPropertyChanged(nameof(FilteredBaseTypes)); }
         }
 
-        public void UpdateFilteredTypes(IEnumerable<string> allTypes)
+        public void UpdateFilteredTypes(IEnumerable<TypeInfo> allTypeInfos)
         {
+            var allList = allTypeInfos.ToList();
             string filter = (TypeComment ?? "").Trim().ToLower();
             if (string.IsNullOrEmpty(filter))
             {
-                FilteredBaseTypes = allTypes.ToList();
+                FilteredBaseTypes = allList.Select(t => t.FullName).ToList();
                 return;
             }
 
-            // Primary filter: contains the filter text
-            var filtered = allTypes.Where(t => t.ToLower().Contains(filter)).ToList();
+            // Normalize × (multiplication sign) and x for comparison
+            string normalizedFilter = filter.Replace("×", "x");
 
-            // Fallback: any word (3+ chars) from the filter matches
+            // Primary filter: match on the type NAME (Family:TypeName)
+            var filtered = allList
+                .Where(t => NormalizeName(t.FullName).Contains(normalizedFilter))
+                .Select(t => t.FullName)
+                .ToList();
+
+            // Secondary filter: match on the Type Comments parameter value
             if (!filtered.Any())
             {
-                var words = filter.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                filtered = allTypes.Where(t => words.Any(w => w.Length >= 3 && t.ToLower().Contains(w))).ToList();
+                filtered = allList
+                    .Where(t => NormalizeName(t.TypeComment).Contains(normalizedFilter))
+                    .Select(t => t.FullName)
+                    .ToList();
+            }
+
+            // Fallback: any word (3+ chars) from the filter matches name or comment
+            if (!filtered.Any())
+            {
+                var words = normalizedFilter.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                filtered = allList
+                    .Where(t => words.Any(w => w.Length >= 3 && 
+                        (NormalizeName(t.FullName).Contains(w) || NormalizeName(t.TypeComment).Contains(w))))
+                    .Select(t => t.FullName)
+                    .ToList();
+            }
+
+            // Safety: if still empty, show ALL types so the dropdown is never blank
+            if (!filtered.Any())
+            {
+                filtered = allList.Select(t => t.FullName).ToList();
             }
 
             // Union with current selection to ensure it's always in the list
@@ -466,11 +516,16 @@ namespace antiGGGravity.Views.ProjectAudit
             // Auto-select if empty and we have a strong candidate
             if (string.IsNullOrEmpty(BaseType) && filtered.Any())
             {
-                // If there's an exact match in the name, pick it
-                var exact = filtered.FirstOrDefault(t => string.Equals(t, filter, StringComparison.OrdinalIgnoreCase));
-                if (exact != null) BaseType = exact;
-                else if (filtered.Count == 1) BaseType = filtered.First();
+                if (filtered.Count == 1) BaseType = filtered.First();
             }
+        }
+
+        /// <summary>
+        /// Normalize a name for comparison: lowercase and replace × with x.
+        /// </summary>
+        private static string NormalizeName(string name)
+        {
+            return (name ?? "").ToLower().Replace("×", "x");
         }
 
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
@@ -484,7 +539,8 @@ namespace antiGGGravity.Views.ProjectAudit
     public class FamilyDuplicationHandler : IExternalEventHandler
     {
         public List<DuplicationRow> RowsToProcess { get; set; } = new List<DuplicationRow>();
-        public Dictionary<string, List<string>> CategoryTypesCache { get; set; }
+        public Dictionary<string, List<TypeInfo>> CategoryTypesCache { get; set; }
+        public Action<string> StatusCallback { get; set; }
 
         private static readonly Dictionary<string, BuiltInCategory> Categories = new Dictionary<string, BuiltInCategory>
         {
@@ -578,10 +634,10 @@ namespace antiGGGravity.Views.ProjectAudit
                 t.Commit();
             }
 
-            string msg = $"Created {success} types.";
+            string msg = $"✓ Created {success} types.";
             if (skipped > 0) msg += $" Skipped {skipped} (already exist).";
             if (failed > 0) msg += $" Failed: {failed}.";
-            TaskDialog.Show("Duplication Complete", msg);
+            StatusCallback?.Invoke(msg);
         }
 
         public string GetName() => "Family Duplication Event Handler";

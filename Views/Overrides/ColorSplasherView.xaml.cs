@@ -261,6 +261,11 @@ namespace antiGGGravity.Views.Overrides
             _handler.CurrentAction = ColorSplashAction.CreateFilters;
             _applyEvent.Raise();
         }
+
+        private void UI_Btn_Close_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
     }
 
     // Helper Classes
