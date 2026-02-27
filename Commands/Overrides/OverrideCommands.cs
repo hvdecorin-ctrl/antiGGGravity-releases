@@ -41,8 +41,8 @@ namespace antiGGGravity.Commands.Overrides
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            // Black, Weight 1, Halftone, 50% Transparency
-            return OverrideUtils.ApplyStyle(commandData, new Color(0, 0, 0), 1, true, 50);
+            // Black, Proj: W1, Cut: W3, Halftone, 50% Transparency
+            return OverrideUtils.ApplyStyle(commandData, new Color(0, 0, 0), 1, true, 50, null, 3);
         }
     }
 
@@ -51,8 +51,8 @@ namespace antiGGGravity.Commands.Overrides
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            // Orange, Weight 1, Halftone, 50% Transparency
-            return OverrideUtils.ApplyStyle(commandData, new Color(255, 128, 0), 1, true, 50);
+            // Orange, Proj: W1, Cut: W3, Halftone, 50% Transparency
+            return OverrideUtils.ApplyStyle(commandData, new Color(255, 128, 0), 1, true, 50, null, 3);
         }
     }
 
@@ -61,8 +61,8 @@ namespace antiGGGravity.Commands.Overrides
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            // Blue, Weight 1, Halftone, 50% Transparency
-            return OverrideUtils.ApplyStyle(commandData, new Color(0, 0, 255), 1, true, 50);
+            // Blue, Proj: W1, Cut: W3, Halftone, 50% Transparency
+            return OverrideUtils.ApplyStyle(commandData, new Color(0, 0, 255), 1, true, 50, null, 3);
         }
     }
 
@@ -71,8 +71,8 @@ namespace antiGGGravity.Commands.Overrides
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            // Green, Weight 1, Halftone, 50% Transparency
-            return OverrideUtils.ApplyStyle(commandData, new Color(0, 150, 0), 1, true, 50);
+            // Green, Proj: W1, Cut: W3, Halftone, 50% Transparency
+            return OverrideUtils.ApplyStyle(commandData, new Color(0, 150, 0), 1, true, 50, null, 3);
         }
     }
 
@@ -81,8 +81,8 @@ namespace antiGGGravity.Commands.Overrides
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            // Purple-Blue (128, 128, 255), Weight 3, Halftone, 50% Transparency, Hidden Pattern
-            return OverrideUtils.ApplyStyle(commandData, new Color(128, 128, 255), 3, true, 50, "Hidden");
+            // Purple-Blue (128, 128, 255), Projection: W1 (Hidden), Cut: W3 (Solid), Halftone, 50% Transparency
+            return OverrideUtils.ApplyStyle(commandData, new Color(128, 128, 255), 1, true, 50, "Hidden", 3);
         }
     }
 
@@ -346,9 +346,9 @@ namespace antiGGGravity.Commands.Overrides
                 }
 
                 ogs.SetProjectionLineColor(color);
-                ogs.SetProjectionLineWeight(styleIdx == 5 ? 3 : 1);
+                ogs.SetProjectionLineWeight(1);
                 ogs.SetCutLineColor(color);
-                ogs.SetCutLineWeight(styleIdx == 5 ? 3 : 1);
+                ogs.SetCutLineWeight(3);
                 ogs.SetHalftone(true);
                 ogs.SetSurfaceTransparency(50);
 
@@ -360,6 +360,10 @@ namespace antiGGGravity.Commands.Overrides
                         ogs.SetProjectionLinePatternId(patternId);
                     }
                 }
+                
+                // For Style 5, ensure Cut Pattern is Solid (InvalidElementId reverts to default/solid)
+                // Also ensure other styles have default solid cut pattern
+                ogs.SetCutLinePatternId(ElementId.InvalidElementId);
 
                 // 3. Collect CAD Elements
                 var cadIds = new FilteredElementCollector(doc)
@@ -421,7 +425,7 @@ namespace antiGGGravity.Commands.Overrides
 
     internal static class OverrideUtils
     {
-        public static Result ApplyStyle(ExternalCommandData commandData, Autodesk.Revit.DB.Color color, int weight, bool halftone, int transparency, string patternName = null)
+        public static Result ApplyStyle(ExternalCommandData commandData, Autodesk.Revit.DB.Color color, int weight, bool halftone, int transparency, string patternName = null, int? cutWeight = null, string cutPatternName = null)
         {
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;
@@ -443,14 +447,6 @@ namespace antiGGGravity.Commands.Overrides
                 ogs.SetProjectionLineColor(color);
                 ogs.SetProjectionLineWeight(weight);
                 
-                // Cut Lines
-                ogs.SetCutLineColor(color);
-                ogs.SetCutLineWeight(weight);
-
-                // Halftone & Transparency
-                ogs.SetHalftone(halftone);
-                ogs.SetSurfaceTransparency(transparency);
-
                 if (!string.IsNullOrEmpty(patternName))
                 {
                     ElementId patternId = GetLinePatternId(doc, patternName);
@@ -459,6 +455,28 @@ namespace antiGGGravity.Commands.Overrides
                         ogs.SetProjectionLinePatternId(patternId);
                     }
                 }
+                
+                // Cut Lines
+                ogs.SetCutLineColor(color);
+                ogs.SetCutLineWeight(cutWeight ?? weight);
+
+                if (!string.IsNullOrEmpty(cutPatternName))
+                {
+                    ElementId patternId = GetLinePatternId(doc, cutPatternName);
+                    if (patternId != ElementId.InvalidElementId)
+                    {
+                        ogs.SetCutLinePatternId(patternId);
+                    }
+                }
+                else if (cutWeight.HasValue)
+                {
+                    // If cut weight is provided but no pattern, ensure it's solid (Style 5 requirement)
+                    ogs.SetCutLinePatternId(ElementId.InvalidElementId);
+                }
+
+                // Halftone & Transparency
+                ogs.SetHalftone(halftone);
+                ogs.SetSurfaceTransparency(transparency);
 
                 foreach (ElementId id in selectedIds)
                 {
