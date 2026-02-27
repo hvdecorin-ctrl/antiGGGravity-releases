@@ -49,6 +49,11 @@ namespace antiGGGravity.StructuralRebar.DTO
         public RebarHookOrientation HookStartOrientation { get; set; } = RebarHookOrientation.Left;
         public RebarHookOrientation HookEndOrientation { get; set; } = RebarHookOrientation.Left;
 
+        /// <summary>If true, override the default hook length with HookLengthOverride.</summary>
+        public bool OverrideHookLength { get; set; }
+        /// <summary>Custom hook length (feet). Applied after rebar creation.</summary>
+        public double HookLengthOverride { get; set; }
+
         // === NORMAL ===
         /// <summary>Normal vector for Rebar.CreateFromCurves (array propagation direction).</summary>
         public XYZ Normal { get; set; }

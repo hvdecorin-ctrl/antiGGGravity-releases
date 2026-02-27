@@ -140,6 +140,8 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                 HookEndName = layer.HookEndName,
                 HookStartOrientation = orient,
                 HookEndOrientation = orient,
+                OverrideHookLength = layer.OverrideHookLength,
+                HookLengthOverride = layer.HookLengthOverride,
                 Label = $"Footing Long. {layer.Side}"
             };
         }

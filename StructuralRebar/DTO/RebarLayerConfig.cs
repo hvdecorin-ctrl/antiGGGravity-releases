@@ -54,6 +54,11 @@ namespace antiGGGravity.StructuralRebar.DTO
         public bool HookStartOutward { get; set; }
         public bool HookEndOutward { get; set; }
 
+        /// <summary>If true, override the default hook length with HookLengthOverride.</summary>
+        public bool OverrideHookLength { get; set; }
+        /// <summary>Custom hook length (feet). Used when OverrideHookLength is true.</summary>
+        public double HookLengthOverride { get; set; }
+
         /// <summary>Resolved diameter (feet) — calculated by engine.</summary>
         public double BarDiameter_Backing { get; set; }
     }

@@ -117,6 +117,44 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
                             accessor.SetLayoutAsMaximumSpacing(def.Spacing, def.ArrayLength, true, true, true);
                         }
 
+                        // Apply hook length override if requested
+                        if (def.OverrideHookLength && def.HookLengthOverride > 0)
+                        {
+                            try
+                            {
+                                // Enable hook length override (Revit 2021+ API)
+                                rebar.EnableHookLengthOverride(true);
+                                _doc.Regenerate(); // Make override parameters writable
+
+                                // Get the overridable hook parameter definition IDs
+                                // Signature: (out startHookLengthIds, out startHookOffsetIds, out endHookLengthIds, out endHookOffsetIds)
+                                rebar.GetOverridableHookParameters(
+                                    out ISet<ElementId> startHookLenIds,
+                                    out ISet<ElementId> startHookOffIds,
+                                    out ISet<ElementId> endHookLenIds,
+                                    out ISet<ElementId> endHookOffIds);
+
+                                // Collect only the hook LENGTH param IDs (not offset)
+                                var hookLenParamIds = new HashSet<ElementId>();
+                                if (startHookLenIds != null) foreach (var id in startHookLenIds) hookLenParamIds.Add(id);
+                                if (endHookLenIds != null) foreach (var id in endHookLenIds) hookLenParamIds.Add(id);
+
+                                // Find matching parameters on the rebar instance and set values
+                                foreach (Parameter p in rebar.Parameters)
+                                {
+                                    if (p.IsReadOnly || p.StorageType != StorageType.Double) continue;
+                                    if (hookLenParamIds.Contains(p.Id))
+                                    {
+                                        p.Set(def.HookLengthOverride);
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                System.Diagnostics.Debug.WriteLine($"RebarCreationService: Failed to override hook length for '{def.Label}': {ex.Message}");
+                            }
+                        }
+
                         results.Add(rebar.Id);
                     }
                     }

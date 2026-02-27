@@ -106,6 +106,11 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 SelectHookByName(UI_Combo_BotHookStart, SettingsManager.Get(VIEW_NAME, "BotHookStart"));
                 SelectHookByName(UI_Combo_BotHookEnd, SettingsManager.Get(VIEW_NAME, "BotHookEnd"));
 
+                UI_Check_TopHookOverride.IsChecked = SettingsManager.GetBool(VIEW_NAME, "TopHookOverride", false);
+                UI_Text_TopHookLength.Text = SettingsManager.Get(VIEW_NAME, "TopHookLength", "300");
+                UI_Check_BotHookOverride.IsChecked = SettingsManager.GetBool(VIEW_NAME, "BotHookOverride", false);
+                UI_Text_BotHookLength.Text = SettingsManager.Get(VIEW_NAME, "BotHookLength", "300");
+
                 UI_Radio_StirrupUnEQ.IsChecked = SettingsManager.GetBool(VIEW_NAME, "StirrupDistUnEQ", false);
                 UI_Radio_StirrupEQ.IsChecked = !(UI_Radio_StirrupUnEQ.IsChecked == true);
 
@@ -151,6 +156,11 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 SettingsManager.Set(VIEW_NAME, "BotHookEnd", HookName(UI_Combo_BotHookEnd));
 
                 SettingsManager.Set(VIEW_NAME, "StirrupDistUnEQ", (UI_Radio_StirrupUnEQ.IsChecked == true).ToString());
+
+                SettingsManager.Set(VIEW_NAME, "TopHookOverride", (UI_Check_TopHookOverride.IsChecked == true).ToString());
+                SettingsManager.Set(VIEW_NAME, "TopHookLength", UI_Text_TopHookLength.Text);
+                SettingsManager.Set(VIEW_NAME, "BotHookOverride", (UI_Check_BotHookOverride.IsChecked == true).ToString());
+                SettingsManager.Set(VIEW_NAME, "BotHookLength", UI_Text_BotHookLength.Text);
 
                 SettingsManager.Set(VIEW_NAME, "SideRebarEnabled", (UI_Check_SideRebar.IsChecked == true).ToString());
                 SettingsManager.Set(VIEW_NAME, "SideRows", UI_Text_SideRows.Text);
@@ -258,6 +268,8 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                     VerticalOffset = 1, // Positive = top
                     HookStartName = HookName(UI_Combo_TopHookStart),
                     HookEndName = HookName(UI_Combo_TopHookEnd),
+                    OverrideHookLength = UI_Check_TopHookOverride.IsChecked == true,
+                    HookLengthOverride = UnitConversion.MmToFeet(ParseDouble(UI_Text_TopHookLength.Text, 300)),
                 });
             }
             if (UI_Check_T2.IsChecked == true)
@@ -270,6 +282,8 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                     VerticalOffset = 1,
                     HookStartName = HookName(UI_Combo_TopHookStart),
                     HookEndName = HookName(UI_Combo_TopHookEnd),
+                    OverrideHookLength = UI_Check_TopHookOverride.IsChecked == true,
+                    HookLengthOverride = UnitConversion.MmToFeet(ParseDouble(UI_Text_TopHookLength.Text, 300)),
                 });
             }
 
@@ -284,6 +298,8 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                     VerticalOffset = -1, // Negative = bottom
                     HookStartName = HookName(UI_Combo_BotHookStart),
                     HookEndName = HookName(UI_Combo_BotHookEnd),
+                    OverrideHookLength = UI_Check_BotHookOverride.IsChecked == true,
+                    HookLengthOverride = UnitConversion.MmToFeet(ParseDouble(UI_Text_BotHookLength.Text, 300)),
                 });
             }
             if (UI_Check_B2.IsChecked == true)
@@ -296,6 +312,8 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                     VerticalOffset = -1,
                     HookStartName = HookName(UI_Combo_BotHookStart),
                     HookEndName = HookName(UI_Combo_BotHookEnd),
+                    OverrideHookLength = UI_Check_BotHookOverride.IsChecked == true,
+                    HookLengthOverride = UnitConversion.MmToFeet(ParseDouble(UI_Text_BotHookLength.Text, 300)),
                 });
             }
 

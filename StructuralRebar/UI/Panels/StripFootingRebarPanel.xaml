@@ -39,6 +39,16 @@
                         </Grid>
                         <TextBlock Text="Hook Start/End" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
                         <ComboBox x:Name="UI_Combo_TopHook" Height="32" Padding="8,0" VerticalContentAlignment="Center" />
+                        <Grid Margin="0,10,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="15"/>
+                                <ColumnDefinition Width="100"/>
+                            </Grid.ColumnDefinitions>
+                            <CheckBox x:Name="UI_Check_TopHookOverride" Content="Override Hook Length" FontSize="11" Foreground="#666666" VerticalAlignment="Center" Grid.Column="0"/>
+                            <TextBox x:Name="UI_Text_TopHookLength" Text="300" Height="32" VerticalContentAlignment="Center" Padding="8,0" Grid.Column="2"
+                                     IsEnabled="{Binding IsChecked, ElementName=UI_Check_TopHookOverride}"/>
+                        </Grid>
                     </StackPanel>
                 </StackPanel>
             </Border>
@@ -65,6 +75,16 @@
                         </Grid>
                         <TextBlock Text="Hook Start/End" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
                         <ComboBox x:Name="UI_Combo_BotHook" Height="32" Padding="8,0" VerticalContentAlignment="Center" />
+                        <Grid Margin="0,10,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="15"/>
+                                <ColumnDefinition Width="100"/>
+                            </Grid.ColumnDefinitions>
+                            <CheckBox x:Name="UI_Check_BotHookOverride" Content="Override Hook Length" FontSize="11" Foreground="#666666" VerticalAlignment="Center" Grid.Column="0"/>
+                            <TextBox x:Name="UI_Text_BotHookLength" Text="300" Height="32" VerticalContentAlignment="Center" Padding="8,0" Grid.Column="2"
+                                     IsEnabled="{Binding IsChecked, ElementName=UI_Check_BotHookOverride}"/>
+                        </Grid>
                     </StackPanel>
                 </StackPanel>
             </Border>

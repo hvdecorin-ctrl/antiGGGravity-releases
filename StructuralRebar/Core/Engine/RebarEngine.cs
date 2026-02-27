@@ -246,6 +246,8 @@ var segments = request.EnableLapSplice
                         HookEndOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Left,
                         HookStartName = (seg.Start == 0) ? layer.HookStartName : null,
                         HookEndName = (seg.End >= barLen - 0.001) ? layer.HookEndName : null,
+                        OverrideHookLength = layer.OverrideHookLength,
+                        HookLengthOverride = layer.HookLengthOverride,
                         Label = segments.Count > 1 ? "Top Layer (lapped)" : "Top Layer"
                     };
                     definitions.Add(segDef);
@@ -327,6 +329,8 @@ var segments = request.EnableLapSplice
                         HookEndOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Right,
                         HookStartName = (seg.Start == 0) ? layer.HookStartName : null,
                         HookEndName = (seg.End >= barLen - 0.001) ? layer.HookEndName : null,
+                        OverrideHookLength = layer.OverrideHookLength,
+                        HookLengthOverride = layer.HookLengthOverride,
                         Label = segments.Count > 1 ? "Bottom Layer (lapped)" : "Bottom Layer"
                     };
                     definitions.Add(segDef);
@@ -465,7 +469,8 @@ var segments = request.EnableLapSplice
                 var def = ParallelLayoutGenerator.CreateLayerLCS(
                     host, layer.VerticalBarTypeName, barDia,
                     count, offset, transDia, true,
-                    layer.HookStartName, layer.HookEndName, "Top Layer");
+                    layer.HookStartName, layer.HookEndName, "Top Layer",
+                    layer.OverrideHookLength, layer.HookLengthOverride);
 
                 if (def != null) definitions.Add(def);
                 topOffset -= (barDia + minLayerGap);
@@ -484,7 +489,8 @@ var segments = request.EnableLapSplice
                 var def = ParallelLayoutGenerator.CreateLayerLCS(
                     host, layer.VerticalBarTypeName, barDia,
                     count, offset, transDia, false,
-                    layer.HookStartName, layer.HookEndName, "Bottom Layer");
+                    layer.HookStartName, layer.HookEndName, "Bottom Layer",
+                    layer.OverrideHookLength, layer.HookLengthOverride);
 
                 if (def != null) definitions.Add(def);
                 botOffset += (barDia + minLayerGap);
