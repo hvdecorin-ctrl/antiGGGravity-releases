@@ -61,5 +61,8 @@ namespace antiGGGravity.StructuralRebar.DTO
         // === METADATA ===
         /// <summary>Label for debugging/logging (e.g. "Top Layer", "Stirrup Zone 1").</summary>
         public string Label { get; set; }
+
+        /// <summary>Identifier to be written to the 'Comments' parameter in Revit (e.g. "U-Corner", "Top Bar").</summary>
+        public string Comment { get; set; }
     }
 }

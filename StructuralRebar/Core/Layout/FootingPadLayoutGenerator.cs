@@ -109,7 +109,8 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                 HookEndOrientation = isTop ? RebarHookOrientation.Left : RebarHookOrientation.Right,
                 OverrideHookLength = layer.OverrideHookLength,
                 HookLengthOverride = layer.HookLengthOverride,
-                Label = "Footing Pad Mat 1"
+                Label = "Footing Pad Mat 1",
+                Comment = isTop ? "Top Bar" : "Btm Bar"
             });
 
             // Layer 2 (Inner) - Along the long dimension
@@ -148,7 +149,8 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                 HookEndOrientation = isTop ? RebarHookOrientation.Left : RebarHookOrientation.Right,
                 OverrideHookLength = layer.OverrideHookLength,
                 HookLengthOverride = layer.HookLengthOverride,
-                Label = "Footing Pad Mat 2"
+                Label = "Footing Pad Mat 2",
+                Comment = isTop ? "Top Bar" : "Btm Bar"
             });
 
             return definitions;

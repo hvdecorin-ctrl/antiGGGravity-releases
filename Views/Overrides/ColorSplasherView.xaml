@@ -66,10 +66,14 @@
             <!-- Content -->
             <Grid Grid.Row="1" Margin="15">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="280"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition x:Name="UI_Column_Left" Width="280" MinWidth="200"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
+
+                <GridSplitter Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Stretch" 
+                              Background="Transparent" Width="10" Margin="0" ShowsPreview="True"
+                              ResizeBehavior="PreviousAndNext"/>
 
                 <!-- Left Panel: Selection -->
                 <Border Grid.Column="0" Background="White" CornerRadius="8" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="1" Padding="15">

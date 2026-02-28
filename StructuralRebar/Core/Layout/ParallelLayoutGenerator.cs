@@ -62,7 +62,8 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
             string hookEndName = null,
             string label = "Longitudinal",
             bool overrideHookLength = false,
-            double hookLengthOverride = 0)
+            double hookLengthOverride = 0,
+            string comment = null)
         {
             if (count < 1) return null;
 
@@ -78,7 +79,7 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
 
             return BuildDefinition(host, barTypeName, barDiameter, count, distWidth,
                 barStart, barEnd, isTop, hookStartName, hookEndName, label,
-                overrideHookLength, hookLengthOverride);
+                overrideHookLength, hookLengthOverride, comment);
         }
 
         private static RebarDefinition BuildDefinition(
@@ -86,7 +87,7 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
             string barTypeName, double barDiameter, int count, double distWidth,
             XYZ barStart, XYZ barEnd, bool isTop,
             string hookStartName, string hookEndName, string label,
-            bool overrideHookLength = false, double hookLengthOverride = 0)
+            bool overrideHookLength = false, double hookLengthOverride = 0, string comment = null)
         {
             Curve barLine = Line.CreateBound(barStart, barEnd);
             RebarHookOrientation orient = isTop
@@ -111,7 +112,8 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                 HookEndOrientation = orient,
                 OverrideHookLength = overrideHookLength,
                 HookLengthOverride = hookLengthOverride,
-                Label = label
+                Label = label,
+                Comment = comment
             };
         }
     }

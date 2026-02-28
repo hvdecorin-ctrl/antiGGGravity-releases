@@ -155,6 +155,16 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
                             }
                         }
 
+                        // Apply the auto-comment
+                        if (!string.IsNullOrEmpty(def.Comment))
+                        {
+                            Parameter commentsParam = rebar.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS);
+                            if (commentsParam != null && !commentsParam.IsReadOnly)
+                            {
+                                commentsParam.Set(def.Comment);
+                            }
+                        }
+
                         results.Add(rebar.Id);
                     }
                     }

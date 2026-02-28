@@ -248,7 +248,8 @@ var segments = request.EnableLapSplice
                         HookEndName = (seg.End >= barLen - 0.001) ? layer.HookEndName : null,
                         OverrideHookLength = layer.OverrideHookLength,
                         HookLengthOverride = layer.HookLengthOverride,
-                        Label = segments.Count > 1 ? "Top Layer (lapped)" : "Top Layer"
+                        Label = segments.Count > 1 ? "Top Layer (lapped)" : "Top Layer",
+                        Comment = "Top Bar"
                     };
                     definitions.Add(segDef);
                 }
@@ -331,7 +332,8 @@ var segments = request.EnableLapSplice
                         HookEndName = (seg.End >= barLen - 0.001) ? layer.HookEndName : null,
                         OverrideHookLength = layer.OverrideHookLength,
                         HookLengthOverride = layer.HookLengthOverride,
-                        Label = segments.Count > 1 ? "Bottom Layer (lapped)" : "Bottom Layer"
+                        Label = segments.Count > 1 ? "Bottom Layer (lapped)" : "Bottom Layer",
+                        Comment = "Btm Bar"
                     };
                     definitions.Add(segDef);
                 }
@@ -411,7 +413,8 @@ var segments = request.EnableLapSplice
                             FixedCount = 2,
                             DistributionWidth = distWidth,
                             Normal = host.WAxis,
-                            Label = $"Side Bar R{row}"
+                            Label = $"Side Bar R{row}",
+                            Comment = "Side Bar"
                         });
                     }
                 }
@@ -470,7 +473,7 @@ var segments = request.EnableLapSplice
                     host, layer.VerticalBarTypeName, barDia,
                     count, offset, transDia, true,
                     layer.HookStartName, layer.HookEndName, "Top Layer",
-                    layer.OverrideHookLength, layer.HookLengthOverride);
+                    layer.OverrideHookLength, layer.HookLengthOverride, "Top Bar");
 
                 if (def != null) definitions.Add(def);
                 topOffset -= (barDia + minLayerGap);
@@ -490,7 +493,7 @@ var segments = request.EnableLapSplice
                     host, layer.VerticalBarTypeName, barDia,
                     count, offset, transDia, false,
                     layer.HookStartName, layer.HookEndName, "Bottom Layer",
-                    layer.OverrideHookLength, layer.HookLengthOverride);
+                    layer.OverrideHookLength, layer.HookLengthOverride, "Btm Bar");
 
                 if (def != null) definitions.Add(def);
                 botOffset += (barDia + minLayerGap);

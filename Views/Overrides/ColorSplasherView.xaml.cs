@@ -132,6 +132,7 @@ namespace antiGGGravity.Views.Overrides
                 {
                     Parameters.Add(p);
                 }
+                AdjustColumnWidth();
             }
         }
         
@@ -146,6 +147,41 @@ namespace antiGGGravity.Views.Overrides
                     Parameters.Add(item);
                 }
             }
+            AdjustColumnWidth();
+        }
+
+        private void AdjustColumnWidth()
+        {
+            if (Parameters.Count == 0) return;
+
+            double maxWidth = 0;
+            // Get typeface from the ListBox's font settings
+            var typeface = new Typeface(this.FontFamily, this.FontStyle, this.FontWeight, this.FontStretch);
+            
+            foreach (var p in Parameters)
+            {
+                var formattedText = new System.Windows.Media.FormattedText(
+                    p.Name,
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    FlowDirection.LeftToRight,
+                    typeface,
+                    this.FontSize,
+                    Brushes.Black,
+                    VisualTreeHelper.GetDpi(this).PixelsPerDip);
+                
+                if (formattedText.Width > maxWidth) maxWidth = formattedText.Width;
+            }
+
+            // Calculate width to fit: 
+            // Max Text Width + ListBox Item Padding (8*2) + ListBox Border + Container Padding (15*2)
+            double calculatedWidth = maxWidth + 65; 
+            
+            // Limit range for usability
+            if (calculatedWidth < 200) calculatedWidth = 200;
+            if (calculatedWidth > 450) calculatedWidth = 450;
+
+            UI_Column_Left.Width = new GridLength(calculatedWidth);
+            UI_Column_Left.MinWidth = calculatedWidth;
         }
 
         private void UI_List_Parameters_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -212,11 +248,19 @@ namespace antiGGGravity.Views.Overrides
             Random r = new Random();
             foreach (var item in Values)
             {
-                byte red = (byte)r.Next(256);
-                byte green = (byte)r.Next(256);
-                byte blue = (byte)r.Next(256);
-                item.ColorBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(red, green, blue));
-                item.RevitColor = new Autodesk.Revit.DB.Color(red, green, blue);
+                if (item.Value == "<null>")
+                {
+                    item.ColorBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(200, 200, 200));
+                    item.RevitColor = new Autodesk.Revit.DB.Color(200, 200, 200);
+                }
+                else
+                {
+                    byte red = (byte)r.Next(256);
+                    byte green = (byte)r.Next(256);
+                    byte blue = (byte)r.Next(256);
+                    item.ColorBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(red, green, blue));
+                    item.RevitColor = new Autodesk.Revit.DB.Color(red, green, blue);
+                }
             }
         }
 
@@ -227,11 +271,17 @@ namespace antiGGGravity.Views.Overrides
 
             for (int i = 0; i < total; i++)
             {
-                 // Gradient Red to Blue
-                 byte r = (byte)(255 * (1.0 - (double)i/total));
-                 byte b = (byte)(255 * ((double)i/total));
-                 Values[i].ColorBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(r, 0, b));
-                 Values[i].RevitColor = new Autodesk.Revit.DB.Color(r, 0, b);
+                if (Values[i].Value == "<null>")
+                {
+                    Values[i].ColorBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(200, 200, 200));
+                    Values[i].RevitColor = new Autodesk.Revit.DB.Color(200, 200, 200);
+                    continue;
+                }
+
+                byte r = (byte)(255 * (1.0 - (double)i / total));
+                byte b = (byte)(255 * ((double)i / total));
+                Values[i].ColorBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(r, 0, b));
+                Values[i].RevitColor = new Autodesk.Revit.DB.Color(r, 0, b);
             }
         }
 

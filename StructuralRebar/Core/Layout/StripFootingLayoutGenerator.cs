@@ -142,7 +142,8 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                 HookEndOrientation = orient,
                 OverrideHookLength = layer.OverrideHookLength,
                 HookLengthOverride = layer.HookLengthOverride,
-                Label = $"Footing Long. {layer.Side}"
+                Label = $"Footing Long. {layer.Side}",
+                Comment = layer.Side == RebarSide.Top ? "Top Bar" : "Btm Bar"
             };
         }
     }
