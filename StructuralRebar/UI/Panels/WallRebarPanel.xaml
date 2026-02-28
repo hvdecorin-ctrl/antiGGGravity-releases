@@ -149,9 +149,9 @@
                 <TextBlock Text="Layer Layout" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
                 <ComboBox x:Name="UI_Combo_LayerConfig" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0">
                     <ComboBoxItem Content="Centre" IsSelected="True"/>
-                    <ComboBoxItem Content="Both faces"/>
-                    <ComboBoxItem Content="Internal face"/>
-                    <ComboBoxItem Content="External face"/>
+                    <ComboBoxItem Content="Both Faces"/>
+                    <ComboBoxItem Content="Internal Face"/>
+                    <ComboBoxItem Content="External Face"/>
                 </ComboBox>
             </StackPanel>
         </Border>

@@ -19,7 +19,7 @@
                     <!-- T1 -->
                     <Border Background="White" BorderBrush="#E8E8E8" BorderThickness="1" CornerRadius="4" Padding="12" Margin="0,0,0,8">
                         <StackPanel>
-                            <CheckBox x:Name="UI_Check_T1" Content="T1 - Top Layer 1 (Corner/Outer)" FontSize="12" Foreground="#333" FontWeight="SemiBold" Margin="0,0,0,8" Click="toggle_visibility"/>
+                            <CheckBox x:Name="UI_Check_T1" Content="T1 - Top Layer 1 (Corner / Outer)" FontSize="12" Foreground="#333" FontWeight="SemiBold" Margin="0,0,0,8" Click="toggle_visibility"/>
                             <StackPanel x:Name="UI_Group_T1">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -130,7 +130,7 @@
                     <!-- B1 -->
                     <Border Background="White" BorderBrush="#E8E8E8" BorderThickness="1" CornerRadius="4" Padding="12" Margin="0,0,0,8">
                         <StackPanel>
-                            <CheckBox x:Name="UI_Check_B1" Content="B1 - Bottom Layer 1 (Corner/Outer)" FontSize="12" Foreground="#333" FontWeight="SemiBold" Margin="0,0,0,8" Click="toggle_visibility"/>
+                            <CheckBox x:Name="UI_Check_B1" Content="B1 - Bottom Layer 1 (Corner / Outer)" FontSize="12" Foreground="#333" FontWeight="SemiBold" Margin="0,0,0,8" Click="toggle_visibility"/>
                             <StackPanel x:Name="UI_Group_B1">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -290,7 +290,7 @@
                                 <TextBox x:Name="UI_Text_SideRows" Text="2" Height="30" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0"/>
                             </StackPanel>
                         </Grid>
-                        <TextBlock Text="Evenly spaced between top and bottom bars on both faces. No lap splice — stock length only." FontSize="10" Foreground="#999" TextWrapping="Wrap"/>
+                        <TextBlock Text="Evenly Spaced Between Top And Bottom Bars On Both Faces. No Lap Splice — Stock Length Only." FontSize="10" Foreground="#999" TextWrapping="Wrap"/>
                     </StackPanel>
                 </StackPanel>
             </Border>

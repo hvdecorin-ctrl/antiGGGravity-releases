@@ -59,9 +59,9 @@
                         <StackPanel Grid.Column="0">
                             <TextBlock Text="Layer Config" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
                             <ComboBox x:Name="UI_Combo_Layers" Height="32" VerticalContentAlignment="Center">
-                                <ComboBoxItem Content="Both faces" IsSelected="True"/>
-                                <ComboBoxItem Content="External face"/>
-                                <ComboBoxItem Content="Internal face"/>
+                                <ComboBoxItem Content="Both Faces" IsSelected="True"/>
+                                <ComboBoxItem Content="External Face"/>
+                                <ComboBoxItem Content="Internal Face"/>
                                 <ComboBoxItem Content="Centre"/>
                             </ComboBox>
                         </StackPanel>
