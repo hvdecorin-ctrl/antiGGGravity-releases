@@ -4,12 +4,12 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Color Splasher" Height="750" Width="1050"
+        Title="Color Splasher" Height="550" Width="750"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         WindowStartupLocation="CenterScreen" Topmost="True">
 
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="70" CornerRadius="12" GlassFrameThickness="0"/>
+        <WindowChrome CaptionHeight="55" CornerRadius="12" GlassFrameThickness="0"/>
     </WindowChrome.WindowChrome>
 
     <Window.Resources>
@@ -41,7 +41,7 @@
     <Border Style="{StaticResource PremiumBorderStyle}">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="70"/>
+                <RowDefinition Height="55"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
@@ -64,10 +64,10 @@
             </Border>
 
             <!-- Content -->
-            <Grid Grid.Row="1" Margin="25">
+            <Grid Grid.Row="1" Margin="15">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="320"/>
-                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="280"/>
+                    <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
@@ -151,7 +151,7 @@
             </Grid>
 
             <!-- Footer -->
-            <Border Grid.Row="2" Background="#FAFAFA" Padding="20,15" CornerRadius="0,0,12,12" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,1,0,0">
+            <Border Grid.Row="2" Background="#FAFAFA" Padding="15,10" CornerRadius="0,0,12,12" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,1,0,0">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -159,28 +159,23 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <Button Grid.Column="0" Content="Create Legend" Width="140"
+                    <Button Grid.Column="0" Content="Create Legend" Width="110" Height="30"
                             Style="{StaticResource PremiumPrimaryButtonStyle}"
                             Click="UI_Btn_Legend_Click"/>
 
-                    <Button Grid.Column="1" Content="Create Filters" Width="140" Margin="12,0,0,0"
+                    <Button Grid.Column="1" Content="Create Filters" Width="110" Height="30" Margin="10,0,0,0"
                             Style="{StaticResource PremiumPrimaryButtonStyle}"
                             Click="UI_Btn_Filters_Click"/>
 
-                    <Button Grid.Column="3" Content="Reset View" Width="110" Margin="0,0,12,0"
+                    <Button Grid.Column="3" Content="Reset View" Width="100" Height="30" Margin="0,0,10,0"
                             Style="{StaticResource PremiumPrimaryButtonStyle}"
                             Click="UI_Btn_Reset_Click"/>
 
-                    <Button Grid.Column="4" Content="Apply Colors" Width="140" 
+                    <Button Grid.Column="4" Content="Apply Colors" Width="120" Height="30"
                             Style="{StaticResource PremiumActionButtonStyle}"
-                            Click="UI_Btn_Apply_Click" Margin="0,0,12,0"/>
-
-                    <Button Grid.Column="5" Content="Close" Width="100" 
-                            Style="{StaticResource PremiumPrimaryButtonStyle}"
-                            Click="UI_Btn_Close_Click"/>
+                            Click="UI_Btn_Apply_Click"/>
                 </Grid>
             </Border>
         </Grid>
