@@ -150,12 +150,268 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                                 new XYZ(pos.X, pos.Y, zMin + request.TransverseStartOffset),
                                 new XYZ(pos.X, pos.Y, zMax - request.TransverseEndOffset))
                         },
+                        Style = RebarStyle.Standard,
                         BarTypeName = request.TrimmerBarTypeName,
                         Normal = normal1,
                         Label = "Corner Trimmer (U)"
                     });
                 }
             }
+
+            return definitions;
+        }
+
+        /// <summary>
+        /// Creates U-bars at a free (orphaned) wall end.
+        /// The U wraps around the exposed wall end:
+        ///   leg on ext face → across end face → leg on int face
+        /// Arrayed vertically at specified spacing.
+        /// </summary>
+        public static List<RebarDefinition> CreateWallEndUBars(
+            Wall wall, XYZ endPt, XYZ dirIntoWall, RebarRequest request, double barDia)
+        {
+            var definitions = new List<RebarDefinition>();
+            BoundingBoxXYZ bbox = wall.get_BoundingBox(null);
+            if (bbox == null) return definitions;
+
+            double zMin = bbox.Min.Z;
+            double zMax = bbox.Max.Z;
+            double hRange = (zMax - zMin) - request.TransverseStartOffset - request.TransverseEndOffset;
+            if (hRange <= 0) return definitions;
+
+            double thickness = wall.Width;
+            double cExt = GetCoverDist(wall, BuiltInParameter.CLEAR_COVER_EXTERIOR);
+            double cInt = GetCoverDist(wall, BuiltInParameter.CLEAR_COVER_INTERIOR);
+            double offsetExt = (thickness / 2.0) - cExt - (barDia / 2.0);
+            double offsetInt = (thickness / 2.0) - cInt - (barDia / 2.0);
+
+            // Wall normal (perpendicular to wall length in plan)
+            LocationCurve loc = wall.Location as LocationCurve;
+            if (loc == null || !(loc.Curve is Line wallLine)) return definitions;
+            XYZ tangent = wallLine.Direction;
+            XYZ normal = new XYZ(-tangent.Y, tangent.X, 0).Normalize();
+
+            // Leg lengths from dedicated wall-end group
+            double legLen1 = request.WallEndLeg1;
+            double legLen2 = request.WallEndLeg2;
+
+            // End cover — shift the U-bar crosspiece inward by cover distance
+            double cEnd = GetCoverDist(wall, BuiltInParameter.CLEAR_COVER_OTHER);
+            XYZ coveredEndPt = endPt + dirIntoWall * (cEnd + barDia / 2.0);
+
+            double zStart = zMin + request.TransverseStartOffset;
+
+            // Build U-shape at z=zStart:
+            XYZ p1 = new XYZ(coveredEndPt.X + normal.X * offsetExt, coveredEndPt.Y + normal.Y * offsetExt, zStart);
+            XYZ p2 = new XYZ(coveredEndPt.X - normal.X * offsetInt, coveredEndPt.Y - normal.Y * offsetInt, zStart);
+            XYZ p_start = p1 + dirIntoWall * legLen1;
+            XYZ p_end = p2 + dirIntoWall * legLen2;
+
+            var curves = new List<Curve>
+            {
+                Line.CreateBound(p_start, p1),  // leg on ext face
+                Line.CreateBound(p1, p2),        // across wall end
+                Line.CreateBound(p2, p_end)      // leg on int face
+            };
+
+            definitions.Add(new RebarDefinition
+            {
+                Curves = curves,
+                Style = RebarStyle.Standard,
+                BarTypeName = request.WallEndBarTypeName,
+                BarDiameter = barDia,
+                Spacing = request.WallEndSpacing,
+                ArrayLength = hRange,
+                Normal = XYZ.BasisZ,
+                Label = "Wall End U-Bar"
+            });
+
+            return definitions;
+        }
+
+        /// <summary>
+        /// Creates U-bars along the top edge of a wall.
+        /// The U wraps over the wall top:
+        ///   leg going down on ext face → across wall top → leg going down on int face
+        /// Arrayed horizontally along wall length at specified spacing.
+        /// </summary>
+        public static List<RebarDefinition> CreateWallTopUBars(
+            Wall wall, RebarRequest request, double barDia, double startTrim = 0, double endTrim = 0)
+        {
+            var definitions = new List<RebarDefinition>();
+            BoundingBoxXYZ bbox = wall.get_BoundingBox(null);
+            if (bbox == null) return definitions;
+
+            double zMax = bbox.Max.Z;
+            double thickness = wall.Width;
+            double cExt = GetCoverDist(wall, BuiltInParameter.CLEAR_COVER_EXTERIOR);
+            double cInt = GetCoverDist(wall, BuiltInParameter.CLEAR_COVER_INTERIOR);
+            double offsetExt = (thickness / 2.0) - cExt - (barDia / 2.0);
+            double offsetInt = (thickness / 2.0) - cInt - (barDia / 2.0);
+
+            // Layer alignment: "Vert Internal" shifts legs inward by 1*barDia
+            string layer = request.TopEndLayer ?? "Vert External";
+            if (layer == "Vert Internal")
+            {
+                double inwardShift = 1.0 * barDia;
+                offsetExt -= inwardShift;
+                offsetInt -= inwardShift;
+            }
+
+            LocationCurve loc = wall.Location as LocationCurve;
+            if (loc == null || !(loc.Curve is Line wallLine)) return definitions;
+            XYZ tangent = wallLine.Direction;
+            XYZ normal = new XYZ(-tangent.Y, tangent.X, 0).Normalize();
+
+            double legLen1 = request.TopEndLeg1;
+            double legLen2 = request.TopEndLeg2;
+
+            // Wall length minus covers and intersection trims
+            double cOther = GetCoverDist(wall, BuiltInParameter.CLEAR_COVER_OTHER);
+
+            // Z position: crosspiece at host cover from wall top
+            double topZ = zMax - cOther - (barDia / 2.0);
+
+            // Distribution offset applies to array first/last bar along wall length
+            double wallLength = wallLine.Length;
+            double distStart = request.TopBotTopOffset > 0 ? request.TopBotTopOffset : cOther;
+            double distEnd = request.TopBotBotOffset > 0 ? request.TopBotBotOffset : cOther;
+            double coverStart = startTrim + distStart;
+            double coverEnd = endTrim + distEnd;
+            double arrayLen = wallLength - coverStart - coverEnd;
+            if (arrayLen <= 0) return definitions;
+
+            XYZ wallStart = wallLine.GetEndPoint(0);
+            XYZ refPt = wallStart + tangent * coverStart;
+
+            XYZ p_ext_bot = new XYZ(
+                refPt.X + normal.X * offsetExt,
+                refPt.Y + normal.Y * offsetExt,
+                topZ - legLen1);
+            XYZ p_ext_top = new XYZ(
+                refPt.X + normal.X * offsetExt,
+                refPt.Y + normal.Y * offsetExt,
+                topZ);
+            XYZ p_int_top = new XYZ(
+                refPt.X - normal.X * offsetInt,
+                refPt.Y - normal.Y * offsetInt,
+                topZ);
+            XYZ p_int_bot = new XYZ(
+                refPt.X - normal.X * offsetInt,
+                refPt.Y - normal.Y * offsetInt,
+                topZ - legLen2);
+
+            var curves = new List<Curve>
+            {
+                Line.CreateBound(p_ext_bot, p_ext_top),
+                Line.CreateBound(p_ext_top, p_int_top),
+                Line.CreateBound(p_int_top, p_int_bot)
+            };
+
+            definitions.Add(new RebarDefinition
+            {
+                Curves = curves,
+                Style = RebarStyle.Standard,
+                BarTypeName = request.TopEndBarTypeName,
+                BarDiameter = barDia,
+                Spacing = request.TopEndSpacing,
+                ArrayLength = arrayLen,
+                Normal = tangent,
+                Label = "Wall Top U-Bar"
+            });
+
+            return definitions;
+        }
+
+        /// <summary>
+        /// Creates U-bars along the bottom edge of a wall.
+        /// Mirror of top U-bars: legs extend upward from the bottom.
+        /// </summary>
+        public static List<RebarDefinition> CreateWallBottomUBars(
+            Wall wall, RebarRequest request, double barDia, double startTrim = 0, double endTrim = 0)
+        {
+            var definitions = new List<RebarDefinition>();
+            BoundingBoxXYZ bbox = wall.get_BoundingBox(null);
+            if (bbox == null) return definitions;
+
+            double zMin = bbox.Min.Z;
+            double thickness = wall.Width;
+            double cExt = GetCoverDist(wall, BuiltInParameter.CLEAR_COVER_EXTERIOR);
+            double cInt = GetCoverDist(wall, BuiltInParameter.CLEAR_COVER_INTERIOR);
+            double offsetExt = (thickness / 2.0) - cExt - (barDia / 2.0);
+            double offsetInt = (thickness / 2.0) - cInt - (barDia / 2.0);
+
+            // Layer alignment: "Vert Internal" shifts legs inward by 1*barDia
+            string layer = request.BotEndLayer ?? "Vert External";
+            if (layer == "Vert Internal")
+            {
+                double inwardShift = 1.0 * barDia;
+                offsetExt -= inwardShift;
+                offsetInt -= inwardShift;
+            }
+
+            LocationCurve loc = wall.Location as LocationCurve;
+            if (loc == null || !(loc.Curve is Line wallLine)) return definitions;
+            XYZ tangent = wallLine.Direction;
+            XYZ normal = new XYZ(-tangent.Y, tangent.X, 0).Normalize();
+
+            double legLen1 = request.BotEndLeg1;
+            double legLen2 = request.BotEndLeg2;
+
+            // Wall length minus covers and intersection trims
+            double cOther = GetCoverDist(wall, BuiltInParameter.CLEAR_COVER_OTHER);
+
+            // Z position: crosspiece at host cover from wall bottom
+            double botZ = zMin + cOther + (barDia / 2.0);
+
+            // Distribution offset applies to array first/last bar along wall length
+            double wallLength = wallLine.Length;
+            double distStart = request.TopBotTopOffset > 0 ? request.TopBotTopOffset : cOther;
+            double distEnd = request.TopBotBotOffset > 0 ? request.TopBotBotOffset : cOther;
+            double coverStart = startTrim + distStart;
+            double coverEnd = endTrim + distEnd;
+            double arrayLen = wallLength - coverStart - coverEnd;
+            if (arrayLen <= 0) return definitions;
+
+            XYZ wallStart = wallLine.GetEndPoint(0);
+            XYZ refPt = wallStart + tangent * coverStart;
+
+            // U wraps under the bottom: legs go UP on each face
+            XYZ p_ext_top = new XYZ(
+                refPt.X + normal.X * offsetExt,
+                refPt.Y + normal.Y * offsetExt,
+                botZ + legLen1);
+            XYZ p_ext_bot = new XYZ(
+                refPt.X + normal.X * offsetExt,
+                refPt.Y + normal.Y * offsetExt,
+                botZ);
+            XYZ p_int_bot = new XYZ(
+                refPt.X - normal.X * offsetInt,
+                refPt.Y - normal.Y * offsetInt,
+                botZ);
+            XYZ p_int_top = new XYZ(
+                refPt.X - normal.X * offsetInt,
+                refPt.Y - normal.Y * offsetInt,
+                botZ + legLen2);
+
+            var curves = new List<Curve>
+            {
+                Line.CreateBound(p_ext_top, p_ext_bot),  // ext face leg going down
+                Line.CreateBound(p_ext_bot, p_int_bot),  // across wall bottom
+                Line.CreateBound(p_int_bot, p_int_top)   // int face leg going up
+            };
+
+            definitions.Add(new RebarDefinition
+            {
+                Curves = curves,
+                Style = RebarStyle.Standard,
+                BarTypeName = request.BotEndBarTypeName,
+                BarDiameter = barDia,
+                Spacing = request.BotEndSpacing,
+                ArrayLength = arrayLen,
+                Normal = tangent,
+                Label = "Wall Bottom U-Bar"
+            });
 
             return definitions;
         }

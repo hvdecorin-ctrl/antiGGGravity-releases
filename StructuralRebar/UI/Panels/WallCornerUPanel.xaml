@@ -4,7 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="800">
+             d:DesignHeight="800" d:DesignWidth="800">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
     <Grid Margin="0">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -12,53 +13,221 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <!-- LEFT COLUMN: HORIZONTAL BARS -->
+        <!-- LEFT COLUMN -->
         <StackPanel Grid.Column="0">
-            <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,15">
-                <StackPanel>
-                    <TextBlock Text="Horizontal U-Bars" FontWeight="Bold" Foreground="#333333" Margin="0,0,0,15"/>
-                    
-                    <Grid Margin="0,0,0,15">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="15"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Rebar Type" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                            <ComboBox x:Name="UI_Combo_HorizType" Height="32" Padding="8,0" VerticalContentAlignment="Center"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="Spacing (mm)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                            <TextBox x:Name="UI_Text_HorizSpacing" Text="200" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
-                        </StackPanel>
-                    </Grid>
 
-                    <Grid Margin="0,0,0,15">
+            <!-- U-BARS AT WALL INTERSECT -->
+            <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,10">
+                <StackPanel>
+                    <CheckBox x:Name="UI_Check_Intersect" Content="U-Bars at Wall Intersect" FontWeight="Bold" Foreground="#333333" IsChecked="False" Margin="0,0,0,10" Click="toggle_visibility"/>
+                    <StackPanel x:Name="UI_Group_Intersect">
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="15"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Rebar Type" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                                <ComboBox x:Name="UI_Combo_HorizType" Height="32" Padding="8,0" VerticalContentAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Spacing (mm)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                                <TextBox x:Name="UI_Text_HorizSpacing" Text="200" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
+                            </StackPanel>
+                        </Grid>
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="15"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Leg 1 (mm)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                                <TextBox x:Name="UI_Text_Leg1" Text="600" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Leg 2 (mm)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                                <TextBox x:Name="UI_Text_Leg2" Text="600" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
+                            </StackPanel>
+                        </Grid>
+                        <!-- Trimmers inside Intersect group -->
+                        <Border Background="#F0F5FA" BorderBrush="#D1E4F3" BorderThickness="1" CornerRadius="4" Padding="12">
+                            <StackPanel>
+                                <CheckBox x:Name="UI_Check_Trimmers" Content="Add 4x Vertical Trimmers" FontWeight="SemiBold" Foreground="#333333" IsChecked="False" Margin="0,0,0,10" Click="toggle_visibility"/>
+                                <StackPanel x:Name="UI_Group_Trimmers">
+                                    <TextBlock Text="Trimmer Bar Type" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                                    <ComboBox x:Name="UI_Combo_TrimmerType" Height="32" Padding="8,0" VerticalContentAlignment="Center"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- U-BARS AT WALL END -->
+            <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,10">
+                <StackPanel>
+                    <CheckBox x:Name="UI_Check_WallEnd" Content="U-Bars at Wall End" FontWeight="Bold" Foreground="#333333" IsChecked="False" Margin="0,0,0,10" Click="toggle_visibility"/>
+                    <StackPanel x:Name="UI_Group_WallEnd">
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="15"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Rebar Type" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                                <ComboBox x:Name="UI_Combo_WallEndType" Height="32" Padding="8,0" VerticalContentAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Spacing (mm)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                                <TextBox x:Name="UI_Text_WallEndSpacing" Text="200" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
+                            </StackPanel>
+                        </Grid>
+                        <Grid Margin="0,0,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="15"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Leg 1 (mm)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                                <TextBox x:Name="UI_Text_WallEndLeg1" Text="600" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Leg 2 (mm)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                                <TextBox x:Name="UI_Text_WallEndLeg2" Text="600" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- DISTRIBUTION OFFSET for Intersect & Wall End -->
+            <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,10">
+                <StackPanel>
+                    <TextBlock Text="Distribution Offset" FontWeight="Bold" Foreground="#333333" Margin="0,0,0,10"/>
+                    <Grid Margin="0,0,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="15"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="Leg 1 (Wall 1) (mm)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                            <TextBox x:Name="UI_Text_Leg1" Text="600" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
+                            <TextBlock Text="Top Offset (mm)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                            <TextBox x:Name="UI_Text_IntEndTopOffset" Text="50" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
                         </StackPanel>
                         <StackPanel Grid.Column="2">
-                            <TextBlock Text="Leg 2 (Wall 2) (mm)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                            <TextBox x:Name="UI_Text_Leg2" Text="600" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
+                            <TextBlock Text="Bottom Offset (mm)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                            <TextBox x:Name="UI_Text_IntEndBotOffset" Text="50" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
                         </StackPanel>
                     </Grid>
                 </StackPanel>
             </Border>
+
         </StackPanel>
 
-        <!-- RIGHT COLUMN: VERTICAL LIMITS & TRIMMERS -->
+        <!-- RIGHT COLUMN -->
         <StackPanel Grid.Column="2">
-            <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,15">
+
+            <!-- U-BARS AT TOP OF WALL -->
+            <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,10">
                 <StackPanel>
-                    <TextBlock Text="Vertical Limits" FontWeight="Bold" Foreground="#333333" Margin="0,0,0,15"/>
-                    <Grid Margin="0,0,0,15">
+                    <CheckBox x:Name="UI_Check_TopEnd" Content="U-Bars at Top of Wall" FontWeight="Bold" Foreground="#333333" IsChecked="False" Margin="0,0,0,10" Click="toggle_visibility"/>
+                    <StackPanel x:Name="UI_Group_TopEnd">
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="15"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Rebar Type" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                                <ComboBox x:Name="UI_Combo_TopEndType" Height="32" Padding="8,0" VerticalContentAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Spacing (mm)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                                <TextBox x:Name="UI_Text_TopEndSpacing" Text="200" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
+                            </StackPanel>
+                        </Grid>
+                        <StackPanel Margin="0,0,0,10">
+                            <TextBlock Text="Layer" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                            <ComboBox x:Name="UI_Combo_TopEndLayer" Height="32" Padding="8,0" VerticalContentAlignment="Center">
+                                <ComboBoxItem Content="Vert External" IsSelected="True"/>
+                                <ComboBoxItem Content="Vert Internal"/>
+                            </ComboBox>
+                        </StackPanel>
+                        <Grid Margin="0,0,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="15"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Leg 1 (mm)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                                <TextBox x:Name="UI_Text_TopEndLeg1" Text="600" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Leg 2 (mm)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                                <TextBox x:Name="UI_Text_TopEndLeg2" Text="600" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- U-BARS AT BOTTOM OF WALL -->
+            <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,10">
+                <StackPanel>
+                    <CheckBox x:Name="UI_Check_BotEnd" Content="U-Bars at Bottom of Wall" FontWeight="Bold" Foreground="#333333" IsChecked="False" Margin="0,0,0,10" Click="toggle_visibility"/>
+                    <StackPanel x:Name="UI_Group_BotEnd">
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="15"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Rebar Type" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                                <ComboBox x:Name="UI_Combo_BotEndType" Height="32" Padding="8,0" VerticalContentAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Spacing (mm)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                                <TextBox x:Name="UI_Text_BotEndSpacing" Text="200" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
+                            </StackPanel>
+                        </Grid>
+                        <StackPanel Margin="0,0,0,10">
+                            <TextBlock Text="Layer" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                            <ComboBox x:Name="UI_Combo_BotEndLayer" Height="32" Padding="8,0" VerticalContentAlignment="Center">
+                                <ComboBoxItem Content="Vert External" IsSelected="True"/>
+                                <ComboBoxItem Content="Vert Internal"/>
+                            </ComboBox>
+                        </StackPanel>
+                        <Grid Margin="0,0,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="15"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Leg 1 (mm)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                                <TextBox x:Name="UI_Text_BotEndLeg1" Text="600" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Leg 2 (mm)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                                <TextBox x:Name="UI_Text_BotEndLeg2" Text="600" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- DISTRIBUTION OFFSET for Top & Bottom -->
+            <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,10">
+                <StackPanel>
+                    <TextBlock Text="Distribution Offset" FontWeight="Bold" Foreground="#333333" Margin="0,0,0,10"/>
+                    <Grid Margin="0,0,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="15"/>
@@ -73,18 +242,10 @@
                             <TextBox x:Name="UI_Text_BotOffset" Text="50" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
                         </StackPanel>
                     </Grid>
-
-                    <Border Background="#F0F5FA" BorderBrush="#D1E4F3" BorderThickness="1" CornerRadius="4" Padding="12">
-                        <StackPanel>
-                            <CheckBox x:Name="UI_Check_Trimmers" Content="Add 4x Vertical Trimmers" FontWeight="SemiBold" Foreground="#333333" IsChecked="False" Margin="0,0,0,10" Click="toggle_visibility"/>
-                            <StackPanel x:Name="UI_Group_Trimmers">
-                                <TextBlock Text="Trimmer Bar Type" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                                <ComboBox x:Name="UI_Combo_TrimmerType" Height="32" Padding="8,0" VerticalContentAlignment="Center"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
                 </StackPanel>
             </Border>
+
         </StackPanel>
     </Grid>
+    </ScrollViewer>
 </UserControl>

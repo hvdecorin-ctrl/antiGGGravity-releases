@@ -241,7 +241,7 @@ namespace antiGGGravity.StructuralRebar.Core
                 .Where(w => w != null)
                 .ToList();
 
-            if (walls.Count < 2) return null;
+            if (walls.Count < 1) return null;
 
             var request = _window.WallCornerUPanel.GetRequest();
             request.RemoveExisting = _window.RemoveExisting;
@@ -249,7 +249,7 @@ namespace antiGGGravity.StructuralRebar.Core
             request.DesignCode = _window.DesignCode;
             var engine = new RebarEngine(doc);
             var (processed, total) = engine.GenerateWallCornerRebar(walls, request);
-            return $"Successfully generated rebar at {processed} of {total} identified corners.";
+            return $"Successfully generated rebar: {processed} of {total} items processed.";
         }
 
         // ────────────────────────────────────────

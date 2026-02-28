@@ -65,7 +65,12 @@ namespace antiGGGravity.StructuralRebar.Core.Geometry
             {
                 foreach (var p2 in pts2)
                 {
-                    if (p1.DistanceTo(p2) < tolerance) return (p1 + p2) / 2.0;
+                    // Use 2D plan distance (ignore Z) — walls at different levels
+                    // can still form valid corners in plan
+                    double dx = p1.X - p2.X;
+                    double dy = p1.Y - p2.Y;
+                    double dist2D = Math.Sqrt(dx * dx + dy * dy);
+                    if (dist2D < tolerance) return new XYZ((p1.X + p2.X) / 2.0, (p1.Y + p2.Y) / 2.0, Math.Min(p1.Z, p2.Z));
                 }
             }
             return null;

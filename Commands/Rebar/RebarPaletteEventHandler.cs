@@ -25,6 +25,7 @@ namespace antiGGGravity.Commands.Rebar
                     case "SelectByHost": new SelectRebarCommand().Run(app); break;
                     case "DeleteByHost": new SelectDeleteRebarCommand().Run(app); break;
                     case "RebarCranked": new RebarCrankCommand().Run(app); break;
+                    case "RebarSplit": new RebarSplitCommand().Run(app); break;
                     default:
                         TaskDialog.Show("Rebar Palette", $"Unknown command: {CommandToPost}");
                         break;

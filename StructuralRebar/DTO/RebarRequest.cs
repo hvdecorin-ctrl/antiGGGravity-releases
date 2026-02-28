@@ -103,6 +103,36 @@ namespace antiGGGravity.StructuralRebar.DTO
         public bool AddTrimmers { get; set; }
         public string TrimmerBarTypeName { get; set; }
 
+        // Intersect U-Bars (corner toggle)
+        public bool AddIntersectUBars { get; set; }
+
+        // Wall End U-Bars
+        public bool AddWallEndUBars { get; set; }
+        public string WallEndBarTypeName { get; set; }
+        public double WallEndSpacing { get; set; }
+        public double WallEndLeg1 { get; set; }
+        public double WallEndLeg2 { get; set; }
+
+        // Top U-Bars
+        public bool AddTopEndUBars { get; set; }
+        public string TopEndBarTypeName { get; set; }
+        public double TopEndSpacing { get; set; }
+        public double TopEndLeg1 { get; set; }
+        public double TopEndLeg2 { get; set; }
+        public string TopEndLayer { get; set; } = "Vert External";
+
+        // Bottom U-Bars
+        public bool AddBotEndUBars { get; set; }
+        public string BotEndBarTypeName { get; set; }
+        public double BotEndSpacing { get; set; }
+        public double BotEndLeg1 { get; set; }
+        public double BotEndLeg2 { get; set; }
+        public string BotEndLayer { get; set; } = "Vert External";
+
+        // Distribution Offsets for Top/Bottom U-bars (position from wall edge)
+        public double TopBotTopOffset { get; set; }
+        public double TopBotBotOffset { get; set; }
+
         // === SIDE REBAR (Skin Reinforcement for Beams) ===
         /// <summary>Whether to add side/skin reinforcement bars.</summary>
         public bool EnableSideRebar { get; set; }

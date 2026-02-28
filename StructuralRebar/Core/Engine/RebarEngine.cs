@@ -502,6 +502,9 @@ var segments = request.EnableLapSplice
             HostGeometry host = WallGeometryModule.Read(_doc, wall);
             if (host.Length <= 0 || host.Width <= 0 || host.Height <= 0) return false;
 
+            // Find trim distances at intersecting wall faces
+            var (startTrim, endTrim) = FindWallFaceTrimDistances(wall);
+
             var definitions = new List<RebarDefinition>();
 
             double vDia = GetBarDiameter(request.TransverseBarTypeName);
@@ -558,7 +561,9 @@ var segments = request.EnableLapSplice
                 {
                     var vertDef = WallLayoutGenerator.CreateVerticalBars(
                         host, request.TransverseBarTypeName, vDia,
-                        request.TransverseSpacing, request.TransverseStartOffset, request.TransverseEndOffset,
+                        request.TransverseSpacing,
+                        request.TransverseStartOffset + startTrim,
+                        request.TransverseEndOffset + endTrim,
                         host.CoverOther, host.CoverOther, // Top/Bot cover (Other)
                         request.VerticalTopExtension, request.VerticalBottomExtension,
                         vOff,
@@ -649,7 +654,8 @@ var segments = request.EnableLapSplice
                     var horizDef = WallLayoutGenerator.CreateHorizontalBars(
                         host, layer.HorizontalBarTypeName, hDia,
                         layer.HorizontalSpacing, layer.TopOffset, layer.BottomOffset,
-                        host.CoverOther, host.CoverOther,
+                        host.CoverOther + startTrim,
+                        host.CoverOther + endTrim,
                         hOff,
                         layer.HookStartName, layer.HookEndName,
                         layer.HookStartOutward, layer.HookEndOutward);
@@ -1034,41 +1040,165 @@ var segments = request.EnableLapSplice
             List<Wall> walls, RebarRequest request)
         {
             var corners = WallCornerGeometryModule.FindCorners(walls);
-            int count = 0;
+            
+            // Find wall ends that don't intersect with any other selected wall
+            var orphanedEnds = new List<(Wall Wall, XYZ EndPt, XYZ Dir)>();
+            if (request.HostType == ElementHostType.WallCornerU && request.AddWallEndUBars)
+            {
+                foreach (var wall in walls)
+                {
+                    HostGeometry host = WallGeometryModule.Read(_doc, wall);
+                    if (host.Length <= 0) continue;
+
+                    XYZ[] ends = { host.StartPoint, host.EndPoint };
+                    // Direction INTO the wall from start end is +LAxis, from end is -LAxis
+                    XYZ[] dirs = { host.LAxis, -host.LAxis };
+
+                    for (int i = 0; i < 2; i++)
+                    {
+                        XYZ endPt = ends[i];
+                        bool isCorner = corners.Any(c => 
+                            (c.Wall1.Id == wall.Id && c.Point.DistanceTo(endPt) < 1.0) ||
+                            (c.Wall2.Id == wall.Id && c.Point.DistanceTo(endPt) < 1.0));
+
+                        if (!isCorner)
+                            orphanedEnds.Add((wall, endPt, dirs[i]));
+                    }
+                }
+            }
+
+            int cornerCount = 0;
+            int endCount = 0;
+            int topCount = 0;
+            int botCount = 0;
+
+            // Track walls already cleaned to avoid duplicate deletes
+            var cleanedWallIds = new HashSet<ElementId>();
 
             using (Transaction t = new Transaction(_doc, "Generate Wall Corner Rebar"))
             {
                 t.Start();
 
-                foreach (var corner in corners)
+                // 1. Process corners (intersection U-bars) — only if checkbox is checked
+                if (request.HostType == ElementHostType.WallCornerL || 
+                    (request.HostType == ElementHostType.WallCornerU && request.AddIntersectUBars))
+                {
+                    foreach (var corner in corners)
+                    {
+                        try
+                        {
+                            if (request.RemoveExisting)
+                            {
+                                if (cleanedWallIds.Add(corner.Wall1.Id))
+                                    _creationService.DeleteExistingRebar(corner.Wall1);
+                                if (cleanedWallIds.Add(corner.Wall2.Id))
+                                    _creationService.DeleteExistingRebar(corner.Wall2);
+                            }
+
+                            bool success = false;
+                            if (request.HostType == ElementHostType.WallCornerL)
+                                success = ProcessWallCornerL(corner, request);
+                            else if (request.HostType == ElementHostType.WallCornerU)
+                                success = ProcessWallCornerU(corner, request);
+
+                            if (success) cornerCount++;
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Wall Corner failed: {ex.Message}");
+                        }
+                    }
+                }
+
+                // 2. Process orphaned wall ends (Wall End U-bars)
+                foreach (var orphanedEnd in orphanedEnds)
                 {
                     try
                     {
-                        if (request.RemoveExisting)
+                        if (request.RemoveExisting && cleanedWallIds.Add(orphanedEnd.Wall.Id))
+                            _creationService.DeleteExistingRebar(orphanedEnd.Wall);
+
+                        double barDia = GetBarDiameter(request.WallEndBarTypeName);
+                        if (barDia <= 0) continue;
+
+                        var definitions = WallCornerLayoutGenerator.CreateWallEndUBars(
+                            orphanedEnd.Wall, orphanedEnd.EndPt, orphanedEnd.Dir, request, barDia);
+                        if (definitions.Count > 0)
                         {
-                            // Delete rebar from both walls involved in the corner
-                            _creationService.DeleteExistingRebar(corner.Wall1);
-                            _creationService.DeleteExistingRebar(corner.Wall2);
+                            var ids = _creationService.PlaceRebar(orphanedEnd.Wall, definitions);
+                            if (ids.Count > 0) endCount++;
                         }
-
-                        bool success = false;
-                        if (request.HostType == ElementHostType.WallCornerL)
-                            success = ProcessWallCornerL(corner, request);
-                        else if (request.HostType == ElementHostType.WallCornerU)
-                            success = ProcessWallCornerU(corner, request);
-
-                        if (success) count++;
                     }
                     catch (Exception ex)
                     {
-                        System.Diagnostics.Debug.WriteLine($"Wall Corner failed: {ex.Message}");
+                        System.Diagnostics.Debug.WriteLine($"Wall End U-Bar failed: {ex.Message}");
+                    }
+                }
+
+                if (request.HostType == ElementHostType.WallCornerU && request.AddTopEndUBars)
+                {
+                    foreach (var wall in walls)
+                    {
+                        try
+                        {
+                            if (request.RemoveExisting && cleanedWallIds.Add(wall.Id))
+                                _creationService.DeleteExistingRebar(wall);
+
+                            double barDia = GetBarDiameter(request.TopEndBarTypeName);
+                            if (barDia <= 0) continue;
+
+                            var (startTrim, endTrim) = FindWallFaceTrimDistances(wall);
+                            var definitions = WallCornerLayoutGenerator.CreateWallTopUBars(wall, request, barDia, startTrim, endTrim);
+                            if (definitions.Count > 0)
+                            {
+                                var ids = _creationService.PlaceRebar(wall, definitions);
+                                if (ids.Count > 0) topCount++;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Wall Top U-Bar failed: {ex.Message}");
+                        }
+                    }
+                }
+
+                // 4. Process wall bottoms (Bottom U-bars) — per wall, along entire length
+                if (request.HostType == ElementHostType.WallCornerU && request.AddBotEndUBars)
+                {
+                    foreach (var wall in walls)
+                    {
+                        try
+                        {
+                            if (request.RemoveExisting && cleanedWallIds.Add(wall.Id))
+                                _creationService.DeleteExistingRebar(wall);
+
+                            double barDia = GetBarDiameter(request.BotEndBarTypeName);
+                            if (barDia <= 0) continue;
+
+                            var (startTrim, endTrim) = FindWallFaceTrimDistances(wall);
+                            var definitions = WallCornerLayoutGenerator.CreateWallBottomUBars(wall, request, barDia, startTrim, endTrim);
+                            if (definitions.Count > 0)
+                            {
+                                var ids = _creationService.PlaceRebar(wall, definitions);
+                                if (ids.Count > 0) botCount++;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Wall Bottom U-Bar failed: {ex.Message}");
+                        }
                     }
                 }
 
                 t.Commit();
             }
 
-            return (count, corners.Count);
+            // Build a meaningful result
+            int totalProcessed = cornerCount + endCount + topCount + botCount;
+            int totalItems = corners.Count + orphanedEnds.Count
+                + (request.AddTopEndUBars ? walls.Count : 0)
+                + (request.AddBotEndUBars ? walls.Count : 0);
+            return (totalProcessed, totalItems > 0 ? totalItems : corners.Count);
         }
 
         private bool ProcessWallCornerL(CornerInfo corner, RebarRequest request)
@@ -1124,6 +1254,74 @@ var segments = request.EnableLapSplice
                 if (p != null && p.HasValue) return p.AsDouble();
             }
             return 0;
+        }
+
+        /// <summary>
+        /// Finds how much to trim from each end of a wall due to intersecting walls.
+        /// Returns (startTrim, endTrim) — the distance from each wall end to the face
+        /// of the intersecting wall. Returns 0 if no intersection at that end.
+        /// </summary>
+        private (double StartTrim, double EndTrim) FindWallFaceTrimDistances(Wall wall)
+        {
+            double startTrim = 0;
+            double endTrim = 0;
+
+            LocationCurve loc = wall.Location as LocationCurve;
+            if (loc == null || !(loc.Curve is Line wallLine)) return (0, 0);
+
+            XYZ wallStart = wallLine.GetEndPoint(0);
+            XYZ wallEnd = wallLine.GetEndPoint(1);
+
+            // Collect all structural walls in the document
+            var allWalls = new FilteredElementCollector(_doc)
+                .OfClass(typeof(Wall))
+                .Cast<Wall>()
+                .Where(w => w.Id != wall.Id)
+                .Where(w => {
+                    var wLoc = w.Location as LocationCurve;
+                    return wLoc != null && wLoc.Curve is Line;
+                })
+                .ToList();
+
+            double tolerance = 1.0; // 1 ft (~305mm)
+
+            foreach (var other in allWalls)
+            {
+                LocationCurve otherLoc = other.Location as LocationCurve;
+                Line otherLine = otherLoc.Curve as Line;
+                double otherThickness = other.Width;
+
+                XYZ oStart = otherLine.GetEndPoint(0);
+                XYZ oEnd = otherLine.GetEndPoint(1);
+
+                // Check if "other" wall meets this wall's START end
+                double dStart0 = Dist2D(wallStart, oStart);
+                double dStart1 = Dist2D(wallStart, oEnd);
+                if (dStart0 < tolerance || dStart1 < tolerance)
+                {
+                    // The intersecting wall's face is half its thickness from the intersection point
+                    double trim = otherThickness / 2.0;
+                    if (trim > startTrim) startTrim = trim;
+                }
+
+                // Check if "other" wall meets this wall's END end
+                double dEnd0 = Dist2D(wallEnd, oStart);
+                double dEnd1 = Dist2D(wallEnd, oEnd);
+                if (dEnd0 < tolerance || dEnd1 < tolerance)
+                {
+                    double trim = otherThickness / 2.0;
+                    if (trim > endTrim) endTrim = trim;
+                }
+            }
+
+            return (startTrim, endTrim);
+        }
+
+        private static double Dist2D(XYZ a, XYZ b)
+        {
+            double dx = a.X - b.X;
+            double dy = a.Y - b.Y;
+            return Math.Sqrt(dx * dx + dy * dy);
         }
     }
 }
