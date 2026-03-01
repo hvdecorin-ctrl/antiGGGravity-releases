@@ -58,7 +58,7 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
                 DesignCodeStandard.ACI318 => 1.3,
                 DesignCodeStandard.AS3600 => 1.25,
                 DesignCodeStandard.EC2 => 1.5,
-                DesignCodeStandard.NZS3101 => 1.0, // NZS simplified: Ld ≈ lap
+                DesignCodeStandard.NZS3101 => 1.3, // A3: Llap = 1.3 * Ld
                 _ => 1.0
             };
             double tensionDevFt = tensionLapFt / spliceFactor;
@@ -106,10 +106,10 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
 
                 case DesignCodeStandard.NZS3101:
                     endZoneFactor = 2.0;
-                    endZoneSpacingMm = Math.Min(beamDepthMm / 4.0, 100.0);
+                    endZoneSpacingMm = Math.Min(beamDepthMm / 4.0, Math.Min(6 * barDiaMm, 100.0));
                     endZoneLenDesc = "2h";
-                    colConfineSpacingMm = Math.Min(columnDimMm / 4.0, 100.0);
-                    colMidSpacingMm = Math.Min(columnDimMm / 2.0, 200.0);
+                    colConfineSpacingMm = Math.Min(columnDimMm / 4.0, Math.Min(6 * barDiaMm, 100.0));
+                    colMidSpacingMm = Math.Min(columnDimMm / 2.0, Math.Min(10 * barDiaMm, 200.0));
                     colConfineLenDesc = "max(H/6, D, 450mm)";
                     break;
 
@@ -169,7 +169,7 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
                 DesignCodeStandard.ACI318 => DesignCodes.GetAciLapMultiplier(grade, steel),
                 DesignCodeStandard.AS3600 => DesignCodes.GetAsLapMultiplier(grade, steel),
                 DesignCodeStandard.EC2 => DesignCodes.GetEc2LapMultiplier(grade, steel),
-                DesignCodeStandard.NZS3101 => DesignCodes.GetNzsLapMultiplier(grade),
+                DesignCodeStandard.NZS3101 => DesignCodes.GetNzsLapMultiplier(grade, steel),
                 _ => 50.0
             };
         }

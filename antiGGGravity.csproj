@@ -45,9 +45,9 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <!-- Set to true to automatically copy files to Revit Addins folder -->
-    <!-- We set default to true so F5 always tries to update your Revit -->
-    <DeployToRevit Condition="'$(DeployToRevit)' == ''">true</DeployToRevit>
+    <!-- Set to false to prevent automatic copy to Revit Addins folder during regular builds -->
+    <!-- We set default to false so F5 or dotnet build doesn't disrupt an open Revit session -->
+    <DeployToRevit Condition="'$(DeployToRevit)' == ''">false</DeployToRevit>
   </PropertyGroup>
 
   <!-- Post-Build Event for Automatic Revit Installation -->

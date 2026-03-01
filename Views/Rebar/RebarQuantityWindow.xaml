@@ -8,7 +8,7 @@
         ResizeMode="CanResizeWithGrip">
 
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="70" CornerRadius="12" GlassFrameThickness="0" ResizeBorderThickness="6"/>
+        <WindowChrome CaptionHeight="70" CornerRadius="12" GlassFrameThickness="0" ResizeBorderThickness="10"/>
     </WindowChrome.WindowChrome>
 
     <Window.Resources>

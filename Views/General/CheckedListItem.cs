@@ -14,6 +14,7 @@ namespace antiGGGravity.Views.General
         public string Name { get; set; }
         public Category Category { get; set; }
         public Element Element { get; set; }
+        public bool IsDefault { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));

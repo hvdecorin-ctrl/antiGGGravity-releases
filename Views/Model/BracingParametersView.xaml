@@ -5,10 +5,6 @@
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         WindowStartupLocation="CenterScreen" ResizeMode="NoResize" ShowInTaskbar="False" Topmost="True">
 
-    <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="70" CornerRadius="12" GlassFrameThickness="0"/>
-    </WindowChrome.WindowChrome>
-
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -16,8 +12,12 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="70" CornerRadius="12" GlassFrameThickness="0"/>
+    </WindowChrome.WindowChrome>
     
-    <Border Style="{StaticResource PremiumBorderStyle}">
+    <Border Style="{DynamicResource PremiumBorderStyle}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="70"/>
@@ -26,18 +26,18 @@
             </Grid.RowDefinitions>
 
             <!-- Header -->
-            <Border Grid.Row="0" Background="{StaticResource BrandGradientBrush}" CornerRadius="12,12,0,0">
+            <Border Grid.Row="0" Background="{DynamicResource BrandGradientBrush}" CornerRadius="12,12,0,0">
                 <Grid Margin="25,0">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Style="{StaticResource CompanyLogoStyle}"/>
-                        <TextBlock Style="{StaticResource CompanyDividerStyle}"/>
+                        <TextBlock Style="{DynamicResource CompanyLogoStyle}"/>
+                        <TextBlock Style="{DynamicResource CompanyDividerStyle}"/>
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock x:Name="UI_Title" Text="Structural Bracing" Style="{StaticResource PremiumTitleStyle}"/>
-                            <TextBlock Text="Configure parameters" Style="{StaticResource PremiumSubtitleStyle}"/>
+                            <TextBlock x:Name="UI_Title" Text="Structural Bracing" Style="{DynamicResource PremiumTitleStyle}"/>
+                            <TextBlock Text="Configure parameters" Style="{DynamicResource PremiumSubtitleStyle}"/>
                         </StackPanel>
                     </StackPanel>
                     <Button HorizontalAlignment="Right" VerticalAlignment="Center" Content="✕" 
-                            Style="{StaticResource PremiumIconButtonStyle}" Width="30" Height="30"
+                            Style="{DynamicResource PremiumIconButtonStyle}" Width="30" Height="30"
                             Click="UI_Btn_Cancel_Click" WindowChrome.IsHitTestVisibleInChrome="True"/>
                 </Grid>
             </Border>
@@ -69,8 +69,8 @@
                     
                     <TextBlock Text="Ready" VerticalAlignment="Center" Foreground="#999999"/>
 
-                    <Button Grid.Column="1" Content="Cancel" Click="UI_Btn_Cancel_Click" Width="80" Margin="0,0,12,0" Style="{StaticResource PremiumPrimaryButtonStyle}"/>
-                    <Button Grid.Column="2" Content="Generate" Click="UI_Btn_Generate_Click" Width="100" Style="{StaticResource PremiumActionButtonStyle}"/>
+                    <Button Grid.Column="1" Content="Cancel" Click="UI_Btn_Cancel_Click" Width="80" Margin="0,0,12,0" Style="{DynamicResource PremiumPrimaryButtonStyle}"/>
+                    <Button Grid.Column="2" Content="Generate" Click="UI_Btn_Generate_Click" Width="100" Style="{DynamicResource PremiumActionButtonStyle}"/>
                 </Grid>
             </Border>
         </Grid>

@@ -9,13 +9,6 @@
         WindowStartupLocation="CenterScreen" ShowInTaskbar="False"
         MinHeight="400" MinWidth="340" Topmost="True">
 
-    <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="70" 
-                      ResizeBorderThickness="8" 
-                      GlassFrameThickness="0" 
-                      CornerRadius="12"/>
-    </WindowChrome.WindowChrome>
-
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -65,7 +58,14 @@
         </ResourceDictionary>
     </Window.Resources>
 
-    <Border BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="1" Background="White" CornerRadius="12">
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="70" 
+                      ResizeBorderThickness="10" 
+                      GlassFrameThickness="0" 
+                      CornerRadius="12"/>
+    </WindowChrome.WindowChrome>
+    
+    <Border BorderBrush="{DynamicResource PremiumBorderBrush}" BorderThickness="1" Background="White" CornerRadius="12">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="70"/> <!-- Header -->
@@ -74,19 +74,19 @@
             </Grid.RowDefinitions>
 
             <!-- Header -->
-            <Border Grid.Row="0" Background="{StaticResource BrandGradientBrush}" CornerRadius="12,12,0,0">
+            <Border Grid.Row="0" Background="{DynamicResource BrandGradientBrush}" CornerRadius="12,12,0,0">
                 <Grid Margin="25,0">
                     <!-- Company logo + tool name -->
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center" IsHitTestVisible="False">
-                        <TextBlock Style="{StaticResource CompanyLogoStyle}"/>
-                        <TextBlock Style="{StaticResource CompanyDividerStyle}"/>
+                        <TextBlock Style="{DynamicResource CompanyLogoStyle}"/>
+                        <TextBlock Style="{DynamicResource CompanyDividerStyle}"/>
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="Quick VG" Style="{StaticResource PremiumTitleStyle}"/>
-                            <TextBlock Text="Category Visibility Manager" Style="{StaticResource PremiumSubtitleStyle}"/>
+                            <TextBlock Text="Quick VG" Style="{DynamicResource PremiumTitleStyle}"/>
+                            <TextBlock Text="Category Visibility Manager" Style="{DynamicResource PremiumSubtitleStyle}"/>
                         </StackPanel>
                     </StackPanel>
                     <Button HorizontalAlignment="Right" VerticalAlignment="Center" 
-                            Style="{StaticResource PremiumIconButtonStyle}" Width="30" Height="30" Content="✕" 
+                            Style="{DynamicResource PremiumIconButtonStyle}" Width="30" Height="30" Content="✕" 
                             Click="Close_Click" WindowChrome.IsHitTestVisibleInChrome="True"/>
                 </Grid>
             </Border>
@@ -213,10 +213,10 @@
             </Grid>
 
             <!-- Footer -->
-            <Border Grid.Row="2" Padding="20,15" Background="#FAFAFA" CornerRadius="0,0,12,12" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,1,0,0">
+            <Border Grid.Row="2" Padding="20,15" Background="#FAFAFA" CornerRadius="0,0,12,12" BorderBrush="{DynamicResource PremiumBorderBrush}" BorderThickness="0,1,0,0">
                 <Grid>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button Content="Apply" Click="Apply_Click" Style="{StaticResource PremiumActionButtonStyle}" Width="85" Height="32" IsDefault="True"/>
+                        <Button Content="Apply" Click="Apply_Click" Style="{DynamicResource PremiumActionButtonStyle}" Width="85" Height="32" IsDefault="True"/>
                     </StackPanel>
                 </Grid>
             </Border>

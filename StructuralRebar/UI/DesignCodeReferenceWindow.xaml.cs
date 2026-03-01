@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using antiGGGravity.StructuralRebar.Constants;
 using antiGGGravity.StructuralRebar.Core.Calculators;
 
@@ -36,89 +38,87 @@ namespace antiGGGravity.StructuralRebar.UI
 
                 var results = DesignCodeCalculator.CalculateAll(grade, steel, barDia, beamH, colD);
 
-                // Build comparison rows: each row = { Parameter, ACI318, AS3600, EC2, NZS3101 }
-                var rows = new List<Dictionary<string, string>>();
+                // Build comparison rows: each row = { Category, Parameter, ACI318, AS3600, EC2, NZS3101 }
+                var rows = new List<CompRow>();
 
-                AddRow(rows, "Tension Ld (mm)",
+                string z1 = "Zone 1: Anchorage Length and Lap Length";
+                string z2 = "Zone 2: Stirrup Un-equal Distribution";
+                string z3 = "Zone 3: Rebar Bending";
+
+                // Zone 1
+                AddCompRow(rows, z1, "Tension Ld (mm)",
                     $"{results[0].TensionDevLengthMm}", $"{results[1].TensionDevLengthMm}",
                     $"{results[2].TensionDevLengthMm}", $"{results[3].TensionDevLengthMm}");
 
-                AddRow(rows, "Compression Ld (mm)",
+                AddCompRow(rows, z1, "Compression Ld (mm)",
                     $"{results[0].CompressionDevLengthMm}", $"{results[1].CompressionDevLengthMm}",
                     $"{results[2].CompressionDevLengthMm}", $"{results[3].CompressionDevLengthMm}");
 
-                AddRow(rows, "Dev. Multiplier (×db)",
+                AddCompRow(rows, z1, "Dev. Multiplier (×db)",
                     $"{results[0].DevMultiplier}", $"{results[1].DevMultiplier}",
                     $"{results[2].DevMultiplier}", $"{results[3].DevMultiplier}");
 
-                AddRow(rows, "Tension Lap (mm)",
+                AddCompRow(rows, z1, "Tension Lap (mm)",
                     $"{results[0].TensionLapMm}", $"{results[1].TensionLapMm}",
                     $"{results[2].TensionLapMm}", $"{results[3].TensionLapMm}");
 
-                AddRow(rows, "Lap Multiplier (×db)",
+                AddCompRow(rows, z1, "Lap Multiplier (×db)",
                     $"{results[0].LapMultiplier}", $"{results[1].LapMultiplier}",
                     $"{results[2].LapMultiplier}", $"{results[3].LapMultiplier}");
 
-                AddRow(rows, "Compression Lap (mm)",
+                AddCompRow(rows, z1, "Compression Lap (mm)",
                     $"{results[0].CompressionLapMm}", $"{results[1].CompressionLapMm}",
                     $"{results[2].CompressionLapMm}", $"{results[3].CompressionLapMm}");
 
-                AddRow(rows, "Beam End Zone Length",
+                // Zone 2
+                AddCompRow(rows, z2, "Beam End Zone Length",
                     results[0].BeamEndZoneLength, results[1].BeamEndZoneLength,
                     results[2].BeamEndZoneLength, results[3].BeamEndZoneLength);
 
-                AddRow(rows, "Beam End Zone Spacing (mm)",
+                AddCompRow(rows, z2, "Beam End Zone Spacing (mm)",
                     $"{results[0].BeamEndZoneSpacingMm}", $"{results[1].BeamEndZoneSpacingMm}",
                     $"{results[2].BeamEndZoneSpacingMm}", $"{results[3].BeamEndZoneSpacingMm}");
 
-                AddRow(rows, "Column Confine Spacing (mm)",
+                AddCompRow(rows, z2, "Column Confine Spacing (mm)",
                     $"{results[0].ColumnConfineSpacingMm}", $"{results[1].ColumnConfineSpacingMm}",
                     $"{results[2].ColumnConfineSpacingMm}", $"{results[3].ColumnConfineSpacingMm}");
 
-                AddRow(rows, "Column Mid Spacing (mm)",
+                AddCompRow(rows, z2, "Column Mid Spacing (mm)",
                     $"{results[0].ColumnMidSpacingMm}", $"{results[1].ColumnMidSpacingMm}",
                     $"{results[2].ColumnMidSpacingMm}", $"{results[3].ColumnMidSpacingMm}");
 
-                AddRow(rows, "Hook 90° Extension (mm)",
+                // Zone 3
+                AddCompRow(rows, z3, "Hook 90° Extension (mm)",
                     $"{results[0].Hook90ExtMm}", $"{results[1].Hook90ExtMm}",
                     $"{results[2].Hook90ExtMm}", $"{results[3].Hook90ExtMm}");
 
-                AddRow(rows, "Hook 135° Extension (mm)",
+                AddCompRow(rows, z3, "Hook 135° Extension (mm)",
                     $"{results[0].Hook135ExtMm}", $"{results[1].Hook135ExtMm}",
                     $"{results[2].Hook135ExtMm}", $"{results[3].Hook135ExtMm}");
 
-                AddRow(rows, "Bend Radius (mm)",
+                AddCompRow(rows, z3, "Bend Radius (mm)",
                     $"{results[0].BendRadiusMm}", $"{results[1].BendRadiusMm}",
                     $"{results[2].BendRadiusMm}", $"{results[3].BendRadiusMm}");
 
-                // Bind to datagrid using anonymous objects
-                var displayRows = new List<CompRow>();
-                foreach (var r in rows)
-                {
-                    displayRows.Add(new CompRow
-                    {
-                        Parameter = r["Parameter"],
-                        ACI318 = r["ACI318"],
-                        AS3600 = r["AS3600"],
-                        EC2 = r["EC2"],
-                        NZS3101 = r["NZS3101"]
-                    });
-                }
-
-                UI_ComparisonGrid.ItemsSource = displayRows;
+                // Bind to datagrid with grouping
+                var view = CollectionViewSource.GetDefaultView(rows);
+                view.GroupDescriptions.Clear();
+                view.GroupDescriptions.Add(new PropertyGroupDescription("Category"));
+                UI_ComparisonGrid.ItemsSource = view;
             }
             catch { }
         }
 
-        private void AddRow(List<Dictionary<string, string>> rows, string param, string aci, string as3600, string ec2, string nzs)
+        private void AddCompRow(List<CompRow> rows, string category, string param, string aci, string as3600, string ec2, string nzs)
         {
-            rows.Add(new Dictionary<string, string>
+            rows.Add(new CompRow
             {
-                { "Parameter", param },
-                { "ACI318", aci },
-                { "AS3600", as3600 },
-                { "EC2", ec2 },
-                { "NZS3101", nzs }
+                Category = category,
+                Parameter = param,
+                ACI318 = aci,
+                AS3600 = as3600,
+                EC2 = ec2,
+                NZS3101 = nzs
             });
         }
 
@@ -138,25 +138,34 @@ namespace antiGGGravity.StructuralRebar.UI
 
                 UI_ResultTitle.Text = $"RESULTS — {result.CodeName}";
 
+                string z1 = "Zone 1: Anchorage Length and Lap Length";
+                string z2 = "Zone 2: Stirrup Un-equal Distribution";
+                string z3 = "Zone 3: Rebar Bending";
+
                 var rows = new List<CalcRow>
                 {
-                    new CalcRow("Tension Dev. Length Ld", $"{result.TensionDevLengthMm} mm"),
-                    new CalcRow("Dev. Multiplier", $"{result.DevMultiplier} × db"),
-                    new CalcRow("Compression Dev. Length", $"{result.CompressionDevLengthMm} mm"),
-                    new CalcRow("Tension Lap Length", $"{result.TensionLapMm} mm"),
-                    new CalcRow("Lap Multiplier", $"{result.LapMultiplier} × db"),
-                    new CalcRow("Compression Lap Length", $"{result.CompressionLapMm} mm"),
-                    new CalcRow("Beam End Zone Spacing", $"{result.BeamEndZoneSpacingMm} mm"),
-                    new CalcRow("Beam End Zone Length", result.BeamEndZoneLength),
-                    new CalcRow("Column Confine Spacing", $"{result.ColumnConfineSpacingMm} mm"),
-                    new CalcRow("Column Mid Spacing", $"{result.ColumnMidSpacingMm} mm"),
-                    new CalcRow("Column Confine Length", result.ColumnConfineLength),
-                    new CalcRow("Hook 90° Extension", $"{result.Hook90ExtMm} mm"),
-                    new CalcRow("Hook 135° Extension", $"{result.Hook135ExtMm} mm"),
-                    new CalcRow("Bend Radius", $"{result.BendRadiusMm} mm"),
+                    new CalcRow(z1, "Tension Dev. Length Ld", $"{result.TensionDevLengthMm} mm"),
+                    new CalcRow(z1, "Dev. Multiplier", $"{result.DevMultiplier} × db"),
+                    new CalcRow(z1, "Compression Dev. Length", $"{result.CompressionDevLengthMm} mm"),
+                    new CalcRow(z1, "Tension Lap Length", $"{result.TensionLapMm} mm"),
+                    new CalcRow(z1, "Lap Multiplier", $"{result.LapMultiplier} × db"),
+                    new CalcRow(z1, "Compression Lap Length", $"{result.CompressionLapMm} mm"),
+
+                    new CalcRow(z2, "Beam End Zone Spacing", $"{result.BeamEndZoneSpacingMm} mm"),
+                    new CalcRow(z2, "Beam End Zone Length", result.BeamEndZoneLength),
+                    new CalcRow(z2, "Column Confine Spacing", $"{result.ColumnConfineSpacingMm} mm"),
+                    new CalcRow(z2, "Column Mid Spacing", $"{result.ColumnMidSpacingMm} mm"),
+                    new CalcRow(z2, "Column Confine Length", result.ColumnConfineLength),
+
+                    new CalcRow(z3, "Hook 90° Extension", $"{result.Hook90ExtMm} mm"),
+                    new CalcRow(z3, "Hook 135° Extension", $"{result.Hook135ExtMm} mm"),
+                    new CalcRow(z3, "Bend Radius", $"{result.BendRadiusMm} mm"),
                 };
 
-                UI_ResultGrid.ItemsSource = rows;
+                var view = CollectionViewSource.GetDefaultView(rows);
+                view.GroupDescriptions.Clear();
+                view.GroupDescriptions.Add(new PropertyGroupDescription("Category"));
+                UI_ResultGrid.ItemsSource = view;
             }
             catch (Exception ex)
             {
@@ -209,6 +218,7 @@ namespace antiGGGravity.StructuralRebar.UI
         // --- Data Classes ---
         public class CompRow
         {
+            public string Category { get; set; }
             public string Parameter { get; set; }
             public string ACI318 { get; set; }
             public string AS3600 { get; set; }
@@ -218,9 +228,10 @@ namespace antiGGGravity.StructuralRebar.UI
 
         public class CalcRow
         {
+            public string Category { get; set; }
             public string Name { get; set; }
             public string Value { get; set; }
-            public CalcRow(string name, string value) { Name = name; Value = value; }
+            public CalcRow(string category, string name, string value) { Category = category; Name = name; Value = value; }
         }
     }
 }

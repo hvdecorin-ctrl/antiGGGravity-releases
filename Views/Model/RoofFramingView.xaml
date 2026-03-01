@@ -7,10 +7,6 @@
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         WindowStartupLocation="CenterScreen" ShowInTaskbar="True" Topmost="True">
 
-    <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="70" CornerRadius="12" GlassFrameThickness="0" ResizeBorderThickness="4"/>
-    </WindowChrome.WindowChrome>
-
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -19,7 +15,11 @@
         </ResourceDictionary>
     </Window.Resources>
 
-    <Border Style="{StaticResource PremiumBorderStyle}">
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="70" CornerRadius="12" GlassFrameThickness="0" ResizeBorderThickness="4"/>
+    </WindowChrome.WindowChrome>
+
+    <Border Style="{DynamicResource PremiumBorderStyle}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="70"/>
@@ -28,18 +28,18 @@
             </Grid.RowDefinitions>
 
             <!-- Header -->
-            <Border Grid.Row="0" Background="{StaticResource BrandGradientBrush}" CornerRadius="12,12,0,0">
+            <Border Grid.Row="0" Background="{DynamicResource BrandGradientBrush}" CornerRadius="12,12,0,0">
                 <Grid Margin="25,0">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Style="{StaticResource CompanyLogoStyle}"/>
-                        <TextBlock Style="{StaticResource CompanyDividerStyle}"/>
+                        <TextBlock Style="{DynamicResource CompanyLogoStyle}"/>
+                        <TextBlock Style="{DynamicResource CompanyDividerStyle}"/>
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="Purlin &amp; Rafter" Style="{StaticResource PremiumTitleStyle}"/>
-                            <TextBlock Text="Generates framing based on roof slope" Style="{StaticResource PremiumSubtitleStyle}"/>
+                            <TextBlock Text="Purlin &amp; Rafter" Style="{DynamicResource PremiumTitleStyle}"/>
+                            <TextBlock Text="Generates framing based on roof slope" Style="{DynamicResource PremiumSubtitleStyle}"/>
                         </StackPanel>
                     </StackPanel>
                     <Button HorizontalAlignment="Right" VerticalAlignment="Center" Content="✕" 
-                            Style="{StaticResource PremiumIconButtonStyle}" Width="30" Height="30"
+                            Style="{DynamicResource PremiumIconButtonStyle}" Width="30" Height="30"
                             Click="UI_Button_Cancel_Click" WindowChrome.IsHitTestVisibleInChrome="True"/>
                 </Grid>
             </Border>
@@ -59,9 +59,9 @@
                     </Grid.RowDefinitions>
 
                     <!-- LEFT PANEL: RAFTER -->
-                    <Border Grid.Column="0" Grid.Row="0" Background="#FAFAFA" CornerRadius="8" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="1" Padding="15">
+                    <Border Grid.Column="0" Grid.Row="0" Background="#FAFAFA" CornerRadius="8" BorderBrush="{DynamicResource PremiumBorderBrush}" BorderThickness="1" Padding="15">
                         <StackPanel>
-                            <TextBlock Text="Rafter (Along Slope)" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,0,0,15"/>
+                            <TextBlock Text="Rafter (Along Slope)" Style="{DynamicResource PremiumSectionLabelStyle}" Margin="0,0,0,15"/>
 
                             <TextBlock Text="Framing Type" Style="{StaticResource PremiumSectionLabelStyle}" FontSize="12" Margin="0,0,0,6"/>
                             <ComboBox x:Name="UI_Combo_RafterType" Height="32" Margin="0,0,0,15" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0"/>
@@ -143,8 +143,8 @@
                     
                     <TextBlock Grid.Column="0" x:Name="UI_Status_Text" Text="Ready to generate • Pick a face first" VerticalAlignment="Center" Foreground="#999999"/>
 
-                    <Button x:Name="UI_Button_Cancel" Grid.Column="1" Content="Cancel" Width="90" Style="{StaticResource PremiumPrimaryButtonStyle}" Margin="0,0,12,0" Click="UI_Button_Cancel_Click"/>
-                    <Button x:Name="UI_Button_Generate" Grid.Column="2" Content="Generate" Width="140" Style="{StaticResource PremiumActionButtonStyle}" Click="UI_Button_Generate_Click"/>
+                    <Button x:Name="UI_Button_Cancel" Grid.Column="1" Content="Cancel" Width="90" Style="{DynamicResource PremiumPrimaryButtonStyle}" Margin="0,0,12,0" Click="UI_Button_Cancel_Click"/>
+                    <Button x:Name="UI_Button_Generate" Grid.Column="2" Content="Generate" Width="140" Style="{DynamicResource PremiumActionButtonStyle}" Click="UI_Button_Generate_Click"/>
                 </Grid>
             </Border>
         </Grid>

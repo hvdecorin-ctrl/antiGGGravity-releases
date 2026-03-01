@@ -390,123 +390,6 @@ panels:
         tooltip: Quick summary of rebar quantities by host category and bar diameter.
 
   # ============================================================
-  # GENERAL PANEL
-  # ============================================================
-  - name: General
-    items:
-      # --- Column 1 ---
-      - type: stacked
-        buttons:
-          - type: pulldown
-            name: Allow Join
-            icon: AllowJoin
-            buttons:
-              - name: Allow Join (Selection)
-                command: AllowJoinCommand
-                icon: AllowJoin
-              - name: Allow Join (View)
-                command: AllowJoinAllCommand
-                icon: AllowJoinAll
-
-          - type: pulldown
-            name: Disallow Join
-            icon: DisAllowJoin
-            buttons:
-              - name: Disallow Join (Selection)
-                command: DisAllowJoinCommand
-                icon: DisAllowJoin
-              - name: Disallow Join (View)
-                command: DisAllowJoinAllCommand
-                icon: DisAllowJoinAll
-
-          - name: Beam Reset
-            command: BeamResetCommand
-            icon: BeamReset
-      # --- Column 2 ---
-      - type: stacked
-        buttons:
-          - name: Join Geometry
-            command: JoinUnjoinGeometryCommand
-            icon: JoinUnjoin
-
-          - type: pulldown
-            name: Toggle Grids
-            icon: ToggleGrids
-            buttons:
-              - name: Toggle All Grids
-                command: ToggleAllGridsCommand
-                icon: ToggleAllGrids
-              - name: Grid 3D & 2D
-                command: Grid3D2DCommand
-                icon: Grid3D2D
-      # --- Column 3 ---
-      - type: stacked
-        buttons:
-          - name: Flip Elements
-            command: FlipElementsCommand
-            icon: Flip
-
-          - name: Transfer Templates
-            command: TransferTemplatesCommand
-            icon: TransferTemplates
-
-          - type: pulldown
-            name: View Filters
-            icon: ViewFilters
-            buttons:
-              - name: Copy Filters
-                command: ViewFiltersCopyCommand
-                icon: ViewFiltersCopy
-              - name: Filters Legend
-                command: ViewFiltersLegendCommand
-                icon: ViewFiltersLegend
-      # --- Column 4 ---
-      - type: stacked
-        buttons:
-          - name: Rotate Multiple
-            command: ElementsRotateMultipleCommand
-            icon: ElementsRotateMultiple
-
-          - type: pulldown
-            name: Filled Regions
-            icon: FilledRegions
-            buttons:
-              - name: Merge Regions
-                command: MergeRegionsCommand
-                icon: MergeRegions
-              - name: Regions -> Floors
-                command: RegionsToFloorsCommand
-                icon: RegionsToFloors
-              - name: Regions -> Ceilings
-                command: RegionsToCeilingsCommand
-                icon: RegionsToCeilings
-              - name: Change LineStyle
-                command: RegionChangeLineStyleCommand
-                icon: RegionChangeLineStyle
-
-          - type: pulldown
-            name: Walls
-            icon: Walls
-            buttons:
-              - name: Match Top
-                command: WallMatchTopCommand
-                icon: WallMatchTop
-              - name: Match Base
-                command: WallMatchBaseCommand
-                icon: WallMatchBase
-              - name: Match Both
-                command: WallMatchBothCommand
-                icon: WallMatchBoth
-              - name: Modify Constraints
-                command: ModifyWallConstraintsCommand
-                icon: ModifyWallConstraints
-      # --- Column 5 ---
-      - type: splitpushbutton
-        name: Pick
-        icon: Pick
-        command: PickElementsCommand
-
-  # ============================================================
   # MODEL PANEL
   # ============================================================
   - name: Model
@@ -542,6 +425,123 @@ panels:
                 icon: HFrame
                 tooltip: Create parallel horizontal braces (multi-brace).
 
+  # ============================================================
+  # GENERAL PANEL
+  # ============================================================
+  - name: General
+    items:
+      # --- Column 1 ---
+      - type: splitpushbutton
+        name: Quick Pick
+        icon: Pick
+        command: PickElementsCommand
+
+      # --- Column 2 ---
+      - type: stacked
+        buttons:
+          - type: pulldown
+            name: Allow Join
+            icon: AllowJoin
+            buttons:
+              - name: Allow Join (Selection)
+                command: AllowJoinCommand
+                icon: AllowJoin
+              - name: Allow Join (View)
+                command: AllowJoinAllCommand
+                icon: AllowJoinAll
+          - type: pulldown
+            name: Disallow Join
+            icon: DisAllowJoin
+            buttons:
+              - name: Disallow Join (Selection)
+                command: DisAllowJoinCommand
+                icon: DisAllowJoin
+              - name: Disallow Join (View)
+                command: DisAllowJoinAllCommand
+                icon: DisAllowJoinAll
+          - name: Beam Reset
+            command: BeamResetCommand
+            icon: BeamReset
+
+      # --- Column 3 ---
+      - type: stacked
+        buttons:
+          - name: Join Geometry
+            command: JoinUnjoinGeometryCommand
+            icon: JoinUnjoin
+          - name: Cut Geometry
+            command: CutGeometryCommand
+            icon: CutGeo
+            tooltip: Select ONE element (beam/column/etc) and cut all intersecting elements by it.
+          - name: Flip Elements
+            command: FlipElementsCommand
+            icon: Flip
+
+      # --- Column 4 ---
+      - type: stacked
+        buttons:
+          - name: Transfer Templates
+            command: TransferTemplatesCommand
+            icon: TransferTemplates
+          - type: pulldown
+            name: View Filters
+            icon: ViewFilters
+            buttons:
+              - name: Copy Filters
+                command: ViewFiltersCopyCommand
+                icon: ViewFiltersCopy
+              - name: Filters Legend
+                command: ViewFiltersLegendCommand
+                icon: ViewFiltersLegend
+          - type: pulldown
+            name: Toggle Grids
+            icon: ToggleGrids
+            buttons:
+              - name: Toggle All Grids
+                command: ToggleAllGridsCommand
+                icon: ToggleAllGrids
+              - name: Grid 3D & 2D
+                command: Grid3D2DCommand
+                icon: Grid3D2D
+
+      # --- Column 5 ---
+      - type: stacked
+        buttons:
+          - name: Rotate Multiple
+            command: ElementsRotateMultipleCommand
+            icon: ElementsRotateMultiple
+          - type: pulldown
+            name: Filled Regions
+            icon: FilledRegions
+            buttons:
+              - name: Merge Regions
+                command: MergeRegionsCommand
+                icon: MergeRegions
+              - name: Regions -> Floors
+                command: RegionsToFloorsCommand
+                icon: RegionsToFloors
+              - name: Regions -> Ceilings
+                command: RegionsToCeilingsCommand
+                icon: RegionsToCeilings
+              - name: Change LineStyle
+                command: RegionChangeLineStyleCommand
+                icon: RegionChangeLineStyle
+          - type: pulldown
+            name: Walls
+            icon: Walls
+            buttons:
+              - name: Match Top
+                command: WallMatchTopCommand
+                icon: WallMatchTop
+              - name: Match Base
+                command: WallMatchBaseCommand
+                icon: WallMatchBase
+              - name: Match Both
+                command: WallMatchBothCommand
+                icon: WallMatchBoth
+              - name: Modify Constraints
+                command: ModifyWallConstraintsCommand
+                icon: ModifyWallConstraints
 
   # ============================================================
   # ANTIGRAVITY PANEL

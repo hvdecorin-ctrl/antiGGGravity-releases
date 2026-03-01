@@ -32,14 +32,14 @@
             </Grid.RowDefinitions>
 
             <!-- Header -->
-            <Border Grid.Row="0" Background="{StaticResource BrandGradientBrush}" CornerRadius="12,12,0,0">
+            <Border Grid.Row="0" Background="{DynamicResource BrandGradientBrush}" CornerRadius="12,12,0,0">
                 <Grid Margin="25,0">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Style="{StaticResource CompanyLogoStyle}"/>
-                        <TextBlock Style="{StaticResource CompanyDividerStyle}"/>
+                        <TextBlock Style="{DynamicResource CompanyLogoStyle}"/>
+                        <TextBlock Style="{DynamicResource CompanyDividerStyle}"/>
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="Copy Filters" Style="{StaticResource PremiumTitleStyle}"/>
-                            <TextBlock Text="Copy View Filters between Views or Templates" Style="{StaticResource PremiumSubtitleStyle}"/>
+                            <TextBlock Text="Copy Filters" Style="{DynamicResource PremiumTitleStyle}"/>
+                            <TextBlock Text="Copy View Filters between Views or Templates" Style="{DynamicResource PremiumSubtitleStyle}"/>
                         </StackPanel>
                     </StackPanel>
                     <Button HorizontalAlignment="Right" VerticalAlignment="Center" Content="✕" 
@@ -193,8 +193,8 @@
 
                     <TextBlock x:Name="UI_Status_Text" VerticalAlignment="Center" Foreground="#999999" Text="Select a source view and filters, then choose destination views"/>
 
-                    <Button Grid.Column="1" Content="Cancel" Width="100" Style="{StaticResource PremiumPrimaryButtonStyle}" Margin="0,0,12,0" Click="Close_Click"/>
-                    <Button x:Name="UI_CopyButton" Grid.Column="2" Content="Copy Filters" Width="140" Style="{StaticResource PremiumActionButtonStyle}" Click="CopyFilters_Click"/>
+                    <Button Grid.Column="1" Content="Cancel" Width="100" Style="{DynamicResource PremiumPrimaryButtonStyle}" Margin="0,0,12,0" Click="Close_Click"/>
+                    <Button x:Name="UI_CopyButton" Grid.Column="2" Content="Copy Filters" Width="140" Style="{DynamicResource PremiumActionButtonStyle}" Click="CopyFilters_Click"/>
                 </Grid>
             </Border>
         </Grid>

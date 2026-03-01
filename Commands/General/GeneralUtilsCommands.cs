@@ -9,6 +9,22 @@ using antiGGGravity.Views.General;
 
 namespace antiGGGravity.Commands.General
 {
+    public class WarningSwallower : IFailuresPreprocessor
+    {
+        public FailureProcessingResult PreprocessFailures(FailuresAccessor a)
+        {
+            var failures = a.GetFailureMessages();
+            foreach (var f in failures)
+            {
+                if (f.GetSeverity() == FailureSeverity.Warning)
+                {
+                    a.DeleteWarning(f);
+                }
+            }
+            return FailureProcessingResult.Continue;
+        }
+    }
+
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
     public class FlipElementsCommand : IExternalCommand
     {
@@ -145,47 +161,117 @@ namespace antiGGGravity.Commands.General
             JoinUnjoinView win = new JoinUnjoinView(categories);
             if (win.ShowDialog() != true) return Result.Cancelled;
 
-            var leftCats = win.LeftCategories.Where(c => c.IsChecked).Select(c => c.Category.Id).ToList();
-            var rightCats = win.RightCategories.Where(c => c.IsChecked).Select(c => c.Category.Id).ToList();
+            var leftCats = win.AllLeftItems.Where(c => c.IsChecked).Select(c => c.Category.Id).ToList();
+            var rightCats = win.AllRightItems.Where(c => c.IsChecked).Select(c => c.Category.Id).ToList();
 
+            // Collect elements in active view matching selected categories
             var collector = new FilteredElementCollector(doc, doc.ActiveView.Id).WhereElementIsNotElementType();
             var allElements = collector.ToElements();
 
             var leftElements = allElements.Where(e => e.Category != null && leftCats.Contains(e.Category.Id)).ToList();
             var rightElements = allElements.Where(e => e.Category != null && rightCats.Contains(e.Category.Id)).ToList();
 
-            using (TransactionGroup tg = new TransactionGroup(doc, "Join/Unjoin Advance"))
+            if (!leftElements.Any() || !rightElements.Any())
             {
-                tg.Start();
+                TaskDialog.Show("Join Geometry", "No elements found for the selected categories in active view.");
+                return Result.Succeeded;
+            }
+
+            // Build a set of right element IDs for quick lookup
+            var rightElementIds = new HashSet<ElementId>(rightElements.Select(e => e.Id));
+
+            // Pre-compute intersection map BEFORE starting any transaction
+            // This avoids stale results from mid-transaction model changes
+            var intersectionMap = new Dictionary<ElementId, List<ElementId>>();
+            foreach (var left in leftElements)
+            {
+                try
+                {
+                    var intersectFilter = new ElementIntersectsElementFilter(left);
+                    var intersecting = new FilteredElementCollector(doc, doc.ActiveView.Id)
+                        .WherePasses(intersectFilter)
+                        .ToElementIds()
+                        .Where(id => rightElementIds.Contains(id) && id != left.Id)
+                        .ToList();
+
+                    if (intersecting.Count > 0)
+                        intersectionMap[left.Id] = intersecting;
+                }
+                catch
+                {
+                    // Element may not support intersection filtering
+                    continue;
+                }
+            }
+
+            int processedCount = 0;
+
+            // Single transaction — matching Python logic exactly
+            using (Transaction t = new Transaction(doc, win.IsJoinOperation ? "Join Advance" : "Unjoin Advance"))
+            {
+                t.Start();
+
+                // Suppress warnings (e.g. "joined but do not intersect")
+                FailureHandlingOptions failOpt = t.GetFailureHandlingOptions();
+                failOpt.SetFailuresPreprocessor(new WarningSwallower());
+                t.SetFailureHandlingOptions(failOpt);
+
                 foreach (var left in leftElements)
                 {
-                    foreach (var right in rightElements)
+                    if (!intersectionMap.TryGetValue(left.Id, out var intersectingIds))
+                        continue;
+
+                    foreach (var rightId in intersectingIds)
                     {
-                        if (left.Id == right.Id) continue;
-                        
-                        using (Transaction t = new Transaction(doc, "Process Single Join"))
+                        var right = doc.GetElement(rightId);
+                        if (right == null) continue;
+
+                        try
                         {
-                            t.Start();
-                            try
+                            if (win.IsJoinOperation)
                             {
-                                if (win.IsJoinOperation)
+                                if (!JoinGeometryUtils.AreElementsJoined(doc, left, right))
                                 {
-                                    if (!JoinGeometryUtils.AreElementsJoined(doc, left, right))
-                                        JoinGeometryUtils.JoinGeometry(doc, left, right);
+                                    JoinGeometryUtils.JoinGeometry(doc, left, right);
+                                    processedCount++;
+                                    // Enforce priority: left cuts right
+                                    if (!JoinGeometryUtils.IsCuttingElementInJoin(doc, left, right))
+                                    {
+                                        JoinGeometryUtils.SwitchJoinOrder(doc, left, right);
+                                    }
                                 }
                                 else
                                 {
-                                    if (JoinGeometryUtils.AreElementsJoined(doc, left, right))
-                                        JoinGeometryUtils.UnjoinGeometry(doc, left, right);
+                                    // Already joined — just enforce cut order
+                                    if (!JoinGeometryUtils.IsCuttingElementInJoin(doc, left, right))
+                                    {
+                                        JoinGeometryUtils.SwitchJoinOrder(doc, left, right);
+                                        processedCount++;
+                                    }
                                 }
-                                t.Commit();
                             }
-                            catch { t.RollBack(); }
+                            else
+                            {
+                                // Unjoin
+                                if (JoinGeometryUtils.AreElementsJoined(doc, left, right))
+                                {
+                                    JoinGeometryUtils.UnjoinGeometry(doc, left, right);
+                                    processedCount++;
+                                }
+                            }
+                        }
+                        catch
+                        {
+                            continue; // Skip problematic pairs, match Python behavior
                         }
                     }
                 }
-                tg.Assimilate();
+
+                t.Commit();
             }
+
+            string opName = win.IsJoinOperation ? "Join Advance" : "Unjoin Advance";
+            TaskDialog.Show("Join Geometry", $"✅ {opName} completed.\n{processedCount} items modified.");
 
             return Result.Succeeded;
         }

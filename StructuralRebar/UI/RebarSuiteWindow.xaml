@@ -8,7 +8,7 @@
         WindowStartupLocation="CenterScreen" ShowInTaskbar="True">
 
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="70" CornerRadius="12" GlassFrameThickness="0" ResizeBorderThickness="4"/>
+        <WindowChrome CaptionHeight="70" CornerRadius="12" GlassFrameThickness="0" ResizeBorderThickness="10"/>
     </WindowChrome.WindowChrome>
 
     <Window.Resources>

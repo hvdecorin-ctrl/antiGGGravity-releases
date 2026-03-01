@@ -6,7 +6,7 @@
         WindowStartupLocation="CenterScreen" ShowInTaskbar="False" Topmost="True">
 
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="70" CornerRadius="12" GlassFrameThickness="0"/>
+        <DynamicResource ResourceKey="PremiumWindowChrome"/>
     </WindowChrome.WindowChrome>
 
     <Window.Resources>

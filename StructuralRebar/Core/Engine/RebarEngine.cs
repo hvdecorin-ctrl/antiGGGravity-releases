@@ -536,22 +536,22 @@ var segments = request.EnableLapSplice
             var layers = new List<(double vOff, double hOff)>();
 
             string config = request.WallLayerConfig ?? "Centre";
-            if (config == "Centre")
+            if (config.Equals("Centre", StringComparison.OrdinalIgnoreCase))
             {
                 // Vertical at centre (0), horizontal beside vertical
                 double avgCover = (host.CoverExterior + host.CoverInterior) / 2.0;
                 layers.Add((0, (vDia / 2.0 + hDia / 2.0)));
             }
-            else if (config == "Both faces")
+            else if (config.Equals("Both Faces", StringComparison.OrdinalIgnoreCase))
             {
                 layers.Add((dExtV, dExtH));
                 layers.Add((-dIntV, -dIntH));
             }
-            else if (config == "External face")
+            else if (config.Equals("External Face", StringComparison.OrdinalIgnoreCase))
             {
                 layers.Add((dExtV, dExtH));
             }
-            else if (config == "Internal face")
+            else if (config.Equals("Internal Face", StringComparison.OrdinalIgnoreCase))
             {
                 layers.Add((-dIntV, -dIntH));
             }

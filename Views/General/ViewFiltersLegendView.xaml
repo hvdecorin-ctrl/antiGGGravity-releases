@@ -18,7 +18,7 @@
         </ResourceDictionary>
     </Window.Resources>
 
-    <Border Style="{StaticResource PremiumBorderStyle}">
+    <Border Style="{DynamicResource PremiumBorderStyle}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="70"/>
@@ -27,18 +27,18 @@
             </Grid.RowDefinitions>
 
             <!-- Header -->
-            <Border Grid.Row="0" Background="{StaticResource BrandGradientBrush}" CornerRadius="12,12,0,0">
+            <Border Grid.Row="0" Background="{DynamicResource BrandGradientBrush}" CornerRadius="12,12,0,0">
                 <Grid Margin="25,0">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Style="{StaticResource CompanyLogoStyle}"/>
-                        <TextBlock Style="{StaticResource CompanyDividerStyle}"/>
+                        <TextBlock Style="{DynamicResource CompanyLogoStyle}"/>
+                        <TextBlock Style="{DynamicResource CompanyDividerStyle}"/>
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="Filters Legend" Style="{StaticResource PremiumTitleStyle}"/>
-                            <TextBlock Text="Create a Legend of View Filters" Style="{StaticResource PremiumSubtitleStyle}"/>
+                            <TextBlock Text="Filters Legend" Style="{DynamicResource PremiumTitleStyle}"/>
+                            <TextBlock Text="Create a Legend of View Filters" Style="{DynamicResource PremiumSubtitleStyle}"/>
                         </StackPanel>
                     </StackPanel>
                     <Button HorizontalAlignment="Right" VerticalAlignment="Center" Content="✕" 
-                            Style="{StaticResource PremiumIconButtonStyle}" Width="30" Height="30"
+                            Style="{DynamicResource PremiumIconButtonStyle}" Width="30" Height="30"
                             Click="UI_Btn_Cancel_Click" WindowChrome.IsHitTestVisibleInChrome="True"/>
                 </Grid>
             </Border>
@@ -179,8 +179,8 @@
                     
                     <TextBlock Grid.Column="0" x:Name="UI_Status_Text" Text="Ready" VerticalAlignment="Center" Foreground="#999999"/>
 
-                    <Button x:Name="UI_Btn_Cancel" Grid.Column="1" Content="Cancel" Width="90" Style="{StaticResource PremiumPrimaryButtonStyle}" Margin="0,0,12,0" Click="UI_Btn_Cancel_Click"/>
-                    <Button x:Name="UI_Btn_Create" Grid.Column="2" Content="Run" Width="140" Style="{StaticResource PremiumActionButtonStyle}" Click="UI_Btn_Create_Click"/>
+                    <Button x:Name="UI_Btn_Cancel" Grid.Column="1" Content="Cancel" Width="90" Style="{DynamicResource PremiumPrimaryButtonStyle}" Margin="0,0,12,0" Click="UI_Btn_Cancel_Click"/>
+                    <Button x:Name="UI_Btn_Create" Grid.Column="2" Content="Run" Width="140" Style="{DynamicResource PremiumActionButtonStyle}" Click="UI_Btn_Create_Click"/>
                 </Grid>
             </Border>
         </Grid>

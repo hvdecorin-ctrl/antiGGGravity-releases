@@ -39,10 +39,10 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
 
             var layerOffsets = new List<double>();
             string config = request.WallLayerConfig;
-            if (config == "Centre") layerOffsets.Add(barDia); // Offset by bar diameter to avoid vertical wall bars / trimmers
-            else if (config == "Both faces") { layerOffsets.Add(hExt); layerOffsets.Add(-hInt); }
-            else if (config == "External face") layerOffsets.Add(hExt);
-            else if (config == "Internal face") layerOffsets.Add(-hInt);
+            if (string.Equals(config, "Centre", StringComparison.OrdinalIgnoreCase)) layerOffsets.Add(barDia); 
+            else if (string.Equals(config, "Both Faces", StringComparison.OrdinalIgnoreCase)) { layerOffsets.Add(hExt); layerOffsets.Add(-hInt); }
+            else if (string.Equals(config, "External Face", StringComparison.OrdinalIgnoreCase)) layerOffsets.Add(hExt);
+            else if (string.Equals(config, "Internal Face", StringComparison.OrdinalIgnoreCase)) layerOffsets.Add(-hInt);
 
             double spacing = request.VerticalSpacing;
             double hRange = (zMax - zMin) - request.TransverseStartOffset - request.TransverseEndOffset;
@@ -252,7 +252,7 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
 
             // Layer alignment: "Vert Internal" shifts legs inward by 1*barDia
             string layer = request.TopEndLayer ?? "Vert External";
-            if (layer == "Vert Internal")
+            if (string.Equals(layer, "Vert Internal", StringComparison.OrdinalIgnoreCase))
             {
                 double inwardShift = 1.0 * barDia;
                 offsetExt -= inwardShift;
@@ -345,7 +345,7 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
 
             // Layer alignment: "Vert Internal" shifts legs inward by 1*barDia
             string layer = request.BotEndLayer ?? "Vert External";
-            if (layer == "Vert Internal")
+            if (string.Equals(layer, "Vert Internal", StringComparison.OrdinalIgnoreCase))
             {
                 double inwardShift = 1.0 * barDia;
                 offsetExt -= inwardShift;

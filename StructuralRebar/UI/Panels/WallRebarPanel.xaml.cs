@@ -212,7 +212,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 hLayer.HorizontalOffset = 0;
                 request.Layers.Add(hLayer);
             }
-            else if (request.WallLayerConfig == "Both faces")
+            else if (request.WallLayerConfig == "Both Faces")
             {
                 var extLayer = Clone(hLayer);
                 extLayer.Face = RebarLayerFace.Exterior;
@@ -224,13 +224,13 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 intLayer.HorizontalOffset = -1; // Flag for Engine: Interior
                 request.Layers.Add(intLayer);
             }
-            else if (request.WallLayerConfig == "External face")
+            else if (request.WallLayerConfig == "External Face")
             {
                 hLayer.Face = RebarLayerFace.Exterior;
                 hLayer.HorizontalOffset = 1;
                 request.Layers.Add(hLayer);
             }
-            else if (request.WallLayerConfig == "Internal face")
+            else if (request.WallLayerConfig == "Internal Face")
             {
                 hLayer.Face = RebarLayerFace.Interior;
                 hLayer.HorizontalOffset = -1;

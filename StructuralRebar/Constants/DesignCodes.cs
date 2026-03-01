@@ -92,21 +92,23 @@ namespace antiGGGravity.StructuralRebar.Constants
         // === NZS 3101 Lap Splice Multipliers ===
         public const double TopBarFactor = 1.3;        // Bars with >300mm concrete below
 
-        /// <summary>NZS 3101 tension lap multiplier (k × db) by concrete grade.</summary>
-        public static double GetNzsLapMultiplier(ConcreteGrade grade)
+        /// <summary>NZS 3101:2006 A3 tension development length multiplier (Ld/db).</summary>
+        public static double GetNzsDevMultiplier(ConcreteGrade grade, SteelGrade steel = SteelGrade.Grade500E)
         {
-            return grade switch
-            {
-                ConcreteGrade.C25 => 40.0,
-                ConcreteGrade.C30 => 35.0,
-                ConcreteGrade.C35 => 32.0,
-                ConcreteGrade.C40 => 30.0,
-                ConcreteGrade.C50 => 28.0,
-                _ => 40.0
-            };
+            // NZS 3101:2006 A3 Cl 8.6.3.2: Ldb = 0.5 * fy / sqrt(f'c) * db
+            double fy = GetYieldStrength(steel);
+            double fc = ToMPa(grade);
+            double k = 0.5 * fy / Math.Sqrt(fc);
+            return Math.Max(k, 25.0);
         }
 
-        /// <summary>Lap length multiplier (k × db) by concrete grade — kept for backward compat.</summary>
+        /// <summary>NZS 3101:2006 A3 tension lap multiplier (1.3 * Ld/db).</summary>
+        public static double GetNzsLapMultiplier(ConcreteGrade grade, SteelGrade steel = SteelGrade.Grade500E)
+        {
+            return 1.3 * GetNzsDevMultiplier(grade, steel);
+        }
+
+        /// <summary>Backward compatibility for NZS lap multiplier.</summary>
         public static double GetLapMultiplier(ConcreteGrade grade) => GetNzsLapMultiplier(grade);
 
         /// <summary>ACI 318: tension dev length multiplier by concrete grade (simplified).</summary>

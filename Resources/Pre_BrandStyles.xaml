@@ -20,7 +20,7 @@
     <!-- ============================================================ -->
     <!-- COMPANY IDENTITY — Change these to rebrand everything        -->
     <!-- ============================================================ -->
-    <system:String x:Key="CompanyName" xmlns:system="clr-namespace:System;assembly=mscorlib">antiGGGravity</system:String>
+    <sys:String x:Key="CompanyName" xmlns:sys="clr-namespace:System;assembly=System.Runtime">antiGGGravity</sys:String>
 
     <!-- Company Logo TextBlock Style (shown top-left in gradient headers) -->
     <Style x:Key="CompanyLogoStyle" TargetType="TextBlock">
@@ -145,5 +145,12 @@
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="12"/>
     </Style>
+
+    <!-- Standardized Window Chrome with Improved Resizing (10px border) -->
+    <WindowChrome x:Key="PremiumWindowChrome" 
+                  CaptionHeight="70" 
+                  CornerRadius="12" 
+                  GlassFrameThickness="0" 
+                  ResizeBorderThickness="10"/>
 
 </ResourceDictionary>
