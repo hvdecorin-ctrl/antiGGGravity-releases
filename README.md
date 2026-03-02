@@ -190,10 +190,15 @@ A complete parametric bracing system for steel structures:
 
 ## 📦 Installation & Deployment
 
-### For Developers (Fast-Iteration)
-1. Build the solution in **Debug** configuration.
-2. Load the resulting DLL via **Revit Add-in Manager**:
+### For Developers (Standard Workflow)
+1. **Build for Debugging**: Run a standard build to generate the DLL:
+   `dotnet build antiGGGravity.csproj -c Debug`
+   *(This does NOT auto-deploy to Revit folders, avoiding file-lock issues during active sessions).*
+2. **Load via Add-in Manager**: Use the Revit Add-In Manager to load and debug the DLL directly from:
    `bin\Debug\net8.0-windows\antiGGGravity.dll`
+3. **Deployment**: Only run the full deployment when Revit is closed or a restart is planned:
+   `dotnet build antiGGGravity.csproj -c Debug -p:DeployToRevit=true`
+   *(Or use the `/deploy` workflow).*
 
 ### For Production
 1. Build the solution in **Release** configuration.

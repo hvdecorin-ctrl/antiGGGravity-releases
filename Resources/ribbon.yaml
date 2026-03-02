@@ -388,6 +388,19 @@ panels:
         command: RebarQuantityCommand
         icon: RebarQty
         tooltip: Quick summary of rebar quantities by host category and bar diameter.
+      # --- Column 4 ---
+      - type: pulldown
+        name: Host Mark
+        icon: RebarTools
+        tooltip: Assign Mark and manage rebar host marks.
+        buttons:
+          - name: Create Element Name
+            command: CreateElementNameParamCommand
+            icon: RebarTools
+          
+          - name: Assign Mark
+            command: AssignElementNameCommand
+            icon: RebarTools
 
   # ============================================================
   # MODEL PANEL
