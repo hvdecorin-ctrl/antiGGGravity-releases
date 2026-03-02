@@ -1,3 +1,4 @@
+using System;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
@@ -5,15 +6,11 @@ using antiGGGravity.Views.Rebar;
 
 namespace antiGGGravity.Commands.Rebar
 {
-    /// <summary>
-    /// ExternalEventHandler that re-scans the document and refreshes the window.
-    /// Required because Revit API calls must run on the main thread.
-    /// </summary>
-    public class RebarQuantityRefreshHandler : IExternalEventHandler
+    public class RebarHostMarkRefreshHandler : IExternalEventHandler
     {
-        private RebarQuantityWindow _window;
+        private RebarHostMarkWindow _window;
         
-        public void SetWindow(RebarQuantityWindow window)
+        public void SetWindow(RebarHostMarkWindow window)
         {
             _window = window;
         }
@@ -23,8 +20,7 @@ namespace antiGGGravity.Commands.Rebar
             try
             {
                 if (_window == null) return;
-
-                var result = RebarQuantityService.Scan(app);
+                var result = RebarHostMarkService.Scan(app);
                 if (result != null)
                 {
                     _window.LoadResult(result);
@@ -32,22 +28,19 @@ namespace antiGGGravity.Commands.Rebar
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine("RebarQuantityRefreshHandler Error: " + ex.Message);
+                System.Diagnostics.Debug.WriteLine("RebarHostMarkRefreshHandler Error: " + ex.Message);
             }
         }
 
-        public string GetName() => "RebarQuantityRefreshHandler";
+        public string GetName() => "RebarHostMarkRefreshHandler";
     }
 
-    /// <summary>
-    /// Ribbon command that opens the Quick Rebar Q'ty modeless window.
-    /// </summary>
     [Transaction(TransactionMode.Manual)]
-    public class RebarQuantityCommand : BaseCommand
+    public class RebarHostMarkCommand : BaseCommand
     {
-        private static RebarQuantityWindow _window;
+        private static RebarHostMarkWindow _window;
         private static ExternalEvent _refreshEvent;
-        private static RebarQuantityRefreshHandler _refreshHandler;
+        private static RebarHostMarkRefreshHandler _refreshHandler;
 
         protected override bool RequiresLicense => false;
 
@@ -57,11 +50,9 @@ namespace antiGGGravity.Commands.Rebar
 
             if (uiApp.ActiveUIDocument == null)
             {
-                TaskDialog.Show("Quick Rebar Q'ty", "Please open a project first.");
+                TaskDialog.Show("Rebar Host Mark", "Please open a project first.");
                 return Result.Cancelled;
             }
-
-            Document doc = uiApp.ActiveUIDocument.Document;
 
             // If window is already open, bring it to front and refresh
             if (_window != null)
@@ -70,8 +61,7 @@ namespace antiGGGravity.Commands.Rebar
                 {
                     _window.Activate();
                     _window.Focus();
-                    // Also refresh the data
-                    var result = RebarQuantityService.Scan(uiApp);
+                    var result = RebarHostMarkService.Scan(uiApp);
                     _window.LoadResult(result);
                     return Result.Succeeded;
                 }
@@ -82,14 +72,14 @@ namespace antiGGGravity.Commands.Rebar
             }
 
             // Scan rebar data
-            var initialResult = RebarQuantityService.Scan(uiApp);
+            var initialResult = RebarHostMarkService.Scan(uiApp);
 
             // Create the refresh handler + external event
-            _refreshHandler = new RebarQuantityRefreshHandler();
+            _refreshHandler = new RebarHostMarkRefreshHandler();
             _refreshEvent = ExternalEvent.Create(_refreshHandler);
 
             // Create modeless window
-            _window = new RebarQuantityWindow(initialResult, _refreshEvent, _refreshHandler);
+            _window = new RebarHostMarkWindow(initialResult, _refreshEvent, _refreshHandler);
 
             // Set Revit as owner so the window stays on top
             try
@@ -100,7 +90,6 @@ namespace antiGGGravity.Commands.Rebar
             }
             catch { }
 
-            // Wire up cleanup on close
             _window.Closed += (s, e) =>
             {
                 try { _refreshEvent?.Dispose(); } catch { }

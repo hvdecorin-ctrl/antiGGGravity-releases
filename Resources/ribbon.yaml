@@ -383,11 +383,18 @@ panels:
         icon: RebarTools
         tooltip: Open a floating palette containing all rebar visibility, selection, and host-based tools.
       # --- Column 3 ---
-      - type: pushbutton
+      - type: pulldown
         name: Rebar Q'ty
-        command: RebarQuantityCommand
         icon: RebarQty
-        tooltip: Quick summary of rebar quantities by host category and bar diameter.
+        tooltip: Quick summary of rebar quantities by host category or host mark.
+        buttons:
+          - name: Rebar Q'ty
+            command: RebarQuantityCommand
+            icon: RebarQty
+            
+          - name: Rebar Host Mark
+            command: RebarHostMarkCommand
+            icon: RebarQty
       # --- Column 4 ---
       - type: pulldown
         name: Host Mark

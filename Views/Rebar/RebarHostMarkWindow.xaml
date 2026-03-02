@@ -1,7 +1,7 @@
-<Window x:Class="antiGGGravity.Views.Rebar.RebarQuantityWindow"
+<Window x:Class="antiGGGravity.Views.Rebar.RebarHostMarkWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Quick Rebar Q'ty"
+        Title="Rebar Host Mark"
         Width="950" Height="480" MinWidth="700" MinHeight="350"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         WindowStartupLocation="CenterScreen" ShowInTaskbar="True"
@@ -130,8 +130,8 @@
                         <TextBlock Style="{StaticResource CompanyLogoStyle}"/>
                         <TextBlock Style="{StaticResource CompanyDividerStyle}"/>
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="Quick Rebar Q'ty" Style="{StaticResource PremiumTitleStyle}"/>
-                            <TextBlock Text="Quantity Summary by Host &amp; Diameter" Style="{StaticResource PremiumSubtitleStyle}"/>
+                            <TextBlock Text="Rebar Host Mark Quantity" Style="{StaticResource PremiumTitleStyle}"/>
+                            <TextBlock Text="Quantity Summary by Host Mark &amp; Diameter" Style="{StaticResource PremiumSubtitleStyle}"/>
                         </StackPanel>
                     </StackPanel>
                     <Button HorizontalAlignment="Right" VerticalAlignment="Center" 
