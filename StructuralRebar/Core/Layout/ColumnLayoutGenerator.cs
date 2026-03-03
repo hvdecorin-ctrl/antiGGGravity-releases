@@ -38,17 +38,19 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
             XYZ tieOrigin = origin + basisZ * startOffset;
 
             // Points in Local Basis
-            XYZ p1 = tieOrigin - basisX * (wTie / 2.0) - basisY * (dTie / 2.0);
-            XYZ p2 = tieOrigin + basisX * (wTie / 2.0) - basisY * (dTie / 2.0);
-            XYZ p3 = tieOrigin + basisX * (wTie / 2.0) + basisY * (dTie / 2.0);
-            XYZ p4 = tieOrigin - basisX * (wTie / 2.0) + basisY * (dTie / 2.0);
+            XYZ p1 = tieOrigin - basisX * (wTie / 2.0) - basisY * (dTie / 2.0); // BL
+            XYZ p2 = tieOrigin + basisX * (wTie / 2.0) - basisY * (dTie / 2.0); // BR
+            XYZ p3 = tieOrigin + basisX * (wTie / 2.0) + basisY * (dTie / 2.0); // TR
+            XYZ p4 = tieOrigin - basisX * (wTie / 2.0) + basisY * (dTie / 2.0); // TL
 
+            // Use Counter-Clockwise (CCW) order starting from TR: TR -> TL -> BL -> BR -> TR
+            // This sequence matches beam stirrups and ensures standard hook shape matching succeeds.
             List<Curve> curves = new List<Curve>
             {
-                Line.CreateBound(p1, p2),
-                Line.CreateBound(p2, p3),
                 Line.CreateBound(p3, p4),
-                Line.CreateBound(p4, p1)
+                Line.CreateBound(p4, p1),
+                Line.CreateBound(p1, p2),
+                Line.CreateBound(p2, p3)
             };
 
             return new RebarDefinition
@@ -62,6 +64,8 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                 Normal = basisZ,
                 HookStartName = hookStartName,
                 HookEndName = hookEndName,
+                HookStartOrientation = RebarHookOrientation.Left,
+                HookEndOrientation = RebarHookOrientation.Left,
                 Label = "Column Tie"
             };
         }
@@ -98,17 +102,18 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
 
                 XYZ tieOrigin = origin + basisZ * zone.StartOffset;
 
-                XYZ p1 = tieOrigin - basisX * (wTie / 2.0) - basisY * (dTie / 2.0);
-                XYZ p2 = tieOrigin + basisX * (wTie / 2.0) - basisY * (dTie / 2.0);
-                XYZ p3 = tieOrigin + basisX * (wTie / 2.0) + basisY * (dTie / 2.0);
-                XYZ p4 = tieOrigin - basisX * (wTie / 2.0) + basisY * (dTie / 2.0);
+                XYZ p1 = tieOrigin - basisX * (wTie / 2.0) - basisY * (dTie / 2.0); // BL
+                XYZ p2 = tieOrigin + basisX * (wTie / 2.0) - basisY * (dTie / 2.0); // BR
+                XYZ p3 = tieOrigin + basisX * (wTie / 2.0) + basisY * (dTie / 2.0); // TR
+                XYZ p4 = tieOrigin - basisX * (wTie / 2.0) + basisY * (dTie / 2.0); // TL
 
+                // Counter-Clockwise (CCW) order starting from TR: TR -> TL -> BL -> BR -> TR
                 var curves = new List<Curve>
                 {
-                    Line.CreateBound(p1, p2),
-                    Line.CreateBound(p2, p3),
                     Line.CreateBound(p3, p4),
-                    Line.CreateBound(p4, p1)
+                    Line.CreateBound(p4, p1),
+                    Line.CreateBound(p1, p2),
+                    Line.CreateBound(p2, p3)
                 };
 
                 defs.Add(new RebarDefinition
@@ -122,6 +127,8 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                     Normal = basisZ,
                     HookStartName = hookStartName,
                     HookEndName = hookEndName,
+                    HookStartOrientation = RebarHookOrientation.Left,
+                    HookEndOrientation = RebarHookOrientation.Left,
                     Label = $"Column Tie ({zone.Label})"
                 });
             }
@@ -135,6 +142,7 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
             double barDiameterX,
             string barTypeNameY,
             double barDiameterY,
+            double tDia,
             int nx,
             int ny,
             double topExt,
@@ -158,71 +166,75 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
             double totalHeight = host.Length;
 
             // Inner offset for vertical bars (Account for largest bar diameter and tie)
-            double tDia = 0.0328; 
             double maxBarDia = Math.Max(barDiameterX, barDiameterY);
             double innerOff = coverSide + tDia + maxBarDia / 2.0;
 
-            // X and Y grid points
-            List<double> xPts = new List<double>();
-            if (nx > 1)
-            {
-                double stepX = (width - 2 * innerOff) / (nx - 1);
-                for (int i = 0; i < nx; i++) xPts.Add(-width / 2.0 + innerOff + i * stepX);
-            }
-            else xPts.Add(0);
+            double stepX = nx > 1 ? (width - 2 * innerOff) / (nx - 1) : 0;
+            double stepY = ny > 1 ? (depth - 2 * innerOff) / (ny - 1) : 0;
 
-            List<double> yPts = new List<double>();
-            if (ny > 1)
-            {
-                double stepY = (depth - 2 * innerOff) / (ny - 1);
-                for (int i = 0; i < ny; i++) yPts.Add(-depth / 2.0 + innerOff + i * stepY);
-            }
-            else yPts.Add(0);
+            double xFirst = -width / 2.0 + innerOff;
+            double xLast = width / 2.0 - innerOff;
+            double yFirst = -depth / 2.0 + innerOff;
+            double yLast = depth / 2.0 - innerOff;
 
-            for (int ix = 0; ix < xPts.Count; ix++)
+            // Helper to create a Set definition
+            void AddSet(int count, XYZ startPos, XYZ arrayDir, double distWidth, string bType, double bDia, XYZ outDir, string label)
             {
-                for (int iy = 0; iy < yPts.Count; iy++)
+                if (count < 1) return;
+
+                XYZ hookNormal = basisZ.CrossProduct(outDir);
+                XYZ pStart = startPos + basisZ * (coverSide - botExt);
+                XYZ pEnd = startPos + basisZ * (totalHeight - coverSide + topExt);
+
+                definitions.Add(new RebarDefinition
                 {
-                    bool isXEdge = (ix == 0 || ix == xPts.Count - 1);
-                    bool isYEdge = (iy == 0 || iy == yPts.Count - 1);
+                    Curves = new List<Curve> { Line.CreateBound(pStart, pEnd) },
+                    Style = RebarStyle.Standard,
+                    BarTypeName = bType,
+                    BarDiameter = bDia,
+                    Normal = hookNormal,
+                    ArrayDirection = arrayDir,
+                    FixedCount = count,
+                    DistributionWidth = distWidth,
+                    HookStartName = hookStartName,
+                    HookEndName = hookEndName,
+                    HookStartOrientation = hookStartOut ? RebarHookOrientation.Left : RebarHookOrientation.Right,
+                    HookEndOrientation = hookEndOut ? RebarHookOrientation.Left : RebarHookOrientation.Right,
+                    Label = label
+                });
+            }
 
-                    if (isXEdge || isYEdge)
-                    {
-                        double x = xPts[ix];
-                        double y = yPts[iy];
+            // 1. Bottom Face Set (y = yFirst)
+            if (nx > 0)
+            {
+                XYZ pos = origin + basisX * xFirst + basisY * yFirst;
+                double dist = nx > 1 ? xLast - xFirst : 0;
+                AddSet(nx, pos, basisX, dist, barTypeNameX, barDiameterX, -basisY, "Main Vertical Bar (Bottom Face)");
+            }
 
-                        // Determine hook normal (outward direction)
-                        XYZ outDir;
-                        if (isXEdge && isYEdge)
-                            outDir = (basisX * (x > 0 ? 1 : -1) + basisY * (y > 0 ? 1 : -1)).Normalize();
-                        else if (isXEdge)
-                            outDir = basisX * (x > 0 ? 1 : -1);
-                        else
-                            outDir = basisY * (y > 0 ? 1 : -1);
+            // 2. Top Face Set (y = yLast)
+            if (nx > 0 && ny > 1)
+            {
+                XYZ pos = origin + basisX * xLast + basisY * yLast;
+                double dist = nx > 1 ? xLast - xFirst : 0;
+                AddSet(nx, pos, -basisX, dist, barTypeNameX, barDiameterX, basisY, "Main Vertical Bar (Top Face)");
+            }
 
-                        XYZ hookNormal = basisZ.CrossProduct(outDir);
+            // 3. Left Face Inner Set (x = xFirst, inner ny-2 bars)
+            int nyInner = ny - 2;
+            if (nyInner > 0 && nx > 0)
+            {
+                XYZ pos = origin + basisX * xFirst + basisY * (yLast - stepY);
+                double dist = nyInner > 1 ? stepY * (nyInner - 1) : 0;
+                AddSet(nyInner, pos, -basisY, dist, barTypeNameY, barDiameterY, -basisX, "Main Vertical Bar (Left Face)");
+            }
 
-                        XYZ pos = origin + basisX * x + basisY * y;
-                        XYZ pStart = pos + basisZ * (coverSide - botExt);
-                        XYZ pEnd = pos + basisZ * (totalHeight - coverSide + topExt);
-
-                        Curve vLine = Line.CreateBound(pStart, pEnd);
-
-                        definitions.Add(new RebarDefinition
-                        {
-                            Curves = new List<Curve> { vLine },
-                            Style = RebarStyle.Standard,
-                            BarTypeName = (!isXEdge) ? barTypeNameY : barTypeNameX, // X edge (Top/Bot face) uses X type, else Y
-                            BarDiameter = (!isXEdge) ? barDiameterY : barDiameterX,
-                            Normal = hookNormal,
-                            HookStartName = hookStartName,
-                            HookEndName = hookEndName,
-                            HookStartOrientation = hookStartOut ? RebarHookOrientation.Left : RebarHookOrientation.Right,
-                            HookEndOrientation = hookEndOut ? RebarHookOrientation.Left : RebarHookOrientation.Right,
-                            Label = "Main Vertical Bar"
-                        });
-                    }
-                }
+            // 4. Right Face Inner Set (x = xLast, inner ny-2 bars)
+            if (nyInner > 0 && nx > 1)
+            {
+                XYZ pos = origin + basisX * xLast + basisY * (yFirst + stepY);
+                double dist = nyInner > 1 ? stepY * (nyInner - 1) : 0;
+                AddSet(nyInner, pos, basisY, dist, barTypeNameY, barDiameterY, basisX, "Main Vertical Bar (Right Face)");
             }
 
             return definitions;

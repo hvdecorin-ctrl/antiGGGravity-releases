@@ -56,10 +56,6 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
                     RebarHookType hookStart = ResolveHookType(def.HookStartName);
                     RebarHookType hookEnd = ResolveHookType(def.HookEndName);
 
-                    // For stirrup/ties with user-requested hooks, skip existing shape matching
-                    // to prevent Revit from picking a wrong shape that distorts the geometry.
-                    bool useExisting = !(def.Style == RebarStyle.StirrupTie && (hookStart != null || hookEnd != null));
-
                     DBRebar rebar = DBRebar.CreateFromCurves(
                         _doc,
                         def.Style,
@@ -71,7 +67,7 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
                         def.Curves,
                         def.HookStartOrientation,
                         def.HookEndOrientation,
-                        useExisting, true);
+                        true, true);
 
                     if (rebar != null)
                     {

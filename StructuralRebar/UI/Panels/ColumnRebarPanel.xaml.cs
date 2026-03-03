@@ -157,8 +157,8 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 TransverseSpacing = tieSpacing,
                 TransverseStartOffset = tieBotOff, // Start = Bottom
                 TransverseEndOffset = tieTopOff,   // End = Top
-                TransverseHookStartName = (UI_Combo_HookStart.SelectedItem as RebarHookType)?.Name,
-                TransverseHookEndName = (UI_Combo_HookEnd.SelectedItem as RebarHookType)?.Name,
+                TransverseHookStartName = (UI_Combo_HookStart.SelectedItem as HookViewModel)?.Hook?.Name,
+                TransverseHookEndName = (UI_Combo_HookEnd.SelectedItem as HookViewModel)?.Hook?.Name,
 
                 // Vertical Bars
                 ColumnCountX = (int)ParseDouble(UI_Text_CountX.Text, 3),

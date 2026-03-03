@@ -794,6 +794,10 @@ var segments = request.EnableLapSplice
 
                 if (vDiaX > 0 || vDiaY > 0)
                 {
+                    double tDia = 0.0328; // fallback 10mm
+                    if (!string.IsNullOrEmpty(request.TransverseBarTypeName))
+                        tDia = GetBarDiameter(request.TransverseBarTypeName);
+
                     // For Column, we use the first layer in the list to store Hook settings
                     var layerTempl = request.Layers.FirstOrDefault() ?? new RebarLayerConfig();
 
@@ -801,6 +805,7 @@ var segments = request.EnableLapSplice
                         host, 
                         request.VerticalBarTypeNameX, vDiaX,
                         request.VerticalBarTypeNameY, vDiaY,
+                        tDia,
                         request.ColumnCountX, request.ColumnCountY,
                         request.VerticalTopExtension, request.VerticalBottomExtension,
                         layerTempl.HookStartName, layerTempl.HookEndName,
