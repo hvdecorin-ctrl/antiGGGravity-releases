@@ -406,7 +406,7 @@ panels:
             icon: RebarTools
           
           - name: Assign Mark
-            command: AssignElementNameCommand
+            command: AssignMarkCommand
             icon: RebarTools
 
   # ============================================================

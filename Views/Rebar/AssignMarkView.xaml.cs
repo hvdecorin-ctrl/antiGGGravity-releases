@@ -1,22 +1,38 @@
 using System.Windows;
+using System.Windows.Controls;
 
 namespace antiGGGravity.Views.Rebar
 {
-    public partial class AssignElementNameView : Window
+    public partial class AssignMarkView : Window
     {
-        public enum NamingMode { TypeMark, CustomName }
+        public enum NamingMode { TypeMark, CustomName, TypeMarkXY }
         public enum NumberingRule { Auto, Manual }
         public enum ScopeOption { ActiveView, EntireProject }
 
         // Expose selected options
-        public NamingMode SelectedNamingMode => UI_Radio_TypeMark.IsChecked == true ? NamingMode.TypeMark : NamingMode.CustomName;
+        public NamingMode SelectedNamingMode =>
+            UI_Radio_TypeMark.IsChecked == true ? NamingMode.TypeMark :
+            UI_Radio_TypeMarkXY.IsChecked == true ? NamingMode.TypeMarkXY :
+            NamingMode.CustomName;
         public NumberingRule SelectedNumberingRule => UI_Radio_Auto.IsChecked == true ? NumberingRule.Auto : NumberingRule.Manual;
         public ScopeOption SelectedScope => UI_Radio_ActiveView.IsChecked == true ? ScopeOption.ActiveView : ScopeOption.EntireProject;
         public string CustomNamePrefix => UI_TextBox_CustomName.Text?.Trim() ?? "";
 
+        /// <summary>
+        /// Returns the Tag string of the selected category (e.g. "OST_Walls"), or null for "All Categories".
+        /// </summary>
+        public string SelectedCategoryTag
+        {
+            get
+            {
+                var item = UI_Combo_Category.SelectedItem as ComboBoxItem;
+                return item?.Tag as string;
+            }
+        }
+
         public bool UserConfirmed { get; private set; } = false;
 
-        public AssignElementNameView()
+        public AssignMarkView()
         {
             InitializeComponent();
         }

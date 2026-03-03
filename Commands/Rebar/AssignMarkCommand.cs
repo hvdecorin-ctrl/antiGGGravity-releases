@@ -15,7 +15,7 @@ namespace antiGGGravity.Commands.Rebar
     /// Supports Auto (Left→Right) and Manual (click-to-number) modes.
     /// </summary>
     [Transaction(TransactionMode.Manual)]
-    public class AssignElementNameCommand : BaseCommand
+    public class AssignMarkCommand : BaseCommand
     {
         protected override bool RequiresLicense => false;
 
@@ -44,7 +44,7 @@ namespace antiGGGravity.Commands.Rebar
             }
 
             // Show options dialog
-            var dialog = new AssignElementNameView();
+            var dialog = new AssignMarkView();
             
             // Set Revit as owner
             try
@@ -64,27 +64,33 @@ namespace antiGGGravity.Commands.Rebar
             var numberingRule = dialog.SelectedNumberingRule;
             var scope = dialog.SelectedScope;
             string customPrefix = dialog.CustomNamePrefix;
+            string categoryTag = dialog.SelectedCategoryTag;
+
+            // Resolve category filter
+            var categories = ResolveCategoryTag(categoryTag);
 
             // Manual mode: user clicks elements one by one
-            if (numberingRule == AssignElementNameView.NumberingRule.Manual)
+            if (numberingRule == AssignMarkView.NumberingRule.Manual)
             {
-                return RunManualMode(uiDoc, doc, namingMode, customPrefix);
+                return RunManualMode(uiDoc, doc, namingMode, customPrefix, categories);
             }
 
             // Auto mode: collect and sort left-to-right
-            return RunAutoMode(doc, namingMode, scope, customPrefix);
+            return RunAutoMode(doc, namingMode, scope, customPrefix, categories);
         }
 
         /// <summary>
         /// Auto mode: collects all structural elements, groups by TypeMark, sorts left→right, numbers sequentially.
+        /// For TypeMarkXY mode, sub-groups by direction (X=horizontal, Y=vertical) within each TypeMark group.
         /// </summary>
         private Result RunAutoMode(Document doc,
-            AssignElementNameView.NamingMode namingMode,
-            AssignElementNameView.ScopeOption scope,
-            string customPrefix)
+            AssignMarkView.NamingMode namingMode,
+            AssignMarkView.ScopeOption scope,
+            string customPrefix,
+            BuiltInCategory[] categories)
         {
             // Collect elements
-            var allElements = CollectStructuralElements(doc, scope == AssignElementNameView.ScopeOption.ActiveView);
+            var allElements = CollectStructuralElements(doc, scope == AssignMarkView.ScopeOption.ActiveView, categories);
 
             if (allElements.Count == 0)
             {
@@ -106,21 +112,83 @@ namespace antiGGGravity.Commands.Rebar
                     string prefix = kvp.Key;
                     var elems = kvp.Value;
 
-                    // Sort left → right (by X coordinate), then bottom → top (by Y)
-                    var sorted = SortLeftToRight(doc, elems);
-
-                    int counter = 1;
-                    foreach (var elem in sorted)
+                    if (namingMode == AssignMarkView.NamingMode.TypeMarkXY)
                     {
-                        string name = $"{prefix}-{counter}";
-                        // Write to the built-in Mark parameter
-                        Parameter param = elem.get_Parameter(BuiltInParameter.ALL_MODEL_MARK);
-                        if (param != null && !param.IsReadOnly)
+                        // Sub-group by direction: X (horizontal), Y (vertical), or null (no direction)
+                        var xElems = new List<Element>();
+                        var yElems = new List<Element>();
+                        var noDir = new List<Element>();
+
+                        foreach (var elem in elems)
                         {
-                            param.Set(name);
-                            totalUpdated++;
+                            string dir = GetElementDirection(elem);
+                            if (dir == "X") xElems.Add(elem);
+                            else if (dir == "Y") yElems.Add(elem);
+                            else noDir.Add(elem);
                         }
-                        counter++;
+
+                        // X-direction: sort left→right, name as Prefix-X1, Prefix-X2...
+                        var sortedX = SortLeftToRight(doc, xElems);
+                        int xCounter = 1;
+                        foreach (var elem in sortedX)
+                        {
+                            string name = $"{prefix}-X{xCounter}";
+                            Parameter param = elem.get_Parameter(BuiltInParameter.ALL_MODEL_MARK);
+                            if (param != null && !param.IsReadOnly)
+                            {
+                                param.Set(name);
+                                totalUpdated++;
+                            }
+                            xCounter++;
+                        }
+
+                        // Y-direction: sort bottom→top, name as Prefix-Y1, Prefix-Y2...
+                        var sortedY = SortBottomToTop(doc, yElems);
+                        int yCounter = 1;
+                        foreach (var elem in sortedY)
+                        {
+                            string name = $"{prefix}-Y{yCounter}";
+                            Parameter param = elem.get_Parameter(BuiltInParameter.ALL_MODEL_MARK);
+                            if (param != null && !param.IsReadOnly)
+                            {
+                                param.Set(name);
+                                totalUpdated++;
+                            }
+                            yCounter++;
+                        }
+
+                        // No direction (columns, etc): fall back to normal Prefix-1, Prefix-2...
+                        var sortedNoDir = SortLeftToRight(doc, noDir);
+                        int nCounter = 1;
+                        foreach (var elem in sortedNoDir)
+                        {
+                            string name = $"{prefix}-{nCounter}";
+                            Parameter param = elem.get_Parameter(BuiltInParameter.ALL_MODEL_MARK);
+                            if (param != null && !param.IsReadOnly)
+                            {
+                                param.Set(name);
+                                totalUpdated++;
+                            }
+                            nCounter++;
+                        }
+                    }
+                    else
+                    {
+                        // Standard mode: sort left → right, number sequentially
+                        var sorted = SortLeftToRight(doc, elems);
+
+                        int counter = 1;
+                        foreach (var elem in sorted)
+                        {
+                            string name = $"{prefix}-{counter}";
+                            Parameter param = elem.get_Parameter(BuiltInParameter.ALL_MODEL_MARK);
+                            if (param != null && !param.IsReadOnly)
+                            {
+                                param.Set(name);
+                                totalUpdated++;
+                            }
+                            counter++;
+                        }
                     }
                 }
 
@@ -140,22 +208,29 @@ namespace antiGGGravity.Commands.Rebar
         /// Manual mode: user clicks elements one by one to assign sequential numbers.
         /// </summary>
         private Result RunManualMode(UIDocument uiDoc, Document doc,
-            AssignElementNameView.NamingMode namingMode,
-            string customPrefix)
+            AssignMarkView.NamingMode namingMode,
+            string customPrefix,
+            BuiltInCategory[] categories)
         {
+            string modeDesc = namingMode == AssignMarkView.NamingMode.TypeMark
+                    ? "Prefix: element's Type Mark"
+                    : namingMode == AssignMarkView.NamingMode.TypeMarkXY
+                        ? "Prefix: element's Type Mark + X/Y direction"
+                        : $"Prefix: \"{customPrefix}\"";
+
             TaskDialog.Show("Manual Numbering",
                 "Click structural elements one by one to assign numbers.\n\n" +
                 "  • Each click assigns the next number (1, 2, 3...)\n" +
                 "  • Press ESC or right-click to finish.\n\n" +
-                (namingMode == AssignElementNameView.NamingMode.TypeMark
-                    ? "Prefix: element's Type Mark"
-                    : $"Prefix: \"{customPrefix}\""));
+                modeDesc);
 
+            // For TypeMarkXY manual mode, track counters per direction per prefix
+            var xyCounters = new Dictionary<string, int>(); // key = "Prefix-X" or "Prefix-Y" or "Prefix"
             int counter = 1;
             int updated = 0;
 
             // Build a multi-category filter for selection
-            var filter = new StructuralElementSelectionFilter();
+            var filter = new StructuralElementSelectionFilter(categories);
 
             using (Transaction t = new Transaction(doc, "Assign Mark (Manual)"))
             {
@@ -177,7 +252,8 @@ namespace antiGGGravity.Commands.Rebar
 
                         // Determine prefix
                         string prefix;
-                        if (namingMode == AssignElementNameView.NamingMode.TypeMark)
+                        if (namingMode == AssignMarkView.NamingMode.TypeMark ||
+                            namingMode == AssignMarkView.NamingMode.TypeMarkXY)
                         {
                             prefix = GetTypeMark(doc, elem);
                             if (string.IsNullOrWhiteSpace(prefix))
@@ -193,7 +269,31 @@ namespace antiGGGravity.Commands.Rebar
                             prefix = customPrefix;
                         }
 
-                        string name = $"{prefix}-{counter}";
+                        string name;
+                        if (namingMode == AssignMarkView.NamingMode.TypeMarkXY)
+                        {
+                            string dir = GetElementDirection(elem);
+                            if (dir != null)
+                            {
+                                // Has direction: Prefix-X1 or Prefix-Y1
+                                string key = $"{prefix}-{dir}";
+                                if (!xyCounters.ContainsKey(key)) xyCounters[key] = 0;
+                                xyCounters[key]++;
+                                name = $"{prefix}-{dir}{xyCounters[key]}";
+                            }
+                            else
+                            {
+                                // No direction: fall back to Prefix-1
+                                string key = prefix;
+                                if (!xyCounters.ContainsKey(key)) xyCounters[key] = 0;
+                                xyCounters[key]++;
+                                name = $"{prefix}-{xyCounters[key]}";
+                            }
+                        }
+                        else
+                        {
+                            name = $"{prefix}-{counter}";
+                        }
                         // Write to the built-in Mark parameter
                         Parameter param = elem.get_Parameter(BuiltInParameter.ALL_MODEL_MARK);
                         if (param != null && !param.IsReadOnly)
@@ -232,11 +332,11 @@ namespace antiGGGravity.Commands.Rebar
 
         // --- HELPER METHODS ---
 
-        private List<Element> CollectStructuralElements(Document doc, bool activeViewOnly)
+        private List<Element> CollectStructuralElements(Document doc, bool activeViewOnly, BuiltInCategory[] categories)
         {
             var result = new List<Element>();
 
-            foreach (var bic in TargetCategories)
+            foreach (var bic in categories)
             {
                 FilteredElementCollector collector;
                 if (activeViewOnly)
@@ -255,15 +355,42 @@ namespace antiGGGravity.Commands.Rebar
             return result;
         }
 
+        /// <summary>
+        /// Resolves a category tag string to an array of BuiltInCategory values.
+        /// Returns all target categories if tag is null ("All Categories").
+        /// </summary>
+        private BuiltInCategory[] ResolveCategoryTag(string tag)
+        {
+            if (string.IsNullOrEmpty(tag)) return TargetCategories;
+
+            var map = new Dictionary<string, BuiltInCategory>
+            {
+                { "OST_StructuralFoundation", BuiltInCategory.OST_StructuralFoundation },
+                { "OST_Walls", BuiltInCategory.OST_Walls },
+                { "OST_Floors", BuiltInCategory.OST_Floors },
+                { "OST_StructuralColumns", BuiltInCategory.OST_StructuralColumns },
+                { "OST_StructuralFraming", BuiltInCategory.OST_StructuralFraming },
+                { "OST_Roofs", BuiltInCategory.OST_Roofs },
+                { "OST_Stairs", BuiltInCategory.OST_Stairs },
+                { "OST_GenericModel", BuiltInCategory.OST_GenericModel }
+            };
+
+            if (map.TryGetValue(tag, out var bic))
+                return new[] { bic };
+
+            return TargetCategories;
+        }
+
         private Dictionary<string, List<Element>> GroupByPrefix(Document doc, List<Element> elements,
-            AssignElementNameView.NamingMode namingMode, string customPrefix)
+            AssignMarkView.NamingMode namingMode, string customPrefix)
         {
             var groups = new Dictionary<string, List<Element>>();
 
             foreach (var elem in elements)
             {
                 string prefix;
-                if (namingMode == AssignElementNameView.NamingMode.TypeMark)
+                if (namingMode == AssignMarkView.NamingMode.TypeMark ||
+                    namingMode == AssignMarkView.NamingMode.TypeMarkXY)
                 {
                     prefix = GetTypeMark(doc, elem);
                     if (string.IsNullOrWhiteSpace(prefix))
@@ -338,6 +465,56 @@ namespace antiGGGravity.Commands.Rebar
             })
             .ToList();
         }
+
+        /// <summary>
+        /// Sort elements bottom → top (by Y coordinate), then left → right (by X).
+        /// Used for Y-direction elements in TypeMarkXY mode.
+        /// </summary>
+        private List<Element> SortBottomToTop(Document doc, List<Element> elements)
+        {
+            return elements.OrderBy(e =>
+            {
+                var loc = e.Location;
+                if (loc is LocationPoint lp) return lp.Point.Y;
+                if (loc is LocationCurve lc) return lc.Curve.GetEndPoint(0).Y;
+                var bb = e.get_BoundingBox(null);
+                if (bb != null) return (bb.Min.Y + bb.Max.Y) / 2.0;
+                return 0.0;
+            })
+            .ThenBy(e =>
+            {
+                var loc = e.Location;
+                if (loc is LocationPoint lp) return lp.Point.X;
+                if (loc is LocationCurve lc) return lc.Curve.GetEndPoint(0).X;
+                var bb = e.get_BoundingBox(null);
+                if (bb != null) return (bb.Min.X + bb.Max.X) / 2.0;
+                return 0.0;
+            })
+            .ToList();
+        }
+
+        /// <summary>
+        /// Determines the plan-view direction of an element.
+        /// Returns "X" for horizontal, "Y" for vertical, or null for point-based elements.
+        /// Uses the angle of the element's curve relative to the X-axis (within ±45°).
+        /// </summary>
+        private string GetElementDirection(Element elem)
+        {
+            var loc = elem.Location;
+            if (loc is LocationCurve lc)
+            {
+                XYZ start = lc.Curve.GetEndPoint(0);
+                XYZ end = lc.Curve.GetEndPoint(1);
+                double dx = Math.Abs(end.X - start.X);
+                double dy = Math.Abs(end.Y - start.Y);
+
+                // If mostly horizontal (dx >= dy) → X, else Y
+                return dx >= dy ? "X" : "Y";
+            }
+
+            // LocationPoint or other → no direction
+            return null;
+        }
     }
 
     /// <summary>
@@ -345,17 +522,12 @@ namespace antiGGGravity.Commands.Rebar
     /// </summary>
     public class StructuralElementSelectionFilter : ISelectionFilter
     {
-        private static readonly HashSet<BuiltInCategory> _allowed = new HashSet<BuiltInCategory>
+        private readonly HashSet<BuiltInCategory> _allowed;
+
+        public StructuralElementSelectionFilter(BuiltInCategory[] categories)
         {
-            BuiltInCategory.OST_StructuralFoundation,
-            BuiltInCategory.OST_Walls,
-            BuiltInCategory.OST_Floors,
-            BuiltInCategory.OST_StructuralColumns,
-            BuiltInCategory.OST_StructuralFraming,
-            BuiltInCategory.OST_Roofs,
-            BuiltInCategory.OST_Stairs,
-            BuiltInCategory.OST_GenericModel
-        };
+            _allowed = new HashSet<BuiltInCategory>(categories);
+        }
 
         public bool AllowElement(Element elem)
         {
