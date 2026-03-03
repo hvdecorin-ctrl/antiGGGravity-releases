@@ -1,7 +1,7 @@
 <Window x:Class="antiGGGravity.Views.Rebar.AssignMarkView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Assign Mark" Height="540" Width="460"
+        Title="Assign Mark" Height="640" Width="460"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         WindowStartupLocation="CenterScreen" ShowInTaskbar="True">
 
@@ -33,7 +33,7 @@
                         <TextBlock Style="{DynamicResource CompanyDividerStyle}"/>
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="Assign Mark" Style="{DynamicResource PremiumTitleStyle}"/>
-                            <TextBlock Text="Assign TypeMark-Number to Mark. Revit auto-propagates to rebar Host Mark." Style="{DynamicResource PremiumSubtitleStyle}"/>
+                            <TextBlock Text="Assign sequential Mark to elements based on Type parameters or custom names." Style="{DynamicResource PremiumSubtitleStyle}"/>
                         </StackPanel>
                     </StackPanel>
                     <Button HorizontalAlignment="Right" VerticalAlignment="Center" Content="✕" 
@@ -60,6 +60,9 @@
                             <ComboBoxItem Content="Roof" Tag="OST_Roofs"/>
                             <ComboBoxItem Content="Stair" Tag="OST_Stairs"/>
                             <ComboBoxItem Content="Generic Model" Tag="OST_GenericModel"/>
+                            <ComboBoxItem Content="Door" Tag="OST_Doors"/>
+                            <ComboBoxItem Content="Window" Tag="OST_Windows"/>
+                            <ComboBoxItem Content="Room" Tag="OST_Rooms"/>
                         </ComboBox>
                     </Border>
 
@@ -67,10 +70,20 @@
                     <TextBlock Text="Naming Mode" Style="{DynamicResource PremiumSectionLabelStyle}" Margin="0,0,0,10"/>
                     <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="{DynamicResource PremiumBorderBrush}" BorderThickness="1" Padding="15,12" Margin="0,0,0,15">
                         <StackPanel>
-                            <RadioButton x:Name="UI_Radio_TypeMark" Content="Type Mark + Number  (e.g. SF1-1, B1-2)" 
+                            <!-- Prefix Source Dropdown -->
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                                <TextBlock Text="Prefix Source:" VerticalAlignment="Center" Foreground="#555" FontSize="12" Margin="0,0,8,0" Width="80"/>
+                                <ComboBox x:Name="UI_Combo_PrefixSource" FontSize="13" Height="30" Width="180" VerticalContentAlignment="Center" SelectedIndex="0">
+                                    <ComboBoxItem Content="Type Mark" Tag="TypeMark"/>
+                                    <ComboBoxItem Content="Type Comments" Tag="TypeComments"/>
+                                    <ComboBoxItem Content="Type Name" Tag="TypeName"/>
+                                </ComboBox>
+                            </StackPanel>
+
+                            <RadioButton x:Name="UI_Radio_TypeMark" Content="Prefix + Number  (e.g. SF1-1, B1-2)" 
                                          IsChecked="True" FontSize="13" Foreground="#333" Margin="0,0,0,10"
                                          Checked="UI_NamingMode_Changed"/>
-                            <RadioButton x:Name="UI_Radio_TypeMarkXY" Content="Type Mark + X/Y + Number  (e.g. B1-X1, B1-Y1)" 
+                            <RadioButton x:Name="UI_Radio_TypeMarkXY" Content="Prefix + X/Y + Number  (e.g. B1-X1, B1-Y1)" 
                                          FontSize="13" Foreground="#333" Margin="0,0,0,10"
                                          Checked="UI_NamingMode_Changed"/>
                             <RadioButton x:Name="UI_Radio_CustomName" Content="Custom Name + Number" 

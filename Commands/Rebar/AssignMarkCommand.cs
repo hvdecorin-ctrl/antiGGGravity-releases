@@ -28,7 +28,10 @@ namespace antiGGGravity.Commands.Rebar
             BuiltInCategory.OST_StructuralFraming,
             BuiltInCategory.OST_Roofs,
             BuiltInCategory.OST_Stairs,
-            BuiltInCategory.OST_GenericModel
+            BuiltInCategory.OST_GenericModel,
+            BuiltInCategory.OST_Doors,
+            BuiltInCategory.OST_Windows,
+            BuiltInCategory.OST_Rooms
         };
 
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
@@ -64,6 +67,7 @@ namespace antiGGGravity.Commands.Rebar
             var numberingRule = dialog.SelectedNumberingRule;
             var scope = dialog.SelectedScope;
             string customPrefix = dialog.CustomNamePrefix;
+            string prefixSource = dialog.SelectedPrefixSource;
             string categoryTag = dialog.SelectedCategoryTag;
 
             // Resolve category filter
@@ -72,11 +76,11 @@ namespace antiGGGravity.Commands.Rebar
             // Manual mode: user clicks elements one by one
             if (numberingRule == AssignMarkView.NumberingRule.Manual)
             {
-                return RunManualMode(uiDoc, doc, namingMode, customPrefix, categories);
+                return RunManualMode(uiDoc, doc, namingMode, prefixSource, customPrefix, categories);
             }
 
             // Auto mode: collect and sort left-to-right
-            return RunAutoMode(doc, namingMode, scope, customPrefix, categories);
+            return RunAutoMode(doc, namingMode, scope, prefixSource, customPrefix, categories);
         }
 
         /// <summary>
@@ -86,6 +90,7 @@ namespace antiGGGravity.Commands.Rebar
         private Result RunAutoMode(Document doc,
             AssignMarkView.NamingMode namingMode,
             AssignMarkView.ScopeOption scope,
+            string prefixSource,
             string customPrefix,
             BuiltInCategory[] categories)
         {
@@ -99,7 +104,7 @@ namespace antiGGGravity.Commands.Rebar
             }
 
             // Group by prefix (TypeMark or custom)
-            var groups = GroupByPrefix(doc, allElements, namingMode, customPrefix);
+            var groups = GroupByPrefix(doc, allElements, namingMode, prefixSource, customPrefix);
 
             int totalUpdated = 0;
 
@@ -133,7 +138,7 @@ namespace antiGGGravity.Commands.Rebar
                         foreach (var elem in sortedX)
                         {
                             string name = $"{prefix}-X{xCounter}";
-                            Parameter param = elem.get_Parameter(BuiltInParameter.ALL_MODEL_MARK);
+                            Parameter param = elem.get_Parameter(BuiltInParameter.ALL_MODEL_MARK) ?? elem.get_Parameter(BuiltInParameter.ROOM_NUMBER);
                             if (param != null && !param.IsReadOnly)
                             {
                                 param.Set(name);
@@ -148,7 +153,7 @@ namespace antiGGGravity.Commands.Rebar
                         foreach (var elem in sortedY)
                         {
                             string name = $"{prefix}-Y{yCounter}";
-                            Parameter param = elem.get_Parameter(BuiltInParameter.ALL_MODEL_MARK);
+                            Parameter param = elem.get_Parameter(BuiltInParameter.ALL_MODEL_MARK) ?? elem.get_Parameter(BuiltInParameter.ROOM_NUMBER);
                             if (param != null && !param.IsReadOnly)
                             {
                                 param.Set(name);
@@ -163,7 +168,7 @@ namespace antiGGGravity.Commands.Rebar
                         foreach (var elem in sortedNoDir)
                         {
                             string name = $"{prefix}-{nCounter}";
-                            Parameter param = elem.get_Parameter(BuiltInParameter.ALL_MODEL_MARK);
+                            Parameter param = elem.get_Parameter(BuiltInParameter.ALL_MODEL_MARK) ?? elem.get_Parameter(BuiltInParameter.ROOM_NUMBER);
                             if (param != null && !param.IsReadOnly)
                             {
                                 param.Set(name);
@@ -181,7 +186,7 @@ namespace antiGGGravity.Commands.Rebar
                         foreach (var elem in sorted)
                         {
                             string name = $"{prefix}-{counter}";
-                            Parameter param = elem.get_Parameter(BuiltInParameter.ALL_MODEL_MARK);
+                            Parameter param = elem.get_Parameter(BuiltInParameter.ALL_MODEL_MARK) ?? elem.get_Parameter(BuiltInParameter.ROOM_NUMBER);
                             if (param != null && !param.IsReadOnly)
                             {
                                 param.Set(name);
@@ -198,8 +203,7 @@ namespace antiGGGravity.Commands.Rebar
             TaskDialog.Show("Assign Mark",
                 $"Auto-naming complete!\n\n" +
                 $"  ✓ Updated: {totalUpdated} elements\n" +
-                $"  📦 Groups: {groups.Count} unique prefixes\n\n" +
-                $"Revit will auto-propagate Mark → rebar Host Mark.");
+                $"  📦 Groups: {groups.Count} unique prefixes");
 
             return Result.Succeeded;
         }
@@ -209,11 +213,12 @@ namespace antiGGGravity.Commands.Rebar
         /// </summary>
         private Result RunManualMode(UIDocument uiDoc, Document doc,
             AssignMarkView.NamingMode namingMode,
+            string prefixSource,
             string customPrefix,
             BuiltInCategory[] categories)
         {
             string modeDesc = namingMode == AssignMarkView.NamingMode.TypeMark
-                    ? "Prefix: element's Type Mark"
+                    ? $"Prefix source: {prefixSource}"
                     : namingMode == AssignMarkView.NamingMode.TypeMarkXY
                         ? "Prefix: element's Type Mark + X/Y direction"
                         : $"Prefix: \"{customPrefix}\"";
@@ -255,12 +260,11 @@ namespace antiGGGravity.Commands.Rebar
                         if (namingMode == AssignMarkView.NamingMode.TypeMark ||
                             namingMode == AssignMarkView.NamingMode.TypeMarkXY)
                         {
-                            prefix = GetTypeMark(doc, elem);
+                            prefix = GetPrefix(doc, elem, prefixSource);
                             if (string.IsNullOrWhiteSpace(prefix))
                             {
                                 TaskDialog.Show("Warning",
-                                    $"Element {elem.Id} has no Type Mark. Skipping.\n" +
-                                    "Please set a Type Mark in the element's type properties first.");
+                                    $"Element {elem.Id} has no valid prefix for source '{prefixSource}'. Skipping.");
                                 continue;
                             }
                         }
@@ -294,8 +298,8 @@ namespace antiGGGravity.Commands.Rebar
                         {
                             name = $"{prefix}-{counter}";
                         }
-                        // Write to the built-in Mark parameter
-                        Parameter param = elem.get_Parameter(BuiltInParameter.ALL_MODEL_MARK);
+                        // Write to the built-in Mark (or Room Number) parameter
+                        Parameter param = elem.get_Parameter(BuiltInParameter.ALL_MODEL_MARK) ?? elem.get_Parameter(BuiltInParameter.ROOM_NUMBER);
                         if (param != null && !param.IsReadOnly)
                         {
                             param.Set(name);
@@ -324,7 +328,7 @@ namespace antiGGGravity.Commands.Rebar
             if (updated > 0)
             {
                 TaskDialog.Show("Assign Mark",
-                    $"Manual numbering complete!\n\n  ✓ Updated: {updated} elements\n\nRevit will auto-propagate Mark → rebar Host Mark.");
+                    $"Manual numbering complete!\n\n  ✓ Updated: {updated} elements");
             }
 
             return Result.Succeeded;
@@ -372,7 +376,10 @@ namespace antiGGGravity.Commands.Rebar
                 { "OST_StructuralFraming", BuiltInCategory.OST_StructuralFraming },
                 { "OST_Roofs", BuiltInCategory.OST_Roofs },
                 { "OST_Stairs", BuiltInCategory.OST_Stairs },
-                { "OST_GenericModel", BuiltInCategory.OST_GenericModel }
+                { "OST_GenericModel", BuiltInCategory.OST_GenericModel },
+                { "OST_Doors", BuiltInCategory.OST_Doors },
+                { "OST_Windows", BuiltInCategory.OST_Windows },
+                { "OST_Rooms", BuiltInCategory.OST_Rooms }
             };
 
             if (map.TryGetValue(tag, out var bic))
@@ -382,7 +389,7 @@ namespace antiGGGravity.Commands.Rebar
         }
 
         private Dictionary<string, List<Element>> GroupByPrefix(Document doc, List<Element> elements,
-            AssignMarkView.NamingMode namingMode, string customPrefix)
+            AssignMarkView.NamingMode namingMode, string prefixSource, string customPrefix)
         {
             var groups = new Dictionary<string, List<Element>>();
 
@@ -392,9 +399,9 @@ namespace antiGGGravity.Commands.Rebar
                 if (namingMode == AssignMarkView.NamingMode.TypeMark ||
                     namingMode == AssignMarkView.NamingMode.TypeMarkXY)
                 {
-                    prefix = GetTypeMark(doc, elem);
+                    prefix = GetPrefix(doc, elem, prefixSource);
                     if (string.IsNullOrWhiteSpace(prefix))
-                        continue; // Skip elements without TypeMark
+                        continue; // Skip elements without valid prefix
                 }
                 else
                 {
@@ -410,33 +417,58 @@ namespace antiGGGravity.Commands.Rebar
             return groups;
         }
 
-        private string GetTypeMark(Document doc, Element elem)
+        private string GetPrefix(Document doc, Element elem, string prefixSource)
         {
-            // Try instance Type Mark first
-            var typeMarkParam = elem.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_MARK);
-            if (typeMarkParam != null && typeMarkParam.HasValue)
+            // For TypeMark, try instance first, else type
+            if (prefixSource == "TypeMark")
             {
-                string val = typeMarkParam.AsString();
-                if (!string.IsNullOrWhiteSpace(val)) return val;
+                var typeMarkParam = elem.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_MARK);
+                if (typeMarkParam != null && typeMarkParam.HasValue && !string.IsNullOrWhiteSpace(typeMarkParam.AsString()))
+                    return typeMarkParam.AsString();
+
+                ElementId typeId = elem.GetTypeId();
+                if (typeId != ElementId.InvalidElementId)
+                {
+                    Element type = doc.GetElement(typeId);
+                    if (type != null)
+                    {
+                        var p = type.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_MARK);
+                        if (p != null && p.HasValue && !string.IsNullOrWhiteSpace(p.AsString()))
+                            return p.AsString();
+                        return type.Name; // Fallback
+                    }
+                }
+                return null;
             }
 
-            // Try from the element's type
-            ElementId typeId = elem.GetTypeId();
-            if (typeId != ElementId.InvalidElementId)
+            // For TypeComments
+            if (prefixSource == "TypeComments")
             {
-                Element type = doc.GetElement(typeId);
-                if (type != null)
+                ElementId typeId = elem.GetTypeId();
+                if (typeId != ElementId.InvalidElementId)
                 {
-                    var p = type.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_MARK);
-                    if (p != null && p.HasValue)
+                    Element type = doc.GetElement(typeId);
+                    if (type != null)
                     {
-                        string val = p.AsString();
-                        if (!string.IsNullOrWhiteSpace(val)) return val;
+                        var p = type.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_COMMENTS);
+                        if (p != null && p.HasValue && !string.IsNullOrWhiteSpace(p.AsString()))
+                            return p.AsString();
+                        return type.Name; // Fallback
                     }
-
-                    // Fallback: use type name
-                    return type.Name;
                 }
+                return null;
+            }
+
+            // For TypeName
+            if (prefixSource == "TypeName")
+            {
+                ElementId typeId = elem.GetTypeId();
+                if (typeId != ElementId.InvalidElementId)
+                {
+                    Element type = doc.GetElement(typeId);
+                    if (type != null) return type.Name;
+                }
+                return null;
             }
 
             return null;

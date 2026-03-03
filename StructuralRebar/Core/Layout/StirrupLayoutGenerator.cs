@@ -32,19 +32,20 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
             XYZ stirrupOrigin;
             List<Curve> curves;
 
+            bool hasHooks = !string.IsNullOrEmpty(hookStartName) || !string.IsNullOrEmpty(hookEndName);
+
             if (host.IsSlanted)
             {
                 // === SLANTED BEAM: use LCS ===
-                // Origin follows the slope at startPt + offset along true 3D axis
                 stirrupOrigin = host.StartPoint + host.LAxis * startOffset;
-                curves = CreateStirrupLoopLCS(stirrupOrigin, host.WAxis, host.HAxis, stW, stH, hCenterOff);
+                curves = CreateStirrupLoopLCS(stirrupOrigin, host.WAxis, host.HAxis, stW, stH, hCenterOff, hasHooks);
             }
             else
             {
                 // === HORIZONTAL BEAM: use absolute Z from solid geometry ===
                 XYZ xyOrigin = host.StartPoint + host.LAxis * startOffset;
                 stirrupOrigin = new XYZ(xyOrigin.X, xyOrigin.Y, (zMax + zMin) / 2.0);
-                curves = CreateStirrupLoopFlat(stirrupOrigin, host.WAxis, stW, stH, hCenterOff);
+                curves = CreateStirrupLoopFlat(stirrupOrigin, host.WAxis, stW, stH, hCenterOff, hasHooks);
             }
 
             double arrayLen = host.Length - 2 * startOffset;
@@ -70,12 +71,23 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
         /// </summary>
         public static List<Curve> CreateStirrupLoopFlat(
             XYZ origin, XYZ widthDir,
-            double w, double h, double zCenterOff = 0)
+            double w, double h, double zCenterOff = 0, bool hasHooks = false)
         {
             XYZ p1 = origin - widthDir * (w / 2.0) + XYZ.BasisZ * (-h / 2.0 + zCenterOff);
             XYZ p2 = origin + widthDir * (w / 2.0) + XYZ.BasisZ * (-h / 2.0 + zCenterOff);
             XYZ p3 = origin + widthDir * (w / 2.0) + XYZ.BasisZ * (h / 2.0 + zCenterOff);
             XYZ p4 = origin - widthDir * (w / 2.0) + XYZ.BasisZ * (h / 2.0 + zCenterOff);
+
+            if (hasHooks)
+            {
+                // Open stirrup: 3 segments, hooks close the gap
+                return new List<Curve>
+                {
+                    Line.CreateBound(p3, p4),
+                    Line.CreateBound(p4, p1),
+                    Line.CreateBound(p1, p2)
+                };
+            }
 
             return new List<Curve>
             {
@@ -92,12 +104,22 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
         /// </summary>
         public static List<Curve> CreateStirrupLoopLCS(
             XYZ origin, XYZ wAxis, XYZ hAxis,
-            double w, double h, double hCenterOff = 0)
+            double w, double h, double hCenterOff = 0, bool hasHooks = false)
         {
             XYZ p1 = origin - wAxis * (w / 2.0) + hAxis * (-h / 2.0 + hCenterOff);
             XYZ p2 = origin + wAxis * (w / 2.0) + hAxis * (-h / 2.0 + hCenterOff);
             XYZ p3 = origin + wAxis * (w / 2.0) + hAxis * (h / 2.0 + hCenterOff);
             XYZ p4 = origin - wAxis * (w / 2.0) + hAxis * (h / 2.0 + hCenterOff);
+
+            if (hasHooks)
+            {
+                return new List<Curve>
+                {
+                    Line.CreateBound(p3, p4),
+                    Line.CreateBound(p4, p1),
+                    Line.CreateBound(p1, p2)
+                };
+            }
 
             return new List<Curve>
             {
@@ -137,16 +159,18 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                 XYZ stirrupOrigin;
                 List<Curve> curves;
 
+                bool hasHooks = !string.IsNullOrEmpty(hookStartName) || !string.IsNullOrEmpty(hookEndName);
+
                 if (host.IsSlanted)
                 {
                     stirrupOrigin = host.StartPoint + host.LAxis * zone.StartOffset;
-                    curves = CreateStirrupLoopLCS(stirrupOrigin, host.WAxis, host.HAxis, stW, stH, hCenterOff);
+                    curves = CreateStirrupLoopLCS(stirrupOrigin, host.WAxis, host.HAxis, stW, stH, hCenterOff, hasHooks);
                 }
                 else
                 {
                     XYZ xyOrigin = host.StartPoint + host.LAxis * zone.StartOffset;
                     stirrupOrigin = new XYZ(xyOrigin.X, xyOrigin.Y, (zMax + zMin) / 2.0);
-                    curves = CreateStirrupLoopFlat(stirrupOrigin, host.WAxis, stW, stH, hCenterOff);
+                    curves = CreateStirrupLoopFlat(stirrupOrigin, host.WAxis, stW, stH, hCenterOff, hasHooks);
                 }
 
                 defs.Add(new RebarDefinition

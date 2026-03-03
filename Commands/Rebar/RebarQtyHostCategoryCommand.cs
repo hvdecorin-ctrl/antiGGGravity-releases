@@ -43,7 +43,7 @@ namespace antiGGGravity.Commands.Rebar
     /// Ribbon command that opens the Quick Rebar Q'ty modeless window.
     /// </summary>
     [Transaction(TransactionMode.Manual)]
-    public class RebarQuantityCommand : BaseCommand
+    public class RebarQtyHostCategoryCommand : BaseCommand
     {
         private static RebarQuantityWindow _window;
         private static ExternalEvent _refreshEvent;

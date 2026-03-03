@@ -52,13 +52,28 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
 
             XYZ ToGlobal(XYZ pt) => setStart + basisW * pt.X + basisH * pt.Z;
 
-            List<Curve> curves = new List<Curve>
+            bool hasHooks = !string.IsNullOrEmpty(hookStartName) || !string.IsNullOrEmpty(hookEndName);
+
+            List<Curve> curves;
+            if (hasHooks)
             {
-                Line.CreateBound(ToGlobal(p3), ToGlobal(p4)),
-                Line.CreateBound(ToGlobal(p4), ToGlobal(p1)),
-                Line.CreateBound(ToGlobal(p1), ToGlobal(p2)),
-                Line.CreateBound(ToGlobal(p2), ToGlobal(p3))
-            };
+                curves = new List<Curve>
+                {
+                    Line.CreateBound(ToGlobal(p3), ToGlobal(p4)),
+                    Line.CreateBound(ToGlobal(p4), ToGlobal(p1)),
+                    Line.CreateBound(ToGlobal(p1), ToGlobal(p2))
+                };
+            }
+            else
+            {
+                curves = new List<Curve>
+                {
+                    Line.CreateBound(ToGlobal(p3), ToGlobal(p4)),
+                    Line.CreateBound(ToGlobal(p4), ToGlobal(p1)),
+                    Line.CreateBound(ToGlobal(p1), ToGlobal(p2)),
+                    Line.CreateBound(ToGlobal(p2), ToGlobal(p3))
+                };
+            }
 
             return new RebarDefinition
             {

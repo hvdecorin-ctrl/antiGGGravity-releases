@@ -18,6 +18,15 @@ namespace antiGGGravity.Views.Rebar
         public ScopeOption SelectedScope => UI_Radio_ActiveView.IsChecked == true ? ScopeOption.ActiveView : ScopeOption.EntireProject;
         public string CustomNamePrefix => UI_TextBox_CustomName.Text?.Trim() ?? "";
 
+        public string SelectedPrefixSource
+        {
+            get
+            {
+                var item = UI_Combo_PrefixSource.SelectedItem as ComboBoxItem;
+                return item?.Tag as string ?? "TypeMark";
+            }
+        }
+
         /// <summary>
         /// Returns the Tag string of the selected category (e.g. "OST_Walls"), or null for "All Categories".
         /// </summary>

@@ -256,7 +256,7 @@ panels:
             command: Toggle3DSectionBoxCommand
             icon: ToggleSectionBoxActive
 
-          - name: Toggle Sectbox
+          - name: Sectbox
             command: ToggleSectionBoxVisibilityCommand
             icon: ToggleSectionBox
       # --- Column 4 ---
@@ -388,26 +388,30 @@ panels:
         icon: RebarQty
         tooltip: Quick summary of rebar quantities by host category or host mark.
         buttons:
-          - name: Rebar Q'ty
-            command: RebarQuantityCommand
-            icon: RebarQty
+          - name: Rebar Q'ty Host Category
+            command: RebarQtyHostCategoryCommand
+            icon: RebarQtyHostCategory
             
-          - name: Rebar Host Mark
-            command: RebarHostMarkCommand
-            icon: RebarQty
+          - name: Rebar Q'ty Host Mark
+            command: RebarQtyHostMarkCommand
+            icon: RebarQtyHostMark
       # --- Column 4 ---
       - type: pulldown
-        name: Host Mark
-        icon: RebarTools
-        tooltip: Assign Mark and manage rebar host marks.
+        name: Assign Mark
+        icon: AssignMark
+        tooltip: Assign Mark to elements.
         buttons:
           - name: Create Element Name
             command: CreateElementNameParamCommand
-            icon: RebarTools
+            icon: CreateElementName
           
           - name: Assign Mark
             command: AssignMarkCommand
-            icon: RebarTools
+            icon: AssignMark
+
+          - name: Remove Existing Mark
+            command: RemoveMarkCommand
+            icon: RemoveMark
 
   # ============================================================
   # MODEL PANEL

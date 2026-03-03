@@ -36,7 +36,7 @@ namespace antiGGGravity.Commands.Rebar
     }
 
     [Transaction(TransactionMode.Manual)]
-    public class RebarHostMarkCommand : BaseCommand
+    public class RebarQtyHostMarkCommand : BaseCommand
     {
         private static RebarHostMarkWindow _window;
         private static ExternalEvent _refreshEvent;
