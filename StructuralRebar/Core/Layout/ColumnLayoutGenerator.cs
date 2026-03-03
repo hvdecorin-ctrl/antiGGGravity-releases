@@ -43,32 +43,13 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
             XYZ p3 = tieOrigin + basisX * (wTie / 2.0) + basisY * (dTie / 2.0);
             XYZ p4 = tieOrigin - basisX * (wTie / 2.0) + basisY * (dTie / 2.0);
 
-            // When hooks are applied, use an open 3-segment shape (U-shape).
-            // The hooks close the gap at the open end. Without hooks, keep the closed 4-segment rectangle.
-            bool hasHooks = !string.IsNullOrEmpty(hookStartName) || !string.IsNullOrEmpty(hookEndName);
-
-            List<Curve> curves;
-            if (hasHooks)
+            List<Curve> curves = new List<Curve>
             {
-                // Open stirrup: 3 segments (p4→p1→p2→p3), hooks close from p4 and p3
-                curves = new List<Curve>
-                {
-                    Line.CreateBound(p4, p1),
-                    Line.CreateBound(p1, p2),
-                    Line.CreateBound(p2, p3)
-                };
-            }
-            else
-            {
-                // Closed stirrup: 4 segments
-                curves = new List<Curve>
-                {
-                    Line.CreateBound(p1, p2),
-                    Line.CreateBound(p2, p3),
-                    Line.CreateBound(p3, p4),
-                    Line.CreateBound(p4, p1)
-                };
-            }
+                Line.CreateBound(p1, p2),
+                Line.CreateBound(p2, p3),
+                Line.CreateBound(p3, p4),
+                Line.CreateBound(p4, p1)
+            };
 
             return new RebarDefinition
             {
@@ -124,28 +105,13 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                 XYZ p3 = tieOrigin + basisX * (wTie / 2.0) + basisY * (dTie / 2.0);
                 XYZ p4 = tieOrigin - basisX * (wTie / 2.0) + basisY * (dTie / 2.0);
 
-                bool hasHooks = !string.IsNullOrEmpty(hookStartName) || !string.IsNullOrEmpty(hookEndName);
-
-                List<Curve> curves;
-                if (hasHooks)
+                var curves = new List<Curve>
                 {
-                    curves = new List<Curve>
-                    {
-                        Line.CreateBound(p4, p1),
-                        Line.CreateBound(p1, p2),
-                        Line.CreateBound(p2, p3)
-                    };
-                }
-                else
-                {
-                    curves = new List<Curve>
-                    {
-                        Line.CreateBound(p1, p2),
-                        Line.CreateBound(p2, p3),
-                        Line.CreateBound(p3, p4),
-                        Line.CreateBound(p4, p1)
-                    };
-                }
+                    Line.CreateBound(p1, p2),
+                    Line.CreateBound(p2, p3),
+                    Line.CreateBound(p3, p4),
+                    Line.CreateBound(p4, p1)
+                };
 
                 defs.Add(new RebarDefinition
                 {
