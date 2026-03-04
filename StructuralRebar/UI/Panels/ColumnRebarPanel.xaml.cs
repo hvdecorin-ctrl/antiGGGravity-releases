@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Structure;
 using antiGGGravity.Utilities;
@@ -24,6 +25,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             _doc = doc;
             LoadData();
             LoadSettings();
+            DrawCrossSection();
         }
 
         private void LoadData()
@@ -46,6 +48,11 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             UI_Combo_TieType.ItemsSource = _rebarTypes;
             UI_Combo_TieType.DisplayMemberPath = "Name";
             UI_Combo_TieType.SelectedItem = _rebarTypes.FirstOrDefault(x => x.Name.Contains("D10")) ?? _rebarTypes.FirstOrDefault();
+
+            // Starter Bar Type
+            UI_Combo_StarterType.ItemsSource = _rebarTypes;
+            UI_Combo_StarterType.DisplayMemberPath = "Name";
+            UI_Combo_StarterType.SelectedItem = _rebarTypes.FirstOrDefault(x => x.Name.Contains("D20")) ?? _rebarTypes.FirstOrDefault();
 
             // Hook Types
             var hookTypes = new FilteredElementCollector(_doc)
@@ -72,6 +79,10 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             UI_Combo_HookEnd.ItemsSource = _hookList;
             UI_Combo_HookEnd.DisplayMemberPath = "Name";
             UI_Combo_HookEnd.SelectedIndex = 0;
+
+            UI_Combo_StarterHook.ItemsSource = _hookList;
+            UI_Combo_StarterHook.DisplayMemberPath = "Name";
+            UI_Combo_StarterHook.SelectedIndex = 0;
         }
 
         private void LoadSettings()
@@ -91,7 +102,6 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 UI_Check_VHookBotOut.IsChecked = SettingsManager.GetBool(VIEW_NAME, "VHookBotOut", false);
                 UI_Check_VHookTopOut.IsChecked = SettingsManager.GetBool(VIEW_NAME, "VHookTopOut", false);
 
-
                 SelectByName(UI_Combo_VerticalTypeX, SettingsManager.Get(VIEW_NAME, "VerticalTypeX"));
                 SelectByName(UI_Combo_VerticalTypeY, SettingsManager.Get(VIEW_NAME, "VerticalTypeY"));
                 SelectByName(UI_Combo_TieType, SettingsManager.Get(VIEW_NAME, "TieType"));
@@ -104,6 +114,27 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 UI_Radio_TieUnEQ.IsChecked = SettingsManager.GetBool(VIEW_NAME, "TieDistUnEQ", false);
                 UI_Radio_TieEQ.IsChecked = !(UI_Radio_TieUnEQ.IsChecked == true);
                 TieDist_Changed(null, null);
+
+                // Multi-level settings
+                UI_Check_MultiLevel.IsChecked = SettingsManager.GetBool(VIEW_NAME, "MultiLevel", false);
+                UI_Check_Starters.IsChecked = SettingsManager.GetBool(VIEW_NAME, "EnableStarters", false);
+                UI_Text_StarterDevLength.Text = SettingsManager.Get(VIEW_NAME, "StarterDevLength", "0");
+                SelectByName(UI_Combo_StarterType, SettingsManager.Get(VIEW_NAME, "StarterType"));
+                SelectHookByName(UI_Combo_StarterHook, SettingsManager.Get(VIEW_NAME, "StarterHook"));
+
+                string splicePos = SettingsManager.Get(VIEW_NAME, "SplicePosition", "Above Slab (Code Default)");
+                foreach (ComboBoxItem item in UI_Combo_SplicePos.Items)
+                {
+                    if (item.Content.ToString() == splicePos)
+                    {
+                        item.IsSelected = true;
+                        break;
+                    }
+                }
+
+                // Apply visibility
+                MultiLevel_Changed(null, null);
+                Starters_Changed(null, null);
             }
             catch { }
         }
@@ -125,7 +156,6 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 SettingsManager.Set(VIEW_NAME, "VHookBotOut", (UI_Check_VHookBotOut.IsChecked == true).ToString());
                 SettingsManager.Set(VIEW_NAME, "VHookTopOut", (UI_Check_VHookTopOut.IsChecked == true).ToString());
 
-
                 SettingsManager.Set(VIEW_NAME, "VerticalTypeX", TransTypeName(UI_Combo_VerticalTypeX));
                 SettingsManager.Set(VIEW_NAME, "VerticalTypeY", TransTypeName(UI_Combo_VerticalTypeY));
                 SettingsManager.Set(VIEW_NAME, "TieType", TransTypeName(UI_Combo_TieType));
@@ -136,6 +166,14 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 SettingsManager.Set(VIEW_NAME, "HookEnd", HookName(UI_Combo_HookEnd));
 
                 SettingsManager.Set(VIEW_NAME, "TieDistUnEQ", (UI_Radio_TieUnEQ.IsChecked == true).ToString());
+
+                // Multi-level settings
+                SettingsManager.Set(VIEW_NAME, "MultiLevel", (UI_Check_MultiLevel.IsChecked == true).ToString());
+                SettingsManager.Set(VIEW_NAME, "EnableStarters", (UI_Check_Starters.IsChecked == true).ToString());
+                SettingsManager.Set(VIEW_NAME, "StarterDevLength", UI_Text_StarterDevLength.Text);
+                SettingsManager.Set(VIEW_NAME, "StarterType", TransTypeName(UI_Combo_StarterType));
+                SettingsManager.Set(VIEW_NAME, "StarterHook", HookName(UI_Combo_StarterHook));
+                SettingsManager.Set(VIEW_NAME, "SplicePosition", (UI_Combo_SplicePos.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Above Slab (Code Default)");
 
                 SettingsManager.SaveAll();
             }
@@ -172,6 +210,16 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 Layers = new List<RebarLayerConfig>(),
                 EnableZoneSpacing = (UI_Radio_TieUnEQ.IsChecked == true),
                 EnableLapSplice = false, // Set by window/handler now
+
+                // Multi-Level
+                MultiLevel = (UI_Check_MultiLevel.IsChecked == true),
+                SplicePosition = (UI_Combo_SplicePos.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Above Slab",
+
+                // Starter Bars
+                EnableStarterBars = (UI_Check_Starters.IsChecked == true),
+                StarterBarTypeName = (UI_Combo_StarterType.SelectedItem as RebarBarType)?.Name,
+                StarterHookEndName = (UI_Combo_StarterHook.SelectedItem as HookViewModel)?.Hook?.Name,
+                StarterDevLength = UnitConversion.MmToFeet(ParseDouble(UI_Text_StarterDevLength.Text, 0)),
             };
  
             // Simplified: vertical bars use First Layer template for hooks
@@ -186,13 +234,162 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             return request;
         }
 
-        public void TieDist_Changed(object sender, System.Windows.RoutedEventArgs e)
+        // ── Event Handlers ──
+
+        public void TieDist_Changed(object sender, RoutedEventArgs e)
         {
             if (UI_TieZoneInfo == null) return;
             UI_TieZoneInfo.Visibility = (UI_Radio_TieUnEQ.IsChecked == true)
                 ? System.Windows.Visibility.Visible
                 : System.Windows.Visibility.Collapsed;
         }
+
+        private void MultiLevel_Changed(object sender, RoutedEventArgs e)
+        {
+            if (UI_MultiLevelInfo == null) return;
+            UI_MultiLevelInfo.Visibility = (UI_Check_MultiLevel.IsChecked == true)
+                ? System.Windows.Visibility.Visible
+                : System.Windows.Visibility.Collapsed;
+        }
+
+        private void Starters_Changed(object sender, RoutedEventArgs e)
+        {
+            if (UI_StarterSettings == null) return;
+            bool show = (UI_Check_Starters.IsChecked == true);
+            UI_StarterSettings.Visibility = show ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+            UI_StarterNote.Visibility = show ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+        }
+
+        private void BarCount_Changed(object sender, TextChangedEventArgs e)
+        {
+            DrawCrossSection();
+        }
+
+        // ── Cross-Section Preview Drawing ──
+
+        private void DrawCrossSection()
+        {
+            if (UI_CrossSectionCanvas == null) return;
+
+            UI_CrossSectionCanvas.Children.Clear();
+
+            int nx = (int)ParseDouble(UI_Text_CountX?.Text, 3);
+            int ny = (int)ParseDouble(UI_Text_CountY?.Text, 3);
+
+            if (nx < 1) nx = 1;
+            if (ny < 1) ny = 1;
+
+            double canvasW = UI_CrossSectionCanvas.Width;
+            double canvasH = UI_CrossSectionCanvas.Height;
+            double margin = 20;
+
+            // Concrete outline
+            double rectW = canvasW - 2 * margin;
+            double rectH = canvasH - 2 * margin;
+
+            var rect = new System.Windows.Shapes.Rectangle
+            {
+                Width = rectW,
+                Height = rectH,
+                Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x99, 0x99, 0x99)),
+                StrokeThickness = 1.5,
+                Fill = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0xE8, 0xEB, 0xEF)),
+                RadiusX = 2,
+                RadiusY = 2
+            };
+            Canvas.SetLeft(rect, margin);
+            Canvas.SetTop(rect, margin);
+            UI_CrossSectionCanvas.Children.Add(rect);
+
+            // Bar positions
+            double barMargin = 14;
+            double barRadius = 4.5;
+            double innerLeft = margin + barMargin;
+            double innerTop = margin + barMargin;
+            double innerRight = canvasW - margin - barMargin;
+            double innerBottom = canvasH - margin - barMargin;
+            double innerW = innerRight - innerLeft;
+            double innerH = innerBottom - innerTop;
+
+            // Tie rectangle (inside cover)
+            var tie = new System.Windows.Shapes.Rectangle
+            {
+                Width = innerW + barRadius * 2 + 2,
+                Height = innerH + barRadius * 2 + 2,
+                Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x4A, 0x70, 0x8B)),
+                StrokeThickness = 1.2,
+                Fill = Brushes.Transparent,
+                RadiusX = 3,
+                RadiusY = 3
+            };
+            Canvas.SetLeft(tie, innerLeft - barRadius - 1);
+            Canvas.SetTop(tie, innerTop - barRadius - 1);
+            UI_CrossSectionCanvas.Children.Add(tie);
+
+            // Generate bar positions (mirroring ColumnLayoutGenerator logic)
+            var barPositions = new List<(double X, double Y)>();
+
+            // Bottom face (y = bottom)
+            for (int i = 0; i < nx; i++)
+            {
+                double x = nx > 1 ? innerLeft + innerW * i / (nx - 1) : (innerLeft + innerRight) / 2;
+                barPositions.Add((x, innerBottom));
+            }
+
+            // Top face (y = top)
+            if (ny > 1)
+            {
+                for (int i = 0; i < nx; i++)
+                {
+                    double x = nx > 1 ? innerLeft + innerW * i / (nx - 1) : (innerLeft + innerRight) / 2;
+                    barPositions.Add((x, innerTop));
+                }
+            }
+
+            // Left face inner bars
+            int nyInner = ny - 2;
+            if (nyInner > 0)
+            {
+                for (int j = 0; j < nyInner; j++)
+                {
+                    double y = innerTop + innerH * (j + 1) / (ny - 1);
+                    barPositions.Add((innerLeft, y));
+                }
+            }
+
+            // Right face inner bars
+            if (nyInner > 0 && nx > 1)
+            {
+                for (int j = 0; j < nyInner; j++)
+                {
+                    double y = innerTop + innerH * (j + 1) / (ny - 1);
+                    barPositions.Add((innerRight, y));
+                }
+            }
+
+            // Draw bars
+            var barBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x4A, 0x70, 0x8B));
+            foreach (var (bx, by) in barPositions)
+            {
+                var dot = new System.Windows.Shapes.Ellipse
+                {
+                    Width = barRadius * 2,
+                    Height = barRadius * 2,
+                    Fill = barBrush,
+                    Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x33, 0x55, 0x77)),
+                    StrokeThickness = 0.8
+                };
+                Canvas.SetLeft(dot, bx - barRadius);
+                Canvas.SetTop(dot, by - barRadius);
+                UI_CrossSectionCanvas.Children.Add(dot);
+            }
+
+            // Update label
+            if (UI_CrossSectionLabel != null)
+                UI_CrossSectionLabel.Text = $"{nx}×{ny}";
+        }
+
+        // ── Design Code Info ──
 
         public void UpdateZoneInfo(DesignCodeStandard code)
         {
@@ -240,6 +437,15 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                     UI_TieZoneNote.Text = "l_o = max(H/6, D, 450mm)";
                     break;
             }
+        }
+
+        /// <summary>
+        /// Updates the stack info text from outside (e.g., after column detection).
+        /// </summary>
+        public void UpdateStackInfo(string info)
+        {
+            if (UI_StackInfoText != null)
+                UI_StackInfoText.Text = info;
         }
 
         // --- Helpers ---

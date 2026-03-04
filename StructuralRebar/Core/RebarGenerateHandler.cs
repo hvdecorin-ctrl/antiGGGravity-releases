@@ -160,8 +160,19 @@ namespace antiGGGravity.StructuralRebar.Core
             request.EnableLapSplice = _window.EnableLapSplice;
             request.DesignCode = _window.DesignCode;
             var engine = new RebarEngine(doc);
-            var (processed, total) = engine.GenerateColumnRebar(columns, request);
-            return $"Successfully reinforced {processed} of {total} columns.";
+
+            if (request.MultiLevel)
+            {
+                // Multi-level: resolve the full column stack from the first selected column
+                var stack = Geometry.MultiLevelResolver.FindColumnStack(doc, columns.First());
+                var (processed, total) = engine.GenerateColumnStackRebar(stack, request);
+                return $"Successfully reinforced {processed} columns across {total} levels.";
+            }
+            else
+            {
+                var (processed, total) = engine.GenerateColumnRebar(columns, request);
+                return $"Successfully reinforced {processed} of {total} columns.";
+            }
         }
 
         private string ProcessStripFootings(UIDocument uidoc, Document doc)

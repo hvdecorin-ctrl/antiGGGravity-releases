@@ -88,6 +88,26 @@ namespace antiGGGravity.StructuralRebar.DTO
         public string VerticalBarTypeNameX { get; set; }
         public string VerticalBarTypeNameY { get; set; }
 
+        // === MULTI-LEVEL ===
+        /// <summary>Whether to process a stack of columns across multiple levels.</summary>
+        public bool MultiLevel { get; set; }
+
+        /// <summary>Splice position strategy: "Above Slab" or "Mid Height".</summary>
+        public string SplicePosition { get; set; } = "Above Slab";
+
+        // === STARTER BARS ===
+        /// <summary>Whether to extend starter bars from the bottom column into the foundation.</summary>
+        public bool EnableStarterBars { get; set; }
+
+        /// <summary>Bar type name for starter bars (defaults to vertical bar type if null).</summary>
+        public string StarterBarTypeName { get; set; }
+
+        /// <summary>Hook type name for starter bar bottom end. Null = no hook.</summary>
+        public string StarterHookEndName { get; set; }
+
+        /// <summary>Development/embedment length for starter bars (feet). 0 = auto from code.</summary>
+        public double StarterDevLength { get; set; }
+
         // === FOOTING-SPECIFIC ===
         /// <summary>Number of bottom bars (footings).</summary>
         public int BottomBarCount { get; set; }

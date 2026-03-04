@@ -44,6 +44,30 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
             return GenerateRebarInternal(columns, request, "Generate Column Rebar");
         }
 
+        public (int Processed, int Total) GenerateColumnStackRebar(
+            List<FamilyInstance> stack, RebarRequest request)
+        {
+            int processed = 0;
+
+            using (Transaction t = new Transaction(_doc, "Generate Multi-Level Column Rebar"))
+            {
+                t.Start();
+
+                try
+                {
+                    processed = ProcessColumnStack(stack, request) ? stack.Count : 0;
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"RebarEngine: Column stack failed: {ex.Message}");
+                }
+
+                t.Commit();
+            }
+
+            return (processed, stack.Count);
+        }
+
         public (int Processed, int Total) GenerateStripFootingRebar(
             List<Element> foundations, RebarRequest request)
         {
@@ -903,8 +927,282 @@ var segments = request.EnableLapSplice
                 }
             }
 
+            // 3. Starter Bars (single column)
+            if (request.EnableStarterBars)
+            {
+                double vDiaX = GetBarDiameter(request.VerticalBarTypeNameX);
+                double vDiaY = GetBarDiameter(request.VerticalBarTypeNameY);
+                double maxBarDia = Math.Max(vDiaX, vDiaY);
+
+                if (maxBarDia > 0)
+                {
+                    double starterLen = request.StarterDevLength > 0
+                        ? request.StarterDevLength
+                        : ColumnContinuityCalculator.GetStarterBarLength(maxBarDia, request.DesignCode);
+
+                    string starterBarTypeX = request.StarterBarTypeName ?? request.VerticalBarTypeNameX;
+                    string starterBarTypeY = request.StarterBarTypeName ?? request.VerticalBarTypeNameY;
+                    double starterDiaX = GetBarDiameter(starterBarTypeX);
+                    double starterDiaY = GetBarDiameter(starterBarTypeY);
+
+                    double tieDia = 0.0328; // fallback 10mm
+                    if (!string.IsNullOrEmpty(request.TransverseBarTypeName))
+                        tieDia = GetBarDiameter(request.TransverseBarTypeName);
+
+                    double starterTopExt = LapSpliceCalculator.CalculateTensionLapLength(maxBarDia, request.DesignCode);
+
+                    var starterDefs = CreateStarterBars(
+                        host, starterBarTypeX, starterDiaX, starterBarTypeY, starterDiaY,
+                        tieDia, request.ColumnCountX, request.ColumnCountY,
+                        starterLen, starterTopExt, request.StarterHookEndName);
+
+                    if (starterDefs != null)
+                        definitions.AddRange(starterDefs);
+                }
+            }
+
             var ids = _creationService.PlaceRebar(column, definitions);
             return ids.Count > 0;
+        }
+
+        // ==============================================================
+        //  MULTI-LEVEL COLUMN STACK — splice bars across levels
+        // ==============================================================
+        private bool ProcessColumnStack(List<FamilyInstance> stack, RebarRequest request)
+        {
+            if (stack == null || stack.Count == 0) return false;
+
+            bool anySuccess = false;
+
+            for (int i = 0; i < stack.Count; i++)
+            {
+                var column = stack[i];
+                HostGeometry? hostOpt = ColumnGeometryModule.Read(_doc, column);
+                if (!hostOpt.HasValue) continue;
+                HostGeometry host = hostOpt.Value;
+
+                bool isBottom = (i == 0);
+                bool isTop = (i == stack.Count - 1);
+
+                if (request.RemoveExisting)
+                    _creationService.DeleteExistingRebar(column);
+
+                var definitions = new List<RebarDefinition>();
+
+                // Get bar diameters
+                double vDiaX = GetBarDiameter(request.VerticalBarTypeNameX);
+                double vDiaY = GetBarDiameter(request.VerticalBarTypeNameY);
+                double tDia = 0.0328; // fallback 10mm
+                if (!string.IsNullOrEmpty(request.TransverseBarTypeName))
+                    tDia = GetBarDiameter(request.TransverseBarTypeName);
+                double maxBarDia = Math.Max(vDiaX, vDiaY);
+
+                // ── 1. TIES (same as single-column, reuse existing logic) ──
+                if (!string.IsNullOrEmpty(request.TransverseBarTypeName))
+                {
+                    if (request.EnableZoneSpacing)
+                    {
+                        double maxDim = Math.Max(host.Width, host.Height);
+                        double mainBarDia = Math.Max(vDiaX, vDiaY);
+                        double clearHeight = host.Length - request.TransverseStartOffset - request.TransverseEndOffset;
+                        var zones = ZoneSpacingCalculator.CalculateColumnZones(
+                            clearHeight, maxDim, mainBarDia > 0 ? mainBarDia : tDia, tDia, request.DesignCode);
+                        var zonedDefs = ColumnLayoutGenerator.CreateZonedColumnTies(
+                            host, request.TransverseBarTypeName, tDia,
+                            zones, request.TransverseHookStartName, request.TransverseHookEndName);
+                        definitions.AddRange(zonedDefs);
+                    }
+                    else
+                    {
+                        var tieDef = ColumnLayoutGenerator.CreateColumnTie(
+                            host, request.TransverseBarTypeName, tDia,
+                            request.TransverseSpacing, request.TransverseStartOffset, request.TransverseEndOffset,
+                            request.TransverseHookStartName, request.TransverseHookEndName);
+                        if (tieDef != null) definitions.Add(tieDef);
+                    }
+                }
+
+                // ── 2. VERTICAL BARS with multi-level splice logic ──
+                if (vDiaX > 0 || vDiaY > 0)
+                {
+                    var layerTempl = request.Layers.FirstOrDefault() ?? new RebarLayerConfig();
+
+                    // Calculate extensions for this level
+                    double botExt = request.VerticalBottomExtension;
+                    double topExt = request.VerticalTopExtension;
+
+                    // Bottom column: use user extension (or starter bar goes below separately)
+                    // Middle/Top columns: lap splice start offset from base
+                    // Top column: use user extension at top
+
+                    // For non-bottom columns: bars start at splice offset above base
+                    // (the splice region overlaps with the bar projecting from below)
+                    if (!isBottom)
+                    {
+                        // Bar starts at base with bottom extension = 0 
+                        // (the column below projects its bars UP into this column)
+                        botExt = 0;
+                    }
+
+                    // For non-top columns: bars extend above into upper column by splice length
+                    if (!isTop)
+                    {
+                        double spliceExt = ColumnContinuityCalculator.GetSpliceExtension(maxBarDia, request.DesignCode);
+                        topExt = spliceExt;
+                    }
+
+                    // Check if we need cranking due to cross-section change from column below
+                    // (cranking applies to bars in this column if upper column is narrower)
+                    // For V1, we generate straight bars — cranking will be a future enhancement
+
+                    var vertDefs = ColumnLayoutGenerator.CreateColumnVerticals(
+                        host,
+                        request.VerticalBarTypeNameX, vDiaX,
+                        request.VerticalBarTypeNameY, vDiaY,
+                        tDia,
+                        request.ColumnCountX, request.ColumnCountY,
+                        topExt, botExt,
+                        isBottom ? layerTempl.HookStartName : null,  // Hook at bottom only on lowest column
+                        isTop ? layerTempl.HookEndName : null,       // Hook at top only on highest column
+                        layerTempl.HookStartOutward, layerTempl.HookEndOutward);
+
+                    if (vertDefs != null)
+                        definitions.AddRange(vertDefs);
+                }
+
+                // ── 3. STARTER BARS (bottom column only) ──
+                if (isBottom && request.EnableStarterBars && maxBarDia > 0)
+                {
+                    double starterLen = request.StarterDevLength > 0
+                        ? request.StarterDevLength
+                        : ColumnContinuityCalculator.GetStarterBarLength(maxBarDia, request.DesignCode);
+
+                    string starterBarTypeX = request.StarterBarTypeName ?? request.VerticalBarTypeNameX;
+                    string starterBarTypeY = request.StarterBarTypeName ?? request.VerticalBarTypeNameY;
+                    double starterDiaX = GetBarDiameter(starterBarTypeX);
+                    double starterDiaY = GetBarDiameter(starterBarTypeY);
+
+                    var layerTempl = request.Layers.FirstOrDefault() ?? new RebarLayerConfig();
+
+                    double starterTopExt = LapSpliceCalculator.CalculateTensionLapLength(maxBarDia, request.DesignCode);
+
+                    // Create starter bar definitions extending BELOW the column base and UP into the column by lap length
+                    var starterDefs = CreateStarterBars(
+                        host, starterBarTypeX, starterDiaX, starterBarTypeY, starterDiaY,
+                        tDia, request.ColumnCountX, request.ColumnCountY,
+                        starterLen, starterTopExt, request.StarterHookEndName);
+
+                    if (starterDefs != null)
+                        definitions.AddRange(starterDefs);
+                }
+
+                // ── 4. PLACE REBAR ──
+                var ids = _creationService.PlaceRebar(column, definitions);
+                if (ids.Count > 0) anySuccess = true;
+            }
+
+            return anySuccess;
+        }
+
+        /// <summary>
+        /// Creates starter bar definitions that extend below the column base into the foundation.
+        /// Mirrors the vertical bar positions but projects downward.
+        /// </summary>
+        private List<RebarDefinition> CreateStarterBars(
+            HostGeometry host,
+            string barTypeNameX, double barDiameterX,
+            string barTypeNameY, double barDiameterY,
+            double tDia, int nx, int ny,
+            double starterLength, double topExtension, string hookEndName)
+        {
+            var definitions = new List<RebarDefinition>();
+            if (nx < 1 && ny < 1) return definitions;
+
+            XYZ basisX = host.LAxis;
+            XYZ basisY = host.WAxis;
+            XYZ basisZ = host.HAxis;
+            XYZ origin = host.Origin;
+
+            double width = host.Width;
+            double depth = host.Height;
+            double coverSide = host.CoverExterior;
+
+            double maxBarDia = Math.Max(barDiameterX, barDiameterY);
+            double innerOff = coverSide + tDia + maxBarDia / 2.0;
+
+            double xFirst = -width / 2.0 + innerOff;
+            double xLast = width / 2.0 - innerOff;
+            double yFirst = -depth / 2.0 + innerOff;
+            double yLast = depth / 2.0 - innerOff;
+
+            double stepY = ny > 1 ? (depth - 2 * innerOff) / (ny - 1) : 0;
+
+            // Starter bars run from (column base - starterLength) up to (column base + topExtension)
+            double barBot = -starterLength;  // below column base
+            double barTop = topExtension;    // lap length into column
+
+            void AddStarterSet(int count, XYZ startPos, XYZ arrayDir, double distWidth, 
+                              string bType, double bDia, XYZ outDir, string label)
+            {
+                if (count < 1) return;
+
+                XYZ hookNormal = basisZ.CrossProduct(outDir);
+                XYZ pStart = startPos + basisZ * barBot;
+                XYZ pEnd = startPos + basisZ * barTop;
+
+                definitions.Add(new RebarDefinition
+                {
+                    Curves = new List<Curve> { Line.CreateBound(pStart, pEnd) },
+                    Style = Autodesk.Revit.DB.Structure.RebarStyle.Standard,
+                    BarTypeName = bType,
+                    BarDiameter = bDia,
+                    Normal = hookNormal,
+                    ArrayDirection = arrayDir,
+                    FixedCount = count,
+                    DistributionWidth = distWidth,
+                    HookStartName = hookEndName,  // Hook at bottom of starter
+                    HookStartOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Left,
+                    HookEndOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Left,
+                    Label = label,
+                    Comment = "Starter Bar"
+                });
+            }
+
+            // Mirror the same layout as CreateColumnVerticals
+            // 1. Bottom Face (y = yFirst)
+            if (nx > 0)
+            {
+                XYZ pos = origin + basisX * xFirst + basisY * yFirst;
+                double dist = nx > 1 ? xLast - xFirst : 0;
+                AddStarterSet(nx, pos, basisX, dist, barTypeNameX, barDiameterX, -basisY, "Starter Bar (Bottom Face)");
+            }
+
+            // 2. Top Face (y = yLast)
+            if (nx > 0 && ny > 1)
+            {
+                XYZ pos = origin + basisX * xLast + basisY * yLast;
+                double dist = nx > 1 ? xLast - xFirst : 0;
+                AddStarterSet(nx, pos, -basisX, dist, barTypeNameX, barDiameterX, basisY, "Starter Bar (Top Face)");
+            }
+
+            // 3. Left Face Inner
+            int nyInner = ny - 2;
+            if (nyInner > 0 && nx > 0)
+            {
+                XYZ pos = origin + basisX * xFirst + basisY * (yLast - stepY);
+                double dist = nyInner > 1 ? stepY * (nyInner - 1) : 0;
+                AddStarterSet(nyInner, pos, -basisY, dist, barTypeNameY, barDiameterY, -basisX, "Starter Bar (Left Face)");
+            }
+
+            // 4. Right Face Inner
+            if (nyInner > 0 && nx > 1)
+            {
+                XYZ pos = origin + basisX * xLast + basisY * (yFirst + stepY);
+                double dist = nyInner > 1 ? stepY * (nyInner - 1) : 0;
+                AddStarterSet(nyInner, pos, basisY, dist, barTypeNameY, barDiameterY, basisX, "Starter Bar (Right Face)");
+            }
+
+            return definitions;
         }
 
         private bool ProcessStripFooting(Element foundation, RebarRequest request)
