@@ -75,12 +75,135 @@ namespace antiGGGravity.Commands.Model
 
         protected Level GetElementLevel(Element element)
         {
+            // Try INSTANCE_REFERENCE_LEVEL_PARAM first (works for beams)
             Parameter param = element.get_Parameter(BuiltInParameter.INSTANCE_REFERENCE_LEVEL_PARAM);
             if (param != null && param.HasValue)
             {
-                return element.Document.GetElement(param.AsElementId()) as Level;
+                Level level = element.Document.GetElement(param.AsElementId()) as Level;
+                if (level != null) return level;
+            }
+            // Fallback: try FAMILY_BASE_LEVEL_PARAM (works for columns)
+            param = element.get_Parameter(BuiltInParameter.FAMILY_BASE_LEVEL_PARAM);
+            if (param != null && param.HasValue)
+            {
+                Level level = element.Document.GetElement(param.AsElementId()) as Level;
+                if (level != null) return level;
+            }
+            // Last resort: find the nearest level below the element
+            if (element.Location is LocationPoint lp)
+            {
+                return new FilteredElementCollector(element.Document)
+                    .OfClass(typeof(Level))
+                    .Cast<Level>()
+                    .Where(l => l.Elevation <= lp.Point.Z + 1.0)
+                    .OrderByDescending(l => l.Elevation)
+                    .FirstOrDefault();
             }
             return null;
+        }
+
+        protected (XYZ Start, XYZ End) GetVerticalColumnPoints(Element element)
+        {
+            LocationPoint locPoint = element.Location as LocationPoint;
+            if (locPoint == null) return (null, null);
+
+            double x = locPoint.Point.X;
+            double y = locPoint.Point.Y;
+
+            // Step 1: Default to LocationPoint Z just in case
+            double minZ = locPoint.Point.Z;
+            double maxZ = locPoint.Point.Z;
+
+            // Step 2: Extract real solid geometry to find the exact bottom and top Z
+            Options opt = new Options
+            {
+                ComputeReferences = true,
+                IncludeNonVisibleObjects = false,
+                DetailLevel = ViewDetailLevel.Fine
+            };
+
+            GeometryElement geomElem = element.get_Geometry(opt);
+            if (geomElem != null)
+            {
+                bool pointsFound = false;
+                foreach (GeometryObject geomObj in geomElem)
+                {
+                    Solid solid = null;
+                    if (geomObj is Solid s && s.Faces.Size > 0 && s.Volume > 0)
+                    {
+                        solid = s;
+                    }
+                    else if (geomObj is GeometryInstance geomInst)
+                    {
+                        GeometryElement instGeom = geomInst.GetInstanceGeometry();
+                        foreach (GeometryObject instObj in instGeom)
+                        {
+                            if (instObj is Solid s2 && s2.Faces.Size > 0 && s2.Volume > 0)
+                            {
+                                // We'll just check all valid solids
+                                foreach (Face face in s2.Faces)
+                                {
+                                    Mesh mesh = face.Triangulate();
+                                    foreach (XYZ v in mesh.Vertices)
+                                    {
+                                        if (!pointsFound)
+                                        {
+                                            minZ = v.Z;
+                                            maxZ = v.Z;
+                                            pointsFound = true;
+                                        }
+                                        else
+                                        {
+                                            if (v.Z < minZ) minZ = v.Z;
+                                            if (v.Z > maxZ) maxZ = v.Z;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (solid != null)
+                    {
+                        foreach (Face face in solid.Faces)
+                        {
+                            Mesh mesh = face.Triangulate();
+                            foreach (XYZ v in mesh.Vertices)
+                            {
+                                if (!pointsFound)
+                                {
+                                    minZ = v.Z;
+                                    maxZ = v.Z;
+                                    pointsFound = true;
+                                }
+                                else
+                                {
+                                    if (v.Z < minZ) minZ = v.Z;
+                                    if (v.Z > maxZ) maxZ = v.Z;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Step 3: Handle X,Y offset checks
+            BoundingBoxXYZ bb = element.get_BoundingBox(null);
+            if (bb != null)
+            {
+                double bbCenterX = (bb.Min.X + bb.Max.X) / 2;
+                double bbCenterY = (bb.Min.Y + bb.Max.Y) / 2;
+
+                if (System.Math.Abs(x - bbCenterX) > 10 || System.Math.Abs(y - bbCenterY) > 10)
+                {
+                    x = bbCenterX;
+                    y = bbCenterY;
+                }
+            }
+
+            XYZ bottomPoint = new XYZ(x, y, minZ);
+            XYZ topPoint = new XYZ(x, y, maxZ);
+            return (bottomPoint, topPoint);
         }
 
         protected (XYZ Start, XYZ End) GetElementPoints(Element element)
@@ -90,9 +213,13 @@ namespace antiGGGravity.Commands.Model
             {
                 return (locCurve.Curve.GetEndPoint(0), locCurve.Curve.GetEndPoint(1));
             }
-            if (location is LocationPoint locPoint)
+            if (location is LocationPoint)
             {
-                return (locPoint.Point, locPoint.Point);
+                // Handle vertical columns by computing actual top/bottom points
+                if (element.Category.Id.Value == (long)BuiltInCategory.OST_StructuralColumns)
+                    return GetVerticalColumnPoints(element);
+
+                return (((LocationPoint)location).Point, ((LocationPoint)location).Point);
             }
             return (null, null);
         }
@@ -108,9 +235,21 @@ namespace antiGGGravity.Commands.Model
 
                 return (start + dir * offsetFeet, end - dir * offsetFeet);
             }
-            if (location is LocationPoint locPoint)
+            if (location is LocationPoint)
             {
-                return (locPoint.Point, locPoint.Point);
+                // Handle vertical columns by computing actual top/bottom points with offset
+                if (element.Category.Id.Value == (long)BuiltInCategory.OST_StructuralColumns)
+                {
+                    var (bottom, top) = GetVerticalColumnPoints(element);
+                    if (bottom != null && top != null)
+                    {
+                        XYZ dir = (top - bottom).Normalize();
+                        return (bottom + dir * offsetFeet, top - dir * offsetFeet);
+                    }
+                }
+
+                XYZ pt = ((LocationPoint)location).Point;
+                return (pt, pt);
             }
             return (null, null);
         }
@@ -148,12 +287,6 @@ namespace antiGGGravity.Commands.Model
 
             var pointsA = GetElementPointsWithOffset(selectedElements[0], offsetFeet);
             var pointsB = GetElementPointsWithOffset(selectedElements[1], offsetFeet);
-
-            if (selectedElements[0].Location is LocationPoint && selectedElements[1].Location is LocationPoint)
-            {
-                pointsA = (pointsA.Start, pointsA.Start);
-                pointsB = (pointsB.Start, pointsB.Start);
-            }
 
             XYZ pA1 = pointsA.Start;
             XYZ pA2 = pointsA.End;
