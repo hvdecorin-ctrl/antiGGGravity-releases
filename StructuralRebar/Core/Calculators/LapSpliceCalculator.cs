@@ -1,6 +1,7 @@
 using System;
 using Autodesk.Revit.DB;
 using antiGGGravity.StructuralRebar.Constants;
+using antiGGGravity.Utilities;
 
 namespace antiGGGravity.StructuralRebar.Core.Calculators
 {
@@ -9,25 +10,26 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
         /// <summary>
         /// Calculates the required lap splice length using grade-dependent rules.
         /// </summary>
-        public static double CalculateTensionLapLength(double db, DesignCodeStandard code, ConcreteGrade grade = ConcreteGrade.C30, SteelGrade steel = SteelGrade.Grade500E)
+        public static double CalculateTensionLapLength(double db, DesignCodeStandard code, ConcreteGrade grade = ConcreteGrade.C30, SteelGrade steel = SteelGrade.Grade500E, BarPosition position = BarPosition.Other)
         {
             switch (code)
             {
                 case DesignCodeStandard.ACI318:
-                    return DesignCodes.GetAciLapMultiplier(grade, steel) * db;
+                    return DesignCodes.GetAciLapMultiplier(grade, steel, position) * db;
 
                 case DesignCodeStandard.AS3600:
-                    return DesignCodes.GetAsLapMultiplier(grade, steel) * db;
+                    return DesignCodes.GetAsLapMultiplier(grade, steel, position) * db;
 
                 case DesignCodeStandard.EC2:
-                    return DesignCodes.GetEc2LapMultiplier(grade, steel) * db;
+                    return DesignCodes.GetEc2LapMultiplier(grade, steel, position) * db;
 
                 case DesignCodeStandard.NZS3101:
-                    return DesignCodes.GetNzsLapMultiplier(grade) * db;
+                    return DesignCodes.GetNzsLapMultiplier(grade, steel, position) * db;
 
                 default:
-                    // Custom fallback (conservative)
-                    return (50.0 * db);
+                    // Custom user-defined rules
+                    double customTenMult = SettingsManager.GetDouble("RebarSuite_CustomDesign", "LapTension", 50.0);
+                    return (customTenMult * db);
             }
         }
 
@@ -39,7 +41,7 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
             {
                 case DesignCodeStandard.ACI318:
                     // ACI 318-19: 0.071 * fy * db (mm), min 300mm
-                    return Math.Max(0.071 * fy / 500.0 * 30.0 * db, UnitConversion.MmToFeet(300));
+                    return Math.Max(0.071 * fy * db, UnitConversion.MmToFeet(300));
 
                 case DesignCodeStandard.AS3600:
                     return Math.Max(25.0 * db, UnitConversion.MmToFeet(300));
@@ -51,7 +53,8 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
                     return Math.Max(25.0 * db, UnitConversion.MmToFeet(300));
 
                 default:
-                    return Math.Max(30.0 * db, UnitConversion.MmToFeet(300));
+                    double customCompMult = SettingsManager.GetDouble("RebarSuite_CustomDesign", "LapCompression", 30.0);
+                    return Math.Max(customCompMult * db, UnitConversion.MmToFeet(300));
             }
         }
 
@@ -70,7 +73,7 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
         /// </summary>
         public static List<(double Start, double End)> SplitBarForLap(
             double totalLength, double barDia, DesignCodeStandard code,
-            double maxStockLength = 0, double crankRun = 0)
+            double maxStockLength = 0, double crankRun = 0, BarPosition position = BarPosition.Other)
         {
             if (maxStockLength <= 0) maxStockLength = MaxStockLengthFt;
 
@@ -83,7 +86,7 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
                 return segments;
             }
 
-            double lapLen = CalculateTensionLapLength(barDia, code);
+            double lapLen = CalculateTensionLapLength(barDia, code, ConcreteGrade.C30, SteelGrade.Grade500E, position);
             double totalOverlap = lapLen + crankRun; // Full overlap: lap + crank transition
 
             // Effective advance per segment = stock length minus total overlap
@@ -125,6 +128,7 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
             double totalLength, double barDia, DesignCodeStandard code,
             bool isTopBar, int layerIndex = 0, double maxStockLength = 0, double crankRun = 0)
         {
+            BarPosition position = isTopBar ? BarPosition.Top : BarPosition.Bottom;
             if (maxStockLength <= 0) maxStockLength = MaxStockLengthFt;
             if (crankRun <= 0) crankRun = GetCrankRun(barDia);
 
@@ -137,7 +141,7 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
                 return segments;
             }
 
-            double lapLen = CalculateTensionLapLength(barDia, code);
+            double lapLen = CalculateTensionLapLength(barDia, code, ConcreteGrade.C30, SteelGrade.Grade500E, position);
             double totalOverlap = lapLen + crankRun;
 
             // Stagger offset for alternating layers (odd layers shift deeper into zone)

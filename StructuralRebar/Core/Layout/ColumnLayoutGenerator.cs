@@ -77,6 +77,7 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
             HostGeometry host,
             string barTypeName,
             double barDiameter,
+            double startOffset,
             List<SpacingZone> zones,
             string hookStartName,
             string hookEndName)
@@ -100,7 +101,7 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                 double arrLen = zone.EndOffset - zone.StartOffset;
                 if (arrLen <= 0 || zone.Spacing <= 0) continue;
 
-                XYZ tieOrigin = origin + basisZ * zone.StartOffset;
+                XYZ tieOrigin = origin + basisZ * (startOffset + zone.StartOffset);
 
                 XYZ p1 = tieOrigin - basisX * (wTie / 2.0) - basisY * (dTie / 2.0); // BL
                 XYZ p2 = tieOrigin + basisX * (wTie / 2.0) - basisY * (dTie / 2.0); // BR

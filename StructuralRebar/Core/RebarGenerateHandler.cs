@@ -135,11 +135,22 @@ namespace antiGGGravity.StructuralRebar.Core
 
             var request = _window.WallPanel.GetRequest();
             request.RemoveExisting = _window.RemoveExisting;
-            request.EnableLapSplice = _window.EnableLapSplice;
+            // Note: EnableLapSplice is set inside WallPanel.GetRequest based on the Multi-Level Checkbox
             request.DesignCode = _window.DesignCode;
             var engine = new RebarEngine(doc);
-            var (processed, total) = engine.GenerateWallRebar(walls, request);
-            return $"Successfully reinforced {processed} of {total} walls.";
+
+            if (request.EnableLapSplice)
+            {
+                // Multi-level: resolve the full wall stack from the first selected wall
+                var stack = Geometry.MultiLevelResolver.FindWallStack(doc, walls.First());
+                var (processed, total) = engine.GenerateWallStackRebar(stack, request);
+                return $"Successfully reinforced {processed} walls across {total} levels.";
+            }
+            else
+            {
+                var (processed, total) = engine.GenerateWallRebar(walls, request);
+                return $"Successfully reinforced {processed} of {total} walls.";
+            }
         }
 
         private string ProcessColumns(UIDocument uidoc, Document doc)

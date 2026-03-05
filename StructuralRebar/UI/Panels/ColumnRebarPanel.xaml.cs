@@ -132,6 +132,16 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                     }
                 }
 
+                string crankPos = SettingsManager.Get(VIEW_NAME, "CrankPosition", "Upper Column");
+                foreach (ComboBoxItem item in UI_Combo_CrankPos.Items)
+                {
+                    if (item.Content.ToString() == crankPos)
+                    {
+                        item.IsSelected = true;
+                        break;
+                    }
+                }
+
                 // Apply visibility
                 MultiLevel_Changed(null, null);
                 Starters_Changed(null, null);
@@ -170,6 +180,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 // Multi-level settings
                 SettingsManager.Set(VIEW_NAME, "MultiLevel", (UI_Check_MultiLevel.IsChecked == true).ToString());
                 SettingsManager.Set(VIEW_NAME, "EnableStarters", (UI_Check_Starters.IsChecked == true).ToString());
+                SettingsManager.Set(VIEW_NAME, "CrankPosition", (UI_Combo_CrankPos.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Upper Column");
                 SettingsManager.Set(VIEW_NAME, "StarterDevLength", UI_Text_StarterDevLength.Text);
                 SettingsManager.Set(VIEW_NAME, "StarterType", TransTypeName(UI_Combo_StarterType));
                 SettingsManager.Set(VIEW_NAME, "StarterHook", HookName(UI_Combo_StarterHook));
@@ -214,6 +225,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 // Multi-Level
                 MultiLevel = (UI_Check_MultiLevel.IsChecked == true),
                 SplicePosition = (UI_Combo_SplicePos.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Above Slab",
+                CrankPosition = (UI_Combo_CrankPos.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Upper Column",
 
                 // Starter Bars
                 EnableStarterBars = (UI_Check_Starters.IsChecked == true),

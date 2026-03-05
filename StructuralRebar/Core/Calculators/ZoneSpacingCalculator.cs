@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using antiGGGravity.StructuralRebar.Constants;
+using antiGGGravity.Utilities;
 using antiGGGravity.StructuralRebar.DTO;
 
 namespace antiGGGravity.StructuralRebar.Core.Calculators
@@ -56,8 +57,12 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
                     break;
 
                 default: // Custom
-                    s_o = UnitConversion.MmToFeet(100.0);
-                    s_mid = UnitConversion.MmToFeet(200.0);
+                    double customLenFactor = SettingsManager.GetDouble("RebarSuite_CustomDesign", "ZoneLenFactor", 1.0);
+                    double customSpaMult = SettingsManager.GetDouble("RebarSuite_CustomDesign", "ZoneSpacing", 6.0);
+
+                    l_o = Math.Max(maxCrossSectionDim * customLenFactor, clearHeight / 6.0);
+                    s_o = barDia * customSpaMult;
+                    s_mid = s_o * 2.0;
                     break;
             }
 
@@ -122,7 +127,8 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
                     break;
 
                 default: // Custom
-                    endZoneLen = 2.0 * beamDepth;
+                    double customLenFactorB = SettingsManager.GetDouble("RebarSuite_CustomDesign", "ZoneLenFactor", 1.0);
+                    endZoneLen = Math.Min(customLenFactorB * beamDepth, beamLength / 4.0);
                     endZoneSpacing = userSpacing / 2.0;
                     break;
             }

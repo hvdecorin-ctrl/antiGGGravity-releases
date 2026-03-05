@@ -68,6 +68,54 @@ namespace antiGGGravity.StructuralRebar.Core.Geometry
         }
 
         /// <summary>
+        /// Finds all walls stacked at the same XY position (overlapping footprints),
+        /// sorted by base elevation (bottom to top).
+        /// </summary>
+        /// <param name="doc">Revit document.</param>
+        /// <param name="wall">Any wall in the stack.</param>
+        /// <returns>Ordered list of walls from lowest to highest level.</returns>
+        public static List<Wall> FindWallStack(Document doc, Wall wall)
+        {
+            // Get the XY bounding box of the input wall
+            BoundingBoxXYZ refBBox = GetElementXYBoundingBox(wall);
+            if (refBBox == null) return new List<Wall> { wall };
+
+            // Collect all walls in the document
+            var allWalls = new FilteredElementCollector(doc)
+                .OfCategory(BuiltInCategory.OST_Walls)
+                .OfClass(typeof(Wall))
+                .Cast<Wall>()
+                .ToList();
+
+            // Filter to walls that overlap in XY plane
+            var stack = new List<Wall>();
+            foreach (var candidate in allWalls)
+            {
+                BoundingBoxXYZ candidateBBox = GetElementXYBoundingBox(candidate);
+                if (candidateBBox == null) continue;
+
+                if (DoBoundingBoxesOverlapXY(refBBox, candidateBBox, XY_TOLERANCE))
+                {
+                    stack.Add(candidate);
+                }
+            }
+
+            // Sort by base elevation (lowest first)
+            stack.Sort((a, b) =>
+            {
+                double zA = GetBaseElevation(a);
+                double zB = GetBaseElevation(b);
+                return zA.CompareTo(zB);
+            });
+
+            // Fallback: if nothing found, return just the input wall
+            if (stack.Count == 0)
+                stack.Add(wall);
+
+            return stack;
+        }
+
+        /// <summary>
         /// Gets the XY center of a column (Z flattened to 0).
         /// Uses the Transform origin for accuracy.
         /// </summary>
@@ -90,13 +138,34 @@ namespace antiGGGravity.StructuralRebar.Core.Geometry
             }
         }
 
-        /// <summary>
-        /// Gets the base elevation (bottom Z) of a column.
-        /// </summary>
-        private static double GetBaseElevation(FamilyInstance column)
+        private static double GetBaseElevation(Element element)
         {
-            BoundingBoxXYZ bbox = column.get_BoundingBox(null);
+            BoundingBoxXYZ bbox = element.get_BoundingBox(null);
             return bbox?.Min.Z ?? 0;
+        }
+
+        /// <summary>
+        /// Gets the XY bounding box of an element (Z flattened).
+        /// </summary>
+        private static BoundingBoxXYZ GetElementXYBoundingBox(Element element)
+        {
+            BoundingBoxXYZ bbox = element.get_BoundingBox(null);
+            if (bbox == null) return null;
+            return new BoundingBoxXYZ
+            {
+                Min = new XYZ(bbox.Min.X, bbox.Min.Y, 0),
+                Max = new XYZ(bbox.Max.X, bbox.Max.Y, 0)
+            };
+        }
+
+        /// <summary>
+        /// Checks if two bounding boxes overlap in the XY plane, with a given tolerance.
+        /// </summary>
+        private static bool DoBoundingBoxesOverlapXY(BoundingBoxXYZ b1, BoundingBoxXYZ b2, double tolerance)
+        {
+            bool overlapX = b1.Max.X + tolerance > b2.Min.X && b1.Min.X - tolerance < b2.Max.X;
+            bool overlapY = b1.Max.Y + tolerance > b2.Min.Y && b1.Min.Y - tolerance < b2.Max.Y;
+            return overlapX && overlapY;
         }
 
         /// <summary>
@@ -144,6 +213,53 @@ namespace antiGGGravity.StructuralRebar.Core.Geometry
             BoundingBoxXYZ bbox = fi.get_BoundingBox(null);
             if (bbox != null) return bbox.Max.X - bbox.Min.X;
             return 0;
+        }
+
+        /// <summary>
+        /// Gets summary info for each wall in a stack (for UI display).
+        /// Returns list of (LevelName, Length, Thickness, Height) tuples.
+        /// </summary>
+        public static List<(string LevelName, double Length, double Thickness, double Height)> GetWallStackInfo(
+            Document doc, List<Wall> stack)
+        {
+            var info = new List<(string LevelName, double Length, double Thickness, double Height)>();
+
+            foreach (var wall in stack)
+            {
+                // Level name
+                string levelName = "Unknown";
+                Parameter baseLevelParam = wall.get_Parameter(BuiltInParameter.WALL_BASE_CONSTRAINT);
+                if (baseLevelParam != null && baseLevelParam.HasValue)
+                {
+                    ElementId levelId = baseLevelParam.AsElementId();
+                    Level level = doc.GetElement(levelId) as Level;
+                    if (level != null) levelName = level.Name;
+                }
+
+                // Dimensions
+                double length = 0;
+                Parameter lengthParam = wall.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH);
+                if (lengthParam != null && lengthParam.HasValue) length = lengthParam.AsDouble();
+
+                double thickness = wall.WallType.Width;
+
+                // Height
+                double height = 0;
+                Parameter heightParam = wall.get_Parameter(BuiltInParameter.WALL_USER_HEIGHT_PARAM);
+                if (heightParam != null && heightParam.HasValue) 
+                {
+                    height = heightParam.AsDouble();
+                }
+                else
+                {
+                    BoundingBoxXYZ bbox = wall.get_BoundingBox(null);
+                    if (bbox != null) height = bbox.Max.Z - bbox.Min.Z;
+                }
+
+                info.Add((levelName, length, thickness, height));
+            }
+
+            return info;
         }
     }
 }

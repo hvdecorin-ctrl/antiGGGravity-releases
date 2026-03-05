@@ -52,7 +52,7 @@ namespace antiGGGravity.StructuralRebar
             _externalEvent = ExternalEvent.Create(_handler);
 
             // Create modeless window
-            _window = new RebarSuiteWindow(doc, _externalEvent);
+            _window = new RebarSuiteWindow(uiApp.ActiveUIDocument, _externalEvent);
             _handler.SetWindow(_window);
 
             // Wire up the Closed event to clean up references

@@ -92,8 +92,14 @@ namespace antiGGGravity.StructuralRebar.DTO
         /// <summary>Whether to process a stack of columns across multiple levels.</summary>
         public bool MultiLevel { get; set; }
 
+        /// <summary>Crank position: "None", "Upper Column", or "Lower Column".</summary>
+        public string CrankPosition { get; set; } = "Upper Column";
+
         /// <summary>Splice position strategy: "Above Slab" or "Mid Height".</summary>
         public string SplicePosition { get; set; } = "Above Slab";
+
+        /// <summary>Length of lap splice for continuous vertical bars (feet).</summary>
+        public double VerticalContinuousSpliceLength { get; set; }
 
         // === STARTER BARS ===
         /// <summary>Whether to extend starter bars from the bottom column into the foundation.</summary>

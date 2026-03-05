@@ -38,6 +38,30 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
             return GenerateRebarInternal(walls, request, "Generate Wall Rebar");
         }
 
+        public (int Processed, int Total) GenerateWallStackRebar(
+            List<Wall> stack, RebarRequest request)
+        {
+            int processed = 0;
+
+            using (Transaction t = new Transaction(_doc, "Generate Multi-Level Wall Rebar"))
+            {
+                t.Start();
+
+                try
+                {
+                    processed = ProcessWallStack(stack, request) ? stack.Count : 0;
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"RebarEngine: Wall stack failed: {ex.Message}");
+                }
+
+                t.Commit();
+            }
+
+            return (processed, stack.Count);
+        }
+
         public (int Processed, int Total) GenerateColumnRebar(
             List<FamilyInstance> columns, RebarRequest request)
         {
@@ -479,10 +503,6 @@ var segments = request.EnableLapSplice
                 }
             }
 
-            // For slanted beams, bar positions are offsets from section center along HAxis
-            // HAxis is perpendicular to the beam in the vertical plane (local "up")
-            // Top offset = positive along HAxis, Bottom offset = negative along HAxis
-
             // Top layers
             double topOffset = host.Height / 2.0 - host.CoverTop - transDia;
             foreach (var layer in request.Layers.Where(l =>
@@ -604,7 +624,7 @@ var segments = request.EnableLapSplice
                         if (request.EnableLapSplice && barLen > LapSpliceCalculator.MaxStockLengthFt)
                         {
                             var segments = LapSpliceCalculator.SplitBarForLap(
-                                barLen, vertDef.BarDiameter, request.DesignCode, 0, LapSpliceCalculator.GetCrankRun(vertDef.BarDiameter));
+                                barLen, vertDef.BarDiameter, request.DesignCode, 0, LapSpliceCalculator.GetCrankRun(vertDef.BarDiameter), BarPosition.Other);
 
                             if (segments.Count <= 1)
                             {
@@ -627,7 +647,7 @@ var segments = request.EnableLapSplice
                                     {
                                         double crankOff = LapSpliceCalculator.GetCrankOffset(vertDef.BarDiameter);
                                         double crankRun = LapSpliceCalculator.GetCrankRun(vertDef.BarDiameter);
-                                        double lapLen = LapSpliceCalculator.CalculateTensionLapLength(vertDef.BarDiameter, request.DesignCode);
+                                        double lapLen = LapSpliceCalculator.CalculateTensionLapLength(vertDef.BarDiameter, request.DesignCode, ConcreteGrade.C30, SteelGrade.Grade500E, BarPosition.Other);
                                         double straightLap = lapLen + crankRun;
 
                                         // Crank inward (towards center of wall)
@@ -694,7 +714,7 @@ var segments = request.EnableLapSplice
                         if (request.EnableLapSplice && barLen > LapSpliceCalculator.MaxStockLengthFt)
                         {
                             var segments = LapSpliceCalculator.SplitBarForLap(
-                                barLen, horizDef.BarDiameter, request.DesignCode, 0, LapSpliceCalculator.GetCrankRun(horizDef.BarDiameter));
+                                barLen, horizDef.BarDiameter, request.DesignCode, 0, LapSpliceCalculator.GetCrankRun(horizDef.BarDiameter), BarPosition.Top);
 
                             if (segments.Count <= 1)
                             {
@@ -717,7 +737,7 @@ var segments = request.EnableLapSplice
                                     {
                                         double crankOff = LapSpliceCalculator.GetCrankOffset(horizDef.BarDiameter);
                                         double crankRun = LapSpliceCalculator.GetCrankRun(horizDef.BarDiameter);
-                                        double lapLen = LapSpliceCalculator.CalculateTensionLapLength(horizDef.BarDiameter, request.DesignCode);
+                                        double lapLen = LapSpliceCalculator.CalculateTensionLapLength(horizDef.BarDiameter, request.DesignCode, ConcreteGrade.C30, SteelGrade.Grade500E, BarPosition.Top);
                                         double straightLap = lapLen + crankRun;
 
                                         // Crank inward (towards center of wall)
@@ -763,10 +783,358 @@ var segments = request.EnableLapSplice
                         }
                     }
                 }
+
+                // 3. Starter Bars
+                if (request.StarterDevLength > 0 && vDia > 0)
+                {
+                    string sType = !string.IsNullOrEmpty(request.StarterBarTypeName) ? request.StarterBarTypeName : request.TransverseBarTypeName;
+                    double sDia = GetBarDiameter(sType);
+
+                    var starterDef = WallLayoutGenerator.CreateVerticalBars(
+                        host, sType, sDia,
+                        request.TransverseSpacing,
+                        request.TransverseStartOffset + startTrim,
+                        request.TransverseEndOffset + endTrim,
+                        host.CoverOther, host.CoverOther, 
+                        0, 0,
+                        vOff,
+                        request.StarterHookEndName, null, 
+                        request.TransverseHookStartOut, request.TransverseHookEndOut);
+
+                    if (starterDef != null && starterDef.Curves.Count > 0)
+                    {
+                        var starterCurves = new List<Curve>();
+                        if (starterDef.Curves[0] is Line line)
+                        {
+                            XYZ origStart = line.GetEndPoint(0);
+                            XYZ origEnd = line.GetEndPoint(1);
+                            XYZ barDir = (origEnd - origStart).Normalize();
+
+                            // Lap into wall above must comply with design code
+                            double starterLap = LapSpliceCalculator.CalculateTensionLapLength(
+                                sDia, request.DesignCode, ConcreteGrade.C30, SteelGrade.Grade500E, BarPosition.Other);
+                            // Take the larger of code-calculated lap and user-specified splice length
+                            starterLap = Math.Max(starterLap, request.VerticalContinuousSpliceLength);
+
+                            XYZ newStart = origStart - barDir * request.StarterDevLength;
+                            XYZ newEnd = origStart + barDir * starterLap;
+                            
+                            starterCurves.Add(Line.CreateBound(newStart, newEnd));
+                        }
+                        starterDef.Curves = starterCurves;
+                        starterDef.Label = "Starter Bar";
+                        starterDef.Comment = "Starter Bar";
+                        definitions.Add(starterDef);
+                    }
+                }
             }
 
             var ids = _creationService.PlaceRebar(wall, definitions);
             return ids.Count > 0;
+        }
+
+        // ==============================================================
+        //  MULTI-LEVEL WALL STACK — splice bars across levels
+        // ==============================================================
+        private bool ProcessWallStack(List<Wall> stack, RebarRequest request)
+        {
+            if (stack == null || stack.Count == 0) return false;
+
+            bool anySuccess = false;
+
+            for (int i = 0; i < stack.Count; i++)
+            {
+                var wall = stack[i];
+                HostGeometry host = WallGeometryModule.Read(_doc, wall);
+                if (host.Length <= 0 || host.Width <= 0 || host.Height <= 0) continue;
+
+                bool isBottom = (i == 0);
+                bool isTop = (i == stack.Count - 1);
+
+                if (request.RemoveExisting)
+                    _creationService.DeleteExistingRebar(wall);
+
+                // Find trim distances at intersecting wall faces
+                var (startTrim, endTrim) = FindWallFaceTrimDistances(wall);
+
+                var definitions = new List<RebarDefinition>();
+
+                double vDia = GetBarDiameter(request.TransverseBarTypeName);
+                double hDia = 0;
+                if (request.Layers.Count > 0)
+                    hDia = GetBarDiameter(request.Layers[0].HorizontalBarTypeName);
+
+                double thickness = host.Width;
+
+                // LAYER OFFSET CALCULATIONS
+                double dExtH = (thickness / 2.0) - host.CoverExterior - (hDia / 2.0);
+                double dExtV = dExtH - (hDia / 2.0) - (vDia / 2.0);
+                double dIntH = (thickness / 2.0) - host.CoverInterior - (hDia / 2.0);
+                double dIntV = dIntH - (hDia / 2.0) - (vDia / 2.0);
+
+                var layers = new List<(double vOff, double hOff)>();
+                string config = request.WallLayerConfig ?? "Centre";
+                if (config.Equals("Centre", StringComparison.OrdinalIgnoreCase))
+                {
+                    layers.Add((0, (vDia / 2.0 + hDia / 2.0)));
+                }
+                else if (config.Equals("Both Faces", StringComparison.OrdinalIgnoreCase))
+                {
+                    layers.Add((dExtV, dExtH));
+                    layers.Add((-dIntV, -dIntH));
+                }
+                else if (config.Equals("External Face", StringComparison.OrdinalIgnoreCase))
+                {
+                    layers.Add((dExtV, dExtH));
+                }
+                else if (config.Equals("Internal Face", StringComparison.OrdinalIgnoreCase))
+                {
+                    layers.Add((-dIntV, -dIntH));
+                }
+
+                // Standard top/bot extensions
+                double botExt = request.VerticalBottomExtension;
+                double topExt = request.VerticalTopExtension;
+
+                // Code-compliant lap for wall vertical bars (max of code calc and user entry)
+                double codeLap = LapSpliceCalculator.CalculateTensionLapLength(
+                    vDia, request.DesignCode, ConcreteGrade.C30, SteelGrade.Grade500E, BarPosition.Other);
+                double vertLap = Math.Max(codeLap, request.VerticalContinuousSpliceLength);
+
+                if (!isBottom) botExt = 0;
+                if (!isTop) topExt = vertLap;
+
+                bool crankUpper = string.Equals(request.CrankPosition, "Upper Wall", StringComparison.OrdinalIgnoreCase) || 
+                                 string.Equals(request.CrankPosition, "Upper Column", StringComparison.OrdinalIgnoreCase);
+                bool crankLower = string.Equals(request.CrankPosition, "Lower Wall", StringComparison.OrdinalIgnoreCase) ||
+                                 string.Equals(request.CrankPosition, "Lower Column", StringComparison.OrdinalIgnoreCase);
+
+                foreach (var (vOff, hOff) in layers)
+                {
+                    // 1. Vertical Bars
+                    if (!string.IsNullOrEmpty(request.TransverseBarTypeName) && vDia > 0)
+                    {
+                        var vertDef = WallLayoutGenerator.CreateVerticalBars(
+                            host, request.TransverseBarTypeName, vDia,
+                            request.TransverseSpacing,
+                            request.TransverseStartOffset + startTrim,
+                            request.TransverseEndOffset + endTrim,
+                            host.CoverOther, host.CoverOther, 
+                            topExt, botExt,
+                            vOff,
+                            isBottom ? request.TransverseHookStartName : null, 
+                            isTop ? request.TransverseHookEndName : null,
+                            request.TransverseHookStartOut, request.TransverseHookEndOut);
+
+                        if (vertDef != null)
+                        {
+                            if (!isBottom && crankUpper)
+                            {
+                                var origLine = vertDef.Curves[0] as Line;
+                                if (origLine != null)
+                                {
+                                    XYZ barDir = (origLine.GetEndPoint(1) - origLine.GetEndPoint(0)).Normalize();
+                                    XYZ barStart = origLine.GetEndPoint(0);
+                                    XYZ barEnd = origLine.GetEndPoint(1);
+
+                                    double crankOff = LapSpliceCalculator.GetCrankOffset(vertDef.BarDiameter);
+                                    double crankRun = LapSpliceCalculator.GetCrankRun(vertDef.BarDiameter);
+                                    double straightLap = vertLap + crankRun;
+
+                                    XYZ inwardDir = host.WAxis;
+                                    if (vOff > 0) inwardDir = -host.WAxis; 
+                                    else if (vOff < 0) inwardDir = host.WAxis;
+
+                                    XYZ ptA = barStart + inwardDir * crankOff;
+                                    XYZ ptB = ptA + barDir * straightLap;
+                                    XYZ ptC = barStart + barDir * (straightLap + crankRun);
+
+                                    var curves = new List<Curve>
+                                    {
+                                        Line.CreateBound(ptA, ptB),
+                                        Line.CreateBound(ptB, ptC),
+                                        Line.CreateBound(ptC, barEnd)
+                                    };
+                                    vertDef.Curves = curves;
+                                    vertDef.Label = "Vertical Bar (Cranked Upper)";
+                                }
+                                definitions.Add(vertDef);
+                            }
+                            else if (!isTop && crankLower)
+                            {
+                                var origLine = vertDef.Curves[0] as Line;
+                                if (origLine != null)
+                                {
+                                    XYZ barDir = (origLine.GetEndPoint(1) - origLine.GetEndPoint(0)).Normalize();
+                                    XYZ barStart = origLine.GetEndPoint(0);
+                                    XYZ barEnd = origLine.GetEndPoint(1);
+
+                                    double crankOff = LapSpliceCalculator.GetCrankOffset(vertDef.BarDiameter);
+                                    double crankRun = LapSpliceCalculator.GetCrankRun(vertDef.BarDiameter);
+
+                                    XYZ inwardDir = host.WAxis;
+                                    if (vOff > 0) inwardDir = -host.WAxis; 
+                                    else if (vOff < 0) inwardDir = host.WAxis;
+
+                                    XYZ spliceStart = barEnd - barDir * topExt;
+                                    XYZ ptA = spliceStart - barDir * crankRun;
+                                    XYZ ptB = spliceStart + inwardDir * crankOff;
+                                    XYZ ptC = barEnd + inwardDir * crankOff;
+
+                                    var curves = new List<Curve>
+                                    {
+                                        Line.CreateBound(barStart, ptA),
+                                        Line.CreateBound(ptA, ptB),
+                                        Line.CreateBound(ptB, ptC)
+                                    };
+                                    vertDef.Curves = curves;
+                                    vertDef.Label = "Vertical Bar (Cranked Lower)";
+                                }
+                                definitions.Add(vertDef);
+                            }
+                            else
+                            {
+                                definitions.Add(vertDef);
+                            }
+                        }
+                    }
+
+                    // 2. Starter Bars (bottom level only)
+                    if (isBottom && request.StarterDevLength > 0 && vDia > 0)
+                    {
+                        string sType = !string.IsNullOrEmpty(request.StarterBarTypeName) ? request.StarterBarTypeName : request.TransverseBarTypeName;
+                        double sDia = GetBarDiameter(sType);
+
+                        var starterDef = WallLayoutGenerator.CreateVerticalBars(
+                            host, sType, sDia,
+                            request.TransverseSpacing,
+                            request.TransverseStartOffset + startTrim,
+                            request.TransverseEndOffset + endTrim,
+                            host.CoverOther, host.CoverOther, 
+                            0, 0,
+                            vOff,
+                            request.StarterHookEndName, null, // Use Starter Hook from request
+                            request.TransverseHookStartOut, request.TransverseHookEndOut);
+
+                        if (starterDef != null && starterDef.Curves.Count > 0)
+                        {
+                            var starterCurves = new List<Curve>();
+                            if (starterDef.Curves[0] is Line line)
+                            {
+                                XYZ origStart = line.GetEndPoint(0);
+                                XYZ origEnd = line.GetEndPoint(1);
+                                XYZ barDir = (origEnd - origStart).Normalize();
+
+                                // Lap into wall above must comply with design code
+                                double starterLap = LapSpliceCalculator.CalculateTensionLapLength(
+                                    sDia, request.DesignCode, ConcreteGrade.C30, SteelGrade.Grade500E, BarPosition.Other);
+                                // Take the larger of code-calculated lap and user-specified splice length
+                                starterLap = Math.Max(starterLap, request.VerticalContinuousSpliceLength);
+
+                                XYZ newStart = origStart - barDir * request.StarterDevLength;
+                                XYZ newEnd = origStart + barDir * starterLap;
+                                
+                                starterCurves.Add(Line.CreateBound(newStart, newEnd));
+                            }
+                            starterDef.Curves = starterCurves;
+                            starterDef.Label = "Starter Bar";
+                            definitions.Add(starterDef);
+                        }
+                    }
+
+                    // 3. Horizontal Bars
+                    if (request.Layers.Count > 0 && hDia > 0)
+                    {
+                        var layer = request.Layers[0];
+                        var horizDef = WallLayoutGenerator.CreateHorizontalBars(
+                            host, layer.HorizontalBarTypeName, hDia,
+                            layer.HorizontalSpacing, layer.TopOffset, layer.BottomOffset,
+                            host.CoverOther + startTrim,
+                            host.CoverOther + endTrim,
+                            hOff,
+                            layer.HookStartName, layer.HookEndName,
+                            layer.HookStartOutward, layer.HookEndOutward);
+
+                        if (horizDef != null)
+                        {
+                            double barLen = host.Length - 2 * host.CoverOther;
+                            if (barLen > LapSpliceCalculator.MaxStockLengthFt)
+                            {
+                                var segments = LapSpliceCalculator.SplitBarForLap(
+                                    barLen, horizDef.BarDiameter, request.DesignCode, 0, LapSpliceCalculator.GetCrankRun(horizDef.BarDiameter), BarPosition.Top);
+                                
+                                if (segments.Count <= 1)
+                                {
+                                    definitions.Add(horizDef);
+                                }
+                                else
+                                {
+                                    var origLine = horizDef.Curves[0] as Line;
+                                    XYZ barDir = (origLine.GetEndPoint(1) - origLine.GetEndPoint(0)).Normalize();
+                                    XYZ barStart = origLine.GetEndPoint(0);
+
+                                    for (int si = 0; si < segments.Count; si++)
+                                    {
+                                        var seg = segments[si];
+                                        XYZ segStart = barStart + barDir * seg.Start;
+                                        XYZ segEnd = barStart + barDir * seg.End;
+
+                                        var curves = new List<Curve>();
+                                        if (si > 0)
+                                        {
+                                            double crankOff = LapSpliceCalculator.GetCrankOffset(horizDef.BarDiameter);
+                                            double crankRun = LapSpliceCalculator.GetCrankRun(horizDef.BarDiameter);
+                                            double lapLen = LapSpliceCalculator.CalculateTensionLapLength(horizDef.BarDiameter, request.DesignCode, ConcreteGrade.C30, SteelGrade.Grade500E, BarPosition.Top);
+                                            double straightLap = lapLen + crankRun;
+
+                                            XYZ inwardDir = host.WAxis;
+                                            if (hOff > 0) inwardDir = -host.WAxis; 
+                                            else if (hOff < 0) inwardDir = host.WAxis;
+                                            
+                                            XYZ ptA = segStart + inwardDir * crankOff;
+                                            XYZ ptB = ptA + barDir * straightLap;
+                                            XYZ ptC = segStart + barDir * (straightLap + crankRun);
+
+                                            curves.Add(Line.CreateBound(ptA, ptB));
+                                            curves.Add(Line.CreateBound(ptB, ptC));
+                                            curves.Add(Line.CreateBound(ptC, segEnd));
+                                        }
+                                        else
+                                        {
+                                            curves.Add(Line.CreateBound(segStart, segEnd));
+                                        }
+
+                                        definitions.Add(new RebarDefinition
+                                        {
+                                            Curves = curves,
+                                            Style = horizDef.Style,
+                                            BarTypeName = horizDef.BarTypeName,
+                                            BarDiameter = horizDef.BarDiameter,
+                                            Spacing = horizDef.Spacing,
+                                            ArrayLength = horizDef.ArrayLength,
+                                            Normal = horizDef.Normal,
+                                            HookStartName = (si == 0) ? horizDef.HookStartName : null,
+                                            HookEndName = (si == segments.Count - 1) ? horizDef.HookEndName : null,
+                                            HookStartOrientation = horizDef.HookStartOrientation,
+                                            HookEndOrientation = horizDef.HookEndOrientation,
+                                            Label = "Horizontal Bar (lapped)"
+                                        });
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                definitions.Add(horizDef);
+                            }
+                        }
+                    }
+                }
+
+                var ids = _creationService.PlaceRebar(wall, definitions);
+                if (ids.Count > 0) anySuccess = true;
+            }
+
+            return anySuccess;
         }
 
         private bool ProcessColumn(FamilyInstance column, RebarRequest request)
@@ -797,6 +1165,7 @@ var segments = request.EnableLapSplice
                         clearHeight, maxDim, mainBarDia > 0 ? mainBarDia : tDia, tDia, request.DesignCode);
                     var zonedDefs = ColumnLayoutGenerator.CreateZonedColumnTies(
                         host, request.TransverseBarTypeName, tDia,
+                        request.TransverseStartOffset,
                         zones, request.TransverseHookStartName, request.TransverseHookEndName);
                     definitions.AddRange(zonedDefs);
                 }
@@ -949,7 +1318,7 @@ var segments = request.EnableLapSplice
                     if (!string.IsNullOrEmpty(request.TransverseBarTypeName))
                         tieDia = GetBarDiameter(request.TransverseBarTypeName);
 
-                    double starterTopExt = LapSpliceCalculator.CalculateTensionLapLength(maxBarDia, request.DesignCode);
+                    double starterTopExt = LapSpliceCalculator.CalculateTensionLapLength(maxBarDia, request.DesignCode, ConcreteGrade.C30, SteelGrade.Grade500E, BarPosition.Other);
 
                     var starterDefs = CreateStarterBars(
                         host, starterBarTypeX, starterDiaX, starterBarTypeY, starterDiaY,
@@ -1009,6 +1378,7 @@ var segments = request.EnableLapSplice
                             clearHeight, maxDim, mainBarDia > 0 ? mainBarDia : tDia, tDia, request.DesignCode);
                         var zonedDefs = ColumnLayoutGenerator.CreateZonedColumnTies(
                             host, request.TransverseBarTypeName, tDia,
+                            request.TransverseStartOffset,
                             zones, request.TransverseHookStartName, request.TransverseHookEndName);
                         definitions.AddRange(zonedDefs);
                     }
@@ -1023,6 +1393,8 @@ var segments = request.EnableLapSplice
                 }
 
                 // ── 2. VERTICAL BARS with multi-level splice logic ──
+                bool crankUpper = string.Equals(request.CrankPosition, "Upper Column", StringComparison.OrdinalIgnoreCase);
+                bool crankLower = string.Equals(request.CrankPosition, "Lower Column", StringComparison.OrdinalIgnoreCase);
                 if (vDiaX > 0 || vDiaY > 0)
                 {
                     var layerTempl = request.Layers.FirstOrDefault() ?? new RebarLayerConfig();
@@ -1031,29 +1403,19 @@ var segments = request.EnableLapSplice
                     double botExt = request.VerticalBottomExtension;
                     double topExt = request.VerticalTopExtension;
 
-                    // Bottom column: use user extension (or starter bar goes below separately)
-                    // Middle/Top columns: lap splice start offset from base
-                    // Top column: use user extension at top
-
-                    // For non-bottom columns: bars start at splice offset above base
-                    // (the splice region overlaps with the bar projecting from below)
+                    // For non-bottom columns: bars start at column base (no extension below)
+                    // The column below projects its bars UP into this column for the overlap
                     if (!isBottom)
                     {
-                        // Bar starts at base with bottom extension = 0 
-                        // (the column below projects its bars UP into this column)
                         botExt = 0;
                     }
 
-                    // For non-top columns: bars extend above into upper column by splice length
+                    // For non-top columns: bars extend up into upper column by splice length
                     if (!isTop)
                     {
-                        double spliceExt = ColumnContinuityCalculator.GetSpliceExtension(maxBarDia, request.DesignCode);
-                        topExt = spliceExt;
+                        double lapLen = LapSpliceCalculator.CalculateTensionLapLength(maxBarDia, request.DesignCode, ConcreteGrade.C30, SteelGrade.Grade500E, BarPosition.Other);
+                        topExt = ColumnContinuityCalculator.GetSpliceStartOffset() + lapLen;
                     }
-
-                    // Check if we need cranking due to cross-section change from column below
-                    // (cranking applies to bars in this column if upper column is narrower)
-                    // For V1, we generate straight bars — cranking will be a future enhancement
 
                     var vertDefs = ColumnLayoutGenerator.CreateColumnVerticals(
                         host,
@@ -1067,7 +1429,125 @@ var segments = request.EnableLapSplice
                         layerTempl.HookStartOutward, layerTempl.HookEndOutward);
 
                     if (vertDefs != null)
-                        definitions.AddRange(vertDefs);
+                    {
+                        // ── CRANK AT BOTTOM OF UPPER COLUMN BARS ──
+                        // Shape: offset start → straight lap → 1:6 crank → straight to top
+                        if (!isBottom && crankUpper)
+                        {
+                            var crankedDefs = new List<RebarDefinition>();
+                            foreach (var vDef in vertDefs)
+                            {
+                                var origLine = vDef.Curves[0] as Line;
+                                if (origLine == null) { crankedDefs.Add(vDef); continue; }
+
+                                XYZ barDir = (origLine.GetEndPoint(1) - origLine.GetEndPoint(0)).Normalize();
+                                XYZ barStart = origLine.GetEndPoint(0);
+                                XYZ barEnd = origLine.GetEndPoint(1);
+
+                                double crankOff = LapSpliceCalculator.GetCrankOffset(vDef.BarDiameter);
+                                double crankRun = LapSpliceCalculator.GetCrankRun(vDef.BarDiameter);
+                                double lapLen = LapSpliceCalculator.CalculateTensionLapLength(vDef.BarDiameter, request.DesignCode);
+                                double straightLap = lapLen + crankRun;
+
+                                XYZ inDir = -vDef.Normal.CrossProduct(barDir).Normalize();
+
+                                XYZ ptA = barStart + inDir * crankOff;
+                                XYZ ptB = ptA + barDir * straightLap;
+                                XYZ ptC = barStart + barDir * (straightLap + crankRun);
+
+                                var curves = new List<Curve>
+                                {
+                                    Line.CreateBound(ptA, ptB),
+                                    Line.CreateBound(ptB, ptC),
+                                    Line.CreateBound(ptC, barEnd)
+                                };
+
+                                crankedDefs.Add(new RebarDefinition
+                                {
+                                    Curves = curves,
+                                    Style = vDef.Style,
+                                    BarTypeName = vDef.BarTypeName,
+                                    BarDiameter = vDef.BarDiameter,
+                                    Normal = vDef.Normal,
+                                    ArrayDirection = vDef.ArrayDirection,
+                                    FixedCount = vDef.FixedCount,
+                                    DistributionWidth = vDef.DistributionWidth,
+                                    Spacing = vDef.Spacing,
+                                    ArrayLength = vDef.ArrayLength,
+                                    HookStartName = null,
+                                    HookEndName = vDef.HookEndName,
+                                    HookStartOrientation = vDef.HookStartOrientation,
+                                    HookEndOrientation = vDef.HookEndOrientation,
+                                    Label = vDef.Label + " (Cranked)",
+                                    Comment = vDef.Comment
+                                });
+                            }
+                            definitions.AddRange(crankedDefs);
+                        }
+                        // ── CRANK AT TOP OF LOWER COLUMN BARS ──
+                        // Shape: straight → 1:6 crank (main → offset) → straight at offset
+                        else if (!isTop && crankLower)
+                        {
+                            var crankedDefs = new List<RebarDefinition>();
+                            foreach (var vDef in vertDefs)
+                            {
+                                var origLine = vDef.Curves[0] as Line;
+                                if (origLine == null) { crankedDefs.Add(vDef); continue; }
+
+                                XYZ barDir = (origLine.GetEndPoint(1) - origLine.GetEndPoint(0)).Normalize();
+                                XYZ barStart = origLine.GetEndPoint(0);
+                                XYZ barEnd = origLine.GetEndPoint(1);
+
+                                double crankOff = LapSpliceCalculator.GetCrankOffset(vDef.BarDiameter);
+                                double crankRun = LapSpliceCalculator.GetCrankRun(vDef.BarDiameter);
+
+                                XYZ inDir = -vDef.Normal.CrossProduct(barDir).Normalize();
+
+                                // Crank near the top of the lower column
+                                // spliceStart = the point where the bar exits the column into the upper zone
+                                XYZ spliceStart = barEnd - barDir * topExt;
+                                // ptA: crank starts crankRun below splice start (main position)
+                                XYZ ptA = spliceStart - barDir * crankRun;
+                                // ptB: after 1:6 crank, now at offset position (splice start height)
+                                XYZ ptB = spliceStart + inDir * crankOff;
+                                // ptC: bar end at offset position (into upper column)
+                                XYZ ptC = barEnd + inDir * crankOff;
+
+                                var curves = new List<Curve>
+                                {
+                                    Line.CreateBound(barStart, ptA),  // straight at main
+                                    Line.CreateBound(ptA, ptB),       // angled crank (main → offset)
+                                    Line.CreateBound(ptB, ptC)        // straight at offset
+                                };
+
+                                crankedDefs.Add(new RebarDefinition
+                                {
+                                    Curves = curves,
+                                    Style = vDef.Style,
+                                    BarTypeName = vDef.BarTypeName,
+                                    BarDiameter = vDef.BarDiameter,
+                                    Normal = vDef.Normal,
+                                    ArrayDirection = vDef.ArrayDirection,
+                                    FixedCount = vDef.FixedCount,
+                                    DistributionWidth = vDef.DistributionWidth,
+                                    Spacing = vDef.Spacing,
+                                    ArrayLength = vDef.ArrayLength,
+                                    HookStartName = vDef.HookStartName,
+                                    HookEndName = null,
+                                    HookStartOrientation = vDef.HookStartOrientation,
+                                    HookEndOrientation = vDef.HookEndOrientation,
+                                    Label = vDef.Label + " (Cranked)",
+                                    Comment = vDef.Comment
+                                });
+                            }
+                            definitions.AddRange(crankedDefs);
+                        }
+                        // ── NO CRANK — straight bars ──
+                        else
+                        {
+                            definitions.AddRange(vertDefs);
+                        }
+                    }
                 }
 
                 // ── 3. STARTER BARS (bottom column only) ──

@@ -107,6 +107,9 @@
                         <RadioButton x:Name="UI_Radio_WallCornerU" Content="Wall Corner U" 
                                      GroupName="ElementType" Style="{StaticResource PremiumSidebarButtonStyle}"
                                      Checked="ElementType_Changed" IsEnabled="True"/>
+                        <RadioButton x:Name="UI_Radio_CustomDesign" Content="⚙ Custom Code" 
+                                     GroupName="ElementType" Style="{StaticResource PremiumSidebarButtonStyle}"
+                                     Checked="ElementType_Changed" IsEnabled="True"/>
 
                         <Separator Margin="5,15,5,10" Background="#E0E0E0"/>
 

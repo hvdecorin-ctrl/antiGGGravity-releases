@@ -80,12 +80,12 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
 
                         if (forcedStart || forcedEnd)
                         {
-                            // Revit forced hooks! Delete this instance and recreate forcing a NEW shape without hooks
+                            // Revit forced hooks! Delete this instance and recreate forcing a NEW shape
                             _doc.Delete(rebar.Id);
                             rebar = DBRebar.CreateFromCurves(
                                 _doc, def.Style, barType, hookStart, hookEnd, host,
                                 def.Normal, def.Curves, def.HookStartOrientation, def.HookEndOrientation,
-                                false, true); // <--- false to useExistingShapeIfPossible
+                                false, true); // <--- false to force a clean shape
                         }
 
                         if (rebar != null)

@@ -35,6 +35,19 @@
                         <ComboBoxItem Content="Mid Height"/>
                     </ComboBox>
                 </Grid>
+                <Grid Margin="0,8,0,4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="Crank Position" FontSize="11" Foreground="#666666" VerticalAlignment="Center"/>
+                    <ComboBox x:Name="UI_Combo_CrankPos" Grid.Column="2" Height="28" Padding="8,0" VerticalContentAlignment="Center">
+                        <ComboBoxItem Content="None"/>
+                        <ComboBoxItem Content="Upper Column" IsSelected="True"/>
+                        <ComboBoxItem Content="Lower Column"/>
+                    </ComboBox>
+                </Grid>
                 <TextBlock Text="ℹ Same settings applied to all levels" FontSize="9" Foreground="#888" FontStyle="Italic" Margin="0,4,0,0"/>
             </StackPanel>
         </Border>
@@ -157,11 +170,11 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0">
                             <TextBlock Text="Bot Offset (mm)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                            <TextBox x:Name="UI_Text_TieBotOffset" Text="100" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
+                            <TextBox x:Name="UI_Text_TieBotOffset" Text="50" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
                         </StackPanel>
                         <StackPanel Grid.Column="2">
                             <TextBlock Text="Top Offset (mm)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                            <TextBox x:Name="UI_Text_TieTopOffset" Text="100" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
+                            <TextBox x:Name="UI_Text_TieTopOffset" Text="50" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
                         </StackPanel>
                     </Grid>
 

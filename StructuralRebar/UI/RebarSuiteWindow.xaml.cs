@@ -8,6 +8,7 @@ namespace antiGGGravity.StructuralRebar.UI
 {
     public partial class RebarSuiteWindow : Window
     {
+        private readonly UIDocument _uiDoc;
         private readonly Document _doc;
         private readonly ExternalEvent _externalEvent;
 
@@ -21,10 +22,12 @@ namespace antiGGGravity.StructuralRebar.UI
         private FootingPadRebarPanel _footingPadPanel;
         private WallCornerLPanel _wallCornerLPanel;
         private WallCornerUPanel _wallCornerUPanel;
+        private CustomDesignPanel _customDesignPanel;
         
-        public RebarSuiteWindow(Document doc, ExternalEvent externalEvent)
+        public RebarSuiteWindow(UIDocument uiDoc, ExternalEvent externalEvent)
         {
-            _doc = doc;
+            _uiDoc = uiDoc;
+            _doc = uiDoc.Document;
             _externalEvent = externalEvent;
             InitializeComponent();
 
@@ -38,6 +41,9 @@ namespace antiGGGravity.StructuralRebar.UI
             // Guard: this fires during XAML parse before _doc or UI components are set
             if (_doc == null || UI_PanelHost == null) return;
 
+            // Save currently active panel before switching
+            SaveActivePanel();
+
             if (UI_Radio_Beam?.IsChecked == true)
             {
                 SelectedHostType = ElementHostType.Beam;
@@ -50,6 +56,7 @@ namespace antiGGGravity.StructuralRebar.UI
                 SelectedHostType = ElementHostType.Wall;
                 if (_wallPanel == null) _wallPanel = new WallRebarPanel(_doc);
                 UI_PanelHost.Content = _wallPanel;
+                UpdateActivePanelSelection();
             }
             else if (UI_Radio_Column?.IsChecked == true)
             {
@@ -82,6 +89,12 @@ namespace antiGGGravity.StructuralRebar.UI
                 if (_wallCornerUPanel == null) _wallCornerUPanel = new WallCornerUPanel(_doc);
                 UI_PanelHost.Content = _wallCornerUPanel;
             }
+            else if (UI_Radio_CustomDesign?.IsChecked == true)
+            {
+                // This doesn't target an element type for reinforcement, just global settings
+                if (_customDesignPanel == null) _customDesignPanel = new CustomDesignPanel();
+                UI_PanelHost.Content = _customDesignPanel;
+            }
         }
 
         private void UI_Button_Generate_Click(object sender, RoutedEventArgs e)
@@ -113,6 +126,7 @@ namespace antiGGGravity.StructuralRebar.UI
             {
                 Show();
                 Activate();
+                UpdateActivePanelSelection();
             });
         }
 
@@ -125,6 +139,25 @@ namespace antiGGGravity.StructuralRebar.UI
             else if (UI_PanelHost.Content is FootingPadRebarPanel fpp) fpp.SaveSettings();
             else if (UI_PanelHost.Content is WallCornerLPanel wcl) wcl.SaveSettings();
             else if (UI_PanelHost.Content is WallCornerUPanel wcu) wcu.SaveSettings();
+            else if (UI_PanelHost.Content is CustomDesignPanel cdp) cdp.SaveSettings();
+        }
+
+        private void UpdateActivePanelSelection()
+        {
+            if (_uiDoc == null) return;
+            
+            // Get current selection from Revit
+            var selectedIds = _uiDoc.Selection.GetElementIds();
+            
+            if (SelectedHostType == ElementHostType.Wall && _wallPanel != null)
+            {
+                Wall firstWall = null;
+                if (selectedIds.Count > 0)
+                {
+                    firstWall = _doc.GetElement(selectedIds.First()) as Wall;
+                }
+                _wallPanel.UpdateStackInfo(firstWall);
+            }
         }
 
         private void DesignCode_Changed(object sender, System.Windows.Controls.SelectionChangedEventArgs e)

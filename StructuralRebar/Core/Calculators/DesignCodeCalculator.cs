@@ -42,7 +42,7 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
             double columnDimFt = UnitConversion.MmToFeet(columnDimMm);
 
             // Tension & Compression Lap (use the calculator, then convert to mm)
-            double tensionLapFt = LapSpliceCalculator.CalculateTensionLapLength(dbFt, code, grade, steel);
+            double tensionLapFt = LapSpliceCalculator.CalculateTensionLapLength(dbFt, code, grade, steel, BarPosition.Other);
             double compressionLapFt = LapSpliceCalculator.CalculateCompressionLapLength(dbFt, code, grade, steel);
 
             // Lap multiplier (for display)
@@ -166,10 +166,10 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
         {
             return code switch
             {
-                DesignCodeStandard.ACI318 => DesignCodes.GetAciLapMultiplier(grade, steel),
-                DesignCodeStandard.AS3600 => DesignCodes.GetAsLapMultiplier(grade, steel),
-                DesignCodeStandard.EC2 => DesignCodes.GetEc2LapMultiplier(grade, steel),
-                DesignCodeStandard.NZS3101 => DesignCodes.GetNzsLapMultiplier(grade, steel),
+                DesignCodeStandard.ACI318 => DesignCodes.GetAciLapMultiplier(grade, steel, BarPosition.Other),
+                DesignCodeStandard.AS3600 => DesignCodes.GetAsLapMultiplier(grade, steel, BarPosition.Other),
+                DesignCodeStandard.EC2 => DesignCodes.GetEc2LapMultiplier(grade, steel, BarPosition.Other),
+                DesignCodeStandard.NZS3101 => DesignCodes.GetNzsLapMultiplier(grade, steel, BarPosition.Other),
                 _ => 50.0
             };
         }

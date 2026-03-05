@@ -1,0 +1,84 @@
+<UserControl x:Class="antiGGGravity.StructuralRebar.UI.Panels.CustomDesignPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="700">
+    <StackPanel Margin="0">
+        <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="20">
+            <StackPanel>
+                <TextBlock Text="Custom Design Code Parameters" FontWeight="Bold" FontSize="16" Foreground="#333333" Margin="0,0,0,20"/>
+                
+                <TextBlock Text="These values are used when 'Custom' is selected in the Design Code dropdown." 
+                           FontSize="12" Foreground="#888888" Margin="0,0,0,25" FontStyle="Italic"/>
+
+                <!-- LAP SPLICE SECTION -->
+                <TextBlock Text="Lap Splice Lengths" FontWeight="Bold" FontSize="14" Foreground="#4A759C" Margin="0,0,0,10"/>
+                <Grid Margin="0,0,0,25">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Tension Lap Multiplier (db)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                        <TextBox x:Name="UI_Text_CustomLapTension" Text="50" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
+                        <TextBlock Text="e.g. 50db = 50 * diameter" FontSize="9" Foreground="#999" Margin="0,2,0,0"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Compression Lap Multiplier (db)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                        <TextBox x:Name="UI_Text_CustomLapCompression" Text="30" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
+                        <TextBlock Text="e.g. 30db = 30 * diameter" FontSize="9" Foreground="#999" Margin="0,2,0,0"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- CONFINEMENT ZONES SECTION -->
+                <TextBlock Text="Column Confinement Zones" FontWeight="Bold" FontSize="14" Foreground="#4A759C" Margin="0,0,0,10"/>
+                <Grid Margin="0,0,0,25">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="End Zone Length Factor (x D)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                        <TextBox x:Name="UI_Text_CustomZoneLenFactor" Text="1.0" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
+                        <TextBlock Text="Multiple of max column dimension" FontSize="9" Foreground="#999" Margin="0,2,0,0"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="End Zone Spacing Multiplier (db)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                        <TextBox x:Name="UI_Text_CustomZoneSpacing" Text="6.0" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
+                        <TextBlock Text="Multiple of bar diameter (e.g. 6db)" FontSize="9" Foreground="#999" Margin="0,2,0,0"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- STARTER BARS -->
+                <TextBlock Text="Embedment &amp; Development" FontWeight="Bold" FontSize="14" Foreground="#4A759C" Margin="0,0,0,10"/>
+                <Grid Margin="0,0,0,25">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Starter Dev. Length (db)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                        <TextBox x:Name="UI_Text_CustomStarterDev" Text="40" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
+                        <TextBlock Text="Used for automatic starter calc" FontSize="9" Foreground="#999" Margin="0,2,0,0"/>
+                    </StackPanel>
+                </Grid>
+
+                <Border Background="#FFF8F0" CornerRadius="4" Padding="15" BorderBrush="#F0D9B5" BorderThickness="1">
+                    <TextBlock FontSize="11" Foreground="#B8860B" TextWrapping="Wrap">
+                        <Run FontWeight="Bold">Note:</Run> These parameters are global and will apply to Beams and Columns when the Design Code is set to "Custom". Values are saved automatically.
+                    </TextBlock>
+                </Border>
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</UserControl>

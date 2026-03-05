@@ -93,58 +93,68 @@ namespace antiGGGravity.StructuralRebar.Constants
         public const double TopBarFactor = 1.3;        // Bars with >300mm concrete below
 
         /// <summary>NZS 3101:2006 A3 tension development length multiplier (Ld/db).</summary>
-        public static double GetNzsDevMultiplier(ConcreteGrade grade, SteelGrade steel = SteelGrade.Grade500E)
+        public static double GetNzsDevMultiplier(ConcreteGrade grade, SteelGrade steel = SteelGrade.Grade500E, BarPosition position = BarPosition.Other)
         {
             // NZS 3101:2006 A3 Cl 8.6.3.2: Ldb = 0.5 * fy / sqrt(f'c) * db
             double fy = GetYieldStrength(steel);
             double fc = ToMPa(grade);
             double k = 0.5 * fy / Math.Sqrt(fc);
+            
+            // NZS 3101:2006 Cl 8.6.3.2: 1.3 factor for top bars (>300mm concrete below)
+            if (position == BarPosition.Top) k *= TopBarFactor;
+
             return Math.Max(k, 25.0);
         }
 
         /// <summary>NZS 3101:2006 A3 tension lap multiplier (1.3 * Ld/db).</summary>
-        public static double GetNzsLapMultiplier(ConcreteGrade grade, SteelGrade steel = SteelGrade.Grade500E)
+        public static double GetNzsLapMultiplier(ConcreteGrade grade, SteelGrade steel = SteelGrade.Grade500E, BarPosition position = BarPosition.Other)
         {
-            return 1.3 * GetNzsDevMultiplier(grade, steel);
+            return 1.3 * GetNzsDevMultiplier(grade, steel, position);
         }
 
         /// <summary>Backward compatibility for NZS lap multiplier.</summary>
         public static double GetLapMultiplier(ConcreteGrade grade) => GetNzsLapMultiplier(grade);
 
-        /// <summary>ACI 318: tension dev length multiplier by concrete grade (simplified).</summary>
-        public static double GetAciLapMultiplier(ConcreteGrade grade, SteelGrade steel = SteelGrade.Grade500E)
+        /// <summary>ACI 318: tension dev length multiplier by concrete grade (Class B splice).</summary>
+        public static double GetAciLapMultiplier(ConcreteGrade grade, SteelGrade steel = SteelGrade.Grade500E, BarPosition position = BarPosition.Other)
         {
             // ACI 318-19 Table 25.4.2.2: ld/db = (fy * ψt * ψe) / (2.1 * λ * sqrt(f'c))
-            // Simplified for Class B splice (1.3x): ≈ 1.3 * fy / (2.1 * sqrt(f'c))
+            // Class B splice = 1.3 * ld
             double fy = GetYieldStrength(steel);
             double fc = ToMPa(grade);
-            double k = 1.3 * fy / (2.1 * Math.Sqrt(fc));
-            return Math.Max(k, 25.0); // minimum 25db
+            
+            double psiT = (position == BarPosition.Top) ? 1.3 : 1.0;
+            double kLd = (fy * psiT) / (2.1 * Math.Sqrt(fc));
+            
+            double kLap = 1.3 * kLd; // Class B
+            return Math.Max(kLap, 25.0);
         }
 
         /// <summary>AS 3600: tension dev length multiplier by concrete grade (simplified).</summary>
-        public static double GetAsLapMultiplier(ConcreteGrade grade, SteelGrade steel = SteelGrade.Grade500E)
+        public static double GetAsLapMultiplier(ConcreteGrade grade, SteelGrade steel = SteelGrade.Grade500E, BarPosition position = BarPosition.Other)
         {
             // AS 3600:2018 Cl 13.1.2: Lsy.t = 0.5 * k1 * fy * db / sqrt(f'c)
-            // Simplified with k1=1.0: 0.5 * fy / sqrt(f'c)
+            // k1 = 1.3 for top bars, 1.0 otherwise
             double fy = GetYieldStrength(steel);
             double fc = ToMPa(grade);
-            double k = 0.5 * fy / Math.Sqrt(fc);
+            double k1 = (position == BarPosition.Top) ? 1.3 : 1.0;
+            double k = 0.5 * k1 * fy / Math.Sqrt(fc);
             return Math.Max(k, 25.0);
         }
 
         /// <summary>EC2: tension dev length multiplier by concrete grade (simplified).</summary>
-        public static double GetEc2LapMultiplier(ConcreteGrade grade, SteelGrade steel = SteelGrade.Grade500E)
+        public static double GetEc2LapMultiplier(ConcreteGrade grade, SteelGrade steel = SteelGrade.Grade500E, BarPosition position = BarPosition.Other)
         {
             // EN 1992-1-1 Cl 8.4.2: lb,rqd = (db/4) * (σsd / fbd)
-            // fbd = 2.25 * fctd ≈ 2.25 * 0.7 * 0.3 * f'c^(2/3) / 1.5
-            // Simplified: ~fy / (3.2 * f'c^(2/3) / 1.5) → with α1=1.5 for lap
+            // fbd = 2.25 * η1 * fctd (η1 = 0.7 for poor bond conditions/top bars, 1.0 for good)
             double fy = GetYieldStrength(steel);
             double fc = ToMPa(grade);
+            double eta1 = (position == BarPosition.Top) ? 0.7 : 1.0;
             double fctd = 0.7 * 0.3 * Math.Pow(fc, 2.0 / 3.0) / 1.5;
-            double fbd = 2.25 * fctd;
-            double k = 1.5 * fy / (4.0 * fbd); // 1.5 = alpha_6 for lap
-            return Math.Max(k, 25.0);
+            double fbd = 2.25 * eta1 * fctd;
+            double kLd = fy / (4.0 * fbd);
+            double kLap = 1.5 * kLd; // 1.5 = alpha_6 for lap
+            return Math.Max(kLap, 25.0);
         }
 
         // === NZS 3101 Zone Spacing Rules ===

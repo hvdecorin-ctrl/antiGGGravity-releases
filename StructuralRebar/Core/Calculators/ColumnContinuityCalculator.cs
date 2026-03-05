@@ -1,6 +1,6 @@
-using System;
 using antiGGGravity.StructuralRebar.Constants;
 using antiGGGravity.StructuralRebar.DTO;
+using antiGGGravity.Utilities;
 
 namespace antiGGGravity.StructuralRebar.Core.Calculators
 {
@@ -19,7 +19,12 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
         /// <returns>Development length in feet.</returns>
         public static double GetStarterBarLength(double barDia, DesignCodeStandard code)
         {
-            return LapSpliceCalculator.CalculateTensionLapLength(barDia, code);
+            if (code == DesignCodeStandard.Custom)
+            {
+                double customStarterDev = SettingsManager.GetDouble("RebarSuite_CustomDesign", "StarterDev", 40.0);
+                return customStarterDev * barDia;
+            }
+            return LapSpliceCalculator.CalculateTensionLapLength(barDia, code, ConcreteGrade.C30, SteelGrade.Grade500E, BarPosition.Other);
         }
 
         /// <summary>
@@ -43,7 +48,7 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
         public static double GetSpliceExtension(double barDia, DesignCodeStandard code)
         {
             // Splice extension = offset above slab + tension lap length (standard for column verticals)
-            return GetSpliceStartOffset() + LapSpliceCalculator.CalculateTensionLapLength(barDia, code);
+            return GetSpliceStartOffset() + LapSpliceCalculator.CalculateTensionLapLength(barDia, code, ConcreteGrade.C30, SteelGrade.Grade500E, BarPosition.Other);
         }
 
         /// <summary>

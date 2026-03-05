@@ -5,7 +5,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
              d:DesignHeight="700" d:DesignWidth="700">
-    
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -14,7 +13,9 @@
 
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="20"/>
+            <ColumnDefinition Width="15"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="15"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
@@ -85,8 +86,17 @@
             </StackPanel>
         </Border>
 
+        <!-- CENTER: CROSS-SECTION PREVIEW -->
+        <Border Grid.Row="0" Grid.Column="2" Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,15" Width="180">
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock Text="Cross Section" FontWeight="Bold" Foreground="#333333" HorizontalAlignment="Center" Margin="0,0,0,15"/>
+                <Canvas x:Name="UI_CrossSectionCanvas" Width="140" Height="220" Background="Transparent" Margin="0,0,0,10" HorizontalAlignment="Center"/>
+                <TextBlock x:Name="UI_CrossSectionLabel" Text="Both Faces" FontSize="11" Foreground="#888" HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
         <!-- Horizontal Reinforcement -->
-        <Border Grid.Row="0" Grid.Column="2" Background="#FAFAFA" CornerRadius="8" BorderBrush="#E0E0E0" BorderThickness="1" Padding="15" Margin="0,0,0,15">
+        <Border Grid.Row="0" Grid.Column="4" Background="#FAFAFA" CornerRadius="8" BorderBrush="#E0E0E0" BorderThickness="1" Padding="15" Margin="0,0,0,15">
             <StackPanel>
                 <TextBlock Text="Horizontal Reinforcement" FontSize="14" FontWeight="Bold" Foreground="#333333" Margin="0,0,0,15"/>
                 
@@ -145,15 +155,102 @@
                 <TextBlock Text="Placement Config" FontSize="13" FontWeight="SemiBold" Foreground="#333333" Margin="0,0,0,8"/>
                 
 
-                
+                <!-- Horizontal Layer Config -->
                 <TextBlock Text="Layer Layout" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
-                <ComboBox x:Name="UI_Combo_LayerConfig" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0">
-                    <ComboBoxItem Content="Centre" IsSelected="True"/>
-                    <ComboBoxItem Content="Both Faces"/>
+                <ComboBox x:Name="UI_Combo_LayerConfig" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0" SelectionChanged="LayerConfig_Changed">
+                    <ComboBoxItem Content="Centre"/>
+                    <ComboBoxItem Content="Both Faces" IsSelected="True"/>
                     <ComboBoxItem Content="Internal Face"/>
                     <ComboBoxItem Content="External Face"/>
                 </ComboBox>
             </StackPanel>
         </Border>
-    </Grid>
+
+        <!-- BOTTOM ROW: STACK & STARTER SETTINGS -->
+        <Border Grid.Row="1" Grid.Column="0" Background="#FAFAFA" CornerRadius="8" BorderBrush="#E0E0E0" BorderThickness="1" Padding="15" Margin="0,0,0,15">
+            <StackPanel>
+                <Grid Margin="0,0,0,15">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <CheckBox x:Name="UI_Check_MultiLevel" Content="Enable Multi-Level Processing" FontSize="13" Foreground="#333333" FontWeight="SemiBold" 
+                              VerticalAlignment="Center" Grid.Column="0" 
+                              Checked="UI_Check_MultiLevel_Changed" Unchecked="UI_Check_MultiLevel_Changed"/>
+                </Grid>
+
+                <StackPanel x:Name="UI_Panel_MultiLevelFields">
+                    <TextBlock Text="Stack Information" FontSize="12" FontWeight="SemiBold" Foreground="#666666" Margin="0,0,0,4"/>
+                    <ScrollViewer MaxHeight="60" CanContentScroll="True" VerticalScrollBarVisibility="Auto" BorderBrush="#EEEEEE" BorderThickness="1" Background="#FFFFFF" Padding="5" Margin="0,0,0,10">
+                        <TextBlock x:Name="UI_Text_StackInfo" Text="No stack detected." FontSize="11" Foreground="#888888" TextWrapping="Wrap"/>
+                    </ScrollViewer>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="15"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Splice Length (mm)" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
+                            <TextBox x:Name="UI_Text_LapSplice" Text="600" Height="32" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0" Margin="0,0,0,10"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Crank Position" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
+                            <ComboBox x:Name="UI_Combo_CrankPos" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0">
+                                <ComboBoxItem Content="None"/>
+                                <ComboBoxItem Content="Upper Wall"/>
+                                <ComboBoxItem Content="Lower Wall" IsSelected="True"/>
+                            </ComboBox>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Row="1" Grid.Column="4" Background="#FAFAFA" CornerRadius="8" BorderBrush="#E0E0E0" BorderThickness="1" Padding="15" Margin="0,0,0,15">
+            <StackPanel>
+                <!-- Header row with toggle checkbox -->
+                <Grid Margin="0,0,0,15">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <CheckBox x:Name="UI_Check_StarterEnabled" Content="Enable Starter Bars (into Foundation)" FontSize="13" Foreground="#333333" FontWeight="SemiBold"
+                              VerticalAlignment="Center" Grid.Column="0" IsChecked="True"
+                              Checked="UI_Check_StarterEnabled_Click" Unchecked="UI_Check_StarterEnabled_Click"/>
+                </Grid>
+
+                <!-- Collapsible starter fields (Horizontal Layout) -->
+                <StackPanel x:Name="UI_Panel_StarterFields">
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Bar Type" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
+                            <ComboBox x:Name="UI_Combo_StarterType" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Hook End" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
+                            <ComboBox x:Name="UI_Combo_StarterHookEnd" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="4">
+                            <TextBlock Text="Dev Length (mm)" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
+                            <TextBox x:Name="UI_Text_StarterBar" Text="800" Height="32" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0"/>
+                        </StackPanel>
+                    </Grid>
+                    
+                    <TextBlock Text="Starter bars project below L1 into foundation. 0 = auto (code default)." FontSize="10" Foreground="#999999" Margin="0,5,0,0" FontStyle="Italic" TextWrapping="Wrap"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+        </Grid>
 </UserControl>

@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Shapes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Structure;
 using antiGGGravity.Utilities;
 using antiGGGravity.StructuralRebar.DTO;
 using antiGGGravity.StructuralRebar.Constants;
+using antiGGGravity.StructuralRebar.Core.Geometry;
 
 namespace antiGGGravity.StructuralRebar.UI.Panels
 {
@@ -68,6 +71,14 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             UI_Combo_HorizHookEnd.ItemsSource = _hookList;
             UI_Combo_HorizHookEnd.DisplayMemberPath = "Name";
             UI_Combo_HorizHookEnd.SelectedIndex = 0;
+
+            UI_Combo_StarterType.ItemsSource = _rebarTypes;
+            UI_Combo_StarterType.DisplayMemberPath = "Name";
+            UI_Combo_StarterType.SelectedItem = _rebarTypes.FirstOrDefault(x => x.Name.Contains("D16")) ?? _rebarTypes.FirstOrDefault();
+
+            UI_Combo_StarterHookEnd.ItemsSource = _hookList;
+            UI_Combo_StarterHookEnd.DisplayMemberPath = "Name";
+            UI_Combo_StarterHookEnd.SelectedIndex = 0;
         }
 
         private void LoadSettings()
@@ -91,6 +102,14 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 UI_Check_HorizHookStartOut.IsChecked = SettingsManager.GetBool(VIEW_NAME, "HorizHookStartOut", false);
                 UI_Check_HorizHookEndOut.IsChecked = SettingsManager.GetBool(VIEW_NAME, "HorizHookEndOut", false);
 
+                // Multi-Level
+                UI_Check_MultiLevel.IsChecked = SettingsManager.GetBool(VIEW_NAME, "MultiLevel", false);
+                UI_Check_MultiLevel_Changed(null, null);
+                UI_Text_LapSplice.Text = SettingsManager.Get(VIEW_NAME, "LapSplice", "600");
+                UI_Text_StarterBar.Text = SettingsManager.Get(VIEW_NAME, "StarterBar", "800");
+                UI_Check_StarterEnabled.IsChecked = SettingsManager.GetBool(VIEW_NAME, "StarterEnabled", true);
+                UI_Check_StarterEnabled_Click(null, null);
+
 
                 SelectByName(UI_Combo_VertType, SettingsManager.Get(VIEW_NAME, "VertType"));
                 SelectByName(UI_Combo_HorizType, SettingsManager.Get(VIEW_NAME, "HorizType"));
@@ -99,6 +118,19 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 SelectHookByName(UI_Combo_VertHookEnd, SettingsManager.Get(VIEW_NAME, "VertHookEnd"));
                 SelectHookByName(UI_Combo_HorizHookStart, SettingsManager.Get(VIEW_NAME, "HorizHookStart"));
                 SelectHookByName(UI_Combo_HorizHookEnd, SettingsManager.Get(VIEW_NAME, "HorizHookEnd"));
+
+                string crankPos = SettingsManager.Get(VIEW_NAME, "CrankPos", "Lower Wall");
+                foreach (ComboBoxItem item in UI_Combo_CrankPos.Items)
+                {
+                    if (item.Content.ToString() == crankPos)
+                    {
+                        UI_Combo_CrankPos.SelectedItem = item;
+                        break;
+                    }
+                }
+
+                SelectByName(UI_Combo_StarterType, SettingsManager.Get(VIEW_NAME, "StarterType"));
+                SelectHookByName(UI_Combo_StarterHookEnd, SettingsManager.Get(VIEW_NAME, "StarterHookEnd"));
 
                 string config = SettingsManager.Get(VIEW_NAME, "LayerConfig", "Centre");
                 foreach (ComboBoxItem item in UI_Combo_LayerConfig.Items)
@@ -112,6 +144,8 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
 
                 UI_Check_VertBotExt_Click(null, null);
                 UI_Check_VertTopExt_Click(null, null);
+                
+                DrawWallCrossSection();
             }
             catch { }
         }
@@ -137,6 +171,12 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 SettingsManager.Set(VIEW_NAME, "HorizHookStartOut", (UI_Check_HorizHookStartOut.IsChecked == true).ToString());
                 SettingsManager.Set(VIEW_NAME, "HorizHookEndOut", (UI_Check_HorizHookEndOut.IsChecked == true).ToString());
 
+                // Multi-Level
+                SettingsManager.Set(VIEW_NAME, "MultiLevel", (UI_Check_MultiLevel.IsChecked == true).ToString());
+                SettingsManager.Set(VIEW_NAME, "LapSplice", UI_Text_LapSplice.Text);
+                SettingsManager.Set(VIEW_NAME, "StarterBar", UI_Text_StarterBar.Text);
+                SettingsManager.Set(VIEW_NAME, "StarterEnabled", (UI_Check_StarterEnabled.IsChecked == true).ToString());
+
 
                 SettingsManager.Set(VIEW_NAME, "VertType", TransTypeName(UI_Combo_VertType));
                 SettingsManager.Set(VIEW_NAME, "HorizType", TransTypeName(UI_Combo_HorizType));
@@ -145,6 +185,10 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 SettingsManager.Set(VIEW_NAME, "VertHookEnd", HookName(UI_Combo_VertHookEnd));
                 SettingsManager.Set(VIEW_NAME, "HorizHookStart", HookName(UI_Combo_HorizHookStart));
                 SettingsManager.Set(VIEW_NAME, "HorizHookEnd", HookName(UI_Combo_HorizHookEnd));
+
+                SettingsManager.Set(VIEW_NAME, "CrankPos", (UI_Combo_CrankPos.SelectedItem as ComboBoxItem)?.Content.ToString());
+                SettingsManager.Set(VIEW_NAME, "StarterType", TransTypeName(UI_Combo_StarterType));
+                SettingsManager.Set(VIEW_NAME, "StarterHookEnd", HookName(UI_Combo_StarterHookEnd));
 
                 SettingsManager.Set(VIEW_NAME, "LayerConfig", (UI_Combo_LayerConfig.SelectedItem as ComboBoxItem)?.Content.ToString());
 
@@ -168,7 +212,18 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             {
                 HostType = ElementHostType.Wall,
                 RemoveExisting = false, // Handled by Window level now
-                EnableLapSplice = false, // Set by window/handler now
+                EnableLapSplice = UI_Check_MultiLevel.IsChecked == true, // Using MultiLevel checkbox to drive Stack processing
+                
+                // Multi-Level specific parameters mapping to DTO
+                EnableZoneSpacing = false, // Walls usually don't have confinement zones like columns
+                VerticalContinuousSpliceLength = UnitConversion.MmToFeet(ParseDouble(UI_Text_LapSplice.Text, 600)),
+                StarterDevLength = (UI_Check_StarterEnabled.IsChecked == true)
+                    ? UnitConversion.MmToFeet(ParseDouble(UI_Text_StarterBar.Text, 800))
+                    : 0,
+                CrankPosition = (UI_Combo_CrankPos.SelectedItem as ComboBoxItem)?.Content.ToString() ?? "Lower Wall",
+                EnableStarterBars = true, // If length > 0 we assume it's wanted
+                StarterBarTypeName = (UI_Combo_StarterType.SelectedItem as RebarBarType)?.Name,
+                StarterHookEndName = HookName(UI_Combo_StarterHookEnd),
 
                 // Transverse (Vertical Bars)
                 TransverseBarTypeName = (UI_Combo_VertType.SelectedItem as RebarBarType)?.Name,
@@ -279,6 +334,14 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 UI_Text_VertBotExt.Visibility = UI_Check_VertBotExt.IsChecked == true ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
         }
 
+        private void UI_Check_StarterEnabled_Click(object sender, RoutedEventArgs e)
+        {
+            if (UI_Panel_StarterFields != null)
+                UI_Panel_StarterFields.Visibility = UI_Check_StarterEnabled.IsChecked == true
+                    ? System.Windows.Visibility.Visible
+                    : System.Windows.Visibility.Collapsed;
+        }
+
         private void UI_Check_VertTopExt_Click(object sender, RoutedEventArgs e)
         {
             if (UI_Text_VertTopExt != null)
@@ -288,6 +351,157 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
         private double ParseDouble(string text, double defaultValue)
         {
             return double.TryParse(text, out double result) ? result : defaultValue;
+        }
+
+        private void LayerConfig_Changed(object sender, SelectionChangedEventArgs e)
+        {
+            DrawWallCrossSection();
+        }
+
+        private void DrawWallCrossSection()
+        {
+            if (UI_CrossSectionCanvas == null || UI_CrossSectionLabel == null) return;
+            if (_doc == null) return; // Wait until ready
+
+            UI_CrossSectionCanvas.Children.Clear();
+
+            string config = (UI_Combo_LayerConfig.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Centre";
+            UI_CrossSectionLabel.Text = config;
+
+            double w = UI_CrossSectionCanvas.Width;
+            double h = UI_CrossSectionCanvas.Height;
+
+            // Wall Rectangle (Original layout)
+            double wallW = 60;
+            double wallH = 180;
+            double cx = w / 2;
+            double cy = h / 2;
+            double left = cx - wallW / 2;
+            double top = cy - wallH / 2;
+
+            var wallRect = new System.Windows.Shapes.Rectangle
+            {
+                Width = wallW,
+                Height = wallH,
+                Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(30, 30, 30)),
+                StrokeThickness = 3,
+                Fill = new SolidColorBrush(System.Windows.Media.Color.FromArgb(50, 200, 200, 200))
+            };
+            Canvas.SetLeft(wallRect, left);
+            Canvas.SetTop(wallRect, top);
+            UI_CrossSectionCanvas.Children.Add(wallRect);
+
+            // Rebar params (Original layout)
+            double cover = 8; // visual cover
+            double dotSize = 8;
+            
+            // Highlight colors for dots and lines
+            var vertBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(220, 20, 60)); // Highlight Red
+            var horizBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(50, 100, 150)); // Highlight Blue
+
+            // Helper to draw a line of vertical bars and horizontal link
+            void DrawFace(double xPos)
+            {
+                // Horizontal bar (represented as a vertical line segment)
+                var horizLine = new System.Windows.Shapes.Line
+                {
+                    X1 = xPos,
+                    Y1 = top + cover,
+                    X2 = xPos,
+                    Y2 = top + wallH - cover,
+                    Stroke = horizBrush,
+                    StrokeThickness = 2
+                };
+                UI_CrossSectionCanvas.Children.Add(horizLine);
+
+                // Vertical bars (dots)
+                int numDots = 6;
+                double spacing = (wallH - 2 * cover) / (numDots - 1);
+
+                for (int i = 0; i < numDots; i++)
+                {
+                    var dot = new System.Windows.Shapes.Ellipse
+                    {
+                        Width = dotSize,
+                        Height = dotSize,
+                        Fill = vertBrush
+                    };
+                    Canvas.SetLeft(dot, xPos - dotSize / 2);
+                    Canvas.SetTop(dot, top + cover + (i * spacing) - dotSize / 2);
+                    UI_CrossSectionCanvas.Children.Add(dot);
+                }
+            }
+
+            if (config == "Both Faces")
+            {
+                // External face (right side in section usually, or just pick a side)
+                DrawFace(left + wallW - cover - dotSize / 2);
+                // Internal face (left side)
+                DrawFace(left + cover + dotSize / 2);
+            }
+            else if (config == "Centre")
+            {
+                DrawFace(cx);
+            }
+            else if (config == "External Face")
+            {
+                DrawFace(left + wallW - cover - dotSize / 2);
+            }
+            else if (config == "Internal Face")
+            {
+                DrawFace(left + cover + dotSize / 2);
+            }
+        }
+
+        private void UI_Check_MultiLevel_Changed(object sender, RoutedEventArgs e)
+        {
+            if (UI_Panel_MultiLevelFields != null)
+                UI_Panel_MultiLevelFields.Visibility = UI_Check_MultiLevel.IsChecked == true 
+                    ? System.Windows.Visibility.Visible 
+                    : System.Windows.Visibility.Collapsed;
+        }
+
+        /// <summary>
+        /// Call this when the selected element changes in the main window
+        /// </summary>
+        public void UpdateStackInfo(Wall selectedWall)
+        {
+            if (selectedWall == null || UI_Check_MultiLevel.IsChecked != true)
+            {
+                UI_Text_StackInfo.Text = "No wall selected or Multi-Level mode disabled.";
+                return;
+            }
+
+            try
+            {
+                var stack = MultiLevelResolver.FindWallStack(_doc, selectedWall);
+                if (stack.Count <= 1)
+                {
+                    UI_Text_StackInfo.Text = "Only 1 wall found in stack.\nMulti-level logic will act as single-level.";
+                    return;
+                }
+
+                var infoList = MultiLevelResolver.GetWallStackInfo(_doc, stack);
+                
+                string infoStr = $"Detected {stack.Count} stacked wall(s):\n";
+                for (int i = 0; i < infoList.Count; i++)
+                {
+                    var info = infoList[i];
+                    string marker = (stack[i].Id == selectedWall.Id) ? " ▶ " : "   ";
+                    
+                    double lengthMm = UnitConversion.FeetToMm(info.Length);
+                    double thickMm = UnitConversion.FeetToMm(info.Thickness);
+                    double heightMm = UnitConversion.FeetToMm(info.Height);
+                    
+                    infoStr += $"{marker}Lvl {i + 1}: {info.LevelName} | {lengthMm:F0}x{thickMm:F0} L, {heightMm:F0} H\n";
+                }
+
+                UI_Text_StackInfo.Text = infoStr.TrimEnd();
+            }
+            catch (Exception ex)
+            {
+                UI_Text_StackInfo.Text = "Error analyzing stack: " + ex.Message;
+            }
         }
     }
 }
