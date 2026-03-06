@@ -3,7 +3,7 @@
   <AddIn Type="Application">
     <Name>antiGGGravity</Name>
     <FullClassName>antiGGGravity.App</FullClassName>
-    <Assembly>c:\Users\DELL\source\repos\antiGGGravity\bin\Release\net8.0-windows\antiGGGravity.dll</Assembly>
+    <Assembly>antiGGGravity.dll</Assembly>
     <AddInId>35A1E7B9-940B-4D95-8E39-9C17FD430692</AddInId>
     <VendorId>ADSK</VendorId>
     <VendorDescription>Duy, Revit Developer</VendorDescription>

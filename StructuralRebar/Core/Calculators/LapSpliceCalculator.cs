@@ -117,7 +117,8 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
         /// Splits a beam bar using code-based preferred cut positions.
         /// Zone compliance is COMPULSORY — splices MUST fall INSIDE the correct zone.
         /// Top bars: splice INSIDE the middle L/3 zone (red zone).
-        /// Bottom bars: splice INSIDE the L/4 zone from each support (green zone).
+        /// Bottom bars: splice INSIDE the L/5 zone from each support (green zone).
+        /// (L/5 is stricter than the code-minimum L/4, providing extra safety margin)
         /// 
         /// Stagger rule: odd-numbered layers offset the splice further into the zone
         /// to ensure no more than 50% of bars are spliced at the same cross-section.
@@ -162,11 +163,12 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
             }
             else
             {
-                // BOTTOM BARS: splice must be INSIDE the L/4 zone from each support [0..L/4] and [3L/4..L]
-                // Layer 0: splice ends at L/4 boundary
+                // BOTTOM BARS: splice must be INSIDE the L/5 zone from each support [0..L/5] and [4L/5..L]
+                // (L/5 is stricter than code-minimum L/4 for extra safety)
+                // Layer 0: splice ends at L/5 boundary
                 // Layer 1: splice shifts closer to support (stagger)
-                cut1 = totalLength / 4.0 - staggerOffset;
-                cut2 = totalLength * 3.0 / 4.0 + totalOverlap + staggerOffset;
+                cut1 = totalLength / 5.0 - staggerOffset;
+                cut2 = totalLength * 4.0 / 5.0 + totalOverlap + staggerOffset;
             }
 
             // Safety: ensure cut positions stay valid

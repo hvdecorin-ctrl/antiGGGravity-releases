@@ -14,13 +14,13 @@
     </Window.Resources>
 
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="70" CornerRadius="12" GlassFrameThickness="0"/>
+        <WindowChrome CaptionHeight="55" CornerRadius="12" GlassFrameThickness="0"/>
     </WindowChrome.WindowChrome>
     
     <Border Style="{DynamicResource PremiumBorderStyle}">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="70"/>
+                <RowDefinition Height="55"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>

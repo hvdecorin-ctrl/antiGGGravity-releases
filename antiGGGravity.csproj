@@ -61,6 +61,9 @@
     
     <!-- Deploy to each version if directory exists -->
     <Message Text="Deploying to Revit versions: @(RevitVersions)" Importance="high" />
+
+    <!-- Ensure antiGGGravity.addin is portable (relative path) before copying -->
+    <Exec Command="powershell -Command &quot;(Get-Content antiGGGravity.addin) -replace '&lt;Assembly&gt;.*\\(.*\.dll)&lt;/Assembly&gt;', '&lt;Assembly&gt;$1&lt;/Assembly&gt;' | Set-Content antiGGGravity.addin&quot;" />
     
     <MakeDir Directories="$(AppData)\Autodesk\Revit\Addins\%(RevitVersions.Identity)" 
              Condition="Exists('$(AppData)\Autodesk\Revit\Addins\%(RevitVersions.Identity)')" />

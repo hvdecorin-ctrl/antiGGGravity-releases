@@ -148,9 +148,11 @@
 
     <!-- Standardized Window Chrome with Improved Resizing (10px border) -->
     <WindowChrome x:Key="PremiumWindowChrome" 
-                  CaptionHeight="70" 
+                  CaptionHeight="55" 
                   CornerRadius="12" 
                   GlassFrameThickness="0" 
                   ResizeBorderThickness="10"/>
+
+    <GridLength x:Key="PremiumHeaderHeight">55</GridLength>
 
 </ResourceDictionary>

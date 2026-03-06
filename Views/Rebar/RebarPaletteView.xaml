@@ -10,7 +10,7 @@
         Topmost="True">
 
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="70" 
+        <WindowChrome CaptionHeight="55" 
                       ResizeBorderThickness="8" 
                       GlassFrameThickness="0" 
                       CornerRadius="12"/>
@@ -68,7 +68,7 @@
     <Border BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="1" Background="White" CornerRadius="12">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="70"/> <!-- Header -->
+                <RowDefinition Height="55"/> <!-- Header -->
                 <RowDefinition Height="Auto"/> <!-- Content -->
             </Grid.RowDefinitions>
 

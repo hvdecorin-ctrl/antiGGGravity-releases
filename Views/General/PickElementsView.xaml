@@ -20,7 +20,7 @@
     <Border Style="{DynamicResource PremiumBorderStyle}">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="70"/>
+                <RowDefinition Height="55"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 

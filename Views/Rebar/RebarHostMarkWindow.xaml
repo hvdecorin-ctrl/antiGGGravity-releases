@@ -8,7 +8,7 @@
         ResizeMode="CanResizeWithGrip">
 
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="70" CornerRadius="12" GlassFrameThickness="0" ResizeBorderThickness="10"/>
+        <WindowChrome CaptionHeight="55" CornerRadius="12" GlassFrameThickness="0" ResizeBorderThickness="10"/>
     </WindowChrome.WindowChrome>
 
     <Window.Resources>
@@ -118,7 +118,7 @@
     <Border Style="{StaticResource PremiumBorderStyle}">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="70"/>   <!-- Header -->
+                <RowDefinition Height="55"/>   <!-- Header -->
                 <RowDefinition Height="*"/>    <!-- DataGrid -->
                 <RowDefinition Height="Auto"/> <!-- Footer -->
             </Grid.RowDefinitions>
