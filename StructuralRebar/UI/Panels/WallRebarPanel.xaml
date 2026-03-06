@@ -192,8 +192,13 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="Splice Length (mm)" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
-                            <TextBox x:Name="UI_Text_LapSplice" Text="600" Height="32" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0" Margin="0,0,0,10"/>
+                            <TextBlock Text="Lap Length Mode" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
+                            <ComboBox x:Name="UI_Combo_LapMode" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0" Margin="0,0,0,4"
+                                      SelectionChanged="UI_Combo_LapMode_Changed">
+                                <ComboBoxItem Content="Auto (Code)" IsSelected="True"/>
+                                <ComboBoxItem Content="Manual"/>
+                            </ComboBox>
+                            <TextBox x:Name="UI_Text_LapSplice" Text="600" Height="32" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0" Margin="0,0,0,10" Visibility="Collapsed"/>
                         </StackPanel>
                         <StackPanel Grid.Column="2">
                             <TextBlock Text="Crank Position" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>

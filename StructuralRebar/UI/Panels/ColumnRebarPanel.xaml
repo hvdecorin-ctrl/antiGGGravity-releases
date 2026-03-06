@@ -4,238 +4,275 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             d:DesignHeight="700" d:DesignWidth="800">
+             d:DesignHeight="700" d:DesignWidth="700">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
     </UserControl.Resources>
-    <StackPanel Margin="0">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
-        <!-- ════════════════════════════════════════════ -->
-        <!-- ROW 1: MULTI-LEVEL MODE + STACK INFO        -->
-        <!-- ════════════════════════════════════════════ -->
-        <CheckBox x:Name="UI_Check_MultiLevel" Content="Multi-Level Mode" 
-                  FontWeight="Bold" FontSize="13" Foreground="#333333" Margin="0,0,0,10"
-                  Checked="MultiLevel_Changed" Unchecked="MultiLevel_Changed"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="15"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="15"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
-        <Border x:Name="UI_MultiLevelInfo" Background="#EDF6FF" CornerRadius="4" 
-                BorderBrush="#C8DFF0" BorderThickness="1" Padding="10" Margin="0,0,0,15" Visibility="Collapsed">
+        <!-- Vertical Main Bars -->
+        <Border Grid.Row="0" Grid.Column="0" Background="#FAFAFA" CornerRadius="8" BorderBrush="#E0E0E0" BorderThickness="1" Padding="15" Margin="0,0,0,15">
             <StackPanel>
-                <TextBlock Text="Column Stack:" FontSize="11" FontWeight="SemiBold" Foreground="#3A6D99" Margin="0,0,0,6"/>
-                <TextBlock x:Name="UI_StackInfoText" Text="Select columns to detect stack" 
-                           FontSize="10" Foreground="#555" FontFamily="Consolas" Margin="0,0,0,8"/>
-                <Grid Margin="0,0,0,4">
+                <TextBlock Text="Vertical Main Bars" FontSize="14" FontWeight="Bold" Foreground="#333333" Margin="0,0,0,15"/>
+                
+                <Grid Margin="0,0,0,15">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="8"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="Splice Position" FontSize="11" Foreground="#666666" VerticalAlignment="Center"/>
-                    <ComboBox x:Name="UI_Combo_SplicePos" Grid.Column="2" Height="28" Padding="8,0" VerticalContentAlignment="Center">
-                        <ComboBoxItem Content="Above Slab (Code Default)" IsSelected="True"/>
-                        <ComboBoxItem Content="Mid Height"/>
-                    </ComboBox>
-                </Grid>
-                <Grid Margin="0,8,0,4">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="8"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="Crank Position" FontSize="11" Foreground="#666666" VerticalAlignment="Center"/>
-                    <ComboBox x:Name="UI_Combo_CrankPos" Grid.Column="2" Height="28" Padding="8,0" VerticalContentAlignment="Center">
-                        <ComboBoxItem Content="None"/>
-                        <ComboBoxItem Content="Upper Column" IsSelected="True"/>
-                        <ComboBoxItem Content="Lower Column"/>
-                    </ComboBox>
-                </Grid>
-                <TextBlock Text="ℹ Same settings applied to all levels" FontSize="9" Foreground="#888" FontStyle="Italic" Margin="0,4,0,0"/>
-            </StackPanel>
-        </Border>
-
-        <!-- ════════════════════════════════════════════ -->
-        <!-- ROW 2: MAIN PANELS (Vertical | Preview | Ties) -->
-        <!-- ════════════════════════════════════════════ -->
-        <Grid Margin="0,0,0,15">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="15"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="15"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-
-            <!-- LEFT: VERTICAL MAIN BARS -->
-            <Border Grid.Column="0" Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15">
-                <StackPanel>
-                    <TextBlock Text="Vertical Main Bars" FontWeight="Bold" Foreground="#333333" Margin="0,0,0,15"/>
-                    
-                    <Grid Margin="0,0,0,15">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="15"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Rebar Type X" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                            <ComboBox x:Name="UI_Combo_VerticalTypeX" Height="32" Padding="8,0" VerticalContentAlignment="Center" Margin="0,0,0,8"/>
-                            <TextBlock Text="Bars in X-Dir (Face)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                            <TextBox x:Name="UI_Text_CountX" Text="3" Height="32" VerticalContentAlignment="Center" Padding="8,0"
-                                     TextChanged="BarCount_Changed"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="Rebar Type Y" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                            <ComboBox x:Name="UI_Combo_VerticalTypeY" Height="32" Padding="8,0" VerticalContentAlignment="Center" Margin="0,0,0,8"/>
-                            <TextBlock Text="Bars in Y-Dir (Face)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                            <TextBox x:Name="UI_Text_CountY" Text="3" Height="32" VerticalContentAlignment="Center" Padding="8,0"
-                                     TextChanged="BarCount_Changed"/>
-                        </StackPanel>
-                    </Grid>
-
-                    <Grid Margin="0,0,0,15">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="15"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Bottom Hook" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                            <ComboBox x:Name="UI_Combo_VHookBot" Height="32" Padding="8,0" VerticalContentAlignment="Center" Margin="0,0,0,8" />
-                            <CheckBox x:Name="UI_Check_VHookBotOut" Content="Bend Outward" IsChecked="False" FontSize="11" Foreground="#666666" Margin="0,0,0,15"/>
-
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
-                                <CheckBox x:Name="UI_Check_BotExt" IsChecked="False" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                                <TextBlock Text="Bottom Extension (mm)" FontSize="11" Foreground="#666666" VerticalAlignment="Center"/>
-                            </StackPanel>
-                            <TextBox x:Name="UI_Text_BotExtValue" Text="300" Height="32" VerticalContentAlignment="Center" Padding="8,0" 
-                                     Visibility="{Binding IsChecked, ElementName=UI_Check_BotExt, Converter={StaticResource BoolToVis}}"/>
-                        </StackPanel>
-                        
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="Top Hook" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                            <ComboBox x:Name="UI_Combo_VHookTop" Height="32" Padding="8,0" VerticalContentAlignment="Center" Margin="0,0,0,8" />
-                            <CheckBox x:Name="UI_Check_VHookTopOut" Content="Bend Outward" IsChecked="False" FontSize="11" Foreground="#666666" Margin="0,0,0,15"/>
-
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
-                                <CheckBox x:Name="UI_Check_TopExt" IsChecked="False" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                                <TextBlock Text="Top Extension (mm)" FontSize="11" Foreground="#666666" VerticalAlignment="Center"/>
-                            </StackPanel>
-                            <TextBox x:Name="UI_Text_TopExtValue" Text="300" Height="32" VerticalContentAlignment="Center" Padding="8,0"
-                                     Visibility="{Binding IsChecked, ElementName=UI_Check_TopExt, Converter={StaticResource BoolToVis}}"/>
-                        </StackPanel>
-                    </Grid>
-                </StackPanel>
-            </Border>
-
-            <!-- CENTER: CROSS-SECTION PREVIEW -->
-            <Border Grid.Column="2" Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="10" Width="170">
-                <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="Cross Section" FontWeight="Bold" Foreground="#333333" HorizontalAlignment="Center" Margin="0,0,0,8"/>
-                    <Canvas x:Name="UI_CrossSectionCanvas" Width="140" Height="140" Background="Transparent" Margin="0,0,0,8"/>
-                    <TextBlock x:Name="UI_CrossSectionLabel" Text="3×3" FontSize="10" Foreground="#888" HorizontalAlignment="Center"/>
-                </StackPanel>
-            </Border>
-
-            <!-- RIGHT: TIES / STIRRUPS -->
-            <Border Grid.Column="4" Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15">
-                <StackPanel>
-                    <TextBlock Text="Ties / Stirrups" FontWeight="Bold" Foreground="#333333" Margin="0,0,0,15"/>
-                    
-                    <TextBlock Text="Rebar Type" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                    <ComboBox x:Name="UI_Combo_TieType" Height="32" Padding="8,0" Margin="0,0,0,15" VerticalContentAlignment="Center"/>
-
-                    <Grid Margin="0,0,0,15">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="15"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Hook Start" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                            <ComboBox x:Name="UI_Combo_HookStart" Height="32" Padding="8,0" VerticalContentAlignment="Center" />
-                        </StackPanel>
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="Hook End" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                            <ComboBox x:Name="UI_Combo_HookEnd" Height="32" Padding="8,0" VerticalContentAlignment="Center" />
-                        </StackPanel>
-                    </Grid>
-
-                    <TextBlock Text="Spacing (mm)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                    <TextBox x:Name="UI_Text_TieSpacing" Text="200" Height="32" VerticalContentAlignment="Center" Padding="8,0" Margin="0,0,0,15"/>
-
-                    <Grid Margin="0,0,0,15">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="15"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Bot Offset (mm)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                            <TextBox x:Name="UI_Text_TieBotOffset" Text="50" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="Top Offset (mm)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                            <TextBox x:Name="UI_Text_TieTopOffset" Text="50" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
-                        </StackPanel>
-                    </Grid>
-
-                    <!-- TIE DISTRIBUTION -->
-                    <TextBlock Text="Tie Distribution" FontWeight="Bold" Foreground="#333333" Margin="0,15,0,10"/>
-
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                        <RadioButton x:Name="UI_Radio_TieEQ" Content="Equal (EQ)" IsChecked="True" GroupName="TieDist" 
-                                     FontSize="12" Foreground="#333" Margin="0,0,20,0" Click="TieDist_Changed"/>
-                        <RadioButton x:Name="UI_Radio_TieUnEQ" Content="Unequal (Code)" GroupName="TieDist" 
-                                     FontSize="12" Foreground="#333" Click="TieDist_Changed"/>
-                    </StackPanel>
-
-                    <!-- Zone Info (visible when UnEQ selected) -->
-                    <Border x:Name="UI_TieZoneInfo" Background="#EDF6FF" CornerRadius="4" BorderBrush="#C8DFF0" BorderThickness="1" Padding="10" Visibility="Collapsed">
-                        <StackPanel>
-                            <TextBlock x:Name="UI_TieZoneTitle" Text="3-Zone Layout (ACI 318):" FontSize="11" FontWeight="SemiBold" Foreground="#3A6D99" Margin="0,0,0,6"/>
-                            <TextBlock x:Name="UI_TieZoneLine1" Text="├─ Bottom Confinement: l_o length, s_o spacing" FontSize="10" Foreground="#555" FontFamily="Consolas"/>
-                            <TextBlock x:Name="UI_TieZoneLine2" Text="├─ Mid Span:           H-2×l_o,   2×s_o"       FontSize="10" Foreground="#555" FontFamily="Consolas"/>
-                            <TextBlock x:Name="UI_TieZoneLine3" Text="└─ Top Confinement:    l_o length, s_o spacing" FontSize="10" Foreground="#555" FontFamily="Consolas"/>
-                            <TextBlock x:Name="UI_TieZoneNote" Text="l_o = max(H/6, D, 450mm), s_o = min(D/4, 6db, 150mm)" FontSize="9" Foreground="#888" Margin="0,6,0,0" FontStyle="Italic"/>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
-            </Border>
-        </Grid>
-
-        <!-- ════════════════════════════════════════════ -->
-        <!-- ROW 3: STARTER BARS                         -->
-        <!-- ════════════════════════════════════════════ -->
-        <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,0">
-            <StackPanel>
-                <CheckBox x:Name="UI_Check_Starters" Content="Enable Starter Bars (into Foundation)" 
-                          FontWeight="Bold" FontSize="12" Foreground="#333333" Margin="0,0,0,10"
-                          Checked="Starters_Changed" Unchecked="Starters_Changed"/>
-
-                <Grid x:Name="UI_StarterSettings" Visibility="Collapsed">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="15"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="15"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="Bar Type" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                        <ComboBox x:Name="UI_Combo_StarterType" Height="32" Padding="8,0" VerticalContentAlignment="Center"/>
+                        <TextBlock Text="Rebar Type X" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
+                        <ComboBox x:Name="UI_Combo_VerticalTypeX" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0" Margin="0,0,0,8"/>
+                        <TextBlock Text="Bars in X (Face)" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
+                        <TextBox x:Name="UI_Text_CountX" Text="3" Height="32" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0"
+                                 TextChanged="BarCount_Changed"/>
                     </StackPanel>
                     <StackPanel Grid.Column="2">
-                        <TextBlock Text="Hook End" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                        <ComboBox x:Name="UI_Combo_StarterHook" Height="32" Padding="8,0" VerticalContentAlignment="Center"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="4">
-                        <TextBlock Text="Dev Length (mm)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                        <TextBox x:Name="UI_Text_StarterDevLength" Text="0" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
+                        <TextBlock Text="Rebar Type Y" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
+                        <ComboBox x:Name="UI_Combo_VerticalTypeY" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0" Margin="0,0,0,8"/>
+                        <TextBlock Text="Bars in Y (Face)" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
+                        <TextBox x:Name="UI_Text_CountY" Text="3" Height="32" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0"
+                                 TextChanged="BarCount_Changed"/>
                     </StackPanel>
                 </Grid>
-                <TextBlock x:Name="UI_StarterNote" Text="Starter bars project below L1 into foundation. 0 = auto (code default)." 
-                           FontSize="9" Foreground="#888" FontStyle="Italic" Margin="0,6,0,0" Visibility="Collapsed"/>
+
+                <TextBlock Text="Hooks &amp; Extensions" FontSize="13" FontWeight="SemiBold" Foreground="#333333" Margin="0,0,0,8"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="15"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Hook Bottom" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
+                        <ComboBox x:Name="UI_Combo_VHookBot" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0" />
+                        <CheckBox x:Name="UI_Check_VHookBotOut" Content="Bend Outward" FontSize="13" Foreground="#666666" Margin="0,10,0,15" IsChecked="False"/>
+                        
+                        <CheckBox x:Name="UI_Check_BotExt" Content="Bottom Ext (mm)" FontSize="13" Foreground="#666666" IsChecked="False" Margin="0,0,0,8"/>
+                        <TextBox x:Name="UI_Text_BotExtValue" Text="300" Height="32" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0" Margin="0,0,0,10"
+                                 Visibility="{Binding IsChecked, ElementName=UI_Check_BotExt, Converter={StaticResource BoolToVis}}"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Hook Top" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
+                        <ComboBox x:Name="UI_Combo_VHookTop" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0" />
+                        <CheckBox x:Name="UI_Check_VHookTopOut" Content="Bend Outward" FontSize="13" Foreground="#666666" Margin="0,10,0,15" IsChecked="False"/>
+                        
+                        <CheckBox x:Name="UI_Check_TopExt" Content="Top Ext (mm)" FontSize="13" Foreground="#666666" IsChecked="False" Margin="0,0,0,8"/>
+                        <TextBox x:Name="UI_Text_TopExtValue" Text="300" Height="32" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0" Margin="0,0,0,10"
+                                 Visibility="{Binding IsChecked, ElementName=UI_Check_TopExt, Converter={StaticResource BoolToVis}}"/>
+                    </StackPanel>
+                </Grid>
             </StackPanel>
         </Border>
 
-    </StackPanel>
+        <!-- CENTER: CROSS-SECTION PREVIEW -->
+        <Border Grid.Row="0" Grid.Column="2" Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,15" Width="180">
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock Text="Cross Section" FontWeight="Bold" Foreground="#333333" HorizontalAlignment="Center" Margin="0,0,0,15"/>
+                <Canvas x:Name="UI_CrossSectionCanvas" Width="140" Height="140" Background="Transparent" Margin="0,0,0,10" HorizontalAlignment="Center"/>
+                <TextBlock x:Name="UI_CrossSectionLabel" Text="3×3" FontSize="11" Foreground="#888" HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Ties / Stirrups -->
+        <Border Grid.Row="0" Grid.Column="4" Background="#FAFAFA" CornerRadius="8" BorderBrush="#E0E0E0" BorderThickness="1" Padding="15" Margin="0,0,0,15">
+            <StackPanel>
+                <TextBlock Text="Ties / Stirrups" FontSize="14" FontWeight="Bold" Foreground="#333333" Margin="0,0,0,15"/>
+                
+                <Grid Margin="0,0,0,15">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="15"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Rebar Type" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
+                        <ComboBox x:Name="UI_Combo_TieType" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Spacing (mm)" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
+                        <TextBox x:Name="UI_Text_TieSpacing" Text="200" Height="32" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0"/>
+                    </StackPanel>
+                </Grid>
+
+                <TextBlock Text="Rule Offsets" FontSize="13" FontWeight="SemiBold" Foreground="#333333" Margin="0,0,0,8"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="15"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Top Offset (mm)" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
+                        <TextBox x:Name="UI_Text_TieTopOffset" Text="50" Height="32" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0" Margin="0,0,0,15"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Bottom Offset (mm)" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
+                        <TextBox x:Name="UI_Text_TieBotOffset" Text="50" Height="32" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0" Margin="0,0,0,15"/>
+                    </StackPanel>
+                </Grid>
+
+                <TextBlock Text="Hooks Configuration" FontSize="13" FontWeight="SemiBold" Foreground="#333333" Margin="0,0,0,8"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="15"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Hook Start" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
+                        <ComboBox x:Name="UI_Combo_HookStart" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Hook End" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
+                        <ComboBox x:Name="UI_Combo_HookEnd" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0" />
+                    </StackPanel>
+                </Grid>
+
+                <TextBlock Text="Tie Distribution" FontSize="13" FontWeight="SemiBold" Foreground="#333333" Margin="0,15,0,8"/>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                    <RadioButton x:Name="UI_Radio_TieEQ" Content="Equal (EQ)" IsChecked="True" GroupName="TieDist" 
+                                 FontSize="12" Foreground="#333" Margin="0,0,20,0" Click="TieDist_Changed"/>
+                    <RadioButton x:Name="UI_Radio_TieUnEQ" Content="Unequal (Code)" GroupName="TieDist" 
+                                 FontSize="12" Foreground="#333" Click="TieDist_Changed"/>
+                </StackPanel>
+
+                <!-- Zone Info (visible when UnEQ selected) -->
+                <Border x:Name="UI_TieZoneInfo" Background="#EDF6FF" CornerRadius="4" BorderBrush="#C8DFF0" BorderThickness="1" Padding="10" Visibility="Collapsed">
+                    <StackPanel>
+                        <TextBlock x:Name="UI_TieZoneTitle" Text="3-Zone Layout (ACI 318):" FontSize="11" FontWeight="SemiBold" Foreground="#3A6D99" Margin="0,0,0,6"/>
+                        <TextBlock x:Name="UI_TieZoneLine1" Text="├─ Bottom Confinement: l_o length, s_o spacing" FontSize="10" Foreground="#555" FontFamily="Consolas"/>
+                        <TextBlock x:Name="UI_TieZoneLine2" Text="├─ Mid Span:           H-2×l_o,   2×s_o"       FontSize="10" Foreground="#555" FontFamily="Consolas"/>
+                        <TextBlock x:Name="UI_TieZoneLine3" Text="└─ Top Confinement:    l_o length, s_o spacing" FontSize="10" Foreground="#555" FontFamily="Consolas"/>
+                        <TextBlock x:Name="UI_TieZoneNote" Text="l_o = max(H/6, D, 450mm), s_o = min(D/4, 6db, 150mm)" FontSize="9" Foreground="#888" Margin="0,6,0,0" FontStyle="Italic"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Border>
+
+        <!-- BOTTOM ROW: MULTI-LEVEL & STARTER BARS -->
+
+        <!-- Multi-Level Processing (highlighted background) -->
+        <Border Grid.Row="1" Grid.Column="0" Background="#FAFAFA" CornerRadius="8" BorderBrush="#E0E0E0" BorderThickness="1" Padding="15" Margin="0,0,0,15">
+            <StackPanel>
+                <Grid Margin="0,0,0,15">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <CheckBox x:Name="UI_Check_MultiLevel" Content="Enable Multi-Level Processing" FontSize="13" Foreground="#333333" FontWeight="SemiBold" 
+                              VerticalAlignment="Center" Grid.Column="0" 
+                              Checked="MultiLevel_Changed" Unchecked="MultiLevel_Changed"/>
+                </Grid>
+
+                <StackPanel x:Name="UI_Panel_MultiLevelFields">
+                    <TextBlock Text="Stack Information" FontSize="12" FontWeight="SemiBold" Foreground="#666666" Margin="0,0,0,4"/>
+                    <ScrollViewer MaxHeight="60" CanContentScroll="True" VerticalScrollBarVisibility="Auto" BorderBrush="#EEEEEE" BorderThickness="1" Background="#FFFFFF" Padding="5" Margin="0,0,0,10">
+                        <TextBlock x:Name="UI_StackInfoText" Text="Select columns to detect stack" FontSize="11" Foreground="#888888" TextWrapping="Wrap"/>
+                    </ScrollViewer>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="15"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Splice Position" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
+                            <ComboBox x:Name="UI_Combo_SplicePos" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0" Margin="0,0,0,10">
+                                <ComboBoxItem Content="Above Slab (Code Default)" IsSelected="True"/>
+                                <ComboBoxItem Content="Mid Height"/>
+                            </ComboBox>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Crank Position" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
+                            <ComboBox x:Name="UI_Combo_CrankPos" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0">
+                                <ComboBoxItem Content="None"/>
+                                <ComboBoxItem Content="Upper Column" IsSelected="True"/>
+                                <ComboBoxItem Content="Lower Column"/>
+                            </ComboBox>
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid Margin="0,10,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="15"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Lap Length Mode" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
+                            <ComboBox x:Name="UI_Combo_LapMode" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0" Margin="0,0,0,4"
+                                      SelectionChanged="UI_Combo_LapMode_Changed">
+                                <ComboBoxItem Content="Auto (Code)" IsSelected="True"/>
+                                <ComboBoxItem Content="Manual"/>
+                            </ComboBox>
+                            <TextBox x:Name="UI_Text_LapSplice" Text="600" Height="32" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0" Margin="0,0,0,10" Visibility="Collapsed"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Starter Bars -->
+        <Border Grid.Row="1" Grid.Column="4" Background="#FAFAFA" CornerRadius="8" BorderBrush="#E0E0E0" BorderThickness="1" Padding="15" Margin="0,0,0,15">
+            <StackPanel>
+                <!-- Header row with toggle checkbox -->
+                <Grid Margin="0,0,0,15">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <CheckBox x:Name="UI_Check_Starters" Content="Enable Starter Bars (into Foundation)" FontSize="13" Foreground="#333333" FontWeight="SemiBold"
+                              VerticalAlignment="Center" Grid.Column="0"
+                              Checked="Starters_Changed" Unchecked="Starters_Changed"/>
+                </Grid>
+
+                <!-- Collapsible starter fields -->
+                <StackPanel x:Name="UI_Panel_StarterFields">
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Bar Type" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
+                            <ComboBox x:Name="UI_Combo_StarterType" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Hook End" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
+                            <ComboBox x:Name="UI_Combo_StarterHook" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="4">
+                            <TextBlock Text="Dev Length (mm)" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
+                            <TextBox x:Name="UI_Text_StarterDevLength" Text="0" Height="32" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0"/>
+                        </StackPanel>
+                    </Grid>
+                    
+                    <TextBlock Text="Starter bars project below L1 into foundation. 0 = auto (code default)." FontSize="10" Foreground="#999999" Margin="0,5,0,0" FontStyle="Italic" TextWrapping="Wrap"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
 </UserControl>

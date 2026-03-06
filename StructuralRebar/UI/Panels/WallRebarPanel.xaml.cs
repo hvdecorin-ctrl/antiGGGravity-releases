@@ -106,6 +106,18 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 UI_Check_MultiLevel.IsChecked = SettingsManager.GetBool(VIEW_NAME, "MultiLevel", false);
                 UI_Check_MultiLevel_Changed(null, null);
                 UI_Text_LapSplice.Text = SettingsManager.Get(VIEW_NAME, "LapSplice", "600");
+
+                string lapMode = SettingsManager.Get(VIEW_NAME, "LapMode", "Auto (Code)");
+                foreach (ComboBoxItem item in UI_Combo_LapMode.Items)
+                {
+                    if (item.Content.ToString() == lapMode)
+                    {
+                        UI_Combo_LapMode.SelectedItem = item;
+                        break;
+                    }
+                }
+                UI_Combo_LapMode_Changed(null, null);
+
                 UI_Text_StarterBar.Text = SettingsManager.Get(VIEW_NAME, "StarterBar", "800");
                 UI_Check_StarterEnabled.IsChecked = SettingsManager.GetBool(VIEW_NAME, "StarterEnabled", true);
                 UI_Check_StarterEnabled_Click(null, null);
@@ -174,6 +186,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 // Multi-Level
                 SettingsManager.Set(VIEW_NAME, "MultiLevel", (UI_Check_MultiLevel.IsChecked == true).ToString());
                 SettingsManager.Set(VIEW_NAME, "LapSplice", UI_Text_LapSplice.Text);
+                SettingsManager.Set(VIEW_NAME, "LapMode", (UI_Combo_LapMode.SelectedItem as ComboBoxItem)?.Content.ToString());
                 SettingsManager.Set(VIEW_NAME, "StarterBar", UI_Text_StarterBar.Text);
                 SettingsManager.Set(VIEW_NAME, "StarterEnabled", (UI_Check_StarterEnabled.IsChecked == true).ToString());
 
@@ -216,7 +229,9 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 
                 // Multi-Level specific parameters mapping to DTO
                 EnableZoneSpacing = false, // Walls usually don't have confinement zones like columns
-                VerticalContinuousSpliceLength = UnitConversion.MmToFeet(ParseDouble(UI_Text_LapSplice.Text, 600)),
+                VerticalContinuousSpliceLength = IsAutoLapMode()
+                    ? 0  // Auto: engine uses code-calculated lap length
+                    : UnitConversion.MmToFeet(ParseDouble(UI_Text_LapSplice.Text, 600)),
                 StarterDevLength = (UI_Check_StarterEnabled.IsChecked == true)
                     ? UnitConversion.MmToFeet(ParseDouble(UI_Text_StarterBar.Text, 800))
                     : 0,
@@ -459,6 +474,20 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 UI_Panel_MultiLevelFields.Visibility = UI_Check_MultiLevel.IsChecked == true 
                     ? System.Windows.Visibility.Visible 
                     : System.Windows.Visibility.Collapsed;
+        }
+
+        private void UI_Combo_LapMode_Changed(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            if (UI_Text_LapSplice == null) return;
+            UI_Text_LapSplice.Visibility = IsAutoLapMode()
+                ? System.Windows.Visibility.Collapsed
+                : System.Windows.Visibility.Visible;
+        }
+
+        private bool IsAutoLapMode()
+        {
+            string mode = (UI_Combo_LapMode?.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Auto (Code)";
+            return mode.StartsWith("Auto", StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>

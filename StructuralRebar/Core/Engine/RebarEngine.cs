@@ -785,10 +785,18 @@ var segments = request.EnableLapSplice
                 }
 
                 // 3. Starter Bars
-                if (request.StarterDevLength > 0 && vDia > 0)
+                if (request.EnableStarterBars && vDia > 0)
                 {
                     string sType = !string.IsNullOrEmpty(request.StarterBarTypeName) ? request.StarterBarTypeName : request.TransverseBarTypeName;
                     double sDia = GetBarDiameter(sType);
+
+                    double devLen = request.StarterDevLength;
+                    if (devLen <= 0)
+                    {
+                        // Auto-calculate development length if 0
+                        devLen = LapSpliceCalculator.CalculateTensionLapLength(
+                            sDia, request.DesignCode, ConcreteGrade.C30, SteelGrade.Grade500E, BarPosition.Other);
+                    }
 
                     var starterDef = WallLayoutGenerator.CreateVerticalBars(
                         host, sType, sDia,
@@ -816,7 +824,7 @@ var segments = request.EnableLapSplice
                             // Take the larger of code-calculated lap and user-specified splice length
                             starterLap = Math.Max(starterLap, request.VerticalContinuousSpliceLength);
 
-                            XYZ newStart = origStart - barDir * request.StarterDevLength;
+                            XYZ newStart = origStart - barDir * devLen;
                             XYZ newEnd = origStart + barDir * starterLap;
                             
                             starterCurves.Add(Line.CreateBound(newStart, newEnd));
@@ -855,7 +863,10 @@ var segments = request.EnableLapSplice
                     _creationService.DeleteExistingRebar(wall);
 
                 // Find trim distances at intersecting wall faces
-                var (startTrim, endTrim) = FindWallFaceTrimDistances(wall);
+                // Exclude all walls in the stack so stacked walls (same XY, different Z)
+                // are not mistakenly treated as intersecting walls
+                var stackIds = new HashSet<ElementId>(stack.Select(w => w.Id));
+                var (startTrim, endTrim) = FindWallFaceTrimDistances(wall, stackIds);
 
                 var definitions = new List<RebarDefinition>();
 
@@ -919,7 +930,8 @@ var segments = request.EnableLapSplice
                             request.TransverseSpacing,
                             request.TransverseStartOffset + startTrim,
                             request.TransverseEndOffset + endTrim,
-                            host.CoverOther, host.CoverOther, 
+                            isTop ? host.CoverOther : 0,      // topCover — only at top wall
+                            isBottom ? host.CoverOther : 0,    // botCover — only at bottom wall
                             topExt, botExt,
                             vOff,
                             isBottom ? request.TransverseHookStartName : null, 
@@ -1000,10 +1012,18 @@ var segments = request.EnableLapSplice
                     }
 
                     // 2. Starter Bars (bottom level only)
-                    if (isBottom && request.StarterDevLength > 0 && vDia > 0)
+                    if (isBottom && request.EnableStarterBars && vDia > 0)
                     {
                         string sType = !string.IsNullOrEmpty(request.StarterBarTypeName) ? request.StarterBarTypeName : request.TransverseBarTypeName;
                         double sDia = GetBarDiameter(sType);
+
+                        double devLen = request.StarterDevLength;
+                        if (devLen <= 0)
+                        {
+                            // Auto-calculate development length if 0
+                            devLen = LapSpliceCalculator.CalculateTensionLapLength(
+                                sDia, request.DesignCode, ConcreteGrade.C30, SteelGrade.Grade500E, BarPosition.Other);
+                        }
 
                         var starterDef = WallLayoutGenerator.CreateVerticalBars(
                             host, sType, sDia,
@@ -1031,7 +1051,7 @@ var segments = request.EnableLapSplice
                                 // Take the larger of code-calculated lap and user-specified splice length
                                 starterLap = Math.Max(starterLap, request.VerticalContinuousSpliceLength);
 
-                                XYZ newStart = origStart - barDir * request.StarterDevLength;
+                                XYZ newStart = origStart - barDir * devLen;
                                 XYZ newEnd = origStart + barDir * starterLap;
                                 
                                 starterCurves.Add(Line.CreateBound(newStart, newEnd));
@@ -2047,7 +2067,7 @@ var segments = request.EnableLapSplice
         /// Returns (startTrim, endTrim) — the distance from each wall end to the face
         /// of the intersecting wall. Returns 0 if no intersection at that end.
         /// </summary>
-        private (double StartTrim, double EndTrim) FindWallFaceTrimDistances(Wall wall)
+        private (double StartTrim, double EndTrim) FindWallFaceTrimDistances(Wall wall, HashSet<ElementId> excludeIds = null)
         {
             double startTrim = 0;
             double endTrim = 0;
@@ -2057,12 +2077,14 @@ var segments = request.EnableLapSplice
 
             XYZ wallStart = wallLine.GetEndPoint(0);
             XYZ wallEnd = wallLine.GetEndPoint(1);
+            XYZ wallDir = new XYZ(wallEnd.X - wallStart.X, wallEnd.Y - wallStart.Y, 0).Normalize();
 
             // Collect all structural walls in the document
+            // Exclude current wall and any walls in the provided excludeIds set
             var allWalls = new FilteredElementCollector(_doc)
                 .OfClass(typeof(Wall))
                 .Cast<Wall>()
-                .Where(w => w.Id != wall.Id)
+                .Where(w => w.Id != wall.Id && (excludeIds == null || !excludeIds.Contains(w.Id)))
                 .Where(w => {
                     var wLoc = w.Location as LocationCurve;
                     return wLoc != null && wLoc.Curve is Line;
@@ -2079,6 +2101,11 @@ var segments = request.EnableLapSplice
 
                 XYZ oStart = otherLine.GetEndPoint(0);
                 XYZ oEnd = otherLine.GetEndPoint(1);
+
+                // Skip parallel walls (stacked above/below) — only trim for intersecting walls
+                XYZ otherDir = new XYZ(oEnd.X - oStart.X, oEnd.Y - oStart.Y, 0).Normalize();
+                double dot = Math.Abs(wallDir.DotProduct(otherDir));
+                if (dot > 0.9) continue; // Parallel wall — not an intersection
 
                 // Check if "other" wall meets this wall's START end
                 double dStart0 = Dist2D(wallStart, oStart);

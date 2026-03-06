@@ -122,6 +122,19 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 SelectByName(UI_Combo_StarterType, SettingsManager.Get(VIEW_NAME, "StarterType"));
                 SelectHookByName(UI_Combo_StarterHook, SettingsManager.Get(VIEW_NAME, "StarterHook"));
 
+                // Lap Length Mode
+                UI_Text_LapSplice.Text = SettingsManager.Get(VIEW_NAME, "LapSplice", "600");
+                string lapMode = SettingsManager.Get(VIEW_NAME, "LapMode", "Auto (Code)");
+                foreach (ComboBoxItem item in UI_Combo_LapMode.Items)
+                {
+                    if (item.Content.ToString() == lapMode)
+                    {
+                        UI_Combo_LapMode.SelectedItem = item;
+                        break;
+                    }
+                }
+                UI_Combo_LapMode_Changed(null, null);
+
                 string splicePos = SettingsManager.Get(VIEW_NAME, "SplicePosition", "Above Slab (Code Default)");
                 foreach (ComboBoxItem item in UI_Combo_SplicePos.Items)
                 {
@@ -185,6 +198,8 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 SettingsManager.Set(VIEW_NAME, "StarterType", TransTypeName(UI_Combo_StarterType));
                 SettingsManager.Set(VIEW_NAME, "StarterHook", HookName(UI_Combo_StarterHook));
                 SettingsManager.Set(VIEW_NAME, "SplicePosition", (UI_Combo_SplicePos.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Above Slab (Code Default)");
+                SettingsManager.Set(VIEW_NAME, "LapMode", (UI_Combo_LapMode.SelectedItem as ComboBoxItem)?.Content.ToString());
+                SettingsManager.Set(VIEW_NAME, "LapSplice", UI_Text_LapSplice.Text);
 
                 SettingsManager.SaveAll();
             }
@@ -226,6 +241,9 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 MultiLevel = (UI_Check_MultiLevel.IsChecked == true),
                 SplicePosition = (UI_Combo_SplicePos.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Above Slab",
                 CrankPosition = (UI_Combo_CrankPos.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Upper Column",
+                VerticalContinuousSpliceLength = IsAutoLapMode()
+                    ? 0  // Auto: engine uses code-calculated lap length
+                    : UnitConversion.MmToFeet(ParseDouble(UI_Text_LapSplice.Text, 600)),
 
                 // Starter Bars
                 EnableStarterBars = (UI_Check_Starters.IsChecked == true),
@@ -258,18 +276,31 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
 
         private void MultiLevel_Changed(object sender, RoutedEventArgs e)
         {
-            if (UI_MultiLevelInfo == null) return;
-            UI_MultiLevelInfo.Visibility = (UI_Check_MultiLevel.IsChecked == true)
+            if (UI_Panel_MultiLevelFields == null) return;
+            UI_Panel_MultiLevelFields.Visibility = (UI_Check_MultiLevel.IsChecked == true)
                 ? System.Windows.Visibility.Visible
                 : System.Windows.Visibility.Collapsed;
         }
 
+        private void UI_Combo_LapMode_Changed(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            if (UI_Text_LapSplice == null) return;
+            UI_Text_LapSplice.Visibility = IsAutoLapMode()
+                ? System.Windows.Visibility.Collapsed
+                : System.Windows.Visibility.Visible;
+        }
+
+        private bool IsAutoLapMode()
+        {
+            string mode = (UI_Combo_LapMode?.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Auto (Code)";
+            return mode.StartsWith("Auto", StringComparison.OrdinalIgnoreCase);
+        }
+
         private void Starters_Changed(object sender, RoutedEventArgs e)
         {
-            if (UI_StarterSettings == null) return;
+            if (UI_Panel_StarterFields == null) return;
             bool show = (UI_Check_Starters.IsChecked == true);
-            UI_StarterSettings.Visibility = show ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
-            UI_StarterNote.Visibility = show ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+            UI_Panel_StarterFields.Visibility = show ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
         }
 
         private void BarCount_Changed(object sender, TextChangedEventArgs e)
