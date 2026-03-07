@@ -145,10 +145,47 @@
                 
                 <!-- Tab 1: Original Matrix -->
                 <TabItem Header="Quantity Summary">
-                    <DataGrid x:Name="QtyGrid" Margin="0,10,0,0"
-                              Style="{StaticResource QtyDataGridStyle}"
-                              ColumnHeaderStyle="{StaticResource QtyColumnHeaderStyle}"
-                              CellStyle="{StaticResource QtyCellStyle}"/>
+                    <Grid Margin="0,10,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Search Box -->
+                        <Border Grid.Row="0" Background="#F5F5F5" CornerRadius="4" Padding="8,2" Margin="0,0,0,10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="🔍" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="#888"/>
+                                <TextBox x:Name="SearchBox" Grid.Column="1" 
+                                         Background="Transparent" BorderThickness="0" 
+                                         VerticalContentAlignment="Center" FontSize="13"
+                                         TextChanged="SearchBox_TextChanged"
+                                         Tag="Search Host Mark..."/>
+                                <TextBlock Grid.Column="1" Text="Search Host Mark..." 
+                                           VerticalAlignment="Center" IsHitTestVisible="False" 
+                                           Foreground="#888" Opacity="0.5" Margin="2,0,0,0">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Text, ElementName=SearchBox}" Value="">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Grid>
+                        </Border>
+
+                        <DataGrid x:Name="QtyGrid" Grid.Row="1"
+                                  Style="{StaticResource QtyDataGridStyle}"
+                                  ColumnHeaderStyle="{StaticResource QtyColumnHeaderStyle}"
+                                  CellStyle="{StaticResource QtyCellStyle}"/>
+                    </Grid>
                 </TabItem>
 
                 <!-- Tab 2: Calculation Method -->

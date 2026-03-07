@@ -31,26 +31,31 @@ panels:
           - name: Wipe Empty Tags
             command: WipeEmptyTagsCommand
             icon: WipeEmptyTags
+            tooltip: Delete all tags that have no content in the current view.
           
           - separator: true
 
           - name: Title on Active View
             command: TitleOnActiveViewCommand
             icon: TitleOnActiveView
+            tooltip: Apply a title block to the active view.
           
           - name: Title on Sheets
             command: TitleOnSheetsCommand
             icon: TitleOnSheets
+            tooltip: Apply a consistent title block across all sheets.
 
           - separator: true
 
           - name: Drafter Text Off
             command: DrafterTextOffCommand
             icon: DrafterTextOff
+            tooltip: Hide drafter annotation text in the current view.
           
           - name: Drafter Text On
             command: DrafterTextOnCommand
             icon: DrafterTextOn
+            tooltip: Show drafter annotation text in the current view.
       # --- Column 3 ---
       - type: pulldown
         name: Family Load
@@ -60,14 +65,17 @@ panels:
           - name: Family Loading
             command: FamilyLoadingCommand
             icon: FamilyLoading
+            tooltip: Load a family file into the current project.
           
           - name: Load More Type
             command: LoadMoreTypeCommand
             icon: LoadMoreType
+            tooltip: Load additional types from an existing family.
           
           - name: Duplicate Families
             command: FamilyDuplicatorCommand
             icon: FamilyDuplicator
+            tooltip: Duplicate selected families with a new name prefix.
 
   # ============================================================
   # OVERRIDES PANEL
@@ -79,7 +87,7 @@ panels:
         name: Color Splasher
         command: ColorSplashCommand
         icon: ColorSplasher
-        tooltip: Visualize parameter values with color overrides.
+        tooltip: Color-code elements by a chosen parameter value.
       # --- Column 2 ---
       - type: stacked
         buttons:
@@ -91,79 +99,93 @@ panels:
               - name: DimFake
                 command: DimFakeCommand
                 icon: DimFake
+                tooltip: Override dimension text with a custom value.
               
               - name: Text Audit
                 command: TextAuditCommand
                 icon: TextAudit
+                tooltip: Audit and report all text elements in the view.
               
               - name: Text Upper
                 command: TextUpperCommand
                 icon: TextUpper
+                tooltip: Convert selected text elements to uppercase.
 
           - type: pulldown
             name: Cad Override
             icon: CadOverride
-            tooltip: Quick graphic override styles.
+            tooltip: Apply preset graphic override styles to selected CAD elements.
             buttons:
               - name: Black / Half / Trans
                 command: Style1Command
                 icon: Style1
+                tooltip: Apply black lines, half-tone, transparent fill.
               
               - name: Orange / Half / Trans
                 command: Style2Command
                 icon: Style2
+                tooltip: Apply orange lines, half-tone, transparent fill.
               
               - name: Blue / Half / Trans
                 command: Style3Command
                 icon: Style3
+                tooltip: Apply blue lines, half-tone, transparent fill.
               
               - name: Green / Half / Trans
                 command: Style4Command
                 icon: Style4
+                tooltip: Apply green lines, half-tone, transparent fill.
 
               - name: Purple-Blue / Hidden / Half
                 command: Style5Command
                 icon: Style5
+                tooltip: Apply purple-blue, hidden lines, half-tone.
 
               - separator: true
 
               - name: Project CAD Override
                 command: ProjectCadOverrideCommand
                 icon: CadOverride
+                tooltip: Apply a saved CAD override style across all views.
       # --- Column 3 ---
       - type: stacked
         buttons:
           - type: pulldown
             name: Transparency
             icon: Transparency
-            tooltip: Set surface transparency.
+            tooltip: Set surface transparency on selected elements.
             buttons:
               - name: 60 Pct Transparency
                 command: Transparency60Command
                 icon: Transparency60
+                tooltip: Set surface transparency to 60%.
               
               - name: 100 Pct Transparency
                 command: Transparency100Command
                 icon: Transparency100
+                tooltip: Set surface transparency to 100% (fully transparent).
 
           - type: pulldown
             name: Match & Reset
             icon: MatchReset
-            tooltip: Match or reset graphic overrides.
+            tooltip: Match or reset graphic overrides between elements.
             buttons:
               - name: Match Overrides
                 command: MatchOverridesCommand
                 icon: MatchOverrides
+                tooltip: Copy graphic overrides from one element to selected elements.
               
               - separator: true
               
               - name: Reset Selected
                 command: ResetSelectedCommand
                 icon: ResetSelected
+                tooltip: Clear all graphic overrides from the selection.
               
               - name: Reset All Overrides
                 command: ResetOverridesCommand
                 icon: ResetOverrides
+                tooltip: Clear all graphic overrides in the active view.
 
           - type: pulldown
             name: Reset Filters
@@ -173,16 +195,19 @@ panels:
               - name: Disable Filters
                 command: DisableFiltersCommand
                 icon: DisableFilters
+                tooltip: Disable all view filters without removing them.
               
               - name: Enable Filters
                 command: EnableFiltersCommand
                 icon: EnableFilters
+                tooltip: Re-enable all previously disabled view filters.
               
               - separator: true
               
               - name: Remove Filters
                 command: RemoveFiltersCommand
                 icon: RemoveFilters
+                tooltip: Permanently remove all filters from the active view.
 
 
   # ============================================================
@@ -196,19 +221,22 @@ panels:
           - type: pulldown
             name: Rename View
             icon: Views
-            tooltip: View management tools.
+            tooltip: Rename views on sheets.
             buttons:
               - name: Rename Views (Active Sheet)
                 command: RenameViewsActiveSheetCommand
                 icon: RenameViews
+                tooltip: Rename all viewports on the currently active sheet.
 
               - name: Rename View (all Sheets)
                 command: RenameViewsAllSheetsCommand
                 icon: RenameViews
+                tooltip: Rename viewports across all sheets using a naming rule.
 
               - name: Renumber Viewports
                 command: RenumberViewportsCommand
                 icon: RenumberViewports
+                tooltip: Renumber viewports on the active sheet sequentially.
 
           - type: pulldown
             name: Add Views
@@ -218,10 +246,12 @@ panels:
               - name: Add Selected View
                 command: AddSelectedViewCommand
                 icon: AddSelectedView
+                tooltip: Place the selected view onto a chosen sheet.
 
               - name: Add Views
                 command: AddViewsCommand
                 icon: AddViews
+                tooltip: Batch-place multiple views onto sheets.
 
           - type: pulldown
             name: Sheets
@@ -231,39 +261,46 @@ panels:
               - name: Duplicate Sheets
                 command: DuplicateSheetsCommand
                 icon: DuplicateSheets
+                tooltip: Duplicate selected sheets with views and title blocks.
       # --- Column 2 ---
       - type: stacked
         buttons:
           - name: Set Crop View
             command: SetCropCommand
             icon: SetCrop
+            tooltip: Set the crop region boundary for the active view.
 
           - name: Toggle Crop
             command: ToggleCropRegionCommand
             icon: ToggleCrop
+            tooltip: Show or hide the crop region boundary in the active view.
 
           - name: Zoom To
             command: ZoomToSelectionCommand
             icon: ZoomTo
+            tooltip: Zoom the view to fit the current selection.
       # --- Column 3 ---
       - type: stacked
         buttons:
           - name: Auto 3D
             command: Auto3DCommand
             icon: Auto3D
+            tooltip: Create a 3D view auto-fitted to selected elements.
 
           - name: Toggle 3D
             command: Toggle3DSectionBoxCommand
             icon: ToggleSectionBoxActive
+            tooltip: Show or hide the section box in the active 3D view.
 
           - name: Sectbox
             command: ToggleSectionBoxVisibilityCommand
             icon: ToggleSectionBox
+            tooltip: Toggle section box visibility without resizing it.
       # --- Column 4 ---
       - name: Align Schematic
         command: AlignSchematicCommand
         icon: AlignSchematic
-        tooltip: Align viewports across multiple sheets.
+        tooltip: Align viewports to a consistent position across multiple sheets.
 
   # ============================================================
   # VISIBILITY GRAPHIC PANEL
@@ -274,24 +311,28 @@ panels:
       - type: pulldown
         name: Visibility
         icon: Visibility
-        tooltip: Access all 2D, 3D and Category visibility toggles.
+        tooltip: Toggle visibility of elements and categories in the active view.
         buttons:
           # --- General Toggles ---
           - name: Toggle All Elements
             command: ToggleAllElementsCommand
             icon: ToggleAllElements
+            tooltip: Show or hide all model elements in the active view.
 
           - name: Toggle 2D Elements
             command: Toggle2DCommand
             icon: Toggle2D
+            tooltip: Show or hide all 2D annotation elements.
 
           - name: Toggle 3D Elements
             command: Toggle3DCommand
             icon: Toggle3D
+            tooltip: Show or hide all 3D model elements.
 
           - name: Toggle Structural Packs
             command: ToggleStructuralPacksCommand
             icon: ToggleStructuralPacks
+            tooltip: Show or hide structural connection packs.
 
           - separator: true
 
@@ -299,34 +340,42 @@ panels:
           - name: Toggle Foundations
             command: ToggleFoundationsCommand
             icon: ToggleFoundations
+            tooltip: Show or hide foundation elements.
 
           - name: Toggle Walls
             command: ToggleWallsCommand
             icon: ToggleWalls
+            tooltip: Show or hide wall elements.
 
           - name: Toggle Floors (Slabs)
             command: ToggleFloorsCommand
             icon: ToggleFloors
+            tooltip: Show or hide floor and slab elements.
 
           - name: Toggle Columns
             command: ToggleColumnsCommand
             icon: ToggleColumns
+            tooltip: Show or hide structural column elements.
 
           - name: Toggle Framing
             command: ToggleFramingCommand
             icon: ToggleFraming
+            tooltip: Show or hide structural framing (beams, braces).
 
           - name: Toggle Roof
             command: ToggleRoofsCommand
             icon: ToggleRoofs
+            tooltip: Show or hide roof elements.
 
           - name: Toggle Connections
             command: ToggleConnectionsCommand
             icon: ToggleConnections
+            tooltip: Show or hide structural connection elements.
 
           - name: Toggle Rebar
             command: ToggleRebarCommand
             icon: ToggleRebar
+            tooltip: Show or hide rebar elements in the active view.
 
           - separator: true
 
@@ -334,18 +383,22 @@ panels:
           - name: Toggle Grids
             command: ToggleGridsCommand
             icon: ToggleGrids
+            tooltip: Show or hide grid lines.
 
           - name: Toggle Levels
             command: ToggleLevelsCommand
             icon: ToggleLevels
+            tooltip: Show or hide level datum elements.
 
           - name: Toggle Ref Planes
             command: ToggleRefPlanesCommand
             icon: ToggleRefPlanes
+            tooltip: Show or hide reference planes.
 
           - name: Toggle Scope Box
             command: ToggleScopeBoxesCommand
             icon: ToggleScopeBox
+            tooltip: Show or hide scope boxes.
 
           - separator: true
 
@@ -353,17 +406,19 @@ panels:
           - name: Toggle CAD Links
             command: ToggleCadLinksCommand
             icon: ToggleCadLinks
+            tooltip: Show or hide all linked CAD files.
 
           - name: Toggle Revit Links
             command: ToggleLinksCommand
             icon: ToggleLinks
+            tooltip: Show or hide all linked Revit models.
 
       # --- Column 2 ---
       - type: pushbutton
         name: Quick VG
         command: QuickVgCommand
         icon: QuickVG
-        tooltip: Open the Quick Visibility Graphic manager to batch toggle categories.
+        tooltip: Batch toggle element categories via a quick Visibility/Graphic panel.
 
   # ============================================================
   # REBAR PANEL
@@ -375,43 +430,48 @@ panels:
         name: Rebar Suite
         command: RebarSuiteCommand
         icon: RebarSuite
-        tooltip: Unified structural reinforcement generator for beams, walls, columns, and footings.
+        tooltip: Generate reinforcement for beams, walls, columns, and footings in one tool.
       # --- Column 2 ---
       - type: pushbutton
         name: Rebar Palette
         command: RebarPaletteCommand
         icon: RebarTools
-        tooltip: Open a floating palette containing all rebar visibility, selection, and host-based tools.
+        tooltip: Floating palette for rebar visibility, selection, and host-based tools.
       # --- Column 3 ---
       - type: pulldown
         name: Rebar Q'ty
         icon: RebarQty
-        tooltip: Quick summary of rebar quantities by host category or host mark.
+        tooltip: Summarise rebar quantities grouped by host category or host mark.
         buttons:
           - name: Rebar Q'ty Host Category
             command: RebarQtyHostCategoryCommand
             icon: RebarQtyHostCategory
+            tooltip: Show rebar quantity summary grouped by host category (beam, wall, etc.).
             
           - name: Rebar Q'ty Host Mark
             command: RebarQtyHostMarkCommand
             icon: RebarQtyHostMark
+            tooltip: Show rebar quantity summary grouped by host mark (element ID).
       # --- Column 4 ---
       - type: pulldown
         name: Assign Mark
         icon: AssignMark
-        tooltip: Assign Mark to elements.
+        tooltip: Create and assign unique marks to structural elements.
         buttons:
           - name: Create Element Name
             command: CreateElementNameParamCommand
             icon: CreateElementName
+            tooltip: Create a shared parameter to store a custom element name.
           
           - name: Assign Mark
             command: AssignMarkCommand
             icon: AssignMark
+            tooltip: Auto-generate and assign a mark to selected elements.
 
           - name: Remove Existing Mark
             command: RemoveMarkCommand
             icon: RemoveMark
+            tooltip: Clear the mark value from selected elements.
 
   # ============================================================
   # MODEL PANEL
@@ -424,7 +484,7 @@ panels:
           - name: Roof Framing
             command: RoofFramingCommand
             icon: RoofFraming
-            tooltip: Generate purlins and rafters on roof/slab faces.
+            tooltip: Generate purlins and rafters on roof or slab faces.
 
       # --- Column 2 ---
       - type: stacked
@@ -437,17 +497,17 @@ panels:
               - name: X-Brace
                 command: XBraceCommand
                 icon: XBrace
-                tooltip: Create crossed structural bracing.
+                tooltip: Create crossed (X) diagonal bracing between two columns.
               
               - name: K-Brace
                 command: KBraceCommand
                 icon: KBrace
-                tooltip: Create K-shaped (V-shaped) bracing with apex.
+                tooltip: Create K-shaped bracing with a central apex point.
 
               - name: H-Frame
                 command: HFrameCommand
                 icon: HFrame
-                tooltip: Create parallel horizontal braces (multi-brace).
+                tooltip: Create parallel horizontal braces spanning multiple bays.
 
   # ============================================================
   # GENERAL PANEL
@@ -459,6 +519,7 @@ panels:
         name: Quick Pick
         icon: Pick
         command: PickElementsCommand
+        tooltip: Quickly select elements by type, category, or parameter value.
 
       # --- Column 2 ---
       - type: stacked
@@ -466,26 +527,33 @@ panels:
           - type: pulldown
             name: Allow Join
             icon: AllowJoin
+            tooltip: Allow geometry joining on selected elements or entire view.
             buttons:
               - name: Allow Join (Selection)
                 command: AllowJoinCommand
                 icon: AllowJoin
+                tooltip: Allow geometry join on selected elements.
               - name: Allow Join (View)
                 command: AllowJoinAllCommand
                 icon: AllowJoinAll
+                tooltip: Allow geometry join on all elements in the active view.
           - type: pulldown
             name: Disallow Join
             icon: DisAllowJoin
+            tooltip: Prevent geometry joining on selected elements or entire view.
             buttons:
               - name: Disallow Join (Selection)
                 command: DisAllowJoinCommand
                 icon: DisAllowJoin
+                tooltip: Disallow geometry join on selected elements.
               - name: Disallow Join (View)
                 command: DisAllowJoinAllCommand
                 icon: DisAllowJoinAll
+                tooltip: Disallow geometry join on all elements in the active view.
           - name: Beam Reset
             command: BeamResetCommand
             icon: BeamReset
+            tooltip: Reset beam start/end extensions and justification to defaults.
 
       # --- Column 3 ---
       - type: stacked
@@ -493,13 +561,15 @@ panels:
           - name: Join Geometry
             command: JoinUnjoinGeometryCommand
             icon: JoinUnjoin
+            tooltip: Toggle join/unjoin geometry between two selected elements.
           - name: Cut Geometry
             command: CutGeometryCommand
             icon: CutGeo
-            tooltip: Select ONE element (beam/column/etc) and cut all intersecting elements by it.
+            tooltip: Use one element to cut all intersecting elements in its path.
           - name: Flip Elements
             command: FlipElementsCommand
             icon: Flip
+            tooltip: Flip the facing or orientation of selected elements.
 
       # --- Column 4 ---
       - type: stacked
@@ -507,26 +577,33 @@ panels:
           - name: Transfer Templates
             command: TransferTemplatesCommand
             icon: TransferTemplates
+            tooltip: Copy view templates from one project to another.
           - type: pulldown
             name: View Filters
             icon: ViewFilters
+            tooltip: Copy view filters or create a filter legend.
             buttons:
               - name: Copy Filters
                 command: ViewFiltersCopyCommand
                 icon: ViewFiltersCopy
+                tooltip: Copy view filters from one view to selected views.
               - name: Filters Legend
                 command: ViewFiltersLegendCommand
                 icon: ViewFiltersLegend
+                tooltip: Generate a legend showing all filter colors and rules.
           - type: pulldown
             name: Toggle Grids
             icon: ToggleGrids
+            tooltip: Toggle grid bubble visibility or switch grids between 2D and 3D.
             buttons:
               - name: Toggle All Grids
                 command: ToggleAllGridsCommand
                 icon: ToggleAllGrids
+                tooltip: Show or hide all grid lines in the active view.
               - name: Grid 3D & 2D
                 command: Grid3D2DCommand
                 icon: Grid3D2D
+                tooltip: Switch selected grids between 3D and 2D extents.
 
       # --- Column 5 ---
       - type: stacked
@@ -534,38 +611,49 @@ panels:
           - name: Rotate Multiple
             command: ElementsRotateMultipleCommand
             icon: ElementsRotateMultiple
+            tooltip: Rotate multiple selected elements by a specified angle.
           - type: pulldown
             name: Filled Regions
             icon: FilledRegions
+            tooltip: Tools for merging, converting, or styling filled regions.
             buttons:
               - name: Merge Regions
                 command: MergeRegionsCommand
                 icon: MergeRegions
+                tooltip: Merge multiple overlapping filled regions into one.
               - name: Regions -> Floors
                 command: RegionsToFloorsCommand
                 icon: RegionsToFloors
+                tooltip: Convert filled regions to floor elements.
               - name: Regions -> Ceilings
                 command: RegionsToCeilingsCommand
                 icon: RegionsToCeilings
+                tooltip: Convert filled regions to ceiling elements.
               - name: Change LineStyle
                 command: RegionChangeLineStyleCommand
                 icon: RegionChangeLineStyle
+                tooltip: Change the line style of selected filled region boundaries.
           - type: pulldown
             name: Walls
             icon: Walls
+            tooltip: Adjust wall top and base constraints.
             buttons:
               - name: Match Top
                 command: WallMatchTopCommand
                 icon: WallMatchTop
+                tooltip: Match the top constraint of selected walls to a reference wall.
               - name: Match Base
                 command: WallMatchBaseCommand
                 icon: WallMatchBase
+                tooltip: Match the base constraint of selected walls to a reference wall.
               - name: Match Both
                 command: WallMatchBothCommand
                 icon: WallMatchBoth
+                tooltip: Match both top and base constraints to a reference wall.
               - name: Modify Constraints
                 command: ModifyWallConstraintsCommand
                 icon: ModifyWallConstraints
+                tooltip: Manually set the top and base constraints for selected walls.
 
   # ============================================================
   # ANTIGRAVITY PANEL
@@ -578,15 +666,14 @@ panels:
           - name: Hardware ID
             command: GetHardwareIdCommand
             icon: HardwareID
-            tooltip: Copy machine ID for license activation.
+            tooltip: Copy your machine ID for license activation.
 
           - name: License Status
             command: LicensedCommand
             icon: LicenseStatus
-            tooltip: Check current license activation status.
+            tooltip: Check the current license activation status.
 
           - name: Inspect Resources
             command: InspectResourcesCommand
             icon: InspectResources
-            tooltip: Debug tool to list embedded resources.
-
+            tooltip: List embedded resources (debug use).

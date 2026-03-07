@@ -282,6 +282,35 @@ namespace antiGGGravity.Views.Rebar
             }
         }
 
+        private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (QtyGrid.ItemsSource is DataView view)
+            {
+                string filterText = SearchBox.Text.Trim().Replace("'", "''");
+                if (string.IsNullOrEmpty(filterText))
+                {
+                    view.RowFilter = "";
+                }
+                else
+                {
+                    // Filter by HostMark, but keep summary rows (which usually have empty or specific text)
+                    // Or we can just filter by HostMark and accept that totals might disappear if they don't match
+                    // Usually better to keep totals if possible, but RowFilter 
+                    // applies to all rows in the view.
+                    view.RowFilter = $"[HostMark] LIKE '%{filterText}%' OR [HostMark] = '' OR [HostMark] = 'Total Length (m)' OR [HostMark] = 'Total Weight (kg)'";
+                }
+                
+                // Update status with visible count
+                if (_currentResult != null)
+                {
+                    int visibleRows = view.Count;
+                    // Subtracting 3 for the summary rows (separator, Total Length, Total Weight) if they exist
+                    int dataRows = Math.Max(0, visibleRows - 3);
+                    StatusText.Text = $"Filtered: {dataRows} of {_currentResult.Rows.Count} host marks  •  Total: {_currentResult.GrandTotalWeightKg:N1} kg";
+                }
+            }
+        }
+
         private void CalcInput_Changed(object sender, TextChangedEventArgs e)
         {
             if (!IsLoaded) return; 
