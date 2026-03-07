@@ -1,0 +1,3 @@
+C:\Users\DELL\source\repos\antiGGGravity\Commands\General\AutoDimension\DimFailureSwallower.cs(30,61): error CS1503: Argument 1: cannot convert from 'System.Collections.Generic.ICollection<Autodesk.Revit.DB.ElementId>' to 'System.Collections.Generic.IList<Autodesk.Revit.DB.ElementId>' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_tyzwrfqg_wpftmp.csproj]
+C:\Users\DELL\source\repos\antiGGGravity\Commands\General\AutoDimension\DimFailureSwallower.cs(30,61): error CS1503: Argument 1: cannot convert from 'System.Collections.Generic.ICollection<Autodesk.Revit.DB.ElementId>' to 'System.Collections.Generic.IList<Autodesk.Revit.DB.ElementId>' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_tyzwrfqg_wpftmp.csproj]
+    1 Error(s)

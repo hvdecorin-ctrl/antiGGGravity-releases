@@ -655,6 +655,14 @@ panels:
                 icon: ModifyWallConstraints
                 tooltip: Manually set the top and base constraints for selected walls.
 
+      # --- Column 6 ---
+      - type: stacked
+        buttons:
+          - name: Auto Dims
+            command: AutoDimensionCommand
+            icon: AutoDims
+            tooltip: Auto-dimension grids, walls, columns, and foundations in the current plan view.
+
   # ============================================================
   # ANTIGRAVITY PANEL
   # ============================================================
