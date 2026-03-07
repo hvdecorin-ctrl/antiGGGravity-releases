@@ -64,7 +64,7 @@ namespace antiGGGravity.Commands.General.AutoDimension
                 var segs = dim.Segments;
                 if (segs != null && segs.Size > 0)
                 {
-                    double outwardGap = MmToFt(4.0 * scale); // Reduced to 4mm as requested
+                    double outwardGap = MmToFt(5.0 * scale); // Increased to 5mm as requested
 
                     int smallCount = 0;
                     for (int i = 0; i < segs.Size; i++)
@@ -119,7 +119,7 @@ namespace antiGGGravity.Commands.General.AutoDimension
                 XYZ dimMid = dim.Origin;
                 if (dimMid == null) return;
 
-                double offsetAlong = MmToFt(9.0 * scale);
+                double offsetAlong = MmToFt(5.0 * scale); // Decreased to 5mm as requested
                 dim.TextPosition = new XYZ(
                     dimMid.X + direction.X * offsetAlong,
                     dimMid.Y + direction.Y * offsetAlong,
@@ -129,6 +129,210 @@ namespace antiGGGravity.Commands.General.AutoDimension
             }
             catch { }
         }
+
+        /// <summary>Audits dimensions for overlaps and fixes them by shifting the entire dimension line.</summary>
+        public static void AuditAndFixDimensions(Document doc, View view, IList<Dimension> dims)
+        {
+            int scale;
+            try { scale = view.Scale; } catch { scale = 100; }
+
+            // Margins - use very tight tolerances to move only what is absolutely clashing
+            double marginFt = MmToFt(0.5 * scale); // 0.5mm physical margin
+            double shiftStepFt = MmToFt(2.5 * scale); // 2.5mm physical shift step
+
+            // Collect host elements
+            var hostZones = new List<(XYZ min, XYZ max)>();
+            var collector = new FilteredElementCollector(doc, view.Id)
+                .WhereElementIsNotElementType()
+                .WherePasses(new LogicalOrFilter(new List<ElementFilter>
+                {
+                    new ElementCategoryFilter(BuiltInCategory.OST_StructuralColumns),
+                    new ElementCategoryFilter(BuiltInCategory.OST_StructuralFoundation),
+                    new ElementCategoryFilter(BuiltInCategory.OST_Walls)
+                }));
+            
+            foreach (var e in collector)
+            {
+                BoundingBoxXYZ bb = e.get_BoundingBox(view);
+                if (bb != null)
+                {
+                    hostZones.Add((new XYZ(bb.Min.X, bb.Min.Y, 0), new XYZ(bb.Max.X, bb.Max.Y, 0)));
+                }
+            }
+
+            // Collect Dim Info
+            var dimInfos = new List<DimAuditInfo>();
+            foreach (var dim in dims)
+            {
+                if (dim.Curve is not Line line) continue;
+                XYZ dir = line.Direction.Normalize();
+                bool isHorizontal = Math.Abs(dir.X) > Math.Abs(dir.Y);
+                XYZ outward = isHorizontal ? new XYZ(0, 1, 0) : new XYZ(1, 0, 0);
+
+                var texts = new List<(XYZ min, XYZ max)>();
+                
+                if (dim.Segments != null && dim.Segments.Size > 0)
+                {
+                    for (int i = 0; i < dim.Segments.Size; i++)
+                    {
+                        var seg = dim.Segments.get_Item(i);
+                        if (seg.Value == null || !seg.IsTextPositionAdjustable()) continue;
+
+                        double valFt = seg.Value.Value;
+                        string textStr = Math.Round(FtToMm(valFt)).ToString();
+                        double widthDist = MmToFt((textStr.Length * 1.5 + 2.0) * scale) / 2.0;
+                        double heightDist = MmToFt(3.0 * scale) / 2.0;
+                        
+                        XYZ pos = seg.TextPosition;
+                        texts.Add((new XYZ(pos.X - widthDist, pos.Y - heightDist, 0), 
+                                   new XYZ(pos.X + widthDist, pos.Y + heightDist, 0)));
+                    }
+                }
+                else
+                {
+                    if (dim.Value != null && dim.IsTextPositionAdjustable())
+                    {
+                        double valFt = dim.Value.Value;
+                        string textStr = Math.Round(FtToMm(valFt)).ToString();
+                        double widthDist = MmToFt((textStr.Length * 1.5 + 2.0) * scale) / 2.0;
+                        double heightDist = MmToFt(3.0 * scale) / 2.0;
+
+                        XYZ pos = dim.TextPosition;
+                        texts.Add((new XYZ(pos.X - widthDist, pos.Y - heightDist, 0), 
+                                   new XYZ(pos.X + widthDist, pos.Y + heightDist, 0)));
+                    }
+                }
+                
+                if (texts.Count > 0)
+                {
+                    XYZ lineStart, lineEnd;
+                    if (line.IsBound)
+                    {
+                        lineStart = line.GetEndPoint(0);
+                        lineEnd = line.GetEndPoint(1);
+                    }
+                    else
+                    {
+                        // Unbound curve – use the dimension's bounding box instead
+                        BoundingBoxXYZ dbb = dim.get_BoundingBox(view);
+                        if (dbb != null)
+                        {
+                            lineStart = dbb.Min;
+                            lineEnd = dbb.Max;
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                    }
+                    dimInfos.Add(new DimAuditInfo { Dim = dim, IsHorizontal = isHorizontal, Outward = outward, Texts = texts, LineStart = lineStart, LineEnd = lineEnd });
+                }
+            }
+
+            bool Overlap(XYZ min1, XYZ max1, XYZ min2, XYZ max2, double margin)
+            {
+                return (max1.X + margin) >= (min2.X - margin) && (max2.X + margin) >= (min1.X - margin) &&
+                       (max1.Y + margin) >= (min2.Y - margin) && (max2.Y + margin) >= (min1.Y - margin);
+            }
+
+            bool HasClash(DimAuditInfo info, XYZ shift)
+            {
+                var movedTexts = info.Texts.Select(t => (min: t.min + shift, max: t.max + shift)).ToList();
+                var movedLineMin = new XYZ(Math.Min(info.LineStart.X, info.LineEnd.X) + shift.X, Math.Min(info.LineStart.Y, info.LineEnd.Y) + shift.Y, 0);
+                var movedLineMax = new XYZ(Math.Max(info.LineStart.X, info.LineEnd.X) + shift.X, Math.Max(info.LineStart.Y, info.LineEnd.Y) + shift.Y, 0);
+
+                // Check vs Hosts
+                foreach (var text in movedTexts)
+                {
+                    foreach (var host in hostZones)
+                    {
+                        if (Overlap(text.min, text.max, host.min, host.max, marginFt)) return true;
+                    }
+                }
+
+                // Check vs other dims
+                foreach (var other in dimInfos)
+                {
+                    if (other == info) continue;
+
+                    // other texts
+                    foreach (var myText in movedTexts)
+                    {
+                        foreach (var otherText in other.Texts)
+                        {
+                            if (Overlap(myText.min, myText.max, otherText.min, otherText.max, marginFt)) return true;
+                        }
+                        
+                        // my text vs other line
+                        var otherLineMin = new XYZ(Math.Min(other.LineStart.X, other.LineEnd.X), Math.Min(other.LineStart.Y, other.LineEnd.Y), 0);
+                        var otherLineMax = new XYZ(Math.Max(other.LineStart.X, other.LineEnd.X), Math.Max(other.LineStart.Y, other.LineEnd.Y), 0);
+                        if (Overlap(myText.min, myText.max, otherLineMin, otherLineMax, marginFt)) return true;
+                    }
+
+                    // other texts vs my line
+                    foreach (var otherText in other.Texts)
+                    {
+                        if (Overlap(otherText.min, otherText.max, movedLineMin, movedLineMax, marginFt)) return true;
+                    }
+                }
+                
+                return false;
+            }
+
+            foreach (var info in dimInfos)
+            {
+                if (HasClash(info, XYZ.Zero))
+                {
+                    // Find a shift to resolve
+                    XYZ bestShift = XYZ.Zero;
+                    bool found = false;
+
+                    // Try expanding steps 1 to 20
+                    for (int step = 1; step <= 20; step++)
+                    {
+                        XYZ shiftPlus = info.Outward * step * shiftStepFt;
+                        if (!HasClash(info, shiftPlus))
+                        {
+                            bestShift = shiftPlus;
+                            found = true;
+                            break;
+                        }
+                        
+                        XYZ shiftMinus = -info.Outward * step * shiftStepFt;
+                        if (!HasClash(info, shiftMinus))
+                        {
+                            bestShift = shiftMinus;
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (found)
+                    {
+                        try
+                        {
+                            ElementTransformUtils.MoveElement(doc, info.Dim.Id, bestShift);
+                            // Update info
+                            info.LineStart += bestShift;
+                            info.LineEnd += bestShift;
+                            info.Texts = info.Texts.Select(t => (min: t.min + bestShift, max: t.max + bestShift)).ToList();
+                        }
+                        catch { }
+                    }
+                }
+            }
+        }
+
+        class DimAuditInfo
+        {
+            public Dimension Dim { get; set; }
+            public bool IsHorizontal { get; set; }
+            public XYZ Outward { get; set; }
+            public List<(XYZ min, XYZ max)> Texts { get; set; }
+            public XYZ LineStart { get; set; }
+            public XYZ LineEnd { get; set; }
+        }
+
 
         // =====================================================================
         // LINE-POINT CONSTRUCTION

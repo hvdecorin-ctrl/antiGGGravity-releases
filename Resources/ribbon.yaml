@@ -658,10 +658,20 @@ panels:
       # --- Column 6 ---
       - type: stacked
         buttons:
-          - name: Auto Dims
-            command: AutoDimensionCommand
+          - type: pulldown
+            name: Auto Dims
             icon: AutoDims
-            tooltip: Auto-dimension grids, walls, columns, and foundations in the current plan view.
+            tooltip: Dimensioning tools.
+            buttons:
+              - name: Auto Dims
+                command: AutoDimensionCommand
+                icon: AutoDims
+                tooltip: Auto-dimension grids, walls, columns, and foundations in the current plan view.
+              
+              - name: Dim Audit
+                command: DimAuditCommand
+                icon: DimAudit
+                tooltip: Find and fix overlapping or unreadable dimensions in the active view.
 
   # ============================================================
   # ANTIGRAVITY PANEL

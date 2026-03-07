@@ -263,7 +263,7 @@ namespace antiGGGravity.Commands.General.AutoDimension
                     var ei = elements[i]; var ej = elements[j];
                     double dx = Math.Max(0, Math.Max(ei.MinX, ej.MinX) - Math.Min(ei.MaxX, ej.MaxX));
                     double dy = Math.Max(0, Math.Max(ei.MinY, ej.MinY) - Math.Min(ei.MaxY, ej.MaxY));
-                    if (dx < threshold && dy < threshold) Union(i, j);
+                    if (dx < threshold && dy < threshold && ei.Category == ej.Category) Union(i, j);
                 }
             }
 
