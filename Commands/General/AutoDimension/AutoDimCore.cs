@@ -64,7 +64,7 @@ namespace antiGGGravity.Commands.General.AutoDimension
                 var segs = dim.Segments;
                 if (segs != null && segs.Size > 0)
                 {
-                    double outwardGap = MmToFt(6.0 * scale);
+                    double outwardGap = MmToFt(4.0 * scale); // Reduced to 4mm as requested
 
                     int smallCount = 0;
                     for (int i = 0; i < segs.Size; i++)
@@ -82,15 +82,16 @@ namespace antiGGGravity.Commands.General.AutoDimension
 
                         if (!seg.IsTextPositionAdjustable()) continue;
 
-                        var tp = seg.TextPosition;
-                        if (tp == null) continue;
+                        // Midpoint Baseline: Reset text to the midpoint of its segment
+                        // for perfectly consistent outcomes across all segments.
+                        XYZ segMid = seg.Origin;
+                        if (segMid == null) continue;
 
-                        // Move outward with stagger: 1x, 2x, 3x gap for consecutive small segs
                         double gapMultiplier = 1.0 + smallCount;
                         seg.TextPosition = new XYZ(
-                            tp.X + outward.X * outwardGap * gapMultiplier,
-                            tp.Y + outward.Y * outwardGap * gapMultiplier,
-                            tp.Z);
+                            segMid.X + outward.X * outwardGap * gapMultiplier,
+                            segMid.Y + outward.Y * outwardGap * gapMultiplier,
+                            segMid.Z);
 
                         anyDisplaced = true;
                         smallCount++;
@@ -114,14 +115,15 @@ namespace antiGGGravity.Commands.General.AutoDimension
                 if (FtToMm(val.Value) >= textWidthMm) return;
                 if (!dim.IsTextPositionAdjustable()) return;
 
-                var tp = dim.TextPosition;
-                if (tp == null) return;
+                // Midpoint baseline for single dimension
+                XYZ dimMid = dim.Origin;
+                if (dimMid == null) return;
 
                 double offsetAlong = MmToFt(9.0 * scale);
                 dim.TextPosition = new XYZ(
-                    tp.X + direction.X * offsetAlong,
-                    tp.Y + direction.Y * offsetAlong,
-                    tp.Z);
+                    dimMid.X + direction.X * offsetAlong,
+                    dimMid.Y + direction.Y * offsetAlong,
+                    dimMid.Z);
 
                 try { dim.HasLeader = false; } catch { }
             }
