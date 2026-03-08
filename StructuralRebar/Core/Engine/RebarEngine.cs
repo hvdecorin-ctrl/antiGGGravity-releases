@@ -70,7 +70,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
             double transDia = 0;
             if (!string.IsNullOrEmpty(request.TransverseBarTypeName))
                 transDia = GetBarDiameter(request.TransverseBarTypeName);
-            double minLayerGap = UnitConversion.MmToFeet(20);
+            double minLayerGap = (request.LayerGap > 0) ? request.LayerGap : UnitConversion.MmToFeet(25);
 
             var firstBeam = hostList[0].beam;
             var firstHost = hostList[0].host;
@@ -308,7 +308,9 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                     });
                 }
 
-                topZ -= (barDia + minLayerGap);
+                // Effective clear gap: at least the user setting, but not less than the bar diameter (code requirement for db > 25mm)
+                double effectiveGap = Math.Max(minLayerGap, barDia);
+                topZ -= (barDia + effectiveGap);
                 topLayerIdx++;
             }
 
@@ -380,7 +382,9 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                     });
                 }
 
-                botZ += (barDia + minLayerGap);
+                // Effective clear gap: at least the user setting, but not less than the bar diameter (code requirement for db > 25mm)
+                double effectiveGap = Math.Max(minLayerGap, barDia);
+                botZ += (barDia + effectiveGap);
                 botLayerIdx++;
             }
 
@@ -649,7 +653,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
             if (!string.IsNullOrEmpty(request.TransverseBarTypeName))
                 transDia = GetBarDiameter(request.TransverseBarTypeName);
 
-            double minLayerGap = UnitConversion.MmToFeet(20);
+            double minLayerGap = (request.LayerGap > 0) ? request.LayerGap : UnitConversion.MmToFeet(25);
 
             if (host.IsSlanted)
                 ProcessSlantedBeam(host, beam, request, transDia, minLayerGap, definitions);
@@ -706,10 +710,18 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                         host, request.TransverseBarTypeName, transDia,
                         request.TransverseSpacing, request.TransverseStartOffset,
                         request.TransverseHookStartName, request.TransverseHookEndName,
-                        zMin, zMax);
+                    zMin, zMax);
                     definitions.Add(stirrupDef);
                 }
             }
+
+            // Determine end column extensions (longitudinal bars extend to far face of end supports)
+            double startExtension = FindSupportExtension(_doc, host.StartPoint, -host.LAxis);
+            double endExtension = FindSupportExtension(_doc, host.EndPoint, host.LAxis);
+
+            // Full longitudinal bar length and origin for this beam element
+            XYZ barOriginPt = host.StartPoint - host.LAxis * startExtension;
+            double barTotalLen = host.Length + startExtension + endExtension;
 
             // Top layers
             double topZ = zMax - host.CoverTop - transDia;
@@ -724,8 +736,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                 double z = topZ - barDia / 2.0;
 
                 // Check if bar needs splitting — stagger laps between layers
-                double barLen = host.Length - 2 * host.CoverOther;
-var segments = request.EnableLapSplice 
+                double barLen = barTotalLen - 2 * host.CoverOther;
+                var segments = request.EnableLapSplice 
                     ? LapSpliceCalculator.SplitBeamBarForLap(barLen, barDia, request.DesignCode, isTopBar: true, layerIndex: topLayerIdx)
                     : new List<(double Start, double End)> { (0.0, barLen) };
 
@@ -735,8 +747,8 @@ var segments = request.EnableLapSplice
                     double innerOffset = host.CoverOther + transDia;
                     double distWidthSeg = host.Width - 2 * innerOffset;
 
-                    XYZ s = host.StartPoint + host.LAxis * (host.CoverOther + seg.Start);
-                    XYZ e = host.StartPoint + host.LAxis * (host.CoverOther + seg.End);
+                    XYZ s = barOriginPt + host.LAxis * (host.CoverOther + seg.Start);
+                    XYZ e = barOriginPt + host.LAxis * (host.CoverOther + seg.End);
                     XYZ barStart = new XYZ(s.X, s.Y, z) - host.WAxis * (distWidthSeg / 2.0);
                     XYZ barEnd = new XYZ(e.X, e.Y, z) - host.WAxis * (distWidthSeg / 2.0);
 
@@ -747,8 +759,9 @@ var segments = request.EnableLapSplice
                         // Cranked bar: straight at offset → angled 1:6 → straight at main
                         double crankOff = LapSpliceCalculator.GetCrankOffset(barDia);
                         double crankRun = LapSpliceCalculator.GetCrankRun(barDia);
-                        double lapLen = LapSpliceCalculator.CalculateTensionLapLength(barDia, request.DesignCode);
-                        double straightLap = lapLen + crankRun; // entire overlap at offset, crank outside
+                        double lapLen = LapSpliceCalculator.CalculateTensionLapLength(barDia, request.DesignCode, request.Grade, antiGGGravity.StructuralRebar.Constants.SteelGrade.Grade500E, antiGGGravity.StructuralRebar.Constants.BarPosition.Top);
+                        // Add 2x barDia visual allowance so the crank bend radius physically matches the straight bar tip
+                        double straightLap = lapLen + crankRun + barDia * 2.0;
 
                         XYZ crankDir = -host.HAxis; // Top bars offset downward (into beam)
 
@@ -792,7 +805,9 @@ var segments = request.EnableLapSplice
                     definitions.Add(segDef);
                 }
 
-                topZ -= (barDia + minLayerGap);
+                // Effective clear gap: at least the user setting, but not less than the bar diameter (code requirement for db > 25mm)
+                double effectiveGap = Math.Max(minLayerGap, barDia);
+                topZ -= (barDia + effectiveGap);
                 topLayerIdx++;
             }
 
@@ -809,16 +824,16 @@ var segments = request.EnableLapSplice
                 double z = botZ + barDia / 2.0;
 
                 // Check if bar needs splitting — stagger laps between layers
-                double barLen = host.Length - 2 * host.CoverOther;
-var segments = request.EnableLapSplice 
+                double barLen = barTotalLen - 2 * host.CoverOther;
+                var segments = request.EnableLapSplice 
                     ? LapSpliceCalculator.SplitBeamBarForLap(barLen, barDia, request.DesignCode, isTopBar: false, layerIndex: botLayerIdx)
                     : new List<(double Start, double End)> { (0.0, barLen) };
 
                 for (int si = 0; si < segments.Count; si++)
                 {
                     var seg = segments[si];
-                    XYZ s = host.StartPoint + host.LAxis * (host.CoverOther + seg.Start);
-                    XYZ e = host.StartPoint + host.LAxis * (host.CoverOther + seg.End);
+                    XYZ s = barOriginPt + host.LAxis * (host.CoverOther + seg.Start);
+                    XYZ e = barOriginPt + host.LAxis * (host.CoverOther + seg.End);
                     double innerOffset = host.CoverOther + transDia;
                     double distWidthSeg = host.Width - 2 * innerOffset;
                     XYZ barStart = new XYZ(s.X, s.Y, z) - host.WAxis * (distWidthSeg / 2.0);
@@ -831,8 +846,9 @@ var segments = request.EnableLapSplice
                         // Cranked bar: straight at offset → angled 1:6 → straight at main
                         double crankOff = LapSpliceCalculator.GetCrankOffset(barDia);
                         double crankRun = LapSpliceCalculator.GetCrankRun(barDia);
-                        double lapLen = LapSpliceCalculator.CalculateTensionLapLength(barDia, request.DesignCode);
-                        double straightLap = lapLen + crankRun; // entire overlap at offset, crank outside
+                        double lapLen = LapSpliceCalculator.CalculateTensionLapLength(barDia, request.DesignCode, request.Grade, antiGGGravity.StructuralRebar.Constants.SteelGrade.Grade500E, antiGGGravity.StructuralRebar.Constants.BarPosition.Bottom);
+                        // Add 2x barDia visual allowance so the crank bend radius physically matches the straight bar tip
+                        double straightLap = lapLen + crankRun + barDia * 2.0;
 
                         XYZ crankDir = host.HAxis; // Bottom bars offset upward (into beam)
 
@@ -876,7 +892,9 @@ var segments = request.EnableLapSplice
                     definitions.Add(segDef);
                 }
 
-                botZ += (barDia + minLayerGap);
+                // Effective clear gap: at least the user setting, but not less than the bar diameter (code requirement for db > 25mm)
+                double effectiveGap = Math.Max(minLayerGap, barDia);
+                botZ += (barDia + effectiveGap);
                 botLayerIdx++;
             }
 
@@ -892,7 +910,7 @@ var segments = request.EnableLapSplice
                 double availableHeight = sideZTop - sideZBot;
                 double rowSpacing = availableHeight / (rows + 1);
 
-                double barLen = host.Length - 2 * host.CoverOther;
+                double barLen = barTotalLen - 2 * host.CoverOther;
 
                 // Side bars use generic stock-length splitting only (no code-based lap zones)
                 var segments = (request.EnableLapSplice && barLen > LapSpliceCalculator.MaxStockLengthFt)
@@ -910,8 +928,8 @@ var segments = request.EnableLapSplice
                     for (int si = 0; si < segments.Count; si++)
                     {
                         var seg = segments[si];
-                        XYZ s = host.StartPoint + host.LAxis * (host.CoverOther + seg.Start);
-                        XYZ e = host.StartPoint + host.LAxis * (host.CoverOther + seg.End);
+                        XYZ s = barOriginPt + host.LAxis * (host.CoverOther + seg.Start);
+                        XYZ e = barOriginPt + host.LAxis * (host.CoverOther + seg.End);
 
                         // Position bar at near side — FixedCount=2 distributes to both faces
                         XYZ barStart = new XYZ(s.X, s.Y, z) - host.WAxis * (distWidth / 2.0);
@@ -923,8 +941,9 @@ var segments = request.EnableLapSplice
                         {
                             double crankOff = LapSpliceCalculator.GetCrankOffset(sideDia);
                             double crankRun = LapSpliceCalculator.GetCrankRun(sideDia);
-                            double lapLen = LapSpliceCalculator.CalculateTensionLapLength(sideDia, request.DesignCode);
-                            double straightLap = lapLen + crankRun;
+                            double lapLen = LapSpliceCalculator.CalculateTensionLapLength(sideDia, request.DesignCode, antiGGGravity.StructuralRebar.Constants.ConcreteGrade.C30, antiGGGravity.StructuralRebar.Constants.SteelGrade.Grade500E, antiGGGravity.StructuralRebar.Constants.BarPosition.Other);
+                            // Add 2x barDia visual allowance
+                            double straightLap = lapLen + crankRun + sideDia * 2.0;
 
                             XYZ crankDir = host.HAxis; // Offset upward for side bars
                             XYZ ptA = barStart + crankDir * crankOff;

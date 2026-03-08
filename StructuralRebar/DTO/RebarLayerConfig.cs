@@ -59,6 +59,9 @@ namespace antiGGGravity.StructuralRebar.DTO
         /// <summary>Custom hook length (feet). Used when OverrideHookLength is true.</summary>
         public double HookLengthOverride { get; set; }
 
+        /// <summary>If true, bar runs full beam length (continuous). If false, bar is an additional bar placed in specific zones (hogging/sagging).</summary>
+        public bool IsContinuous { get; set; } = true;
+
         /// <summary>Resolved diameter (feet) — calculated by engine.</summary>
         public double BarDiameter_Backing { get; set; }
     }

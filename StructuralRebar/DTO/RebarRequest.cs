@@ -173,5 +173,8 @@ namespace antiGGGravity.StructuralRebar.DTO
         public string SideRebarTypeName { get; set; }
         /// <summary>Number of rows per side face.</summary>
         public int SideRebarRows { get; set; }
+
+        /// <summary>Vertical clear gap between multiple rebar layers (T1/T2, B1/B2) (feet).</summary>
+        public double LayerGap { get; set; }
     }
 }

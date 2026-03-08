@@ -200,7 +200,7 @@ namespace antiGGGravity.Views.Overrides
             var collector = new FilteredElementCollector(_doc, _doc.ActiveView.Id)
                 .OfCategoryId(cat.Id);
 
-            Dictionary<string, int> counts = new Dictionary<string, int>();
+            Dictionary<string, (int Count, double Internal)> data = new Dictionary<string, (int, double)>();
 
             foreach (Element e in collector)
             {
@@ -219,6 +219,7 @@ namespace antiGGGravity.Views.Overrides
 
                 if (p == null) continue;
 
+                double internalVal = (p.StorageType == StorageType.Double) ? p.AsDouble() : 0;
                 string val = p.AsValueString() ?? p.AsString();
                 
                 if (val == null)
@@ -231,13 +232,20 @@ namespace antiGGGravity.Views.Overrides
                 
                 if (string.IsNullOrEmpty(val)) val = "<empty>";
 
-                if (counts.ContainsKey(val)) counts[val]++;
-                else counts[val] = 1;
+                if (data.ContainsKey(val)) 
+                {
+                    var existing = data[val];
+                    data[val] = (existing.Count + 1, existing.Internal);
+                }
+                else 
+                {
+                    data[val] = (1, internalVal);
+                }
             }
 
-            foreach (var kvp in counts)
+            foreach (var kvp in data)
             {
-                Values.Add(new ValueItem { Value = kvp.Key, Count = kvp.Value, ColorBrush = Brushes.Gray });
+                Values.Add(new ValueItem { Value = kvp.Key, Count = kvp.Value.Count, DoubleValue = kvp.Value.Internal, ColorBrush = Brushes.Gray });
             }
             
             RandomizeColors();
@@ -337,6 +345,7 @@ namespace antiGGGravity.Views.Overrides
     public class ValueItem : System.ComponentModel.INotifyPropertyChanged
     {
         public string Value { get; set; }
+        public double DoubleValue { get; set; }
         public int Count { get; set; }
         
         private SolidColorBrush _colorBrush;

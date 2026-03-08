@@ -338,9 +338,7 @@ namespace antiGGGravity.Views.Overrides
                             FilterRule rule = null;
                             if (paramItem.StorageType == StorageType.Double)
                             {
-                                double val = 0;
-                                double.TryParse(valItem.Value, out val);
-                                rule = ParameterFilterRuleFactory.CreateEqualsRule(paramId, val, 0.001);
+                                rule = ParameterFilterRuleFactory.CreateEqualsRule(paramId, valItem.DoubleValue, 0.001);
                             }
                             else if (paramItem.StorageType == StorageType.ElementId)
                             {

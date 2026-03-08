@@ -398,73 +398,87 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             {
                 Width = wallW,
                 Height = wallH,
-                Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(30, 30, 30)),
-                StrokeThickness = 3,
-                Fill = new SolidColorBrush(System.Windows.Media.Color.FromArgb(50, 200, 200, 200))
+                Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x99, 0x99, 0x99)),
+                StrokeThickness = 1.5,
+                Fill = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0xE8, 0xEB, 0xEF)),
+                RadiusX = 2,
+                RadiusY = 2
             };
             Canvas.SetLeft(wallRect, left);
             Canvas.SetTop(wallRect, top);
             UI_CrossSectionCanvas.Children.Add(wallRect);
 
-            // Rebar params (Original layout)
-            double cover = 8; // visual cover
-            double dotSize = 8;
+            // Rebar params length
+            double cover = 10; // visual cover
+            double dotRadius = 4.5;
             
-            // Highlight colors for dots and lines
-            var vertBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(220, 20, 60)); // Highlight Red
-            var horizBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(50, 100, 150)); // Highlight Blue
+            // Highlight colors matching Column canvas style
+            var rebarBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x4A, 0x70, 0x8B)); // Blue
+            var rebarStroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x33, 0x55, 0x77)); // Dark Blue
 
             // Helper to draw a line of vertical bars and horizontal link
-            void DrawFace(double xPos)
+            // horizOffset: relative X shift for the horizontal line so it sits outside the vertical bars
+            void DrawFace(double vertX, double horizX)
             {
                 // Horizontal bar (represented as a vertical line segment)
                 var horizLine = new System.Windows.Shapes.Line
                 {
-                    X1 = xPos,
+                    X1 = horizX,
                     Y1 = top + cover,
-                    X2 = xPos,
+                    X2 = horizX,
                     Y2 = top + wallH - cover,
-                    Stroke = horizBrush,
-                    StrokeThickness = 2
+                    Stroke = rebarBrush,
+                    StrokeThickness = 1.2
                 };
                 UI_CrossSectionCanvas.Children.Add(horizLine);
 
                 // Vertical bars (dots)
                 int numDots = 6;
-                double spacing = (wallH - 2 * cover) / (numDots - 1);
+                
+                // Shift first and last dots inward so their edges don't extend past the horizontal line
+                double startY = top + cover + dotRadius; 
+                double endY = top + wallH - cover - dotRadius;
+                double spacing = (endY - startY) / (numDots - 1);
 
                 for (int i = 0; i < numDots; i++)
                 {
                     var dot = new System.Windows.Shapes.Ellipse
                     {
-                        Width = dotSize,
-                        Height = dotSize,
-                        Fill = vertBrush
+                        Width = dotRadius * 2,
+                        Height = dotRadius * 2,
+                        Fill = rebarBrush,
+                        Stroke = rebarStroke,
+                        StrokeThickness = 0.8
                     };
-                    Canvas.SetLeft(dot, xPos - dotSize / 2);
-                    Canvas.SetTop(dot, top + cover + (i * spacing) - dotSize / 2);
+                    Canvas.SetLeft(dot, vertX - dotRadius);
+                    Canvas.SetTop(dot, startY + (i * spacing) - dotRadius);
                     UI_CrossSectionCanvas.Children.Add(dot);
                 }
             }
 
+            double gap = 4; // visual gap between vertical and horizontal layers
             if (config == "Both Faces")
             {
-                // External face (right side in section usually, or just pick a side)
-                DrawFace(left + wallW - cover - dotSize / 2);
-                // Internal face (left side)
-                DrawFace(left + cover + dotSize / 2);
+                // External face (right side: horizontal outside, vertical inside)
+                double rightVertX = left + wallW - cover - dotRadius - gap;
+                DrawFace(rightVertX, rightVertX + dotRadius + gap);
+                // Internal face (left side: horizontal outside, vertical inside)
+                double leftVertX = left + cover + dotRadius + gap;
+                DrawFace(leftVertX, leftVertX - dotRadius - gap);
             }
             else if (config == "Centre")
             {
-                DrawFace(cx);
+                DrawFace(cx + gap, cx - gap);
             }
             else if (config == "External Face")
             {
-                DrawFace(left + wallW - cover - dotSize / 2);
+                double rightVertX = left + wallW - cover - dotRadius - gap;
+                DrawFace(rightVertX, rightVertX + dotRadius + gap);
             }
             else if (config == "Internal Face")
             {
-                DrawFace(left + cover + dotSize / 2);
+                double leftVertX = left + cover + dotRadius + gap;
+                DrawFace(leftVertX, leftVertX - dotRadius - gap);
             }
         }
 
