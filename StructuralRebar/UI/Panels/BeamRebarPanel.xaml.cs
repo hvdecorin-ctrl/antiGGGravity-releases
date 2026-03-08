@@ -115,6 +115,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 UI_Radio_StirrupEQ.IsChecked = !(UI_Radio_StirrupUnEQ.IsChecked == true);
 
                 UI_Check_SideRebar.IsChecked = SettingsManager.GetBool(VIEW_NAME, "SideRebarEnabled", false);
+                UI_Check_MultiSpan.IsChecked = SettingsManager.GetBool(VIEW_NAME, "MultiSpanEnabled", false);
                 UI_Text_SideRows.Text = SettingsManager.Get(VIEW_NAME, "SideRows", "2");
                 SelectByName(UI_Combo_SideType, SettingsManager.Get(VIEW_NAME, "SideType"));
 
@@ -163,6 +164,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 SettingsManager.Set(VIEW_NAME, "BotHookLength", UI_Text_BotHookLength.Text);
 
                 SettingsManager.Set(VIEW_NAME, "SideRebarEnabled", (UI_Check_SideRebar.IsChecked == true).ToString());
+                SettingsManager.Set(VIEW_NAME, "MultiSpanEnabled", (UI_Check_MultiSpan.IsChecked == true).ToString());
                 SettingsManager.Set(VIEW_NAME, "SideRows", UI_Text_SideRows.Text);
                 SettingsManager.Set(VIEW_NAME, "SideType", TransTypeName(UI_Combo_SideType));
 
@@ -254,6 +256,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 TransverseHookStartName = HookName(UI_Combo_HookStart),
                 TransverseHookEndName = HookName(UI_Combo_HookEnd),
                 EnableZoneSpacing = (UI_Radio_StirrupUnEQ.IsChecked == true),
+                MultiSpan = (UI_Check_MultiSpan.IsChecked == true),
                 EnableLapSplice = false, // Set by window/handler now
             };
 

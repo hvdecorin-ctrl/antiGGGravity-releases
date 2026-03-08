@@ -116,8 +116,25 @@ namespace antiGGGravity.StructuralRebar.Core
             request.EnableLapSplice = _window.EnableLapSplice;
             request.DesignCode = _window.DesignCode;
             var engine = new RebarEngine(doc);
-            var (processed, total) = engine.GenerateBeamRebar(beams, request);
-            return $"Successfully reinforced {processed} of {total} beams.";
+
+            if (request.MultiSpan)
+            {
+                var continuousBeams = Geometry.BeamSpanResolver.GroupSelectedBeams(beams);
+                int totalProcessed = 0;
+                int totalBeamsAtSpans = 0;
+                foreach (var spanList in continuousBeams)
+                {
+                    var (processed, total) = engine.GenerateContinuousBeamRebar(spanList, request);
+                    totalProcessed += processed;
+                    totalBeamsAtSpans += total;
+                }
+                return $"Successfully reinforced {totalProcessed} of {totalBeamsAtSpans} beams across {continuousBeams.Count} span group(s).";
+            }
+            else
+            {
+                var (processed, total) = engine.GenerateBeamRebar(beams, request);
+                return $"Successfully reinforced {processed} of {total} beams.";
+            }
         }
 
         private string ProcessWalls(UIDocument uidoc, Document doc)

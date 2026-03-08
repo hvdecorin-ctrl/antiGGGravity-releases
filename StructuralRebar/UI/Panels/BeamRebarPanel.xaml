@@ -190,6 +190,16 @@
 
         <!-- RIGHT COLUMN: STIRRUPS & RULE OFFSETS -->
         <StackPanel Grid.Column="2">
+            <!-- MULTI-SPAN -->
+            <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#E8E8E8" BorderThickness="1" Padding="15" Margin="0,0,0,15">
+                <StackPanel>
+                    <TextBlock Text="Continuous Beams" FontSize="12" FontWeight="SemiBold" Foreground="#4A759C" Margin="0,0,0,12"/>
+                    <CheckBox x:Name="UI_Check_MultiSpan" Content="Multi-Span (Continuous)" FontSize="12" Foreground="#333" FontWeight="SemiBold" Margin="0,0,0,8"
+                               ToolTip="Group selected beams into continuous spans. Top bars will bridge internal supports."/>
+                    <TextBlock Text="Group selected beams by direction and endpoints." FontSize="10" Foreground="#999" TextWrapping="Wrap" FontStyle="Italic"/>
+                </StackPanel>
+            </Border>
+
             <!-- STIRRUPS / LINKS -->
             <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#E8E8E8" BorderThickness="1" Padding="15" Margin="0,0,0,15">
                 <StackPanel>

@@ -159,6 +159,13 @@ namespace antiGGGravity.StructuralRebar.DTO
         public double TopBotTopOffset { get; set; }
         public double TopBotBotOffset { get; set; }
 
+        // === MULTI-SPAN BEAMS ===
+        /// <summary>Whether to process multiple selected beams as a single continuous unit.</summary>
+        public bool MultiSpan { get; set; }
+
+        /// <summary>Individual per-span configurations for continuous beams.</summary>
+        public List<SpanRebarConfig> SpanConfigs { get; set; } = new();
+
         // === SIDE REBAR (Skin Reinforcement for Beams) ===
         /// <summary>Whether to add side/skin reinforcement bars.</summary>
         public bool EnableSideRebar { get; set; }

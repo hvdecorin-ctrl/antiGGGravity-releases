@@ -32,6 +32,496 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
             return GenerateRebarInternal(beams, request, "Generate Beam Rebar");
         }
 
+        public (int Processed, int Total) GenerateContinuousBeamRebar(
+            List<FamilyInstance> spans, RebarRequest request)
+        {
+            int processedCount = 0;
+            using (Transaction t = new Transaction(_doc, "Generate Continuous Beam Rebar"))
+            {
+                t.Start();
+                try
+                {
+                    if (ProcessContinuousBeam(spans, request))
+                        processedCount = spans.Count;
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"RebarEngine: Continuous beam failed: {ex.Message}");
+                }
+                t.Commit();
+            }
+            return (processedCount, spans.Count);
+        }
+
+        private bool ProcessContinuousBeam(List<FamilyInstance> spans, RebarRequest request)
+        {
+            if (spans == null || spans.Count == 0) return false;
+
+            // Read geometry for all span beams
+            var hostList = new List<(FamilyInstance beam, HostGeometry host)>();
+            foreach (var span in spans)
+            {
+                var host = BeamGeometryModule.Read(_doc, span);
+                if (host.Length <= 0 || host.Width <= 0 || host.Height <= 0) continue;
+                hostList.Add((span, host));
+            }
+            if (hostList.Count == 0) return false;
+
+            double transDia = 0;
+            if (!string.IsNullOrEmpty(request.TransverseBarTypeName))
+                transDia = GetBarDiameter(request.TransverseBarTypeName);
+            double minLayerGap = UnitConversion.MmToFeet(20);
+
+            var firstBeam = hostList[0].beam;
+            var firstHost = hostList[0].host;
+            var lastHost = hostList[hostList.Count - 1].host;
+
+            // === FIND TRUE OVERALL BEAM ENDPOINTS ===
+            // Project all endpoints onto the first beam's LAxis to find the absolute extremes.
+            // This prevents issues if chained beams were drawn in opposite directions.
+            XYZ refDir = firstHost.LAxis;
+            XYZ refPt = firstHost.StartPoint;
+            
+            XYZ trueStartPt = refPt;
+            XYZ trueEndPt = refPt;
+            double minProj = double.MaxValue;
+            double maxProj = double.MinValue;
+
+            foreach (var (_, host) in hostList)
+            {
+                double p1 = (host.StartPoint - refPt).DotProduct(refDir);
+                double p2 = (host.EndPoint - refPt).DotProduct(refDir);
+                
+                if (p1 < minProj) { minProj = p1; trueStartPt = host.StartPoint; }
+                if (p2 < minProj) { minProj = p2; trueStartPt = host.EndPoint; }
+                if (p1 > maxProj) { maxProj = p1; trueEndPt = host.StartPoint; }
+                if (p2 > maxProj) { maxProj = p2; trueEndPt = host.EndPoint; }
+            }
+
+            XYZ continuousDir = (trueEndPt - trueStartPt).Normalize();
+            if (continuousDir.IsZeroLength()) continuousDir = firstHost.LAxis;
+
+            // === DETECT ALL SUPPORTS & CLEAR SPANS ===
+            // Scan the entire continuous axis from trueStartPt to trueEndPt
+            var excludeIds = hostList.Select(x => x.beam.Id).ToList();
+            var allSupports = BeamSpanResolver.FindSupportsAlongLine(_doc, trueStartPt, trueEndPt, firstHost.Width, excludeIds);
+
+            // Determine end column extensions (bar extends to far face of end supports)
+            // Use FindSupportExtension for BOTH single and multi-beam to accurately find far faces from cutback endpoints
+            double startExtension = FindSupportExtension(_doc, trueStartPt, -continuousDir);
+            double endExtension = FindSupportExtension(_doc, trueEndPt, continuousDir);
+
+            // The full continuous bar origin and length (including extensions into end columns)
+            XYZ barOriginPt = trueStartPt - continuousDir * startExtension;
+            double totalLength = trueStartPt.DistanceTo(trueEndPt) + startExtension + endExtension;
+
+            // Calculate clear spans natively for the entire continuous axis
+            var clearSpans = new List<(double Start, double End)>();
+            var intermediates = allSupports.Where(s => !s.IsEndSupport).OrderBy(s => s.CenterOffset).ToList();
+            
+            // Note: FindSupportsAlongLine offsets are relative to lineStart (trueStartPt)
+            // Absolute coordinates relative to barOriginPt are offset + startExtension
+            double prevEnd = startExtension;
+            foreach (var sup in intermediates)
+            {
+                // Verify the support actually cuts through the beam logic
+                double currentStart = startExtension + sup.NearFaceOffset;
+                if (currentStart > prevEnd) clearSpans.Add((prevEnd, currentStart));
+                prevEnd = startExtension + sup.FarFaceOffset;
+            }
+            double finalEnd = totalLength - endExtension;
+            if (finalEnd > prevEnd) clearSpans.Add((prevEnd, finalEnd));
+
+            // Failsafe if spans are somehow crushed
+            if (clearSpans.Count == 0) clearSpans.Add((startExtension, totalLength - endExtension));
+
+            // === 1. PER-SPAN STIRRUPS ===
+            // Delete existing rebar for ALL host elements to prevent duplicates
+            if (request.RemoveExisting)
+            {
+                foreach (var (b, _) in hostList) _creationService.DeleteExistingRebar(b);
+            }
+
+            if (!string.IsNullOrEmpty(request.TransverseBarTypeName))
+            {
+                double zMin = firstHost.SolidZMin;
+                double zMax = firstHost.SolidZMax;
+                double stW = firstHost.Width - 2 * firstHost.CoverOther;
+                double stH = firstHost.Height - firstHost.CoverTop - firstHost.CoverBottom;
+                double hCenterOff = (firstHost.CoverBottom - firstHost.CoverTop) / 2.0;
+
+                var spanDefs = new List<RebarDefinition>();
+
+                foreach (var spanBound in clearSpans)
+                {
+                    double spanLen = spanBound.End - spanBound.Start;
+                    if (spanLen <= UnitConversion.MmToFeet(100)) continue;
+
+                    double offset = request.TransverseStartOffset;
+                    if (offset > spanLen / 3.0) offset = spanLen / 6.0;
+
+                    if (request.EnableZoneSpacing)
+                    {
+                        var zones = ZoneSpacingCalculator.CalculateBeamZones(
+                            spanLen, firstHost.Height, request.TransverseSpacing,
+                            offset, request.DesignCode);
+
+                        foreach (var zone in zones)
+                        {
+                            double arrLen = zone.EndOffset - zone.StartOffset;
+                            if (arrLen <= 0 || zone.Spacing <= 0) continue;
+
+                            XYZ xyOrigin = barOriginPt + continuousDir * (spanBound.Start + zone.StartOffset);
+                            XYZ stirrupOrigin = new XYZ(xyOrigin.X, xyOrigin.Y, (zMax + zMin) / 2.0);
+                            var curves = StirrupLayoutGenerator.CreateStirrupLoopFlat(
+                                stirrupOrigin, firstHost.WAxis, stW, stH, hCenterOff);
+
+                            spanDefs.Add(new RebarDefinition
+                            {
+                                Curves = curves,
+                                Style = Autodesk.Revit.DB.Structure.RebarStyle.StirrupTie,
+                                BarTypeName = request.TransverseBarTypeName,
+                                BarDiameter = transDia,
+                                Spacing = zone.Spacing,
+                                ArrayLength = arrLen,
+                                ArrayDirection = firstHost.LAxis,
+                                Normal = firstHost.LAxis,
+                                HookStartName = request.TransverseHookStartName,
+                                HookEndName = request.TransverseHookEndName,
+                                Label = $"Stirrup ({zone.Label})"
+                            });
+                        }
+                    }
+                    else
+                    {
+                        // Uniform spacing per virtual span
+                        XYZ xyOrigin = barOriginPt + continuousDir * (spanBound.Start + offset);
+                        XYZ stirrupOrigin = new XYZ(xyOrigin.X, xyOrigin.Y, (zMax + zMin) / 2.0);
+                        var curves = StirrupLayoutGenerator.CreateStirrupLoopFlat(
+                            stirrupOrigin, firstHost.WAxis, stW, stH, hCenterOff);
+
+                        double arrLen = spanLen - 2 * offset;
+                        if (arrLen > 0)
+                        {
+                            spanDefs.Add(new RebarDefinition
+                            {
+                                Curves = curves,
+                                Style = Autodesk.Revit.DB.Structure.RebarStyle.StirrupTie,
+                                BarTypeName = request.TransverseBarTypeName,
+                                BarDiameter = transDia,
+                                Spacing = request.TransverseSpacing,
+                                ArrayLength = arrLen,
+                                ArrayDirection = firstHost.LAxis,
+                                Normal = firstHost.LAxis,
+                                HookStartName = request.TransverseHookStartName,
+                                HookEndName = request.TransverseHookEndName,
+                                Label = "Stirrup"
+                            });
+                        }
+                    }
+                }
+
+                if (spanDefs.Count > 0)
+                    _creationService.PlaceRebar(firstBeam, spanDefs);
+            }
+
+            // === 2. CONTINUOUS BARS (Top + Bottom + Side) ===
+            // All hosted on the first beam element for Revit ownership
+            var continuousDefs = new List<RebarDefinition>();
+            double innerOffset = firstHost.CoverOther + transDia;
+            double distWidth = firstHost.Width - 2 * innerOffset;
+
+            // Cover at each end (inside the support column far face)
+            double coverStart = firstHost.CoverOther;
+            double coverEnd = firstHost.CoverOther;
+            double barLen = totalLength - coverStart - coverEnd;
+
+            // Shift full clear spans relative to the bar's internal coordinate 0 (which starts at coverStart)
+            var shiftedSpans = clearSpans.Select(s => (s.Start - coverStart, s.End - coverStart)).ToList();
+
+            // --- 2a. CONTINUOUS TOP BARS (T1, T2) ---
+            double topZ = firstHost.SolidZMax - firstHost.CoverTop - transDia;
+            int topLayerIdx = 0;
+            foreach (var layer in request.Layers.Where(l =>
+                l.Face == RebarLayerFace.Exterior || l.VerticalOffset > 0))
+            {
+                double barDia = GetBarDiameter(layer.VerticalBarTypeName);
+                int count = (int)(layer.VerticalSpacing);
+                if (count < 1) continue;
+
+                double z = topZ - barDia / 2.0;
+
+                // Split into segments if bar exceeds stock length
+                var segments = request.EnableLapSplice
+                    ? LapSpliceCalculator.SplitContinuousBarForLap(barLen, barDia, request.DesignCode, true, topLayerIdx, shiftedSpans)
+                    : new List<(double Start, double End)> { (0.0, barLen) };
+
+                for (int si = 0; si < segments.Count; si++)
+                {
+                    var seg = segments[si];
+                    XYZ s = barOriginPt + continuousDir * (coverStart + seg.Start);
+                    XYZ e = barOriginPt + continuousDir * (coverStart + seg.End);
+                    XYZ barStart = new XYZ(s.X, s.Y, z) - firstHost.WAxis * (distWidth / 2.0);
+                    XYZ barEnd = new XYZ(e.X, e.Y, z) - firstHost.WAxis * (distWidth / 2.0);
+
+                    var curves = new List<Curve>();
+                    if (si > 0 && segments.Count > 1)
+                    {
+                        double crankOff = LapSpliceCalculator.GetCrankOffset(barDia);
+                        double crankRun = LapSpliceCalculator.GetCrankRun(barDia);
+                        double lapLen = LapSpliceCalculator.CalculateTensionLapLength(barDia, request.DesignCode, antiGGGravity.StructuralRebar.Constants.ConcreteGrade.C30, antiGGGravity.StructuralRebar.Constants.SteelGrade.Grade500E, antiGGGravity.StructuralRebar.Constants.BarPosition.Top);
+                        // Add 2x barDia visual allowance so the crank bend radius physically matches the straight bar tip
+                        double straightLap = lapLen + crankRun + barDia * 2.0;
+
+                        XYZ crankDir = -firstHost.HAxis;
+                        XYZ ptA = barStart + crankDir * crankOff;
+                        XYZ ptB = ptA + continuousDir * straightLap;
+                        XYZ ptC = barStart + continuousDir * (straightLap + crankRun);
+
+                        curves.Add(Line.CreateBound(ptA, ptB));
+                        curves.Add(Line.CreateBound(ptB, ptC));
+                        curves.Add(Line.CreateBound(ptC, barEnd));
+                    }
+                    else
+                    {
+                        curves.Add(Line.CreateBound(barStart, barEnd));
+                    }
+
+                    continuousDefs.Add(new RebarDefinition
+                    {
+                        Curves = curves,
+                        Style = Autodesk.Revit.DB.Structure.RebarStyle.Standard,
+                        BarTypeName = layer.VerticalBarTypeName,
+                        BarDiameter = barDia,
+                        FixedCount = count,
+                        DistributionWidth = distWidth,
+                        ArrayDirection = firstHost.WAxis,
+                        Normal = firstHost.WAxis,
+                        HookStartOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Left,
+                        HookEndOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Left,
+                        HookStartName = (seg.Start == 0) ? layer.HookStartName : null,
+                        HookEndName = (seg.End >= barLen - 0.001) ? layer.HookEndName : null,
+                        OverrideHookLength = layer.OverrideHookLength,
+                        HookLengthOverride = layer.HookLengthOverride,
+                        Label = segments.Count > 1 ? "Top Continuous (lapped)" : "Top Continuous",
+                        Comment = "Top Bar"
+                    });
+                }
+
+                topZ -= (barDia + minLayerGap);
+                topLayerIdx++;
+            }
+
+            // --- 2b. CONTINUOUS BOTTOM BARS (B1, B2) ---
+            double botZ = firstHost.SolidZMin + firstHost.CoverBottom + transDia;
+            int botLayerIdx = 0;
+            foreach (var layer in request.Layers.Where(l =>
+                l.Face == RebarLayerFace.Interior || l.VerticalOffset < 0))
+            {
+                double barDia = GetBarDiameter(layer.VerticalBarTypeName);
+                int count = (int)(layer.VerticalSpacing);
+                if (count < 1) continue;
+
+                double z = botZ + barDia / 2.0;
+
+                var segments = request.EnableLapSplice
+                    ? LapSpliceCalculator.SplitContinuousBarForLap(barLen, barDia, request.DesignCode, false, botLayerIdx, shiftedSpans)
+                    : new List<(double Start, double End)> { (0.0, barLen) };
+
+                for (int si = 0; si < segments.Count; si++)
+                {
+                    var seg = segments[si];
+                    XYZ s = barOriginPt + continuousDir * (coverStart + seg.Start);
+                    XYZ e = barOriginPt + continuousDir * (coverStart + seg.End);
+                    XYZ barStart = new XYZ(s.X, s.Y, z) - firstHost.WAxis * (distWidth / 2.0);
+                    XYZ barEnd = new XYZ(e.X, e.Y, z) - firstHost.WAxis * (distWidth / 2.0);
+
+                    var curves = new List<Curve>();
+                    if (si > 0 && segments.Count > 1)
+                    {
+                        double crankOff = LapSpliceCalculator.GetCrankOffset(barDia);
+                        double crankRun = LapSpliceCalculator.GetCrankRun(barDia);
+                        double lapLen = LapSpliceCalculator.CalculateTensionLapLength(barDia, request.DesignCode, antiGGGravity.StructuralRebar.Constants.ConcreteGrade.C30, antiGGGravity.StructuralRebar.Constants.SteelGrade.Grade500E, antiGGGravity.StructuralRebar.Constants.BarPosition.Bottom);
+                        // Add 2x barDia visual allowance so the crank bend radius physically matches the straight bar tip
+                        double straightLap = lapLen + crankRun + barDia * 2.0;
+
+                        XYZ crankDir = firstHost.HAxis;
+                        XYZ ptA = barStart + crankDir * crankOff;
+                        XYZ ptB = ptA + continuousDir * straightLap;
+                        XYZ ptC = barStart + continuousDir * (straightLap + crankRun);
+
+                        curves.Add(Line.CreateBound(ptA, ptB));
+                        curves.Add(Line.CreateBound(ptB, ptC));
+                        curves.Add(Line.CreateBound(ptC, barEnd));
+                    }
+                    else
+                    {
+                        curves.Add(Line.CreateBound(barStart, barEnd));
+                    }
+
+                    continuousDefs.Add(new RebarDefinition
+                    {
+                        Curves = curves,
+                        Style = Autodesk.Revit.DB.Structure.RebarStyle.Standard,
+                        BarTypeName = layer.VerticalBarTypeName,
+                        BarDiameter = barDia,
+                        FixedCount = count,
+                        DistributionWidth = distWidth,
+                        ArrayDirection = firstHost.WAxis,
+                        Normal = firstHost.WAxis,
+                        HookStartOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Right,
+                        HookEndOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Right,
+                        HookStartName = (seg.Start == 0) ? layer.HookStartName : null,
+                        HookEndName = (seg.End >= barLen - 0.001) ? layer.HookEndName : null,
+                        OverrideHookLength = layer.OverrideHookLength,
+                        HookLengthOverride = layer.HookLengthOverride,
+                        Label = segments.Count > 1 ? "Btm Continuous (lapped)" : "Btm Continuous",
+                        Comment = "Btm Bar"
+                    });
+                }
+
+                botZ += (barDia + minLayerGap);
+                botLayerIdx++;
+            }
+
+            // --- 2c. CONTINUOUS SIDE BARS (optional) ---
+            if (request.EnableSideRebar && request.SideRebarRows > 0 && !string.IsNullOrEmpty(request.SideRebarTypeName))
+            {
+                double sideDia = GetBarDiameter(request.SideRebarTypeName);
+                int rows = request.SideRebarRows;
+
+                double sideZTop = firstHost.SolidZMax - firstHost.CoverTop - transDia - sideDia;
+                double sideZBot = firstHost.SolidZMin + firstHost.CoverBottom + transDia + sideDia;
+                double availableHeight = sideZTop - sideZBot;
+                double rowSpacing = availableHeight / (rows + 1);
+
+                for (int row = 1; row <= rows; row++)
+                {
+                    double z = sideZBot + rowSpacing * row;
+
+                    XYZ s = barOriginPt + continuousDir * coverStart;
+                    XYZ e = barOriginPt + continuousDir * (coverStart + barLen);
+                    XYZ barStart = new XYZ(s.X, s.Y, z) - firstHost.WAxis * (distWidth / 2.0);
+                    XYZ barEnd = new XYZ(e.X, e.Y, z) - firstHost.WAxis * (distWidth / 2.0);
+
+                    continuousDefs.Add(new RebarDefinition
+                    {
+                        Curves = new List<Curve> { Line.CreateBound(barStart, barEnd) },
+                        Style = Autodesk.Revit.DB.Structure.RebarStyle.Standard,
+                        BarTypeName = request.SideRebarTypeName,
+                        BarDiameter = sideDia,
+                        FixedCount = 2,
+                        DistributionWidth = distWidth,
+                        ArrayDirection = firstHost.WAxis,
+                        Normal = firstHost.WAxis,
+                        Label = $"Side Bar R{row} (continuous)",
+                        Comment = "Side Bar"
+                    });
+                }
+            }
+
+            // Place all continuous bars on the first beam host
+            if (continuousDefs.Count > 0)
+                _creationService.PlaceRebar(firstBeam, continuousDefs);
+
+            return true;
+        }
+
+        /// <summary>
+        /// Finds the extension distance from a beam endpoint to the far face of the
+        /// supporting column or wall at that point. Searches along the given direction.
+        /// Returns 0 if no support is found.
+        /// </summary>
+        private double FindSupportExtension(Document doc, XYZ beamEndPoint, XYZ searchDir)
+        {
+            double tolerance = UnitConversion.MmToFeet(100); // 100mm search radius
+
+            // Search for columns near the beam endpoint
+            var columns = new FilteredElementCollector(doc)
+                .OfCategory(BuiltInCategory.OST_StructuralColumns)
+                .OfClass(typeof(FamilyInstance))
+                .Cast<FamilyInstance>()
+                .ToList();
+
+            foreach (var col in columns)
+            {
+                BoundingBoxXYZ bbox = col.get_BoundingBox(null);
+                if (bbox == null) continue;
+
+                // Check if beam endpoint is near the column (XY proximity)
+                XYZ colCenter = (bbox.Min + bbox.Max) / 2.0;
+                double dx = Math.Abs(beamEndPoint.X - colCenter.X);
+                double dy = Math.Abs(beamEndPoint.Y - colCenter.Y);
+                double halfW = (bbox.Max.X - bbox.Min.X) / 2.0;
+                double halfD = (bbox.Max.Y - bbox.Min.Y) / 2.0;
+
+                if (dx > halfW + tolerance || dy > halfD + tolerance) continue;
+
+                // Found a column at this beam end — compute distance to far face
+                // Project the bounding box onto the search direction
+                XYZ[] corners = {
+                    new XYZ(bbox.Min.X, bbox.Min.Y, 0),
+                    new XYZ(bbox.Max.X, bbox.Min.Y, 0),
+                    new XYZ(bbox.Max.X, bbox.Max.Y, 0),
+                    new XYZ(bbox.Min.X, bbox.Max.Y, 0)
+                };
+
+                double maxProjection = double.MinValue;
+                XYZ beamEnd2D = new XYZ(beamEndPoint.X, beamEndPoint.Y, 0);
+                foreach (var corner in corners)
+                {
+                    double proj = (corner - beamEnd2D).DotProduct(searchDir);
+                    if (proj > maxProjection) maxProjection = proj;
+                }
+
+                // Extension = distance from beam face to far face of column
+                // (maxProjection is the distance from beam endpoint to the farthest column corner in the search direction)
+                if (maxProjection > 0)
+                    return maxProjection;
+            }
+
+            // Also search for walls
+            var walls = new FilteredElementCollector(doc)
+                .OfCategory(BuiltInCategory.OST_Walls)
+                .OfClass(typeof(Wall))
+                .Cast<Wall>()
+                .ToList();
+
+            foreach (var wall in walls)
+            {
+                BoundingBoxXYZ bbox = wall.get_BoundingBox(null);
+                if (bbox == null) continue;
+
+                XYZ wallCenter = (bbox.Min + bbox.Max) / 2.0;
+                double dx = Math.Abs(beamEndPoint.X - wallCenter.X);
+                double dy = Math.Abs(beamEndPoint.Y - wallCenter.Y);
+                double halfW = (bbox.Max.X - bbox.Min.X) / 2.0;
+                double halfD = (bbox.Max.Y - bbox.Min.Y) / 2.0;
+
+                if (dx > halfW + tolerance || dy > halfD + tolerance) continue;
+
+                XYZ[] corners = {
+                    new XYZ(bbox.Min.X, bbox.Min.Y, 0),
+                    new XYZ(bbox.Max.X, bbox.Min.Y, 0),
+                    new XYZ(bbox.Max.X, bbox.Max.Y, 0),
+                    new XYZ(bbox.Min.X, bbox.Max.Y, 0)
+                };
+
+                double maxProjection = double.MinValue;
+                XYZ beamEnd2D = new XYZ(beamEndPoint.X, beamEndPoint.Y, 0);
+                foreach (var corner in corners)
+                {
+                    double proj = (corner - beamEnd2D).DotProduct(searchDir);
+                    if (proj > maxProjection) maxProjection = proj;
+                }
+
+                if (maxProjection > 0)
+                    return maxProjection;
+            }
+
+            return 0; // No support found — stop at beam face
+        }
+
         public (int Processed, int Total) GenerateWallRebar(
             List<Wall> walls, RebarRequest request)
         {

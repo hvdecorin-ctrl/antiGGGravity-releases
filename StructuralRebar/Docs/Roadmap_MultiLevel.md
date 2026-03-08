@@ -33,7 +33,7 @@ A continuous beam spans across multiple columns. The rebar must:
 
 ## Roadmap: 3 Phases
 
-### Phase 1: Multi-Level Columns ⬅ Start Here
+### Phase 1: Multi-Level Columns ✅ COMPLETE
 **Complexity: Medium** | **Impact: High** | **Estimated effort: 3–5 sessions**
 
 This is the natural starting point because columns are geometrically simpler (prismatic) and the existing `ProcessColumn` already handles lap splicing and zone confinement.
@@ -72,7 +72,7 @@ This is the natural starting point because columns are geometrically simpler (pr
 
 ---
 
-### Phase 2: Multi-Level Walls
+### Phase 2: Multi-Level Walls ✅ COMPLETE
 **Complexity: Medium–High** | **Impact: High** | **Estimated effort: 4–6 sessions**
 
 Builds on Phase 1 patterns. Walls add the complication of varying lengths and connecting walls.
@@ -104,7 +104,7 @@ Builds on Phase 1 patterns. Walls add the complication of varying lengths and co
 
 ---
 
-### Phase 3: Multi-Span Beams
+### Phase 3: Multi-Span Beams ⬅ IN PROGRESS
 **Complexity: High** | **Impact: Very High** | **Estimated effort: 6–10 sessions**
 
 This is the most complex phase because each span may have different reinforcement requirements.
@@ -202,11 +202,11 @@ graph TB
 ## Recommended Order & Dependencies
 
 ```
-Phase 1: Multi-Level Columns     ← START HERE (simplest, builds foundation)
+Phase 1: Multi-Level Columns     ✅ COMPLETE
     ↓ (shares MultiLevelResolver, continuity patterns)
-Phase 2: Multi-Level Walls       ← Reuses Phase 1 infrastructure
+Phase 2: Multi-Level Walls       ✅ COMPLETE
     ↓ (independent, can be parallel)
-Phase 3: Multi-Span Beams        ← Most complex, can start after Phase 1
+Phase 3: Multi-Span Beams        ⬅ IN PROGRESS (3.1-3.4 done, 3.5 testing)
 ```
 
 ---

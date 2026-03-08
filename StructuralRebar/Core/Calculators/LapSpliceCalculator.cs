@@ -59,9 +59,9 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
         }
 
         /// <summary>
-        /// Maximum stock bar length in feet (11.5m — accounts for bend/hook extensions).
+        /// Maximum stock bar length in feet (11.7m — accounts for bend/hook extensions).
         /// </summary>
-        public static double MaxStockLengthFt => UnitConversion.MmToFeet(11500.0);
+        public static double MaxStockLengthFt => UnitConversion.MmToFeet(11700.0);
 
         /// <summary>
         /// Splits a main bar into segments when total length exceeds maxStockLength.
@@ -209,5 +209,156 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
         /// This gives the standard 1-in-6 slope.
         /// </summary>
         public static double GetCrankRun(double barDia) => 6.0 * barDia;
+
+        /// <summary>
+        /// Splits a continuous bar (multi-span or single long span) according to actual defined clear spans.
+        /// Top bars: splice INSIDE the middle L/3 zone of any span.
+        /// Bottom bars: splice INSIDE the support zones [L/5 of previous span ... L/5 of next span].
+        /// </summary>
+        public static List<(double Start, double End)> SplitContinuousBarForLap(
+            double totalLength, double barDia, DesignCodeStandard code,
+            bool isTopBar, int layerIndex, List<(double Start, double End)> clearSpans,
+            double maxStockLength = 0, double crankRun = 0)
+        {
+            BarPosition position = isTopBar ? BarPosition.Top : BarPosition.Bottom;
+            if (maxStockLength <= 0) maxStockLength = MaxStockLengthFt;
+            if (crankRun <= 0) crankRun = GetCrankRun(barDia);
+
+            var segments = new List<(double Start, double End)>();
+
+            if (totalLength <= maxStockLength)
+            {
+                segments.Add((0.0, totalLength));
+                return segments;
+            }
+
+            double lapLen = CalculateTensionLapLength(barDia, code, ConcreteGrade.C30, SteelGrade.Grade500E, position);
+            double totalOverlap = lapLen + crankRun;
+            double staggerOffset = (layerIndex % 2 == 1) ? 1.3 * lapLen + UnitConversion.MmToFeet(200) : 0.0;
+
+            // Define all valid zones along the absolute bar length (0 to totalLength)
+            var validZones = new List<(double ZStart, double ZEnd)>();
+
+            if (isTopBar)
+            {
+                foreach (var span in clearSpans)
+                {
+                    double L = span.End - span.Start;
+                    if (L <= 0) continue;
+                    validZones.Add((span.Start + L / 3.0, span.End - L / 3.0));
+                }
+            }
+            else
+            {
+                if (clearSpans.Count > 0)
+                {
+                    double firstL = clearSpans[0].End - clearSpans[0].Start;
+                    // First span: lap inside the L/5 near the first column (assuming it's an end column)
+                    validZones.Add((0.0, clearSpans[0].Start + firstL / 5.0));
+
+                    for (int i = 1; i < clearSpans.Count; i++)
+                    {
+                        var prevSpan = clearSpans[i - 1];
+                        var span = clearSpans[i];
+                        double Lprev = prevSpan.End - prevSpan.Start;
+                        double L = span.End - span.Start;
+
+                        // Instead of a single zone crossing the column, we must strictly separate them to avoid the column joint.
+                        // Zone 1: L/5 region IN the previous span, BEFORE the column face.
+                        validZones.Add((prevSpan.End - Lprev / 5.0, prevSpan.End));
+
+                        // Zone 2: L/5 region IN the current span, AFTER the column face.
+                        validZones.Add((span.Start, span.Start + L / 5.0));
+                    }
+
+                    var lastSpan = clearSpans[clearSpans.Count - 1];
+                    double lastL = lastSpan.End - lastSpan.Start;
+                    // Last span: lap inside the L/5 near the far end column
+                    validZones.Add((lastSpan.End - lastL / 5.0, totalLength));
+                }
+                else
+                {
+                    validZones.Add((0.0, totalLength));
+                }
+            }
+
+            double cursor = 0;
+            while (cursor < totalLength)
+            {
+                double targetMaxCut = cursor + maxStockLength;
+                if (targetMaxCut >= totalLength)
+                {
+                    segments.Add((cursor, totalLength));
+                    break;
+                }
+
+                double bestCut = -1;
+
+                // Iterate backwards through valid zones to find the furthest one we can safely reach
+                for (int i = validZones.Count - 1; i >= 0; i--)
+                {
+                    var z = validZones[i];
+                    
+                    // If this zone is completely out of reach, skip to an earlier one
+                    if (z.ZStart >= targetMaxCut) continue;
+
+                    // The ideal, safest cut is exactly in the center of the valid zone
+                    // We offset by (totalOverlap / 2) so the *entire splice* is centered in the zone.
+                    double actualCut = (z.ZStart + z.ZEnd) / 2.0 + (totalOverlap / 2.0);
+
+                    // If we can't safely stretch to the center, fall back to max stock length
+                    if (actualCut > targetMaxCut) actualCut = targetMaxCut;
+
+                    // Apply odd-layer stagger
+                    double cutWithStagger = actualCut - staggerOffset;
+                    
+                    // If stagger doesn't push the lap out of the zone, use it.
+                    // Otherwise, ignore stagger and keep it inside the zone to guarantee code compliance.
+                    if (cutWithStagger - totalOverlap >= z.ZStart)
+                    {
+                        actualCut = cutWithStagger;
+                    }
+
+                    // Enforce upper bounds (cannot cut beyond the zone or stock length)
+                    if (actualCut > z.ZEnd) actualCut = z.ZEnd;
+                    if (actualCut > targetMaxCut) actualCut = targetMaxCut;
+
+                    // Enforce lower bound for the entire lap length
+                    // If shifting the cut to the upper bound still leaves the lap hanging out the left side,
+                    // we shift the cut to the exact left edge needed to fit the lap.
+                    if (actualCut - totalOverlap < z.ZStart)
+                    {
+                        actualCut = z.ZStart + totalOverlap;
+                    }
+
+                    // Final code-compliance verification: does this cut fit perfectly inside the valid zone?
+                    // We MUST also verify it doesn't exceed targetMaxCut.
+                    if (actualCut <= targetMaxCut + 0.005 && actualCut <= z.ZEnd + 0.005 && (actualCut - totalOverlap) >= z.ZStart - 0.005) 
+                    {
+                        bestCut = actualCut;
+                        break;
+                    }
+                }
+
+                // A valid cut was found and meaningfully advances the cursor
+                if (bestCut > cursor + totalOverlap + UnitConversion.MmToFeet(100))
+                {
+                    // Strict Length Enforcement: We can NEVER exceed the absolute max stock length from the current cursor.
+                    if (bestCut > targetMaxCut) bestCut = targetMaxCut;
+
+                    segments.Add((cursor, bestCut));
+                    cursor = bestCut - totalOverlap;
+                }
+                else
+                {
+                    // Fallback if no zone is reachable within stock length (e.g. extremely long isolated spans)
+                    bestCut = targetMaxCut;
+                    segments.Add((cursor, bestCut));
+                    cursor = bestCut - totalOverlap;
+                }
+            }
+
+            return segments;
+        }
     }
 }
