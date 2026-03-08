@@ -10,4 +10,5 @@
 1. **DEFAULT**: Build the project using `dotnet build` WITHOUT the `DeployToRevit=true` property. This allows the user to debug using the Revit Add-In Manager.
 2. **DO NOT AUTO-DEPLOY**: Never automatically run a build with `DeployToRevit=true` unless the user explicitly asks to "deploy" or "install" the add-in.
 3. **DEBUGGING**: When the user asks to "build" or "check errors", always use a standard `dotnet build antiGGGravity.csproj -c Debug`.
-4. **EXCEPTION**: Only use `.agent/workflows/deploy.md` when the user confirms they are ready for a full deployment (which requires a Revit restart).
+4. **ITERATION**: For testing and building, always prefer Workflow A in `.agent/skills/revit_management/SKILL.md` (Add-In Manager).
+5. **REVIT MANAGEMENT SKILL**: Every agent MUST strictly follow `.agent/skills/revit_management/SKILL.md` for both Fast Testing and Full Deployment.
