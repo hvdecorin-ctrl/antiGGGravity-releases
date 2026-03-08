@@ -141,10 +141,17 @@ namespace antiGGGravity.StructuralRebar.Core
 
             if (request.EnableLapSplice)
             {
-                // Multi-level: resolve the full wall stack from the first selected wall
-                var stack = Geometry.MultiLevelResolver.FindWallStack(doc, walls.First());
-                var (processed, total) = engine.GenerateWallStackRebar(stack, request);
-                return $"Successfully reinforced {processed} walls across {total} levels.";
+                // Multi-level: group selected walls into separate stacks by XY midpoint
+                var stacks = Geometry.MultiLevelResolver.GroupIntoWallStacks(doc, walls);
+                int totalProcessed = 0;
+                int totalWalls = 0;
+                foreach (var stack in stacks)
+                {
+                    var (processed, total) = engine.GenerateWallStackRebar(stack, request);
+                    totalProcessed += processed;
+                    totalWalls += total;
+                }
+                return $"Successfully reinforced {totalProcessed} walls across {stacks.Count} stack(s), {totalWalls} levels.";
             }
             else
             {
@@ -174,10 +181,17 @@ namespace antiGGGravity.StructuralRebar.Core
 
             if (request.MultiLevel)
             {
-                // Multi-level: resolve the full column stack from the first selected column
-                var stack = Geometry.MultiLevelResolver.FindColumnStack(doc, columns.First());
-                var (processed, total) = engine.GenerateColumnStackRebar(stack, request);
-                return $"Successfully reinforced {processed} columns across {total} levels.";
+                // Multi-level: group selected columns into separate stacks by XY center
+                var stacks = Geometry.MultiLevelResolver.GroupIntoColumnStacks(doc, columns);
+                int totalProcessed = 0;
+                int totalColumns = 0;
+                foreach (var stack in stacks)
+                {
+                    var (processed, total) = engine.GenerateColumnStackRebar(stack, request);
+                    totalProcessed += processed;
+                    totalColumns += total;
+                }
+                return $"Successfully reinforced {totalProcessed} columns across {stacks.Count} stack(s), {totalColumns} levels.";
             }
             else
             {

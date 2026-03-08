@@ -37,6 +37,8 @@ namespace antiGGGravity.Commands.General.AutoDimension
         public double DepthFt { get; set; }
         /// <summary>Dominant axis: "x", "y", or null (roughly square)</summary>
         public string Dominant { get; set; }
+        /// <summary>True for round/circular foundations (piling); false for rectangular pad footings.</summary>
+        public bool IsRound { get; set; }
 
         // Face references populated by AutoDimReferences
         public List<(Reference Ref, double Coord)> FacesX { get; set; }
@@ -153,7 +155,12 @@ namespace antiGGGravity.Commands.General.AutoDimension
                     else if (catId == strFdnCatId && settings.DimFoundations)
                     {
                         var info = MakeBBox(e, "Foundation", view);
-                        if (info != null) elements.Add(info);
+                        if (info != null)
+                        {
+                            // Extract faces early so IsRound is set before clustering
+                            AutoDimReferences.ExtractAllFaces(info, view);
+                            elements.Add(info);
+                        }
                     }
                     else if (catId == strFrmCatId && settings.DimColumns)
                     {
@@ -263,7 +270,11 @@ namespace antiGGGravity.Commands.General.AutoDimension
                     var ei = elements[i]; var ej = elements[j];
                     double dx = Math.Max(0, Math.Max(ei.MinX, ej.MinX) - Math.Min(ei.MaxX, ej.MaxX));
                     double dy = Math.Max(0, Math.Max(ei.MinY, ej.MinY) - Math.Min(ei.MaxY, ej.MaxY));
-                    if (dx < threshold && dy < threshold && ei.Category == ej.Category) Union(i, j);
+                    // Don't cluster rectangular foundations (pad footings) — each gets individual dims
+                    bool isRectFoundation = (ei.Category == "Foundation" && !ei.IsRound)
+                                         || (ej.Category == "Foundation" && !ej.IsRound);
+                    if (dx < threshold && dy < threshold && ei.Category == ej.Category && !isRectFoundation)
+                        Union(i, j);
                 }
             }
 

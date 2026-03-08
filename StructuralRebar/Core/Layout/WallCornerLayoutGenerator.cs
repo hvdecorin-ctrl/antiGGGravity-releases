@@ -89,7 +89,8 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                     Style = RebarStyle.Standard,
                     BarTypeName = request.TrimmerBarTypeName,
                     Normal = adjNormal1,
-                    Label = "Wall Corner Trimmer"
+                    Label = "Wall Corner Trimmer",
+                    Comment = "Vert Corner"
                 });
             }
 
@@ -153,7 +154,8 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                         Style = RebarStyle.Standard,
                         BarTypeName = request.TrimmerBarTypeName,
                         Normal = normal1,
-                        Label = "Corner Trimmer (U)"
+                        Label = "Corner Trimmer (U)",
+                        Comment = "Vert Corner"
                     });
                 }
             }

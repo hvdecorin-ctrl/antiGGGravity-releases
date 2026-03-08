@@ -68,17 +68,48 @@ namespace antiGGGravity.StructuralRebar.Core.Geometry
         }
 
         /// <summary>
-        /// Finds all walls stacked at the same XY position (overlapping footprints),
-        /// sorted by base elevation (bottom to top).
+        /// Groups a list of selected columns into separate stacks based on
+        /// their XY center position. Each group contains columns
+        /// stacked vertically at the same plan position, sorted bottom→top.
+        /// Only includes columns that were actually selected.
         /// </summary>
-        /// <param name="doc">Revit document.</param>
-        /// <param name="wall">Any wall in the stack.</param>
-        /// <returns>Ordered list of walls from lowest to highest level.</returns>
+        public static List<List<FamilyInstance>> GroupIntoColumnStacks(Document doc, List<FamilyInstance> selectedColumns)
+        {
+            var stacks = new List<List<FamilyInstance>>();
+            var assigned = new HashSet<ElementId>();
+
+            foreach (var col in selectedColumns)
+            {
+                if (assigned.Contains(col.Id)) continue;
+
+                // Find the full stack for this column (may include unselected columns)
+                var fullStack = FindColumnStack(doc, col);
+
+                // Only keep columns that were selected by the user
+                var selectedIds = new HashSet<ElementId>(selectedColumns.Select(c => c.Id));
+                var filteredStack = fullStack.Where(c => selectedIds.Contains(c.Id)).ToList();
+
+                if (filteredStack.Count == 0) continue;
+
+                foreach (var c in filteredStack)
+                    assigned.Add(c.Id);
+
+                stacks.Add(filteredStack);
+            }
+
+            return stacks;
+        }
+
+        /// <summary>
+        /// Finds all walls stacked at the same XY location curve midpoint,
+        /// sorted by base elevation (bottom to top).
+        /// Uses midpoint matching instead of bounding box overlap so
+        /// adjacent side-by-side panels are NOT grouped together.
+        /// </summary>
         public static List<Wall> FindWallStack(Document doc, Wall wall)
         {
-            // Get the XY bounding box of the input wall
-            BoundingBoxXYZ refBBox = GetElementXYBoundingBox(wall);
-            if (refBBox == null) return new List<Wall> { wall };
+            XYZ refMid = GetWallXYMidpoint(wall);
+            if (refMid == null) return new List<Wall> { wall };
 
             // Collect all walls in the document
             var allWalls = new FilteredElementCollector(doc)
@@ -87,14 +118,16 @@ namespace antiGGGravity.StructuralRebar.Core.Geometry
                 .Cast<Wall>()
                 .ToList();
 
-            // Filter to walls that overlap in XY plane
+            // Filter to walls whose location-curve midpoint matches in XY
             var stack = new List<Wall>();
             foreach (var candidate in allWalls)
             {
-                BoundingBoxXYZ candidateBBox = GetElementXYBoundingBox(candidate);
-                if (candidateBBox == null) continue;
+                XYZ candidateMid = GetWallXYMidpoint(candidate);
+                if (candidateMid == null) continue;
 
-                if (DoBoundingBoxesOverlapXY(refBBox, candidateBBox, XY_TOLERANCE))
+                double dx = Math.Abs(refMid.X - candidateMid.X);
+                double dy = Math.Abs(refMid.Y - candidateMid.Y);
+                if (dx < XY_TOLERANCE && dy < XY_TOLERANCE)
                 {
                     stack.Add(candidate);
                 }
@@ -108,11 +141,42 @@ namespace antiGGGravity.StructuralRebar.Core.Geometry
                 return zA.CompareTo(zB);
             });
 
-            // Fallback: if nothing found, return just the input wall
             if (stack.Count == 0)
                 stack.Add(wall);
 
             return stack;
+        }
+
+        /// <summary>
+        /// Groups a list of selected walls into separate stacks based on
+        /// their location-curve XY midpoints. Each group contains walls
+        /// stacked vertically at the same plan position, sorted bottom→top.
+        /// </summary>
+        public static List<List<Wall>> GroupIntoWallStacks(Document doc, List<Wall> selectedWalls)
+        {
+            var stacks = new List<List<Wall>>();
+            var assigned = new HashSet<ElementId>();
+
+            foreach (var wall in selectedWalls)
+            {
+                if (assigned.Contains(wall.Id)) continue;
+
+                // Find the full stack for this wall (may include unselected walls at other levels)
+                var fullStack = FindWallStack(doc, wall);
+
+                // Only keep walls that were selected by the user
+                var selectedIds = new HashSet<ElementId>(selectedWalls.Select(w => w.Id));
+                var filteredStack = fullStack.Where(w => selectedIds.Contains(w.Id)).ToList();
+
+                if (filteredStack.Count == 0) continue;
+
+                foreach (var w in filteredStack)
+                    assigned.Add(w.Id);
+
+                stacks.Add(filteredStack);
+            }
+
+            return stacks;
         }
 
         /// <summary>
@@ -136,6 +200,18 @@ namespace antiGGGravity.StructuralRebar.Core.Geometry
                 double cy = (bbox.Min.Y + bbox.Max.Y) / 2.0;
                 return new XYZ(cx, cy, 0);
             }
+        }
+
+        /// <summary>
+        /// Gets the XY midpoint of a wall's location curve (Z flattened to 0).
+        /// </summary>
+        private static XYZ GetWallXYMidpoint(Wall wall)
+        {
+            LocationCurve loc = wall.Location as LocationCurve;
+            if (loc == null || !(loc.Curve is Line line)) return null;
+            XYZ p0 = line.GetEndPoint(0);
+            XYZ p1 = line.GetEndPoint(1);
+            return new XYZ((p0.X + p1.X) / 2.0, (p0.Y + p1.Y) / 2.0, 0);
         }
 
         private static double GetBaseElevation(Element element)

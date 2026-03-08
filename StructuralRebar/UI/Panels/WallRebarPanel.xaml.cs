@@ -236,7 +236,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                     ? UnitConversion.MmToFeet(ParseDouble(UI_Text_StarterBar.Text, 800))
                     : 0,
                 CrankPosition = (UI_Combo_CrankPos.SelectedItem as ComboBoxItem)?.Content.ToString() ?? "Lower Wall",
-                EnableStarterBars = true, // If length > 0 we assume it's wanted
+                EnableStarterBars = (UI_Check_StarterEnabled.IsChecked == true),
                 StarterBarTypeName = (UI_Combo_StarterType.SelectedItem as RebarBarType)?.Name,
                 StarterHookEndName = HookName(UI_Combo_StarterHookEnd),
 

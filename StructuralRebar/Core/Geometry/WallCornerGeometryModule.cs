@@ -49,7 +49,13 @@ namespace antiGGGravity.StructuralRebar.Core.Geometry
         {
             Curve c1 = (w1.Location as LocationCurve)?.Curve;
             Curve c2 = (w2.Location as LocationCurve)?.Curve;
-            if (c1 == null || c2 == null || !(c1 is Line) || !(c2 is Line)) return null;
+            if (c1 == null || c2 == null || !(c1 is Line line1) || !(c2 is Line line2)) return null;
+
+            // Skip parallel walls (e.g. stacked walls at different levels) — they can't form a corner
+            XYZ dir1 = new XYZ(line1.Direction.X, line1.Direction.Y, 0).Normalize();
+            XYZ dir2 = new XYZ(line2.Direction.X, line2.Direction.Y, 0).Normalize();
+            double dot = Math.Abs(dir1.DotProduct(dir2));
+            if (dot > 0.9) return null; // Parallel or nearly parallel
 
             XYZ p1_0 = c1.GetEndPoint(0);
             XYZ p1_1 = c1.GetEndPoint(1);

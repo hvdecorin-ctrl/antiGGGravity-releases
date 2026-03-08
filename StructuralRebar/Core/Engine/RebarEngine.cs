@@ -698,11 +698,17 @@ var segments = request.EnableLapSplice
                 if (request.Layers.Count > 0 && hDia > 0)
                 {
                     var layer = request.Layers[0]; // Use first layer template for params
+
+                    // If hooks are specified at an end, don't trim horizontal bars there —
+                    // the user wants bars (U-bars) extending to the wall face with hooks.
+                    double hStartCover = host.CoverOther + (string.IsNullOrEmpty(layer.HookStartName) ? startTrim : 0);
+                    double hEndCover = host.CoverOther + (string.IsNullOrEmpty(layer.HookEndName) ? endTrim : 0);
+
                     var horizDef = WallLayoutGenerator.CreateHorizontalBars(
                         host, layer.HorizontalBarTypeName, hDia,
                         layer.HorizontalSpacing, layer.TopOffset, layer.BottomOffset,
-                        host.CoverOther + startTrim,
-                        host.CoverOther + endTrim,
+                        hStartCover,
+                        hEndCover,
                         hOff,
                         layer.HookStartName, layer.HookEndName,
                         layer.HookStartOutward, layer.HookEndOutward);
@@ -1058,6 +1064,7 @@ var segments = request.EnableLapSplice
                             }
                             starterDef.Curves = starterCurves;
                             starterDef.Label = "Starter Bar";
+                            starterDef.Comment = "Starter Bar";
                             definitions.Add(starterDef);
                         }
                     }
@@ -1066,11 +1073,17 @@ var segments = request.EnableLapSplice
                     if (request.Layers.Count > 0 && hDia > 0)
                     {
                         var layer = request.Layers[0];
+
+                        // If hooks are specified at an end, don't trim horizontal bars there —
+                        // the user wants bars (U-bars) extending to the wall face with hooks.
+                        double hStartCover = host.CoverOther + (string.IsNullOrEmpty(layer.HookStartName) ? startTrim : 0);
+                        double hEndCover = host.CoverOther + (string.IsNullOrEmpty(layer.HookEndName) ? endTrim : 0);
+
                         var horizDef = WallLayoutGenerator.CreateHorizontalBars(
                             host, layer.HorizontalBarTypeName, hDia,
                             layer.HorizontalSpacing, layer.TopOffset, layer.BottomOffset,
-                            host.CoverOther + startTrim,
-                            host.CoverOther + endTrim,
+                            hStartCover,
+                            hEndCover,
                             hOff,
                             layer.HookStartName, layer.HookEndName,
                             layer.HookStartOutward, layer.HookEndOutward);

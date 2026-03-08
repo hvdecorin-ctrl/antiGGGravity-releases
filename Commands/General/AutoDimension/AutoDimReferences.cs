@@ -85,10 +85,15 @@ namespace antiGGGravity.Commands.General.AutoDimension
             ei.FacesX.Sort((a, b) => a.Item2.CompareTo(b.Item2));
             ei.FacesY.Sort((a, b) => a.Item2.CompareTo(b.Item2));
 
-            // For columns and foundations, ALWAYS get center references
+            // Detect round shape for foundations: round = no edge faces found
+            if (ei.Category == "Foundation")
+                ei.IsRound = ei.FacesX.Count < 2 || ei.FacesY.Count < 2;
+
+            // For columns (always) and round foundations (piling), get center references
             if (elem is FamilyInstance fi)
             {
-                bool forceCenter = ei.Category == "Column" || ei.Category == "Foundation";
+                bool forceCenter = ei.Category == "Column"
+                    || (ei.Category == "Foundation" && ei.IsRound);
                 if (forceCenter || ei.FacesX.Count < 2)
                 {
                     var cref = GetCenterRef(fi, "x");
@@ -112,8 +117,11 @@ namespace antiGGGravity.Commands.General.AutoDimension
         {
             if (ei.FacesX == null) ExtractAllFaces(ei, view);
 
-            // For columns and foundations, always prefer center dimensioning
-            if (ei.Category == "Column" || ei.Category == "Foundation")
+            // For columns, always prefer center dimensioning.
+            // For foundations, only use center if round (piling).
+            bool useCenterDim = ei.Category == "Column"
+                || (ei.Category == "Foundation" && ei.IsRound);
+            if (useCenterDim)
             {
                 var centerRef = axis == "x" ? ei.CenterRefX : ei.CenterRefY;
                 if (centerRef != null)
