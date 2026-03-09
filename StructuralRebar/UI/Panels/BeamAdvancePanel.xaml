@@ -1,0 +1,140 @@
+<UserControl x:Class="antiGGGravity.StructuralRebar.UI.Panels.BeamAdvancePanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" 
+             d:DesignHeight="700" d:DesignWidth="700">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="#F0F8FF" BorderBrush="#87CEFA" BorderThickness="1" CornerRadius="4" Padding="15" Margin="0,0,0,15">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock FontSize="20" Margin="0,0,15,0">🔍</TextBlock>
+                <StackPanel>
+                    <TextBlock Text="Analyze Continuous Beam" FontWeight="SemiBold" FontSize="14" Foreground="#333" Margin="0,0,0,4"/>
+                    <TextBlock Text="Click the button below and select a continuous beam structure in Revit to extract its physical spans and supports." 
+                               Foreground="#666" TextWrapping="Wrap" MaxWidth="500"/>
+                </StackPanel>
+                <Button x:Name="UI_Button_Analyze" Content="Select Beam" Margin="20,0,0,0" Width="120" Height="36"
+                        Background="White" BorderBrush="#ABADB3" BorderThickness="1" Cursor="Hand"
+                        Click="UI_Button_Analyze_Click" HorizontalAlignment="Right"/>
+            </StackPanel>
+        </Border>
+
+        <TextBlock x:Name="UI_Text_Status" Grid.Row="1" Text="No beam selected. Awaiting analysis." Foreground="#888" Margin="0,0,0,10" FontStyle="Italic"/>
+
+        <!-- Elevation Preview Area -->
+        <Border Grid.Row="2" Background="#FAFAFA" BorderBrush="#DDD" BorderThickness="1" CornerRadius="4" Height="140" Margin="0,0,0,15">
+            <Canvas x:Name="UI_Canvas_Preview" Background="White" Margin="10" ClipToBounds="True" SizeChanged="UI_Canvas_Preview_SizeChanged"/>
+        </Border>
+
+        <TabControl Grid.Row="3">
+            
+            <TabItem Header="Top Bars (Hogging)">
+                <Grid Margin="0,15,0,0">
+                    <DataGrid x:Name="UI_Grid_Supports" AutoGenerateColumns="False" CanUserAddRows="False" 
+                              HeadersVisibility="Column" Background="White" RowBackground="White" AlternatingRowBackground="#F9F9F9"
+                              BorderThickness="1" BorderBrush="#E0E0E0" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#EEEEEE">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Support Name" Binding="{Binding SupportName}" IsReadOnly="True" Width="150"/>
+                            
+                            <DataGridTemplateColumn Header="T2 Rebar" Width="120">
+                                <DataGridTemplateColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Border Width="8" Height="8" Background="OrangeRed" CornerRadius="4" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                            <TextBlock Text="T2 Type" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.HeaderTemplate>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <ComboBox SelectedItem="{Binding T2_BarTypeName, UpdateSourceTrigger=PropertyChanged}" 
+                                                  ItemsSource="{Binding DataContext.BarTypes, RelativeSource={RelativeSource AncestorType=UserControl}}" Margin="2"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <DataGridTextColumn Header="T2 Count" Binding="{Binding T2_Count}" Width="80"/>
+
+                            <DataGridTemplateColumn Header="T3 Rebar" Width="120">
+                                <DataGridTemplateColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Border Width="8" Height="8" Background="Gold" CornerRadius="4" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                            <TextBlock Text="T3 Type" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.HeaderTemplate>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <ComboBox SelectedItem="{Binding T3_BarTypeName, UpdateSourceTrigger=PropertyChanged}" 
+                                                  ItemsSource="{Binding DataContext.BarTypes, RelativeSource={RelativeSource AncestorType=UserControl}}" Margin="2"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <DataGridTextColumn Header="T3 Count" Binding="{Binding T3_Count}" Width="80"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Bottom Bars (Sagging)">
+                <Grid Margin="0,15,0,0">
+                    <DataGrid x:Name="UI_Grid_Spans" AutoGenerateColumns="False" CanUserAddRows="False" 
+                              HeadersVisibility="Column" Background="White" RowBackground="White" AlternatingRowBackground="#F9F9F9"
+                              BorderThickness="1" BorderBrush="#E0E0E0" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#EEEEEE">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Span Name" Binding="{Binding SpanName}" IsReadOnly="True" Width="150"/>
+                            
+                            <DataGridTemplateColumn Header="B2 Rebar" Width="120">
+                                <DataGridTemplateColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Border Width="8" Height="8" Background="ForestGreen" CornerRadius="4" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                            <TextBlock Text="B2 Type" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.HeaderTemplate>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <ComboBox SelectedItem="{Binding B2_BarTypeName, UpdateSourceTrigger=PropertyChanged}" 
+                                                  ItemsSource="{Binding DataContext.BarTypes, RelativeSource={RelativeSource AncestorType=UserControl}}" Margin="2"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <DataGridTextColumn Header="B2 Count" Binding="{Binding B2_Count}" Width="80"/>
+
+                            <DataGridTemplateColumn Header="B3 Rebar" Width="120">
+                                <DataGridTemplateColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Border Width="8" Height="8" Background="DeepSkyBlue" CornerRadius="4" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                            <TextBlock Text="B3 Type" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.HeaderTemplate>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <ComboBox SelectedItem="{Binding B3_BarTypeName, UpdateSourceTrigger=PropertyChanged}" 
+                                                  ItemsSource="{Binding DataContext.BarTypes, RelativeSource={RelativeSource AncestorType=UserControl}}" Margin="2"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <DataGridTextColumn Header="B3 Count" Binding="{Binding B3_Count}" Width="80"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>

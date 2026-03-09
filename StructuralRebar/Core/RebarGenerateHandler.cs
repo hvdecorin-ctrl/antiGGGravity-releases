@@ -53,6 +53,9 @@ namespace antiGGGravity.StructuralRebar.Core
                     case ElementHostType.Beam:
                         resultMessage = ProcessBeams(uidoc, doc);
                         break;
+                    case ElementHostType.BeamAdvance:
+                        resultMessage = ProcessBeamAdvance(uidoc, doc);
+                        break;
                     case ElementHostType.Wall:
                         resultMessage = ProcessWalls(uidoc, doc);
                         break;
@@ -135,6 +138,46 @@ namespace antiGGGravity.StructuralRebar.Core
                 var (processed, total) = engine.GenerateBeamRebar(beams, request);
                 return $"Successfully reinforced {processed} of {total} beams.";
             }
+        }
+
+        private string ProcessBeamAdvance(UIDocument uidoc, Document doc)
+        {
+            var targetId = _window.BeamAdvancePanel.TargetBeamId;
+            if (targetId == null || targetId == ElementId.InvalidElementId)
+                return "No beam was selected. Please click 'Analyze Selection' first.";
+
+            var beam = doc.GetElement(targetId) as FamilyInstance;
+            if (beam == null) return "Invalid beam selected.";
+
+            // Start with standard beam configurations for T1, B1, Stirrups, etc.
+            var request = _window.GetOrCreateBeamPanel().BuildRequest(_window.RemoveExisting);
+            request.EnableLapSplice = _window.EnableLapSplice;
+            request.DesignCode = _window.DesignCode;
+            
+            // Force MultiSpan to true, as beam advance operates on the whole continuous line
+            request.MultiSpan = true;
+            
+            // Inject the advanced T2/T3/B2/B3 overrides
+            _window.BeamAdvancePanel.InjectDTO(request);
+
+            var engine = new RebarEngine(doc);
+
+            // Collect ALL structural framing in the model so GroupSelectedBeams can find the full chain
+            var allBeams = new FilteredElementCollector(doc)
+                .OfCategory(BuiltInCategory.OST_StructuralFraming)
+                .OfClass(typeof(FamilyInstance))
+                .Cast<FamilyInstance>()
+                .ToList();
+
+            var groups = Geometry.BeamSpanResolver.GroupSelectedBeams(allBeams);
+            
+            // Find the chain that contains our target beam
+            var targetChain = groups.FirstOrDefault(g => g.Any(b => b.Id == beam.Id));
+            if (targetChain == null || targetChain.Count == 0) 
+                return "Failed to resolve continuous beam chain for the selected beam.";
+
+            var (processed, total) = engine.GenerateContinuousBeamRebar(targetChain, request);
+            return $"Successfully generated advanced reinforcement on continuous beam ({processed}/{total} segments).";
         }
 
         private string ProcessWalls(UIDocument uidoc, Document doc)

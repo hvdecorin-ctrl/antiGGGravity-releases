@@ -95,6 +95,9 @@
                         <RadioButton x:Name="UI_Radio_Beam" Content="Beam" 
                                      GroupName="ElementType" Style="{StaticResource PremiumSidebarButtonStyle}"
                                      Checked="ElementType_Changed"/>
+                        <RadioButton x:Name="UI_Radio_BeamAdvance" Content="Beam Advance" 
+                                     GroupName="ElementType" Style="{StaticResource PremiumSidebarButtonStyle}"
+                                     Checked="ElementType_Changed"/>
                         <RadioButton x:Name="UI_Radio_Column" Content="Column" 
                                      GroupName="ElementType" Style="{StaticResource PremiumSidebarButtonStyle}"
                                      Checked="ElementType_Changed" IsEnabled="True"/>

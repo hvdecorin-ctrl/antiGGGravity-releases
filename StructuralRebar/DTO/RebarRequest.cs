@@ -166,6 +166,10 @@ namespace antiGGGravity.StructuralRebar.DTO
         /// <summary>Individual per-span configurations for continuous beams.</summary>
         public List<SpanRebarConfig> SpanConfigs { get; set; } = new();
 
+        // === ADVANCED OVERRIDES (Span-by-Span Detailing) ===
+        public List<SupportOverride> SupportOverrides { get; set; } = new();
+        public List<SpanOverride> SpanOverrides { get; set; } = new();
+
         // === SIDE REBAR (Skin Reinforcement for Beams) ===
         /// <summary>Whether to add side/skin reinforcement bars.</summary>
         public bool EnableSideRebar { get; set; }

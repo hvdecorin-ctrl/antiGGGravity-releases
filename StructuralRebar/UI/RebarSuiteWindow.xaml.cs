@@ -23,6 +23,7 @@ namespace antiGGGravity.StructuralRebar.UI
         private WallCornerLPanel _wallCornerLPanel;
         private WallCornerUPanel _wallCornerUPanel;
         private CustomDesignPanel _customDesignPanel;
+        private BeamAdvancePanel _beamAdvancePanel;
         
         public RebarSuiteWindow(UIDocument uiDoc, ExternalEvent externalEvent)
         {
@@ -50,6 +51,12 @@ namespace antiGGGravity.StructuralRebar.UI
                 if (_beamPanel == null) _beamPanel = new BeamRebarPanel(_doc);
                 _beamPanel.UpdateZoneInfo(DesignCode);
                 UI_PanelHost.Content = _beamPanel;
+            }
+            else if (UI_Radio_BeamAdvance?.IsChecked == true)
+            {
+                SelectedHostType = ElementHostType.BeamAdvance;
+                if (_beamAdvancePanel == null) _beamAdvancePanel = new BeamAdvancePanel(_uiDoc, this);
+                UI_PanelHost.Content = _beamAdvancePanel;
             }
             else if (UI_Radio_Wall?.IsChecked == true)
             {
@@ -140,6 +147,7 @@ namespace antiGGGravity.StructuralRebar.UI
             else if (UI_PanelHost.Content is WallCornerLPanel wcl) wcl.SaveSettings();
             else if (UI_PanelHost.Content is WallCornerUPanel wcu) wcu.SaveSettings();
             else if (UI_PanelHost.Content is CustomDesignPanel cdp) cdp.SaveSettings();
+            else if (UI_PanelHost.Content is BeamAdvancePanel bA) bA.SaveSettings();
         }
 
         private void UpdateActivePanelSelection()
@@ -198,11 +206,18 @@ namespace antiGGGravity.StructuralRebar.UI
         }
 
         public BeamRebarPanel BeamPanel => _beamPanel;
+        /// <summary>Ensures the BeamRebarPanel exists (lazy-init) so Beam Advance can read base settings.</summary>
+        public BeamRebarPanel GetOrCreateBeamPanel()
+        {
+            if (_beamPanel == null) _beamPanel = new BeamRebarPanel(_doc);
+            return _beamPanel;
+        }
         public WallRebarPanel WallPanel => _wallPanel;
         public ColumnRebarPanel ColumnPanel => _columnPanel;
         public StripFootingRebarPanel StripFootingPanel => _stripFootingPanel;
         public FootingPadRebarPanel FootingPadPanel => _footingPadPanel;
         public WallCornerLPanel WallCornerLPanel => _wallCornerLPanel;
         public WallCornerUPanel WallCornerUPanel => _wallCornerUPanel;
+        public BeamAdvancePanel BeamAdvancePanel => _beamAdvancePanel;
     }
 }

@@ -450,31 +450,37 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
 
             // --- TOP BARS ---
             double topY = marginTB + cover + 10;
-            var topLayers = new List<(string Label, int Count, bool Active)>
+            if (UI_Check_T1.IsChecked == true)
             {
-                ("T1", ParseInt(UI_Text_T1Count.Text, 2), UI_Check_T1.IsChecked == true),
-                ("T2", ParseInt(UI_Text_T2Count.Text, 3), UI_Check_T2.IsChecked == true),
-                ("T3", ParseInt(UI_Text_T3Count.Text, 3), UI_Check_T3.IsChecked == true),
-            };
-            foreach (var layer in topLayers)
+                DrawBarRow(canvas, innerL, innerR, topY, ParseInt(UI_Text_T1Count.Text, 2), dotR, "T1", Brushes.DarkRed);
+                topY += layerStep;
+            }
+            if (UI_Check_T2.IsChecked == true)
             {
-                if (!layer.Active) continue;
-                DrawBarRow(canvas, innerL, innerR, topY, layer.Count, dotR, layer.Label, Brushes.Black);
+                DrawBarRow(canvas, innerL, innerR, topY, ParseInt(UI_Text_T2Count.Text, 3), dotR, "T2", Brushes.OrangeRed);
+                topY += layerStep;
+            }
+            if (UI_Check_T3.IsChecked == true)
+            {
+                DrawBarRow(canvas, innerL, innerR, topY, ParseInt(UI_Text_T3Count.Text, 3), dotR, "T3", Brushes.Gold);
                 topY += layerStep;
             }
 
             // --- BOTTOM BARS ---
             double botY = marginTB + beamH - cover - 10;
-            var botLayers = new List<(string Label, int Count, bool Active)>
+            if (UI_Check_B1.IsChecked == true)
             {
-                ("B1", ParseInt(UI_Text_B1Count.Text, 2), UI_Check_B1.IsChecked == true),
-                ("B2", ParseInt(UI_Text_B2Count.Text, 3), UI_Check_B2.IsChecked == true),
-                ("B3", ParseInt(UI_Text_B3Count.Text, 3), UI_Check_B3.IsChecked == true),
-            };
-            foreach (var layer in botLayers)
+                DrawBarRow(canvas, innerL, innerR, botY, ParseInt(UI_Text_B1Count.Text, 2), dotR, "B1", Brushes.MidnightBlue);
+                botY -= layerStep;
+            }
+            if (UI_Check_B2.IsChecked == true)
             {
-                if (!layer.Active) continue;
-                DrawBarRow(canvas, innerL, innerR, botY, layer.Count, dotR, layer.Label, Brushes.Black);
+                DrawBarRow(canvas, innerL, innerR, botY, ParseInt(UI_Text_B2Count.Text, 3), dotR, "B2", Brushes.ForestGreen);
+                botY -= layerStep;
+            }
+            if (UI_Check_B3.IsChecked == true)
+            {
+                DrawBarRow(canvas, innerL, innerR, botY, ParseInt(UI_Text_B3Count.Text, 3), dotR, "B3", Brushes.DeepSkyBlue);
                 botY -= layerStep;
             }
 
@@ -482,30 +488,21 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             if (UI_Check_SideRebar.IsChecked == true)
             {
                 int sideRows = ParseInt(UI_Text_SideRows.Text, 2);
-                double sideTop = (topLayers.Any(l => l.Active) ? topY : marginTB + cover + 10) + 4;
-                double sideBot = (botLayers.Any(l => l.Active) ? botY : marginTB + beamH - cover - 10) - 4;
-                if (sideBot > sideTop && sideRows > 0)
+                double sTop = marginTB + cover + 10 + (UI_Check_T1.IsChecked == true ? layerStep : 0) + (UI_Check_T2.IsChecked == true ? layerStep : 0) + (UI_Check_T3.IsChecked == true ? layerStep : 0) + 4;
+                double sBot = marginTB + beamH - cover - 10 - (UI_Check_B1.IsChecked == true ? layerStep : 0) - (UI_Check_B2.IsChecked == true ? layerStep : 0) - (UI_Check_B3.IsChecked == true ? layerStep : 0) - 4;
+                
+                if (sBot > sTop && sideRows > 0)
                 {
-                    double sideStep = (sideBot - sideTop) / (sideRows + 1);
+                    double sideStep = (sBot - sTop) / (sideRows + 1);
                     for (int r = 1; r <= sideRows; r++)
                     {
-                        double y = sideTop + sideStep * r;
-                        // 2 bars per row (one each side)
-                        DrawDot(canvas, innerL, y, dotR - 1, Brushes.DimGray);
-                        DrawDot(canvas, innerR, y, dotR - 1, Brushes.DimGray);
+                        double y = sTop + sideStep * r;
+                        DrawDot(canvas, innerL, y, dotR - 1, Brushes.SlateGray);
+                        DrawDot(canvas, innerR, y, dotR - 1, Brushes.SlateGray);
                     }
-                    // Label
-                    var sLbl = new TextBlock
-                    {
-                        Text = "Side",
-                        FontSize = 12,
-                        Foreground = Brushes.DimGray,
-                        FontStyle = FontStyles.Italic,
-                        FontWeight = FontWeights.Bold
-                    };
-                    double sideMidY = (sideTop + sideBot) / 2.0;
+                    var sLbl = new TextBlock { Text = "Side", FontSize = 12, Foreground = Brushes.SlateGray, FontStyle = FontStyles.Italic, FontWeight = FontWeights.Bold };
                     Canvas.SetLeft(sLbl, innerR + 15);
-                    Canvas.SetTop(sLbl, sideMidY - 9);
+                    Canvas.SetTop(sLbl, (sTop + sBot) / 2.0 - 9);
                     canvas.Children.Add(sLbl);
                 }
             }
@@ -580,12 +577,16 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             double cover = 12;
             double layerStep = 16;
 
-            var supportBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(160, 160, 160));
-            var beamBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(220, 220, 220));
-            var contTopColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(41, 98, 255));    // Blue
-            var contBotColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 150, 80));     // Green
-            var addlTopColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 140, 0));    // Orange
-            var addlBotColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(200, 60, 60));    // Red
+            var supportBrush = Brushes.LightGray;
+            var beamBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(245, 245, 245));
+            
+            // Harmonious Palette
+            var t1Col = Brushes.DarkRed;
+            var t2Col = Brushes.OrangeRed;
+            var t3Col = Brushes.Gold;
+            var b1Col = Brushes.MidnightBlue;
+            var b2Col = Brushes.ForestGreen;
+            var b3Col = Brushes.DeepSkyBlue;
 
             // Draw supports and beam spans
             double x = marginL;
@@ -595,11 +596,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             for (int i = 0; i <= spanCount; i++)
             {
                 // Support column
-                var sup = new System.Windows.Shapes.Rectangle
-                {
-                    Width = supportW, Height = beamH + 12,
-                    Fill = supportBrush, RadiusX = 1, RadiusY = 1
-                };
+                var sup = new System.Windows.Shapes.Rectangle { Width = supportW, Height = beamH + 12, Fill = supportBrush, RadiusX = 1, RadiusY = 1 };
                 Canvas.SetLeft(sup, x);
                 Canvas.SetTop(sup, beamTop - 6);
                 canvas.Children.Add(sup);
@@ -610,20 +607,11 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                     double sEnd = sStart + spanW;
                     spanStarts.Add(sStart);
                     spanEnds.Add(sEnd);
-
-                    // Beam body
-                    var beam = new System.Windows.Shapes.Rectangle
-                    {
-                        Width = spanW, Height = beamH,
-                        Fill = beamBrush,
-                        Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(190, 190, 190)),
-                        StrokeThickness = 1
-                    };
+                    var beam = new System.Windows.Shapes.Rectangle { Width = spanW, Height = beamH, Fill = beamBrush, Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(190, 190, 190)), StrokeThickness = 1 };
                     Canvas.SetLeft(beam, sStart);
                     Canvas.SetTop(beam, beamTop);
                     canvas.Children.Add(beam);
                 }
-
                 x += supportW + (i < spanCount ? spanW : 0);
             }
 
@@ -636,9 +624,9 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             double ty = topY;
             var topBars = new List<(string Lbl, bool Active, bool Cont, Brush Color)>
             {
-                ("T1", UI_Check_T1.IsChecked == true, true, contTopColor),
-                ("T2", UI_Check_T2.IsChecked == true, UI_Check_T2Cont.IsChecked == true, UI_Check_T2Cont.IsChecked == true ? contTopColor : addlTopColor),
-                ("T3", UI_Check_T3.IsChecked == true, UI_Check_T3Cont.IsChecked == true, UI_Check_T3Cont.IsChecked == true ? contTopColor : addlTopColor),
+                ("T1", UI_Check_T1.IsChecked == true, true, t1Col),
+                ("T2", UI_Check_T2.IsChecked == true, UI_Check_T2Cont.IsChecked == true, t2Col),
+                ("T3", UI_Check_T3.IsChecked == true, UI_Check_T3Cont.IsChecked == true, t3Col),
             };
             int topIdx = 0;
             foreach (var bar in topBars)
@@ -672,9 +660,9 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             double by = botY;
             var botBars = new List<(string Lbl, bool Active, bool Cont, Brush Color)>
             {
-                ("B1", UI_Check_B1.IsChecked == true, true, contBotColor),
-                ("B2", UI_Check_B2.IsChecked == true, UI_Check_B2Cont.IsChecked == true, UI_Check_B2Cont.IsChecked == true ? contBotColor : addlBotColor),
-                ("B3", UI_Check_B3.IsChecked == true, UI_Check_B3Cont.IsChecked == true, UI_Check_B3Cont.IsChecked == true ? contBotColor : addlBotColor),
+                ("B1", UI_Check_B1.IsChecked == true, true, b1Col),
+                ("B2", UI_Check_B2.IsChecked == true, UI_Check_B2Cont.IsChecked == true, b2Col),
+                ("B3", UI_Check_B3.IsChecked == true, UI_Check_B3Cont.IsChecked == true, b3Col),
             };
             int botIdx = 0;
             foreach (var bar in botBars)

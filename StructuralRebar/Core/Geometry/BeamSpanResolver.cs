@@ -213,7 +213,12 @@ namespace antiGGGravity.StructuralRebar.Core.Geometry
 
             XYZ start = beamCurve.GetEndPoint(0);
             XYZ end = beamCurve.GetEndPoint(1);
-            return FindSupportsAlongLine(doc, start, end, beamWidth, new List<ElementId> { beam.Id });
+
+            BoundingBoxXYZ bbox = beam.get_BoundingBox(null);
+            double? minZ = bbox != null ? bbox.Min.Z - 1.0 : (double?)null;
+            double? maxZ = bbox != null ? bbox.Max.Z + 1.0 : (double?)null;
+
+            return FindSupportsAlongLine(doc, start, end, beamWidth, new List<ElementId> { beam.Id }, minZ, maxZ);
         }
 
         /// <summary>
@@ -221,7 +226,8 @@ namespace antiGGGravity.StructuralRebar.Core.Geometry
         /// Returns supports sorted by distance from lineStart.
         /// </summary>
         public static List<SupportInfo> FindSupportsAlongLine(
-            Document doc, XYZ lineStart, XYZ lineEnd, double supportWidth, ICollection<ElementId> excludeIds = null)
+            Document doc, XYZ lineStart, XYZ lineEnd, double supportWidth, ICollection<ElementId> excludeIds = null, 
+            double? minZ = null, double? maxZ = null)
         {
             XYZ lineDir = (lineEnd - lineStart).Normalize();
             double lineLength = lineStart.DistanceTo(lineEnd);
@@ -247,6 +253,10 @@ namespace antiGGGravity.StructuralRebar.Core.Geometry
                 BoundingBoxXYZ bbox = col.get_BoundingBox(null);
                 if (bbox == null) continue;
 
+                // Z-check
+                if (minZ.HasValue && bbox.Max.Z < minZ.Value) continue;
+                if (maxZ.HasValue && bbox.Min.Z > maxZ.Value) continue;
+
                 var result = ProjectSupportOntoBeam(bbox, lineStart, lineDir, linePerp, lineLength, proximityTol);
                 if (result.HasValue)
                 {
@@ -269,6 +279,10 @@ namespace antiGGGravity.StructuralRebar.Core.Geometry
                 BoundingBoxXYZ bbox = wall.get_BoundingBox(null);
                 if (bbox == null) continue;
 
+                // Z-check
+                if (minZ.HasValue && bbox.Max.Z < minZ.Value) continue;
+                if (maxZ.HasValue && bbox.Min.Z > maxZ.Value) continue;
+
                 var result = ProjectSupportOntoBeam(bbox, lineStart, lineDir, linePerp, lineLength, proximityTol);
                 if (result.HasValue)
                 {
@@ -277,6 +291,12 @@ namespace antiGGGravity.StructuralRebar.Core.Geometry
                     supports.Add(info);
                 }
             }
+
+            // Remove duplicates (e.g. nested families or overlapping bounding boxes at same coord)
+            supports = supports.OrderBy(s => s.CenterOffset)
+                               .GroupBy(s => Math.Round(s.CenterOffset, 2)) // Group by center (within 1/100th ft)
+                               .Select(g => g.First())
+                               .ToList();
 
             // Sort by center offset and classify end vs intermediate
             supports.Sort((a, b) => a.CenterOffset.CompareTo(b.CenterOffset));

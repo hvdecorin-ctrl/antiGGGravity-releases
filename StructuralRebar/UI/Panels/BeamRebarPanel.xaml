@@ -19,9 +19,9 @@
                     <TextBlock Text="Top Reinforcement" FontSize="12" FontWeight="SemiBold" Foreground="#4A759C" Margin="0,0,0,12"/>
 
                     <!-- T1 -->
-                    <Border Background="White" BorderBrush="#E8E8E8" BorderThickness="1" CornerRadius="4" Padding="12" Margin="0,0,0,8">
+                    <Border Background="White" BorderBrush="DarkRed" BorderThickness="1,4,1,1" CornerRadius="4" Padding="12" Margin="0,0,0,8">
                         <StackPanel>
-                            <CheckBox x:Name="UI_Check_T1" Content="T1 - Top Layer 1 (Corner / Outer)" FontSize="12" Foreground="#333" FontWeight="SemiBold" Margin="0,0,0,8" Click="toggle_visibility"/>
+                            <CheckBox x:Name="UI_Check_T1" Content="T1 - Top Layer 1 (Corner / Outer)" FontSize="12" Foreground="DarkRed" FontWeight="SemiBold" Margin="0,0,0,8" Click="toggle_visibility"/>
                             <StackPanel x:Name="UI_Group_T1">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -43,9 +43,9 @@
                     </Border>
 
                     <!-- T2 -->
-                    <Border Background="White" BorderBrush="#E8E8E8" BorderThickness="1" CornerRadius="4" Padding="12" Margin="0,0,0,8">
+                    <Border Background="White" BorderBrush="OrangeRed" BorderThickness="1,4,1,1" CornerRadius="4" Padding="12" Margin="0,0,0,8">
                         <StackPanel>
-                            <CheckBox x:Name="UI_Check_T2" Content="T2 - Top Layer 2 (Inner)" FontSize="12" Foreground="#333" FontWeight="SemiBold" Margin="0,0,0,8" Click="toggle_visibility"/>
+                            <CheckBox x:Name="UI_Check_T2" Content="T2 - Top Layer 2 (Inner)" FontSize="12" Foreground="OrangeRed" FontWeight="SemiBold" Margin="0,0,0,8" Click="toggle_visibility"/>
                             <StackPanel x:Name="UI_Group_T2">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -72,9 +72,9 @@
                     </Border>
 
                     <!-- T3 -->
-                    <Border Background="White" BorderBrush="#E8E8E8" BorderThickness="1" CornerRadius="4" Padding="12" Margin="0,0,0,8">
+                    <Border Background="White" BorderBrush="Gold" BorderThickness="1,4,1,1" CornerRadius="4" Padding="12" Margin="0,0,0,8">
                         <StackPanel>
-                            <CheckBox x:Name="UI_Check_T3" Content="T3 - Top Layer 3 (Deep Beam)" FontSize="12" Foreground="#333" FontWeight="SemiBold" Margin="0,0,0,8" Click="toggle_visibility"/>
+                            <CheckBox x:Name="UI_Check_T3" Content="T3 - Top Layer 3 (Deep Beam)" FontSize="12" Foreground="#B8860B" FontWeight="SemiBold" Margin="0,0,0,8" Click="toggle_visibility"/>
                             <StackPanel x:Name="UI_Group_T3">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -139,9 +139,9 @@
                     <TextBlock Text="Bottom Reinforcement" FontSize="12" FontWeight="SemiBold" Foreground="#4A759C" Margin="0,0,0,12"/>
 
                     <!-- B3 (innermost) -->
-                    <Border Background="White" BorderBrush="#E8E8E8" BorderThickness="1" CornerRadius="4" Padding="12" Margin="0,0,0,8">
+                    <Border Background="White" BorderBrush="DeepSkyBlue" BorderThickness="1,4,1,1" CornerRadius="4" Padding="12" Margin="0,0,0,8">
                         <StackPanel>
-                            <CheckBox x:Name="UI_Check_B3" Content="B3 - Bottom Layer 3 (Deep Beam)" FontSize="12" Foreground="#333" FontWeight="SemiBold" Margin="0,0,0,8" Click="toggle_visibility"/>
+                            <CheckBox x:Name="UI_Check_B3" Content="B3 - Bottom Layer 3 (Deep Beam)" FontSize="12" Foreground="DeepSkyBlue" FontWeight="SemiBold" Margin="0,0,0,8" Click="toggle_visibility"/>
                             <StackPanel x:Name="UI_Group_B3">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -168,9 +168,9 @@
                     </Border>
 
                     <!-- B2 (middle) -->
-                    <Border Background="White" BorderBrush="#E8E8E8" BorderThickness="1" CornerRadius="4" Padding="12" Margin="0,0,0,8">
+                    <Border Background="White" BorderBrush="ForestGreen" BorderThickness="1,4,1,1" CornerRadius="4" Padding="12" Margin="0,0,0,8">
                         <StackPanel>
-                            <CheckBox x:Name="UI_Check_B2" Content="B2 - Bottom Layer 2 (Inner)" FontSize="12" Foreground="#333" FontWeight="SemiBold" Margin="0,0,0,8" Click="toggle_visibility"/>
+                            <CheckBox x:Name="UI_Check_B2" Content="B2 - Bottom Layer 2 (Inner)" FontSize="12" Foreground="ForestGreen" FontWeight="SemiBold" Margin="0,0,0,8" Click="toggle_visibility"/>
                             <StackPanel x:Name="UI_Group_B2">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -197,9 +197,9 @@
                     </Border>
 
                     <!-- B1 (outermost / corner) -->
-                    <Border Background="White" BorderBrush="#E8E8E8" BorderThickness="1" CornerRadius="4" Padding="12" Margin="0,0,0,8">
+                    <Border Background="White" BorderBrush="MidnightBlue" BorderThickness="1,4,1,1" CornerRadius="4" Padding="12" Margin="0,0,0,8">
                         <StackPanel>
-                            <CheckBox x:Name="UI_Check_B1" Content="B1 - Bottom Layer 1 (Corner / Outer)" FontSize="12" Foreground="#333" FontWeight="SemiBold" Margin="0,0,0,8" Click="toggle_visibility"/>
+                            <CheckBox x:Name="UI_Check_B1" Content="B1 - Bottom Layer 1 (Corner / Outer)" FontSize="12" Foreground="MidnightBlue" FontWeight="SemiBold" Margin="0,0,0,8" Click="toggle_visibility"/>
                             <StackPanel x:Name="UI_Group_B1">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
