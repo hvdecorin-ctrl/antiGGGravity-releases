@@ -104,12 +104,14 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
             // === DETECT ALL SUPPORTS & CLEAR SPANS ===
             // Scan the entire continuous axis from trueStartPt to trueEndPt
             var excludeIds = hostList.Select(x => x.beam.Id).ToList();
-            var allSupports = BeamSpanResolver.FindSupportsAlongLine(_doc, trueStartPt, trueEndPt, firstHost.Width, excludeIds);
+            double minZ = firstHost.SolidZMin - 2.0;
+            double maxZ = firstHost.SolidZMax + 2.0;
+            var allSupports = BeamSpanResolver.FindSupportsAlongLine(_doc, trueStartPt, trueEndPt, firstHost.Width, excludeIds, minZ, maxZ);
 
             // Determine end column extensions (bar extends to far face of end supports)
             // Use FindSupportExtension for BOTH single and multi-beam to accurately find far faces from cutback endpoints
-            double startExtension = FindSupportExtension(_doc, trueStartPt, -continuousDir);
-            double endExtension = FindSupportExtension(_doc, trueEndPt, continuousDir);
+            double startExtension = FindSupportExtension(_doc, trueStartPt, -continuousDir, excludeIds);
+            double endExtension = FindSupportExtension(_doc, trueEndPt, continuousDir, excludeIds);
 
             // The full continuous bar origin and length (including extensions into end columns)
             XYZ barOriginPt = trueStartPt - continuousDir * startExtension;
@@ -139,6 +141,12 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
             double baseLength = trueStartPt.DistanceTo(trueEndPt);
             bool isStartCantilever = allSupports.Count > 0 && allSupports[0].NearFaceOffset > 0.1;
             bool isEndCantilever = allSupports.Count > 0 && allSupports.Last().FarFaceOffset < baseLength - 0.1;
+
+            if (request.SupportOverrides != null && request.SupportOverrides.Count > 0)
+            {
+                isStartCantilever = request.SupportOverrides.First().IsCantilever;
+                isEndCantilever = request.SupportOverrides.Last().IsCantilever;
+            }
 
             // Cover at each end (inside the support column far face)
             double coverStart = firstHost.CoverOther;
@@ -502,7 +510,9 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                 else
                 {
                     // Sagging (Bottom Additional) Bars
-                    segments = antiGGGravity.StructuralRebar.Core.Calculators.AdditionalBarCalculator.CalculateBottomAdditionalSegments(shiftedSpans);
+                    // B2 is typical the 2nd layer (botLayerIdx == 1). Extend if it's B2.
+                    bool isB2Standard = (botLayerIdx == 1);
+                    segments = antiGGGravity.StructuralRebar.Core.Calculators.AdditionalBarCalculator.CalculateBottomAdditionalSegments(shiftedSpans, isStartCantilever, isEndCantilever, isB2Standard);
                 }
 
                 for (int si = 0; si < segments.Count; si++)
@@ -596,7 +606,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
 
                             if (count <= 0 || string.IsNullOrEmpty(barType)) continue;
 
-                            var segOpt = antiGGGravity.StructuralRebar.Core.Calculators.AdditionalBarCalculator.GetBottomSegmentForSpan(i, shiftedSpans);
+                            int targetSpanIdx = isStartCantilever ? i + 1 : i;
+                            var segOpt = antiGGGravity.StructuralRebar.Core.Calculators.AdditionalBarCalculator.GetBottomSegmentForSpan(targetSpanIdx, shiftedSpans, isStartCantilever, isEndCantilever, true);
                             if (!segOpt.HasValue) continue;
 
                             var seg = segOpt.Value;
@@ -652,7 +663,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
 
                             if (count <= 0 || string.IsNullOrEmpty(barType)) continue;
 
-                            var segOpt = antiGGGravity.StructuralRebar.Core.Calculators.AdditionalBarCalculator.GetBottomSegmentForSpan(i, shiftedSpans);
+                            int targetSpanIdx = isStartCantilever ? i + 1 : i;
+                            var segOpt = antiGGGravity.StructuralRebar.Core.Calculators.AdditionalBarCalculator.GetBottomSegmentForSpan(targetSpanIdx, shiftedSpans, isStartCantilever, isEndCantilever, false);
                             if (!segOpt.HasValue) continue;
 
                             var seg = segOpt.Value;
@@ -735,7 +747,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
         /// supporting column or wall at that point. Searches along the given direction.
         /// Returns 0 if no support is found.
         /// </summary>
-        private double FindSupportExtension(Document doc, XYZ beamEndPoint, XYZ searchDir)
+        private double FindSupportExtension(Document doc, XYZ beamEndPoint, XYZ searchDir, ICollection<ElementId> excludeIds)
         {
             double tolerance = UnitConversion.MmToFeet(100); // 100mm search radius
 
@@ -803,6 +815,50 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
 
                 if (dx > halfW + tolerance || dy > halfD + tolerance) continue;
 
+                XYZ[] corners = {
+                    new XYZ(bbox.Min.X, bbox.Min.Y, 0),
+                    new XYZ(bbox.Max.X, bbox.Min.Y, 0),
+                    new XYZ(bbox.Max.X, bbox.Max.Y, 0),
+                    new XYZ(bbox.Min.X, bbox.Max.Y, 0)
+                };
+
+                double maxProjection = double.MinValue;
+                XYZ beamEnd2D = new XYZ(beamEndPoint.X, beamEndPoint.Y, 0);
+                foreach (var corner in corners)
+                {
+                    double proj = (corner - beamEnd2D).DotProduct(searchDir);
+                    if (proj > maxProjection) maxProjection = proj;
+                }
+
+                if (maxProjection > 0)
+                    return maxProjection;
+            }
+
+            // Also search for Primary Beams (Structural Framing)
+            var framing = new FilteredElementCollector(doc)
+                .OfCategory(BuiltInCategory.OST_StructuralFraming)
+                .OfClass(typeof(FamilyInstance))
+                .Cast<FamilyInstance>()
+                .ToList();
+
+            foreach (var fr in framing)
+            {
+                // Skip the beams we are currently reinforcing
+                if (excludeIds != null && excludeIds.Contains(fr.Id)) continue;
+
+                BoundingBoxXYZ bbox = fr.get_BoundingBox(null);
+                if (bbox == null) continue;
+
+                // Simple proximity check for beam end
+                XYZ center = (bbox.Min + bbox.Max) / 2.0;
+                double dx = Math.Abs(beamEndPoint.X - center.X);
+                double dy = Math.Abs(beamEndPoint.Y - center.Y);
+                double halfW = (bbox.Max.X - bbox.Min.X) / 2.0;
+                double halfD = (bbox.Max.Y - bbox.Min.Y) / 2.0;
+
+                if (dx > halfW + tolerance || dy > halfD + tolerance) continue;
+
+                // Found a framing member at this beam end — compute distance to far face
                 XYZ[] corners = {
                     new XYZ(bbox.Min.X, bbox.Min.Y, 0),
                     new XYZ(bbox.Max.X, bbox.Min.Y, 0),
@@ -1015,8 +1071,9 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
             }
 
             // Determine end column extensions (longitudinal bars extend to far face of end supports)
-            double startExtension = FindSupportExtension(_doc, host.StartPoint, -host.LAxis);
-            double endExtension = FindSupportExtension(_doc, host.EndPoint, host.LAxis);
+            var excludeIds = new List<ElementId> { beam.Id };
+            double startExtension = FindSupportExtension(_doc, host.StartPoint, -host.LAxis, excludeIds);
+            double endExtension = FindSupportExtension(_doc, host.EndPoint, host.LAxis, excludeIds);
 
             // Full longitudinal bar length and origin for this beam element
             XYZ barOriginPt = host.StartPoint - host.LAxis * startExtension;

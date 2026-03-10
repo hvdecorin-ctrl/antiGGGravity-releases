@@ -67,6 +67,36 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
 
         private void OnDataItemChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
+            if (e.PropertyName.EndsWith("BarTypeName"))
+            {
+                if (sender is SupportOverride sup)
+                {
+                    if (e.PropertyName == nameof(SupportOverride.T2_BarTypeName))
+                    {
+                        if (!string.IsNullOrEmpty(sup.T2_BarTypeName) && sup.T2_Count == 0)
+                            sup.T2_Count = 2;
+                    }
+                    else if (e.PropertyName == nameof(SupportOverride.T3_BarTypeName))
+                    {
+                        if (!string.IsNullOrEmpty(sup.T3_BarTypeName) && sup.T3_Count == 0)
+                            sup.T3_Count = 2;
+                    }
+                }
+                else if (sender is SpanOverride span)
+                {
+                    if (e.PropertyName == nameof(SpanOverride.B2_BarTypeName))
+                    {
+                        if (!string.IsNullOrEmpty(span.B2_BarTypeName) && span.B2_Count == 0)
+                            span.B2_Count = 2;
+                    }
+                    else if (e.PropertyName == nameof(SpanOverride.B3_BarTypeName))
+                    {
+                        if (!string.IsNullOrEmpty(span.B3_BarTypeName) && span.B3_Count == 0)
+                            span.B3_Count = 2;
+                    }
+                }
+            }
+
             RedrawPreview();
         }
 
@@ -77,6 +107,9 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
 
         private void LoadBarTypes()
         {
+            BarTypes.Clear();
+            BarTypes.Add(""); // Allow null/empty selection
+
             var types = new FilteredElementCollector(_doc)
                 .OfClass(typeof(Autodesk.Revit.DB.Structure.RebarBarType))
                 .Cast<Autodesk.Revit.DB.Structure.RebarBarType>()
@@ -159,6 +192,9 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             _lastSupports = BeamSpanResolver.FindSupportsAlongLine(_doc, firstEnd, lastEnd, width, excludeIds, minZ, maxZ);
             List<BeamSpanResolver.SupportInfo> supports = _lastSupports;
 
+            bool isStartCantileverGeom = supports.Count > 0 && supports[0].NearFaceOffset > 0.1;
+            bool isEndCantileverGeom = supports.Count > 0 && supports.Last().FarFaceOffset < _totalLength - 0.1;
+
             // Populate Support Models
             SupportData.Clear();
             for (int i = 0; i < supports.Count; i++)
@@ -167,20 +203,26 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 if (supports[i].IsEndSupport) name += " (End)";
                 else name += " (Internal)";
 
+                bool isCantilever = false;
+                if (i == 0 && isStartCantileverGeom) isCantilever = true;
+                if (i == supports.Count - 1 && isEndCantileverGeom) isCantilever = true;
+
                 SupportData.Add(new SupportOverride
                 {
                     SupportIndex = i,
                     SupportName = name,
+                    IsCantilever = isCantilever,
                     T2_Count = 0,
                     T3_Count = 0
                 });
             }
 
-            // Populate Span Models (Span Count = Support Count - 1)
+            // Populate Span Models (Count is strictly the number of spaces between supports)
             SpanData.Clear();
             int spanCount = Math.Max(0, supports.Count - 1);
-            // If there's only one span but no supports detected, handle gracefully
-            if (spanCount == 0 && targetChain.Count > 0) spanCount = targetChain.Count;
+
+            // If there's only one beam and no supports detected, it's 1 span
+            if (spanCount == 0 && targetChain.Count > 0) spanCount = 1;
 
             for (int i = 0; i < spanCount; i++)
             {
@@ -251,8 +293,8 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 UI_Canvas_Preview.Children.Add(txt);
             }
 
-            bool isStartCantilever = _lastSupports.Count > 0 && _lastSupports[0].NearFaceOffset > 0.1;
-            bool isEndCantilever = _lastSupports.Count > 0 && _lastSupports.Last().FarFaceOffset < _totalLength - 0.1;
+            bool isStartCantilever = SupportData.Count > 0 && SupportData[0].IsCantilever;
+            bool isEndCantilever = SupportData.Count > 0 && SupportData.Last().IsCantilever;
 
             // 3. Draw Rebar (Elevation)
             var t2Segments = new List<(double Start, double End)>();
@@ -292,14 +334,16 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             for (int i = 0; i < SpanData.Count; i++)
             {
                 var over = SpanData[i];
+                int targetSpanIdx = isStartCantilever ? i + 1 : i;
+
                 if (over.B2_Count > 0 && !string.IsNullOrEmpty(over.B2_BarTypeName))
                 {
-                    var seg = antiGGGravity.StructuralRebar.Core.Calculators.AdditionalBarCalculator.GetBottomSegmentForSpan(i, fullClearSpans);
+                    var seg = antiGGGravity.StructuralRebar.Core.Calculators.AdditionalBarCalculator.GetBottomSegmentForSpan(targetSpanIdx, fullClearSpans, isStartCantilever, isEndCantilever, true);
                     if (seg.HasValue) b2Segments.Add(seg.Value);
                 }
                 if (over.B3_Count > 0 && !string.IsNullOrEmpty(over.B3_BarTypeName))
                 {
-                    var seg = antiGGGravity.StructuralRebar.Core.Calculators.AdditionalBarCalculator.GetBottomSegmentForSpan(i, fullClearSpans);
+                    var seg = antiGGGravity.StructuralRebar.Core.Calculators.AdditionalBarCalculator.GetBottomSegmentForSpan(targetSpanIdx, fullClearSpans, isStartCantilever, isEndCantilever, false);
                     if (seg.HasValue) b3Segments.Add(seg.Value);
                 }
             }

@@ -253,8 +253,13 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
                 if (clearSpans.Count > 0)
                 {
                     double firstL = clearSpans[0].End - clearSpans[0].Start;
-                    // First span: lap inside the L/5 near the first column (assuming it's an end column)
-                    validZones.Add((0.0, clearSpans[0].Start + firstL / 5.0));
+                    // First span: check if it's a cantilever. Never lap in a cantilever.
+                    bool isStartCantileverSpan = clearSpans[0].Start < 0.1;
+                    if (!isStartCantileverSpan)
+                    {
+                        // Standard end span: lap inside the L/5 near the first column
+                        validZones.Add((0.0, clearSpans[0].Start + firstL / 5.0));
+                    }
 
                     for (int i = 1; i < clearSpans.Count; i++)
                     {
@@ -263,18 +268,18 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
                         double Lprev = prevSpan.End - prevSpan.Start;
                         double L = span.End - span.Start;
 
-                        // Instead of a single zone crossing the column, we must strictly separate them to avoid the column joint.
-                        // Zone 1: L/5 region IN the previous span, BEFORE the column face.
                         validZones.Add((prevSpan.End - Lprev / 5.0, prevSpan.End));
-
-                        // Zone 2: L/5 region IN the current span, AFTER the column face.
                         validZones.Add((span.Start, span.Start + L / 5.0));
                     }
 
                     var lastSpan = clearSpans[clearSpans.Count - 1];
                     double lastL = lastSpan.End - lastSpan.Start;
-                    // Last span: lap inside the L/5 near the far end column
-                    validZones.Add((lastSpan.End - lastL / 5.0, totalLength));
+                    bool isEndCantileverSpan = (totalLength - lastSpan.End) < 0.1;
+                    if (!isEndCantileverSpan)
+                    {
+                        // Standard end span: lap inside the L/5 near the far end column
+                        validZones.Add((lastSpan.End - lastL / 5.0, totalLength));
+                    }
                 }
                 else
                 {

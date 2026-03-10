@@ -11,6 +11,13 @@ namespace antiGGGravity.StructuralRebar.DTO
         public int SupportIndex { get; set; }
         public string SupportName { get; set; }
 
+        private bool _isCantilever;
+        public bool IsCantilever
+        {
+            get => _isCantilever;
+            set { _isCantilever = value; OnPropertyChanged(); }
+        }
+
         private string _t2BarTypeName;
         public string T2_BarTypeName
         {

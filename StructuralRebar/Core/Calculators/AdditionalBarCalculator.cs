@@ -50,17 +50,49 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
         /// </summary>
         /// <param name="clearSpans">List of all clear spans (Start, End) inside the beam.</param>
         /// <returns>A list of (Start, End) segment bounds relative to the beam's start point.</returns>
-        public static List<(double Start, double End)> CalculateBottomAdditionalSegments(List<(double Start, double End)> clearSpans)
+        public static List<(double Start, double End)> CalculateBottomAdditionalSegments(
+            List<(double Start, double End)> clearSpans, 
+            bool isStartCantilever = false, 
+            bool isEndCantilever = false,
+            bool allowExtension = false)
         {
             var segments = new List<(double Start, double End)>();
             if (clearSpans == null || clearSpans.Count == 0) return segments;
 
-            foreach (var span in clearSpans)
+            for (int i = 0; i < clearSpans.Count; i++)
             {
+                // Never put a standalone bar strictly inside a cantilever
+                if (i == 0 && isStartCantilever) continue;
+                if (i == clearSpans.Count - 1 && isEndCantilever) continue;
+
+                var span = clearSpans[i];
                 double spanL = span.End - span.Start;
                 double offset = spanL * 0.1;
 
-                segments.Add((span.Start + offset, span.End - offset));
+                double startPos = span.Start + offset;
+                double endPos = span.End - offset;
+
+                // Extension into Cantilevers (B2 layer only)
+                if (allowExtension)
+                {
+                    if (isStartCantilever && i == 1)
+                    {
+                        startPos = clearSpans[0].Start; // Extend to beam face
+                    }
+                    if (isEndCantilever && i == clearSpans.Count - 2)
+                    {
+                        endPos = clearSpans.Last().End; // Extend to beam face
+                    }
+                    
+                    // Single span beam with cantilevers at both ends
+                    if (isStartCantilever && isEndCantilever && clearSpans.Count == 3 && i == 1)
+                    {
+                        startPos = clearSpans[0].Start;
+                        endPos = clearSpans[2].End;
+                    }
+                }
+
+                segments.Add((startPos, endPos));
             }
 
             return segments;
@@ -168,8 +200,14 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
 
         /// <summary>
         /// Gets the exact 0.1L offset segment bounds for a specific clear span index.
+        /// If the span is adjacent to a cantilever, the bar extends to the face.
         /// </summary>
-        public static (double Start, double End)? GetBottomSegmentForSpan(int spanIndex, List<(double Start, double End)> clearSpans)
+        public static (double Start, double End)? GetBottomSegmentForSpan(
+            int spanIndex, 
+            List<(double Start, double End)> clearSpans, 
+            bool isStartCantilever = false, 
+            bool isEndCantilever = false,
+            bool allowExtension = false)
         {
             if (clearSpans == null || spanIndex < 0 || spanIndex >= clearSpans.Count) return null;
 
@@ -177,7 +215,25 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
             double spanL = span.End - span.Start;
             double offset = spanL * 0.1;
 
-            return (span.Start + offset, span.End - offset);
+            double startPos = span.Start + offset;
+            double endPos = span.End - offset;
+
+            // Extension into Cantilevers (B2 layer only)
+            if (allowExtension)
+            {
+                if (isStartCantilever && spanIndex == 1)
+                {
+                    // Extend the first interior span's B2 to the very start of the beam
+                    startPos = 0.0;
+                }
+                if (isEndCantilever && spanIndex == clearSpans.Count - 2)
+                {
+                    // Extend the last interior span's B2 to the very end of the beam
+                    endPos = clearSpans.Last().End;
+                }
+            }
+
+            return (startPos, endPos);
         }
     }
 }

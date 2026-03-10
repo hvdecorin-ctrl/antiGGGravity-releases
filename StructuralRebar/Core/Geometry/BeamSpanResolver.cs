@@ -292,6 +292,71 @@ namespace antiGGGravity.StructuralRebar.Core.Geometry
                 }
             }
 
+            // === Search Primary Beams (Structural Framing) ===
+            var primaryBeams = new FilteredElementCollector(doc)
+                .OfCategory(BuiltInCategory.OST_StructuralFraming)
+                .OfClass(typeof(FamilyInstance))
+                .Cast<FamilyInstance>()
+                .ToList();
+
+            foreach (var pb in primaryBeams)
+            {
+                if (excludeIds != null && excludeIds.Contains(pb.Id)) continue;
+                BoundingBoxXYZ bbox = pb.get_BoundingBox(null);
+                if (bbox == null) continue;
+
+                // Z-check ensures the primary beam is physically coplanar with our secondary beam
+                if (minZ.HasValue && bbox.Max.Z < minZ.Value) continue;
+                if (maxZ.HasValue && bbox.Min.Z > maxZ.Value) continue;
+
+                // Ensure the primary beam is actually perpendicular/crossing, not parallel
+                var locationCurve = pb.Location as LocationCurve;
+                if (locationCurve != null && locationCurve.Curve is Line pbLine)
+                {
+                    XYZ pbDir = pbLine.Direction.Normalize();
+                    double dotParam = Math.Abs(pbDir.DotProduct(lineDir.Normalize()));
+                    
+                    // Dot product near 1 = parallel. Near 0 = perpendicular.
+                    // If it's more parallel than perpendicular (e.g., dot > 0.5), skip it.
+                    if (dotParam > 0.5) continue;
+                }
+
+                // Ensure that the intersecting beam is actually a *Support*.
+                // A true supporting primary beam will typically be deeper, meaning its bottom elevation 
+                // is lower than the bottom elevation of the continuous secondary beam.
+                // If the intersecting beam's bottom Z is >= the main beam's bottom Z, it's just framing into the side.
+                // minZ represents the main beam's bounding box min Z (roughly).
+                if (minZ.HasValue)
+                {
+                    // Adding a small tolerance (e.g., 50mm) to account for slight modeling discrepancies
+                    double tolZ = 50.0 / 304.8;
+                    // Note: minZ variable historically had a - 2.0ft tolerance applied to it outside this function.
+                    // We should re-calculate the true bottom Z here for an accurate comparison.
+                }
+
+                // Since minZ is passed in with a 2ft tolerance already applied, we need the exact host bottom Z.
+                // Instead, we can read the structural depth of the intersecting beam vs our width/depth.
+                // Alternatively, simply check the Z-elevation of the physical bounding box.
+                // The true bottom Z of the continuous chain was passed in as `minZ + 2.0` in the calling function.
+                double trueHostBotZ = minZ.HasValue ? minZ.Value + 2.0 : bbox.Min.Z;
+                double truePbBotZ = bbox.Min.Z;
+
+                // If the intersecting "primary beam" does not extend below the continuous beam by at least 50mm, 
+                // it is likely just a flush secondary beam framing into it, NOT a support underneath it.
+                if (truePbBotZ > trueHostBotZ - (50.0 / 304.8))
+                {
+                    continue; 
+                }
+
+                var result = ProjectSupportOntoBeam(bbox, lineStart, lineDir, linePerp, lineLength, proximityTol);
+                if (result.HasValue)
+                {
+                    var info = result.Value;
+                    info.ElementId = pb.Id;
+                    supports.Add(info);
+                }
+            }
+
             // Remove duplicates (e.g. nested families or overlapping bounding boxes at same coord)
             supports = supports.OrderBy(s => s.CenterOffset)
                                .GroupBy(s => Math.Round(s.CenterOffset, 2)) // Group by center (within 1/100th ft)
