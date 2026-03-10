@@ -135,9 +135,10 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
             // Failsafe if spans are somehow crushed
             if (clearSpans.Count == 0) clearSpans.Add((startExtension, totalLength - endExtension));
 
-            // Detect cantilever: if the last support's far face is not at the end of the line
+            // Detect cantilever: if the last support's far face is not at the true end of the beam line
+            double baseLength = trueStartPt.DistanceTo(trueEndPt);
             bool isStartCantilever = allSupports.Count > 0 && allSupports[0].NearFaceOffset > 0.1;
-            bool isEndCantilever = allSupports.Count > 0 && allSupports.Last().FarFaceOffset < totalLength - 0.1;
+            bool isEndCantilever = allSupports.Count > 0 && allSupports.Last().FarFaceOffset < baseLength - 0.1;
 
             // Cover at each end (inside the support column far face)
             double coverStart = firstHost.CoverOther;

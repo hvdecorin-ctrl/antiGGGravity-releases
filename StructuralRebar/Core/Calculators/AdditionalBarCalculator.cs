@@ -141,6 +141,10 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
                 double ext = isCant ? leftL.Value : leftL.Value / 3.0;
                 startPos = nearFace - ext;
             }
+            else
+            {
+                startPos = 0.0;
+            }
 
             // Right Extension
             if (rightL.HasValue)
@@ -149,6 +153,10 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
                 bool isCant = (supportIndex == totalPhysicalSupports - 1 && isEndCantilever);
                 double ext = isCant ? rightL.Value : rightL.Value / 3.0;
                 endPos = farFace + ext;
+            }
+            else
+            {
+                endPos = totalLength;
             }
 
             // Failsafe bounds
