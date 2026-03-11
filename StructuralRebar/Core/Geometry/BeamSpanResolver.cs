@@ -334,16 +334,22 @@ namespace antiGGGravity.StructuralRebar.Core.Geometry
                     // We should re-calculate the true bottom Z here for an accurate comparison.
                 }
 
-                // Since minZ is passed in with a 2ft tolerance already applied, we need the exact host bottom Z.
-                // Instead, we can read the structural depth of the intersecting beam vs our width/depth.
-                // Alternatively, simply check the Z-elevation of the physical bounding box.
-                // The true bottom Z of the continuous chain was passed in as `minZ + 2.0` in the calling function.
+                // Since minZ is passed in with a 2.0ft tolerance already applied in the caller, we need the exact host bottom Z.
+                // The true bottom Z of the continuous chain was passed in as `minZ + 2.0`.
                 double trueHostBotZ = minZ.HasValue ? minZ.Value + 2.0 : bbox.Min.Z;
                 double truePbBotZ = bbox.Min.Z;
 
+                // Get the physical width of the intersecting beam
+                double pbWidth = BeamGeometryModule.GetParamValue(pb, "Width", "b");
+                if (pbWidth <= 0) pbWidth = Math.Abs((bbox.Max - bbox.Min).DotProduct(lineDir.Normalize()));
+
+                // A beam is a support if it's deeper (by at least 50mm) OR wider (by at least 20mm)
+                bool isDeeper = truePbBotZ <= trueHostBotZ - (50.0 / 304.8);
+                bool isWider = pbWidth >= supportWidth + (20.0 / 304.8);
+
                 // If the intersecting "primary beam" does not extend below the continuous beam by at least 50mm, 
-                // it is likely just a flush secondary beam framing into it, NOT a support underneath it.
-                if (truePbBotZ > trueHostBotZ - (50.0 / 304.8))
+                // AND it is not wider than the secondary beam, it is framing in, not supporting.
+                if (!isDeeper && !isWider)
                 {
                     continue; 
                 }

@@ -108,6 +108,19 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
             double maxZ = firstHost.SolidZMax + 2.0;
             var allSupports = BeamSpanResolver.FindSupportsAlongLine(_doc, trueStartPt, trueEndPt, firstHost.Width, excludeIds, minZ, maxZ);
 
+            // Override with UI-specified geometric supports if in BeamAdvance mode
+            if (request.HostType == ElementHostType.BeamAdvance && request.SupportOverrides != null && request.SupportOverrides.Count > 0)
+            {
+                allSupports = request.SupportOverrides.Select(o => new BeamSpanResolver.SupportInfo
+                {
+                    CenterOffset = o.CenterOffset,
+                    NearFaceOffset = o.NearFaceOffset,
+                    FarFaceOffset = o.FarFaceOffset,
+                    SupportWidth = o.SupportWidth,
+                    IsEndSupport = o.IsEndSupport
+                }).ToList();
+            }
+
             // Determine end column extensions (bar extends to far face of end supports)
             // Use FindSupportExtension for BOTH single and multi-beam to accurately find far faces from cutback endpoints
             double startExtension = FindSupportExtension(_doc, trueStartPt, -continuousDir, excludeIds);
@@ -148,6 +161,18 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                 isEndCantilever = request.SupportOverrides.Last().IsCantilever;
             }
 
+            // === FIND TRUE OVERALL BEAM ENVELOPE ===
+            // For continuous bars to stay inside ALL spans, we need the "inner" envelope:
+            // Top bars must stay below the LOWEST top face in the chain.
+            // Bottom bars must stay above the HIGHEST bottom face.
+            double minZMax = double.MaxValue;
+            double maxZMin = double.MinValue;
+            foreach (var (_, host) in hostList)
+            {
+                if (host.SolidZMax < minZMax) minZMax = host.SolidZMax;
+                if (host.SolidZMin > maxZMin) maxZMin = host.SolidZMin;
+            }
+
             // Cover at each end (inside the support column far face)
             double coverStart = firstHost.CoverOther;
             double coverEnd = firstHost.CoverOther;
@@ -186,16 +211,25 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
 
             if (!string.IsNullOrEmpty(request.TransverseBarTypeName))
             {
-                double zMin = firstHost.SolidZMin;
-                double zMax = firstHost.SolidZMax;
-                double stW = firstHost.Width - 2 * firstHost.CoverOther;
-                double stH = firstHost.Height - firstHost.CoverTop - firstHost.CoverBottom;
-                double hCenterOff = (firstHost.CoverBottom - firstHost.CoverTop) / 2.0;
-
                 foreach (var spanBound in clearSpans)
                 {
                     double spanLen = spanBound.End - spanBound.Start;
                     if (spanLen <= UnitConversion.MmToFeet(100)) continue;
+
+                    // Find the host beam that best represents this span to get correct Z-bounds/Width
+                    XYZ spanMid = barOriginPt + continuousDir * ((spanBound.Start + spanBound.End) / 2.0);
+                    HostGeometry spanHost = firstHost;
+                    double minDist = double.MaxValue;
+                    foreach (var (_, h) in hostList) {
+                        double d = spanMid.DistanceTo((h.StartPoint + h.EndPoint) / 2.0);
+                        if (d < minDist) { minDist = d; spanHost = h; }
+                    }
+
+                    double zMin = spanHost.SolidZMin;
+                    double zMax = spanHost.SolidZMax;
+                    double stW = spanHost.Width - 2 * spanHost.CoverOther;
+                    double stH = spanHost.Height - spanHost.CoverTop - spanHost.CoverBottom;
+                    double hCenterOff = (spanHost.CoverBottom - spanHost.CoverTop) / 2.0;
 
                     double offset = request.TransverseStartOffset;
                     if (offset > spanLen / 3.0) offset = spanLen / 6.0;
@@ -203,7 +237,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                     if (request.EnableZoneSpacing)
                     {
                         var zones = ZoneSpacingCalculator.CalculateBeamZones(
-                            spanLen, firstHost.Height, request.TransverseSpacing,
+                            spanLen, spanHost.Height, request.TransverseSpacing,
                             offset, request.DesignCode);
 
                         foreach (var zone in zones)
@@ -214,7 +248,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                             XYZ xyOrigin = barOriginPt + continuousDir * (spanBound.Start + zone.StartOffset);
                             XYZ stirrupOrigin = new XYZ(xyOrigin.X, xyOrigin.Y, (zMax + zMin) / 2.0);
                             var curves = StirrupLayoutGenerator.CreateStirrupLoopFlat(
-                                stirrupOrigin, firstHost.WAxis, stW, stH, hCenterOff);
+                                stirrupOrigin, spanHost.WAxis, stW, stH, hCenterOff);
 
                             AssignToBestHost(spanBound.Start + (zone.StartOffset + zone.EndOffset) / 2.0, new RebarDefinition
                             {
@@ -224,8 +258,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                                 BarDiameter = transDia,
                                 Spacing = zone.Spacing,
                                 ArrayLength = arrLen,
-                                ArrayDirection = firstHost.LAxis,
-                                Normal = firstHost.LAxis,
+                                ArrayDirection = spanHost.LAxis,
+                                Normal = spanHost.LAxis,
                                 HookStartName = request.TransverseHookStartName,
                                 HookEndName = request.TransverseHookEndName,
                                 Label = $"Stirrup ({zone.Label})"
@@ -238,7 +272,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                         XYZ xyOrigin = barOriginPt + continuousDir * (spanBound.Start + offset);
                         XYZ stirrupOrigin = new XYZ(xyOrigin.X, xyOrigin.Y, (zMax + zMin) / 2.0);
                         var curves = StirrupLayoutGenerator.CreateStirrupLoopFlat(
-                            stirrupOrigin, firstHost.WAxis, stW, stH, hCenterOff);
+                            stirrupOrigin, spanHost.WAxis, stW, stH, hCenterOff);
 
                         double arrLen = spanLen - 2 * offset;
                         if (arrLen > 0)
@@ -251,8 +285,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                                 BarDiameter = transDia,
                                 Spacing = request.TransverseSpacing,
                                 ArrayLength = arrLen,
-                                ArrayDirection = firstHost.LAxis,
-                                Normal = firstHost.LAxis,
+                                ArrayDirection = spanHost.LAxis,
+                                Normal = spanHost.LAxis,
                                 HookStartName = request.TransverseHookStartName,
                                 HookEndName = request.TransverseHookEndName,
                                 Label = "Stirrup"
@@ -262,12 +296,11 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                 }
             }
 
-            // === 2. CONTINUOUS BARS (Top + Bottom + Side) ===
-            double innerOffset = firstHost.CoverOther + transDia;
-            double distWidth = firstHost.Width - 2 * innerOffset;
+            // === 2. LONGITUDINAL BARS (using overall inner envelope) ===
+            double distWidth = firstHost.Width - 2 * firstHost.CoverOther - 2 * transDia; // Basic reference width
 
-            // --- 2a. CONTINUOUS TOP BARS (T1, T2) ---
-            double topZ = firstHost.SolidZMax - firstHost.CoverTop - transDia;
+            // Top layers
+            double topZ = minZMax - firstHost.CoverTop - transDia;
             int topLayerIdx = 0;
             foreach (var layer in request.Layers.Where(l =>
                 l.Face == RebarLayerFace.Exterior || l.VerticalOffset > 0))
@@ -299,10 +332,13 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                 for (int si = 0; si < segments.Count; si++)
                 {
                     var seg = segments[si];
+                    double innerOffset = firstHost.CoverOther + transDia + barDia / 2.0;
+                    double distWidthL = firstHost.Width - 2 * innerOffset;
+
                     XYZ s = barOriginPt + continuousDir * (coverStart + seg.Start);
                     XYZ e = barOriginPt + continuousDir * (coverStart + seg.End);
-                    XYZ barStart = new XYZ(s.X, s.Y, z) - firstHost.WAxis * (distWidth / 2.0);
-                    XYZ barEnd = new XYZ(e.X, e.Y, z) - firstHost.WAxis * (distWidth / 2.0);
+                    XYZ barStart = new XYZ(s.X, s.Y, z) - firstHost.WAxis * (distWidthL / 2.0);
+                    XYZ barEnd = new XYZ(e.X, e.Y, z) - firstHost.WAxis * (distWidthL / 2.0);
 
                     var curves = new List<Curve>();
                     if (layer.IsContinuous && si > 0 && segments.Count > 1)
@@ -334,7 +370,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                         BarTypeName = layer.VerticalBarTypeName,
                         BarDiameter = barDia,
                         FixedCount = count,
-                        DistributionWidth = distWidth,
+                        DistributionWidth = distWidthL,
                         ArrayDirection = firstHost.WAxis,
                         Normal = firstHost.WAxis,
                         HookStartOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Left,
@@ -485,7 +521,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
             }
 
             // --- 2b. CONTINUOUS BOTTOM BARS (B1, B2) ---
-            double botZ = firstHost.SolidZMin + firstHost.CoverBottom + transDia;
+            double botZ = maxZMin + firstHost.CoverBottom + transDia;
             int botLayerIdx = 0;
             foreach (var layer in request.Layers.Where(l =>
                 l.Face == RebarLayerFace.Interior || l.VerticalOffset < 0))
@@ -518,10 +554,13 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                 for (int si = 0; si < segments.Count; si++)
                 {
                     var seg = segments[si];
+                    double innerOffset = firstHost.CoverOther + transDia + barDia / 2.0;
+                    double distWidthL = firstHost.Width - 2 * innerOffset;
+
                     XYZ s = barOriginPt + continuousDir * (coverStart + seg.Start);
                     XYZ e = barOriginPt + continuousDir * (coverStart + seg.End);
-                    XYZ barStart = new XYZ(s.X, s.Y, z) - firstHost.WAxis * (distWidth / 2.0);
-                    XYZ barEnd = new XYZ(e.X, e.Y, z) - firstHost.WAxis * (distWidth / 2.0);
+                    XYZ barStart = new XYZ(s.X, s.Y, z) - firstHost.WAxis * (distWidthL / 2.0);
+                    XYZ barEnd = new XYZ(e.X, e.Y, z) - firstHost.WAxis * (distWidthL / 2.0);
 
                     var curves = new List<Curve>();
                     if (layer.IsContinuous && si > 0 && segments.Count > 1)
@@ -553,7 +592,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                         BarTypeName = layer.VerticalBarTypeName,
                         BarDiameter = barDia,
                         FixedCount = count,
-                        DistributionWidth = distWidth,
+                        DistributionWidth = distWidthL,
                         ArrayDirection = firstHost.WAxis,
                         Normal = firstHost.WAxis,
                         HookStartOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Right,
@@ -670,10 +709,13 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                             var seg = segOpt.Value;
                             double outDia = GetBarDiameter(barType);
 
+                            double innerOffset = firstHost.CoverOther + transDia + outDia / 2.0;
+                            double distWidthL = firstHost.Width - 2 * innerOffset;
+
                             XYZ s = barOriginPt + continuousDir * (coverStart + seg.Start);
                             XYZ e = barOriginPt + continuousDir * (coverStart + seg.End);
-                            XYZ barStart = new XYZ(s.X, s.Y, z) - firstHost.WAxis * (distWidth / 2.0);
-                            XYZ barEnd = new XYZ(e.X, e.Y, z) - firstHost.WAxis * (distWidth / 2.0);
+                            XYZ barStart = new XYZ(s.X, s.Y, z) - firstHost.WAxis * (distWidthL / 2.0);
+                            XYZ barEnd = new XYZ(e.X, e.Y, z) - firstHost.WAxis * (distWidthL / 2.0);
 
                             AssignToBestHost(coverStart + (seg.Start + seg.End) / 2.0, new RebarDefinition
                             {
@@ -682,7 +724,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                                 BarTypeName = barType,
                                 BarDiameter = outDia,
                                 FixedCount = count,
-                                DistributionWidth = distWidth,
+                                DistributionWidth = distWidthL,
                                 ArrayDirection = firstHost.WAxis,
                                 Normal = firstHost.WAxis,
                                 HookStartOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Right,
@@ -702,33 +744,40 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                 double sideDia = GetBarDiameter(request.SideRebarTypeName);
                 int rows = request.SideRebarRows;
 
-                double sideZTop = firstHost.SolidZMax - firstHost.CoverTop - transDia - sideDia;
-                double sideZBot = firstHost.SolidZMin + firstHost.CoverBottom + transDia + sideDia;
+                // Use overall safe envelope for available side-bar height
+                double sideZTop = minZMax - firstHost.CoverTop - transDia - sideDia;
+                double sideZBot = maxZMin + firstHost.CoverBottom + transDia + sideDia;
                 double availableHeight = sideZTop - sideZBot;
-                double rowSpacing = availableHeight / (rows + 1);
-
-                for (int row = 1; row <= rows; row++)
+                
+                if (availableHeight > 0)
                 {
-                    double z = sideZBot + rowSpacing * row;
+                    double rowSpacing = availableHeight / (rows + 1);
+                    double innerOffset = firstHost.CoverOther + transDia + sideDia / 2.0;
+                    double distWidthSide = firstHost.Width - 2 * innerOffset;
 
-                    XYZ s = barOriginPt + continuousDir * coverStart;
-                    XYZ e = barOriginPt + continuousDir * (coverStart + barLen);
-                    XYZ barStart = new XYZ(s.X, s.Y, z) - firstHost.WAxis * (distWidth / 2.0);
-                    XYZ barEnd = new XYZ(e.X, e.Y, z) - firstHost.WAxis * (distWidth / 2.0);
-
-                    AssignToBestHost(coverStart + barLen / 2.0, new RebarDefinition
+                    for (int row = 1; row <= rows; row++)
                     {
-                        Curves = new List<Curve> { Line.CreateBound(barStart, barEnd) },
-                        Style = Autodesk.Revit.DB.Structure.RebarStyle.Standard,
-                        BarTypeName = request.SideRebarTypeName,
-                        BarDiameter = sideDia,
-                        FixedCount = 2,
-                        DistributionWidth = distWidth,
-                        ArrayDirection = firstHost.WAxis,
-                        Normal = firstHost.WAxis,
-                        Label = $"Side Bar R{row} (continuous)",
-                        Comment = "Side Bar"
-                    });
+                        double z = sideZBot + rowSpacing * row;
+
+                        XYZ s = barOriginPt + continuousDir * coverStart;
+                        XYZ e = barOriginPt + continuousDir * (coverStart + barLen);
+                        XYZ barStart = new XYZ(s.X, s.Y, z) - firstHost.WAxis * (distWidthSide / 2.0);
+                        XYZ barEnd = new XYZ(e.X, e.Y, z) - firstHost.WAxis * (distWidthSide / 2.0);
+
+                        AssignToBestHost(coverStart + barLen / 2.0, new RebarDefinition
+                        {
+                            Curves = new List<Curve> { Line.CreateBound(barStart, barEnd) },
+                            Style = Autodesk.Revit.DB.Structure.RebarStyle.Standard,
+                            BarTypeName = request.SideRebarTypeName,
+                            BarDiameter = sideDia,
+                            FixedCount = 2,
+                            DistributionWidth = distWidthSide,
+                            ArrayDirection = firstHost.WAxis,
+                            Normal = firstHost.WAxis,
+                            Label = "Side Rebar",
+                            Comment = "Side Bar"
+                        });
+                    }
                 }
             }
 
@@ -1026,22 +1075,9 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
             RebarRequest request, double transDia, double minLayerGap,
             List<RebarDefinition> definitions)
         {
-            // Z bounds from solid geometry
+            // Z bounds — already validated against parametric height by BeamGeometryModule
             double zMin = host.SolidZMin;
             double zMax = host.SolidZMax;
-
-            // Validate with parameter height
-            double paramHeight = GetParamHeight(beam);
-            if (paramHeight > 0)
-            {
-                double solidHeight = zMax - zMin;
-                if (Math.Abs(solidHeight - paramHeight) > 0.01)
-                {
-                    double zMid = (zMax + zMin) / 2.0;
-                    zMin = zMid - paramHeight / 2.0;
-                    zMax = zMid + paramHeight / 2.0;
-                }
-            }
 
             // Stirrups
             if (!string.IsNullOrEmpty(request.TransverseBarTypeName))
@@ -1100,7 +1136,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                 for (int si = 0; si < segments.Count; si++)
                 {
                     var seg = segments[si];
-                    double innerOffset = host.CoverOther + transDia;
+                    double innerOffset = host.CoverOther + transDia + barDia / 2.0;
                     double distWidthSeg = host.Width - 2 * innerOffset;
 
                     XYZ s = barOriginPt + host.LAxis * (host.CoverOther + seg.Start);
@@ -1188,10 +1224,11 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                 for (int si = 0; si < segments.Count; si++)
                 {
                     var seg = segments[si];
+                    double innerOffset = host.CoverOther + transDia + barDia / 2.0;
+                    double distWidthSeg = host.Width - 2 * innerOffset;
+
                     XYZ s = barOriginPt + host.LAxis * (host.CoverOther + seg.Start);
                     XYZ e = barOriginPt + host.LAxis * (host.CoverOther + seg.End);
-                    double innerOffset = host.CoverOther + transDia;
-                    double distWidthSeg = host.Width - 2 * innerOffset;
                     XYZ barStart = new XYZ(s.X, s.Y, z) - host.WAxis * (distWidthSeg / 2.0);
                     XYZ barEnd = new XYZ(e.X, e.Y, z) - host.WAxis * (distWidthSeg / 2.0);
 
@@ -1385,7 +1422,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                     layer.OverrideHookLength, layer.HookLengthOverride, "Top Bar");
 
                 if (def != null) definitions.Add(def);
-                topOffset -= (barDia + minLayerGap);
+                double effectiveGap = Math.Max(minLayerGap, barDia);
+                topOffset -= (barDia + effectiveGap);
             }
 
             // Bottom layers
@@ -1405,7 +1443,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                     layer.OverrideHookLength, layer.HookLengthOverride, "Btm Bar");
 
                 if (def != null) definitions.Add(def);
-                botOffset += (barDia + minLayerGap);
+                double effectiveGap = Math.Max(minLayerGap, barDia);
+                botOffset += (barDia + effectiveGap);
             }
         }
 

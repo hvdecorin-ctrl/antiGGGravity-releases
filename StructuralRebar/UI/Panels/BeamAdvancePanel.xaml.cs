@@ -158,6 +158,111 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             }
         }
 
+        private void UI_Button_AddSupport_Click(object sender, RoutedEventArgs e)
+        {
+            if (_lastSupports == null || _totalLength <= 0 || _targetBeamId == ElementId.InvalidElementId) return;
+
+            _parentWindow.Hide();
+            try
+            {
+                // Prompts user to select beams in Revit UI
+                IList<Reference> refs = _uiDoc.Selection.PickObjects(ObjectType.Element, new BeamSelectionFilter(), "Select intersecting beams to act as supports");
+                if (refs == null || refs.Count == 0) return;
+
+                // We need the original chain's line to project the picked beam onto
+                FamilyInstance hostBeam = _doc.GetElement(_targetBeamId) as FamilyInstance;
+                var pool = new FilteredElementCollector(_doc)
+                    .OfCategory(BuiltInCategory.OST_StructuralFraming)
+                    .OfClass(typeof(FamilyInstance))
+                    .Cast<FamilyInstance>()
+                    .ToList();
+
+                var groups = BeamSpanResolver.GroupSelectedBeams(new List<FamilyInstance> { hostBeam }.Concat(pool).ToList());
+                var targetChain = groups.FirstOrDefault(g => g.Any(b => b.Id == hostBeam.Id));
+                if (targetChain == null || targetChain.Count == 0) return;
+
+                XYZ firstEnd = (targetChain.First().Location as LocationCurve).Curve.GetEndPoint(0);
+                XYZ lastEnd = (targetChain.Last().Location as LocationCurve).Curve.GetEndPoint(1);
+                
+                XYZ lineDir = (lastEnd - firstEnd).Normalize();
+                XYZ linePerp = new XYZ(-lineDir.Y, lineDir.X, 0);
+                XYZ beamStart2D = new XYZ(firstEnd.X, firstEnd.Y, 0);
+
+                foreach (Reference extRef in refs)
+                {
+                    FamilyInstance pickedBeam = _doc.GetElement(extRef.ElementId) as FamilyInstance;
+                    if (pickedBeam == null) continue;
+
+                    BoundingBoxXYZ bbox = pickedBeam.get_BoundingBox(null);
+                    if (bbox != null)
+                    {
+                        // Get corner projection min/max along our line
+                        XYZ[] corners = {
+                            new XYZ(bbox.Min.X, bbox.Min.Y, 0),
+                            new XYZ(bbox.Max.X, bbox.Min.Y, 0),
+                            new XYZ(bbox.Max.X, bbox.Max.Y, 0),
+                            new XYZ(bbox.Min.X, bbox.Max.Y, 0)
+                        };
+
+                        double minAlong = double.MaxValue;
+                        double maxAlong = double.MinValue;
+                        foreach (var corner in corners)
+                        {
+                            double along = (corner - beamStart2D).DotProduct(lineDir);
+                            if (along < minAlong) minAlong = along;
+                            if (along > maxAlong) maxAlong = along;
+                        }
+
+                        double centerOffset = (minAlong + maxAlong) / 2.0;
+
+                        // Create new support and inject
+                        var newSupport = new BeamSpanResolver.SupportInfo
+                        {
+                            ElementId = pickedBeam.Id,
+                            CenterOffset = centerOffset,
+                            NearFaceOffset = minAlong,
+                            FarFaceOffset = maxAlong,
+                            SupportWidth = maxAlong - minAlong,
+                            IsEndSupport = false
+                        };
+
+                        _lastSupports.Add(newSupport);
+                    }
+                }
+
+                // Cleanup and sort again
+                _lastSupports = _lastSupports.OrderBy(s => s.CenterOffset)
+                                                .GroupBy(s => Math.Round(s.CenterOffset, 2))
+                                                .Select(g => g.First())
+                                                .ToList();
+
+                double endTol = 100.0 / 304.8; 
+                for (int i = 0; i < _lastSupports.Count; i++)
+                {
+                    var s = _lastSupports[i];
+                    s.IsEndSupport = (s.CenterOffset < endTol) || (s.CenterOffset > _totalLength - endTol);
+                    _lastSupports[i] = s;
+                }
+
+                PopulateUIFromSupports(targetChain);
+
+                UI_Text_Status.Text = $"{refs.Count} support(s) processed. Now {SupportData.Count} supports and {SpanData.Count} spans.";
+            }
+            catch (Autodesk.Revit.Exceptions.OperationCanceledException)
+            {
+                UI_Text_Status.Text = "Manual support selection cancelled.";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error adding support: {ex.Message}", "Support Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                _parentWindow.Show();
+                _parentWindow.Activate();
+            }
+        }
+
         private void AnalyzeBeamGeometry(FamilyInstance beam)
         {
             // First, find complete continuous chain
@@ -176,20 +281,23 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             // Resolve full geometry limits
             XYZ firstEnd = (targetChain.First().Location as LocationCurve).Curve.GetEndPoint(0);
             XYZ lastEnd = (targetChain.Last().Location as LocationCurve).Curve.GetEndPoint(1);
-            
-            double width = 300.0 / 304.8; // Approximate default width for search if parameter missing
-            var widthParam = beam.get_Parameter(BuiltInParameter.STRUCTURAL_SECTION_COMMON_WIDTH);
-            if (widthParam != null) width = widthParam.AsDouble();
+            var hostGeom = BeamGeometryModule.Read(_doc, targetChain.First());
+            double width = hostGeom.Width;
+            double minZ = hostGeom.SolidZMin - 2.0;
+            double maxZ = hostGeom.SolidZMax + 2.0;
 
             var excludeIds = targetChain.Select(b => b.Id).ToList();
 
-            // Find Z range for vertical filtering
-            var totalBBox = targetChain.First().get_BoundingBox(null);
-            double minZ = targetChain.Min(b => b.get_BoundingBox(null).Min.Z) - 2.0; // 2ft tolerance
-            double maxZ = targetChain.Max(b => b.get_BoundingBox(null).Max.Z) + 2.0;
-
             _totalLength = firstEnd.DistanceTo(lastEnd);
             _lastSupports = BeamSpanResolver.FindSupportsAlongLine(_doc, firstEnd, lastEnd, width, excludeIds, minZ, maxZ);
+            
+            PopulateUIFromSupports(targetChain);
+            
+            UI_Button_AddSupport.IsEnabled = true;
+        }
+
+        private void PopulateUIFromSupports(List<FamilyInstance> targetChain)
+        {
             List<BeamSpanResolver.SupportInfo> supports = _lastSupports;
 
             bool isStartCantileverGeom = supports.Count > 0 && supports[0].NearFaceOffset > 0.1;
@@ -212,6 +320,11 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                     SupportIndex = i,
                     SupportName = name,
                     IsCantilever = isCantilever,
+                    CenterOffset = supports[i].CenterOffset,
+                    NearFaceOffset = supports[i].NearFaceOffset,
+                    FarFaceOffset = supports[i].FarFaceOffset,
+                    SupportWidth = supports[i].SupportWidth,
+                    IsEndSupport = supports[i].IsEndSupport,
                     T2_Count = 0,
                     T3_Count = 0
                 });

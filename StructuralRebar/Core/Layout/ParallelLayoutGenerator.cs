@@ -31,7 +31,7 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
         {
             if (count < 1) return null;
 
-            double innerOffset = host.CoverOther + transDiameter;
+            double innerOffset = host.CoverOther + transDiameter + barDiameter / 2.0;
             double distWidth = host.Width - 2 * innerOffset;
 
             XYZ s = host.StartPoint + host.LAxis * host.CoverOther;
@@ -67,7 +67,7 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
         {
             if (count < 1) return null;
 
-            double innerOffset = host.CoverOther + transDiameter;
+            double innerOffset = host.CoverOther + transDiameter + barDiameter / 2.0;
             double distWidth = host.Width - 2 * innerOffset;
 
             XYZ s = host.StartPoint + host.LAxis * host.CoverOther;

@@ -22,7 +22,7 @@ namespace antiGGGravity.StructuralRebar.Core.Geometry
             BoundingBoxXYZ bbox = beam.get_BoundingBox(null);
             XYZ bboxCenter = (bbox.Max + bbox.Min) / 2.0;
 
-            // === Z BOUNDS FROM SOLID GEOMETRY (reliable for offset beams) ===
+            // === Z BOUNDS FROM UNCUT SOLID GEOMETRY (reliable for offset beams) ===
             var solidZ = GetSolidZBounds(beam);
             double solidZMin = solidZ.ZMin;
             double solidZMax = solidZ.ZMax;
@@ -160,6 +160,7 @@ namespace antiGGGravity.StructuralRebar.Core.Geometry
 
         /// <summary>
         /// Extracts true Z bounds from actual solid geometry vertices.
+        /// Uses GetOriginalGeometry to retrieve the beam shape BEFORE any slab cuts or joins.
         /// </summary>
         private static (double ZMin, double ZMax) GetSolidZBounds(FamilyInstance beam)
         {
@@ -173,11 +174,17 @@ namespace antiGGGravity.StructuralRebar.Core.Geometry
                     ComputeReferences = false,
                     IncludeNonVisibleObjects = false
                 };
-                GeometryElement geom = beam.get_Geometry(opt);
+                
+                // Get original geometry to bypass slab cuts and joins distorting the Z bounds.
+                // NOTE: GetOriginalGeometry returns geometry in the family's LOCAL coordinate system.
+                GeometryElement geom = beam.GetOriginalGeometry(opt);
                 if (geom == null) goto fallback;
 
+                // We must transform local points to world space to get true Z bounds.
+                Transform tf = beam.GetTransform();
+
                 foreach (GeometryObject g in geom)
-                    CollectSolidZBounds(g, ref zMin, ref zMax);
+                    CollectSolidZBounds(g, tf, ref zMin, ref zMax);
 
                 if (zMin < double.MaxValue && zMax > double.MinValue)
                     return (zMin, zMax);
@@ -189,28 +196,93 @@ namespace antiGGGravity.StructuralRebar.Core.Geometry
             return (bbox.Min.Z, bbox.Max.Z);
         }
 
-        private static void CollectSolidZBounds(GeometryObject g, ref double zMin, ref double zMax)
+        private static void CollectSolidZBounds(GeometryObject g, Transform tf, ref double zMin, ref double zMax)
         {
             if (g is Solid solid && solid.Volume > 0)
             {
                 foreach (Edge edge in solid.Edges)
                 {
                     var pts = edge.Tessellate();
-                    foreach (var pt in pts)
+                    foreach (XYZ pt in pts)
                     {
-                        if (pt.Z < zMin) zMin = pt.Z;
-                        if (pt.Z > zMax) zMax = pt.Z;
+                        XYZ worldPt = tf.OfPoint(pt);
+                        if (worldPt.Z < zMin) zMin = worldPt.Z;
+                        if (worldPt.Z > zMax) zMax = worldPt.Z;
                     }
                 }
             }
-            else if (g is GeometryInstance gi)
+            else if (g is GeometryInstance inst)
             {
-                foreach (GeometryObject gg in gi.GetInstanceGeometry())
-                    CollectSolidZBounds(gg, ref zMin, ref zMax);
+                // Unlikely for GetOriginalGeometry, but just in case
+                Transform instTf = tf.Multiply(inst.Transform);
+                foreach (GeometryObject instObj in inst.GetInstanceGeometry())
+                {
+                    CollectSolidZBounds(instObj, instTf, ref zMin, ref zMax);
+                }
             }
         }
 
-        private static double GetParamValue(Element elem, params string[] names)
+        /// <summary>
+        /// Computes the true bottom-Z of a beam from its reference level, offset,
+        /// and z-justification — unaffected by Revit geometry joins / slab cuts.
+        /// </summary>
+        private static double GetBeamBottomZ(Document doc, FamilyInstance beam, double paramHeight)
+        {
+            double refZ = 0;
+            Curve pathCurve = (beam.Location as LocationCurve)?.Curve;
+            if (pathCurve != null)
+            {
+                // LocationCurve natively includes both the Level Elevation AND Start/End Level Offsets
+                refZ = Math.Min(pathCurve.GetEndPoint(0).Z, pathCurve.GetEndPoint(1).Z);
+            }
+            else
+            {
+                // Fallback 
+                double levelZ = 0;
+                Parameter levelParam = beam.get_Parameter(BuiltInParameter.INSTANCE_REFERENCE_LEVEL_PARAM);
+                if (levelParam != null && levelParam.AsElementId() != ElementId.InvalidElementId)
+                {
+                    Level refLevel = doc.GetElement(levelParam.AsElementId()) as Level;
+                    if (refLevel != null) levelZ = refLevel.Elevation;
+                }
+                Parameter startOffParam = beam.get_Parameter(BuiltInParameter.STRUCTURAL_BEAM_END0_ELEVATION);
+                double sOff = startOffParam != null && startOffParam.HasValue ? startOffParam.AsDouble() : 0;
+                refZ = levelZ + sOff;
+            }
+
+            // --- Vertical offset ("z Offset Value") ---
+            double zOffset = 0;
+            Parameter offsetParam = beam.get_Parameter(BuiltInParameter.Z_OFFSET_VALUE);
+            if (offsetParam != null && offsetParam.HasValue)
+                zOffset = offsetParam.AsDouble();
+
+            // --- z Justification (Top=0, Center=1, Bottom=2, Origin=3) ---
+            double refElevation = refZ + zOffset;
+            int zJustify = 0;
+            Parameter justifyParam = beam.get_Parameter(BuiltInParameter.Z_JUSTIFICATION);
+            if (justifyParam != null && justifyParam.HasValue)
+                zJustify = justifyParam.AsInteger();
+
+            double bottomZ;
+            switch (zJustify)
+            {
+                case 1: // Center
+                    bottomZ = refElevation - paramHeight / 2.0;
+                    break;
+                case 2: // Bottom
+                    bottomZ = refElevation;
+                    break;
+                case 0: // Top
+                case 3: // Origin (usually top for structural framing)
+                default:
+                    bottomZ = refElevation - paramHeight;
+                    break;
+            }
+
+            return bottomZ;
+        }
+
+        public static double GetParamValue(Element elem, params string[] names)
         {
             foreach (string name in names)
             {

@@ -21,9 +21,15 @@
                     <TextBlock Text="Click the button below and select a continuous beam structure in Revit to extract its physical spans and supports." 
                                Foreground="#666" TextWrapping="Wrap" MaxWidth="500"/>
                 </StackPanel>
-                <Button x:Name="UI_Button_Analyze" Content="Select Beam" Margin="20,0,0,0" Width="120" Height="36"
-                        Background="White" BorderBrush="#ABADB3" BorderThickness="1" Cursor="Hand"
-                        Click="UI_Button_Analyze_Click" HorizontalAlignment="Right"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="20,0,0,0">
+                    <Button x:Name="UI_Button_Analyze" Content="Select Beam" Width="100" Height="36"
+                            Background="White" BorderBrush="#ABADB3" BorderThickness="1" Cursor="Hand"
+                            Click="UI_Button_Analyze_Click"/>
+                    <Button x:Name="UI_Button_AddSupport" Content="+ Add Support" Width="100" Height="36" Margin="10,0,0,0"
+                            Background="#F0F8FF" BorderBrush="#87CEFA" BorderThickness="1" Cursor="Hand"
+                            Click="UI_Button_AddSupport_Click" IsEnabled="False"
+                            ToolTip="Manually pick an intersecting beam to force it as a support."/>
+                </StackPanel>
             </StackPanel>
         </Border>
 

@@ -18,6 +18,13 @@ namespace antiGGGravity.StructuralRebar.DTO
             set { _isCantilever = value; OnPropertyChanged(); }
         }
 
+        // Geometric data from BeamSpanResolver.SupportInfo
+        public double CenterOffset { get; set; }
+        public double NearFaceOffset { get; set; }
+        public double FarFaceOffset { get; set; }
+        public double SupportWidth { get; set; }
+        public bool IsEndSupport { get; set; }
+
         private string _t2BarTypeName;
         public string T2_BarTypeName
         {
