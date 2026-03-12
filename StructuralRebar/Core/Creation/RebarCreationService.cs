@@ -181,13 +181,18 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
                             bool reassigned = RebarShapeDetector.TryApplyStandardShape(
                                 _doc, rebar, def.Curves, def.Style, _rebarShapes);
 
+                            // Detect actual hooks from rebar element (crucial if Revit matched a shape with hooks)
+                            bool hasHookStart = rebar.GetHookTypeId(0) != ElementId.InvalidElementId;
+                            bool hasHookEnd = rebar.GetHookTypeId(1) != ElementId.InvalidElementId;
+
                             // Force re-apply desired hook orientations. 
                             // Reassigning shapes can reset orientations to shape defaults.
-                            if (reassigned || (hookStart != null || hookEnd != null))
+                            // We MUST also re-apply if Revit matched a shape with hooks automatically.
+                            if (reassigned || hasHookStart || hasHookEnd)
                             {
-                                if (rebar.GetHookTypeId(0) != ElementId.InvalidElementId)
+                                if (hasHookStart)
                                     rebar.SetHookOrientation(0, def.HookStartOrientation);
-                                if (rebar.GetHookTypeId(1) != ElementId.InvalidElementId)
+                                if (hasHookEnd)
                                     rebar.SetHookOrientation(1, def.HookEndOrientation);
                             }
                         }

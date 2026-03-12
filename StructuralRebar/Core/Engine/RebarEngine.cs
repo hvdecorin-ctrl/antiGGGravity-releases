@@ -620,6 +620,9 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                 var globalB2 = botLayers.ElementAtOrDefault(0);
                 var globalB3 = botLayers.ElementAtOrDefault(1);
 
+                // Identify first continuous bottom layer (B1) for hook template
+                var b1Layer = request.Layers.FirstOrDefault(l => (l.Face == RebarLayerFace.Interior || l.VerticalOffset < 0) && l.IsContinuous);
+
                 // B2 Layer
                 if ((request.SpanOverrides.Any(o => o.B2_Count > 0) || globalB2 != null))
                 {
@@ -669,6 +672,9 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                                 Normal = firstHost.WAxis,
                                 HookStartOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Right,
                                 HookEndOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Right,
+                                // Apply Hooks at End Supports (inherit from B1)
+                                HookStartName = (b1Layer != null && Math.Abs(seg.Start - 0) < 0.001) ? b1Layer.HookStartName : null,
+                                HookEndName = (b1Layer != null && Math.Abs(seg.End - barLen) < 0.01) ? b1Layer.HookEndName : null,
                                 Label = $"B2 @ {over.SpanName}",
                                 Comment = "Btm Additional Bar"
                             });
@@ -729,6 +735,9 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                                 Normal = firstHost.WAxis,
                                 HookStartOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Right,
                                 HookEndOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Right,
+                                // Apply Hooks at End Supports (inherit from B1)
+                                HookStartName = (b1Layer != null && Math.Abs(seg.Start - 0) < 0.001) ? b1Layer.HookStartName : null,
+                                HookEndName = (b1Layer != null && Math.Abs(seg.End - barLen) < 0.01) ? b1Layer.HookEndName : null,
                                 Label = $"B3 @ {over.SpanName}",
                                 Comment = "Btm Additional Bar"
                             });
