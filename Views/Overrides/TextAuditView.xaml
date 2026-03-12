@@ -1,0 +1,77 @@
+<Window x:Class="antiGGGravity.Views.Overrides.TextAuditView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Text Audit" Height="480" Width="400"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        WindowStartupLocation="CenterScreen" Topmost="True">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="55" CornerRadius="12" GlassFrameThickness="0"/>
+    </WindowChrome.WindowChrome>
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/antiGGGravity;component/Resources/Pre_BrandStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            
+            <Style x:Key="TextAuditButtonStyle" TargetType="Button" BasedOn="{StaticResource PremiumPrimaryButtonStyle}">
+                <Setter Property="Height" Value="40"/>
+                <Setter Property="Margin" Value="0,0,0,10"/>
+                <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                <Setter Property="Padding" Value="15,0"/>
+            </Style>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Border Style="{StaticResource PremiumBorderStyle}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="55"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- HEADER -->
+            <Border Grid.Row="0" Background="{StaticResource BrandGradientBrush}" CornerRadius="12,12,0,0">
+                <Grid Margin="25,0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource CompanyLogoStyle}"/>
+                        <TextBlock Style="{StaticResource CompanyDividerStyle}"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Text Audit" Style="{StaticResource PremiumTitleStyle}"/>
+                            <TextBlock Text="Smart text cleanup and formatting" Style="{StaticResource PremiumSubtitleStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <Button HorizontalAlignment="Right" VerticalAlignment="Center" Content="✕" 
+                            Style="{StaticResource PremiumIconButtonStyle}" Width="30" Height="30"
+                            Click="UI_Btn_Close_Click" WindowChrome.IsHitTestVisibleInChrome="True"/>
+                </Grid>
+            </Border>
+
+            <!-- CONTENT -->
+            <ScrollViewer Grid.Row="1" Margin="25" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <TextBlock Text="Merging &amp; Cleaning" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,0,0,12"/>
+                    <Button Content="Merge Selected (Single Space)" Style="{StaticResource TextAuditButtonStyle}" Click="Merge_Click"/>
+                    <Button Content="Merge Paragraphs (Double Break)" Style="{StaticResource TextAuditButtonStyle}" Click="MergeParagraphs_Click"/>
+                    <Button Content="Remove Returns (Single Line)" Style="{StaticResource TextAuditButtonStyle}" Click="RemoveReturns_Click"/>
+                    <Button Content="Remove Extra Spaces" Style="{StaticResource TextAuditButtonStyle}" Click="RemoveExtraSpaces_Click"/>
+
+                    <TextBlock Text="Case Conversion (Preserves Bullets)" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,10,0,12"/>
+                    <Button Content="TO UPPERCASE" Style="{StaticResource TextAuditButtonStyle}" Click="ToUpper_Click"/>
+                    <Button Content="to lowercase" Style="{StaticResource TextAuditButtonStyle}" Click="ToLower_Click"/>
+                    <Button Content="To Title Case" Style="{StaticResource TextAuditButtonStyle}" Click="ToTitle_Click"/>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- FOOTER -->
+            <Border Grid.Row="2" Background="#FAFAFA" Padding="20,15" CornerRadius="0,0,12,12" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,1,0,0">
+                <Grid>
+                    <TextBlock x:Name="UI_Status" VerticalAlignment="Center" Foreground="#999999" Text="Select text notes and pick an option"/>
+                    <Button HorizontalAlignment="Right" Content="Close" Width="100" Style="{StaticResource PremiumPrimaryButtonStyle}" Click="UI_Btn_Close_Click"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

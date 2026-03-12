@@ -32,11 +32,31 @@ namespace antiGGGravity.Commands.Overrides
     [Transaction(TransactionMode.Manual)]
     public class TextAuditCommand : IExternalCommand
     {
+        private static TextAuditView _view;
+
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            // Placeholder for Text Audit UI or logic
-            TaskDialog.Show("Text Audit", "Text Audit tools coming in next update.");
-             return Result.Succeeded;
+            try
+            {
+                if (_view != null && _view.IsVisible)
+                {
+                    _view.Focus();
+                    return Result.Succeeded;
+                }
+
+                var handler = new TextAuditHandler();
+                var auditEvent = ExternalEvent.Create(handler);
+
+                _view = new TextAuditView(auditEvent, handler);
+                _view.Show();
+
+                return Result.Succeeded;
+            }
+            catch (Exception ex)
+            {
+                message = ex.Message;
+                return Result.Failed;
+            }
         }
     }
 
