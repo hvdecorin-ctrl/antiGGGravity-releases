@@ -17,6 +17,7 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
         private readonly Document _doc;
         private readonly Dictionary<string, RebarBarType> _barTypes;
         private readonly Dictionary<string, RebarHookType> _hookTypes;
+        private readonly Dictionary<string, RebarShape> _rebarShapes;
 
         public RebarCreationService(Document doc)
         {
@@ -33,6 +34,12 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
                 .OfClass(typeof(RebarHookType))
                 .Cast<RebarHookType>()
                 .ToDictionary(t => t.Name, t => t, StringComparer.OrdinalIgnoreCase);
+
+            // Pre-cache all rebar shapes for post-creation shape reassignment
+            _rebarShapes = new FilteredElementCollector(doc)
+                .OfClass(typeof(RebarShape))
+                .Cast<RebarShape>()
+                .ToDictionary(s => s.Name, s => s, StringComparer.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -163,6 +170,31 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
                             {
                                 commentsParam.Set(def.Comment);
                             }
+                        }
+
+                        // === SHAPE REASSIGNMENT ===
+                        // Revit's CreateFromCurves often auto-generates new shape definitions
+                        // (Shape 1, Shape 2, etc.) instead of matching standard project shapes.
+                        // Detect the correct standard shape and reassign.
+                        try
+                        {
+                            bool reassigned = RebarShapeDetector.TryApplyStandardShape(
+                                _doc, rebar, def.Curves, def.Style, _rebarShapes);
+
+                            // Force re-apply desired hook orientations. 
+                            // Reassigning shapes can reset orientations to shape defaults.
+                            if (reassigned || (hookStart != null || hookEnd != null))
+                            {
+                                if (rebar.GetHookTypeId(0) != ElementId.InvalidElementId)
+                                    rebar.SetHookOrientation(0, def.HookStartOrientation);
+                                if (rebar.GetHookTypeId(1) != ElementId.InvalidElementId)
+                                    rebar.SetHookOrientation(1, def.HookEndOrientation);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine(
+                                $"RebarCreationService: Shape/Orientation fix failed for '{def.Label}': {ex.Message}");
                         }
 
                         results.Add(rebar.Id);
