@@ -1,7 +1,7 @@
 <Window x:Class="antiGGGravity.Views.Overrides.TextAuditView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Text Audit" Height="520" Width="400"
+        Title="Text Audit" Height="600" Width="400"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         WindowStartupLocation="CenterScreen" Topmost="True">
 

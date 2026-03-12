@@ -99,7 +99,7 @@ namespace antiGGGravity.Commands.Overrides
                             foreach (var note in selection)
                             {
                                 string oldText = note.Text;
-                                note.Text = oldText.Replace("\r", " ").Replace("\n", " ");
+                                note.Text = oldText.Replace("\r", " ").Replace("\n", " ").Trim();
                                 count++;
                             }
                             break;
@@ -107,19 +107,19 @@ namespace antiGGGravity.Commands.Overrides
                             foreach (var note in selection)
                             {
                                 string oldText = note.Text;
-                                note.Text = CleanExtraSpaces(oldText);
+                                note.Text = CleanExtraSpaces(oldText).TrimEnd();
                                 count++;
                             }
                             break;
                         case AuditAction.ToLower:
-                            foreach (var note in selection) { note.Text = ProcessLines(note.Text, s => s.ToLower()); count++; }
+                            foreach (var note in selection) { note.Text = ProcessLines(note.Text, s => s.ToLower()).TrimEnd(); count++; }
                             break;
                         case AuditAction.ToUpper:
-                            foreach (var note in selection) { note.Text = ProcessLines(note.Text, s => SmartUppercase(s)); count++; }
+                            foreach (var note in selection) { note.Text = ProcessLines(note.Text, s => SmartUppercase(s)).TrimEnd(); count++; }
                             break;
                         case AuditAction.ToTitle:
                             var textInfo = System.Globalization.CultureInfo.CurrentCulture.TextInfo;
-                            foreach (var note in selection) { note.Text = ProcessLines(note.Text, s => textInfo.ToTitleCase(s.ToLower())); count++; }
+                            foreach (var note in selection) { note.Text = ProcessLines(note.Text, s => textInfo.ToTitleCase(s.ToLower())).TrimEnd(); count++; }
                             break;
                     }
 
@@ -142,7 +142,7 @@ namespace antiGGGravity.Commands.Overrides
             TextNote mainNote = sorted[0];
             double originalWidth = mainNote.Width;
 
-            string separator = preserveParagraphs ? "\r\n\r\n" : " ";
+            string separator = preserveParagraphs ? "\r\r" : " "; // Revit uses \r for newlines
 
             for (int i = 1; i < sorted.Count; i++)
             {
@@ -150,7 +150,7 @@ namespace antiGGGravity.Commands.Overrides
                 
                 if (preserveParagraphs)
                 {
-                    if (!textToAppend.StartsWith("\r\n\r\n"))
+                    if (!textToAppend.StartsWith("\r\r"))
                         mainNote.Text += separator + textToAppend;
                     else
                         mainNote.Text += textToAppend;
@@ -189,14 +189,15 @@ namespace antiGGGravity.Commands.Overrides
                     cleaned.Add(Regex.Replace(line, @" +", " ").Trim());
                 }
             }
-            return string.Join("\r\n", cleaned);
+            return string.Join("\r", cleaned);
         }
 
         private string ProcessLines(string text, Func<string, string> caseFunc)
         {
+            if (string.IsNullOrEmpty(text)) return text;
             string[] lines = text.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
             var processed = lines.Select(line => ChangeCasePreservingMarker(line, caseFunc));
-            return string.Join("\r\n", processed);
+            return string.Join("\r", processed);
         }
 
         private string ChangeCasePreservingMarker(string line, Func<string, string> caseFunc)

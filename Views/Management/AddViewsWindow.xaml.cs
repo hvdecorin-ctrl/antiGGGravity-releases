@@ -12,21 +12,17 @@ namespace antiGGGravity.Views.Management
         public List<View> SelectedViews { get; private set; } = new List<View>();
         private List<ViewWrapper> _allWrappers;
 
-        // Helper class for display
-        private class ViewWrapper
+        public class ViewWrapper
         {
             public View View { get; set; }
-            public override string ToString()
-            {
-                return $"{View.ViewType}: {View.Name}";
-            }
+            public string Name => View.Name;
+            public string ViewTypeString => View.ViewType.ToString();
         }
 
         public AddViewsWindow(List<View> unsheetedViews)
         {
             InitializeComponent();
             
-            // Sort by Type then Name and store ALL wrappers
             _allWrappers = unsheetedViews
                 .OrderBy(v => v.ViewType.ToString())
                 .ThenBy(v => v.Name)
@@ -34,6 +30,7 @@ namespace antiGGGravity.Views.Management
                 .ToList();
 
             ViewsListBox.ItemsSource = _allWrappers;
+            UpdateStatus();
         }
 
         private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -43,24 +40,35 @@ namespace antiGGGravity.Views.Management
             if (string.IsNullOrWhiteSpace(filter))
             {
                 ViewsListBox.ItemsSource = _allWrappers;
-                return;
             }
-
-            var filtered = _allWrappers.Where(w => 
-                w.View.Name.ToLower().Contains(filter) || 
-                w.View.ViewType.ToString().ToLower().Contains(filter))
-                .ToList();
-                
-            ViewsListBox.ItemsSource = filtered;
+            else
+            {
+                ViewsListBox.ItemsSource = _allWrappers.Where(w => 
+                    w.Name.ToLower().Contains(filter) || 
+                    w.ViewTypeString.ToLower().Contains(filter))
+                    .ToList();
+            }
+            UpdateStatus();
         }
 
         private void ViewsListBox_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            // If an item is actually selected (clicked), treat as Add
             if (ViewsListBox.SelectedItem != null)
             {
                 AddButton_Click(sender, null);
             }
+        }
+
+        private void UpdateStatus()
+        {
+            int count = ViewsListBox.SelectedItems.Count;
+            int total = ViewsListBox.Items.Count;
+            UI_Status.Text = count > 0 ? $"{count} selected" : $"Total {total} views found";
+        }
+
+        private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            UpdateStatus();
         }
 
         private void AddButton_Click(object sender, RoutedEventArgs e)
@@ -72,6 +80,13 @@ namespace antiGGGravity.Views.Management
                     SelectedViews.Add(wrapper.View);
                 }
             }
+            
+            if (SelectedViews.Count == 0)
+            {
+                UI_Status.Text = "Please select at least one view.";
+                return;
+            }
+
             DialogResult = true;
             Close();
         }

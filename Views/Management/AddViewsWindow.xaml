@@ -1,22 +1,96 @@
 <Window x:Class="antiGGGravity.Views.Management.AddViewsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Add Views to Sheet" Height="400" Width="300"
-        WindowStartupLocation="CenterScreen">
-    <Grid Margin="10">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+        Title="Add Views" Height="550" Width="400"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        WindowStartupLocation="CenterScreen" Topmost="True">
 
-        <TextBlock Text="Select Views to Add:" FontWeight="Bold" Margin="0,0,0,5"/>
-        <TextBox x:Name="SearchBox" Height="25" Margin="0,0,0,5" TextChanged="SearchBox_TextChanged" VerticalContentAlignment="Center" />
-        <ListBox x:Name="ViewsListBox" Grid.Row="1" SelectionMode="Extended" Margin="0,0,0,10" MouseDoubleClick="ViewsListBox_MouseDoubleClick"/>
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="55" CornerRadius="12" GlassFrameThickness="0"/>
+    </WindowChrome.WindowChrome>
 
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button x:Name="AddButton" Content="Add" Width="75" Height="25" Margin="0,0,10,0" Click="AddButton_Click" IsDefault="True"/>
-            <Button x:Name="CancelButton" Content="Cancel" Width="75" Height="25" Click="CancelButton_Click" IsCancel="True"/>
-        </StackPanel>
-    </Grid>
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/antiGGGravity;component/Resources/Pre_BrandStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <Style x:Key="ViewItemListBoxStyle" TargetType="ListBox" BasedOn="{StaticResource PremiumListBoxStyle}">
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="BorderBrush" Value="{StaticResource PremiumBorderBrush}"/>
+                <Setter Property="Background" Value="White"/>
+            </Style>
+
+            <Style x:Key="SearchTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource PremiumTextBoxStyle}">
+                <Setter Property="Height" Value="35"/>
+                <Setter Property="Margin" Value="0,0,0,12"/>
+            </Style>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Border Style="{StaticResource PremiumBorderStyle}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="55"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- HEADER -->
+            <Border Grid.Row="0" Background="{StaticResource BrandGradientBrush}" CornerRadius="12,12,0,0">
+                <Grid Margin="25,0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource CompanyLogoStyle}"/>
+                        <TextBlock Style="{StaticResource CompanyDividerStyle}"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Add Views" Style="{StaticResource PremiumTitleStyle}"/>
+                            <TextBlock Text="Batch place unsheeted views" Style="{StaticResource PremiumSubtitleStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <Button HorizontalAlignment="Right" VerticalAlignment="Center" Content="✕" 
+                            Style="{StaticResource PremiumIconButtonStyle}" Width="30" Height="30"
+                            Click="CancelButton_Click" WindowChrome.IsHitTestVisibleInChrome="True"/>
+                </Grid>
+            </Border>
+
+            <!-- CONTENT -->
+            <Grid Grid.Row="1" Margin="25">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel>
+                    <TextBlock Text="Search Views" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,0,0,8"/>
+                    <TextBox x:Name="SearchBox" Style="{StaticResource SearchTextBoxStyle}" 
+                             TextChanged="SearchBox_TextChanged" Tag="Type to filter..."/>
+                </StackPanel>
+
+                <Border Grid.Row="1" BorderThickness="1" BorderBrush="{StaticResource PremiumBorderBrush}" CornerRadius="6">
+                    <ListBox x:Name="ViewsListBox" Style="{StaticResource ViewItemListBoxStyle}" 
+                             SelectionMode="Extended" MouseDoubleClick="ViewsListBox_MouseDoubleClick" BorderThickness="0">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Margin="5">
+                                    <TextBlock Text="{Binding ViewTypeString}" FontWeight="Bold" Foreground="{StaticResource BrandPrimaryBrush}" Width="80"/>
+                                    <TextBlock Text="{Binding Name}" Margin="10,0,0,0"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Border>
+            </Grid>
+
+            <!-- FOOTER -->
+            <Border Grid.Row="2" Background="#FAFAFA" Padding="25,20" CornerRadius="0,0,12,12" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,1,0,0">
+                <Grid>
+                    <TextBlock x:Name="UI_Status" VerticalAlignment="Center" Foreground="#999999" Text="Select one or more views"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Cancel" Width="100" Style="{StaticResource PremiumSecondaryButtonStyle}" Click="CancelButton_Click" Margin="0,0,12,0"/>
+                        <Button x:Name="AddButton" Content="Add Selected" Width="130" Style="{StaticResource PremiumPrimaryButtonStyle}" Click="AddButton_Click" IsDefault="True"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
 </Window>

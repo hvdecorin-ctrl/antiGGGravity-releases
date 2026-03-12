@@ -4,6 +4,7 @@ using System.Linq;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
+using antiGGGravity.Views.Management;
 
 namespace antiGGGravity.Commands.Management
 {
@@ -234,54 +235,80 @@ namespace antiGGGravity.Commands.Management
         {
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;
-            View activeView = doc.ActiveView;
-
-            if (activeView.ViewType != ViewType.DrawingSheet)
+            
+            // 1. Find the Sheet to place on
+            ViewSheet targetSheet = null;
+            if (doc.ActiveView is ViewSheet sheet)
             {
-                TaskDialog.Show("Add Selected View", "Active view must be a Sheet.");
+                targetSheet = sheet;
+            }
+            else
+            {
+                // Try to find if active view is on a sheet
+                var viewports = new FilteredElementCollector(doc).OfClass(typeof(Viewport)).Cast<Viewport>();
+                var vp = viewports.FirstOrDefault(v => v.ViewId == doc.ActiveView.Id);
+                if (vp != null)
+                {
+                    targetSheet = doc.GetElement(vp.SheetId) as ViewSheet;
+                }
+            }
+
+            if (targetSheet == null)
+            {
+                TaskDialog.Show("antiGGGravity", "Please open a Sheet or a View that is placed on a Sheet.");
                 return Result.Cancelled;
             }
 
+            // 2. Get Selected Views from Browser
             var selectedIds = uidoc.Selection.GetElementIds();
-            if (selectedIds.Count == 0)
-            {
-                TaskDialog.Show("Add Selected View", "Please select views from the Project Browser.");
-                return Result.Cancelled;
-            }
-
             List<View> viewsToAdd = new List<View>();
             foreach (ElementId id in selectedIds)
             {
                 View v = doc.GetElement(id) as View;
-                if (v != null && !v.IsTemplate && v.ViewType != ViewType.DrawingSheet && Viewport.CanAddViewToSheet(doc, activeView.Id, id))
+                if (v != null && !v.IsTemplate && v.ViewType != ViewType.DrawingSheet)
                 {
-                    viewsToAdd.Add(v);
+                    if (Viewport.CanAddViewToSheet(doc, targetSheet.Id, id))
+                    {
+                        viewsToAdd.Add(v);
+                    }
                 }
             }
 
             if (viewsToAdd.Count == 0)
             {
-                TaskDialog.Show("Add Selected View", "No valid views selected or views already on sheet.");
+                TaskDialog.Show("antiGGGravity", "No valid unsheeted views selected in Project Browser.");
                 return Result.Cancelled;
             }
 
-            using (Transaction t = new Transaction(doc, "Add Views to Sheet"))
+            // 3. Place with stacking logic
+            using (Transaction t = new Transaction(doc, "Add Selected Views to Sheet"))
             {
                 t.Start();
-                // Simple placement at 0,0 for now, manual adjustment required by user
-                // Could implement stacking logic similar to python script if needed
-                foreach (View v in viewsToAdd)
-                {
-                     try 
-                     {
-                         Viewport.Create(doc, activeView.Id, v.Id, XYZ.Zero);
-                     }
-                     catch { }
-                }
+                PlaceViewsOnSheet(doc, targetSheet, viewsToAdd);
                 t.Commit();
             }
 
             return Result.Succeeded;
+        }
+
+        public static void PlaceViewsOnSheet(Document doc, ViewSheet sheet, List<View> views)
+        {
+            // Simple grid logic: 3 columns
+            double startX = 0;
+            double startY = 0;
+            double colSpacing = 1.0; 
+            double rowSpacing = 0.8;
+
+            for (int i = 0; i < views.Count; i++)
+            {
+                try
+                {
+                    double x = startX + (i % 3) * colSpacing;
+                    double y = startY - (i / 3) * rowSpacing;
+                    Viewport.Create(doc, sheet.Id, views[i].Id, new XYZ(x, y, 0));
+                }
+                catch { }
+            }
         }
     }
 
@@ -295,8 +322,60 @@ namespace antiGGGravity.Commands.Management
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            // Placeholder for UI implementation
-            TaskDialog.Show("Add Views", "UI feature coming soon."); 
+            UIDocument uidoc = commandData.Application.ActiveUIDocument;
+            Document doc = uidoc.Document;
+
+            // 1. Find the Sheet to place on
+            ViewSheet targetSheet = doc.ActiveView as ViewSheet;
+            if (targetSheet == null)
+            {
+                // Try to find if active view is on a sheet
+                var viewports = new FilteredElementCollector(doc).OfClass(typeof(Viewport)).Cast<Viewport>();
+                var vp = viewports.FirstOrDefault(v => v.ViewId == doc.ActiveView.Id);
+                if (vp != null)
+                {
+                    targetSheet = doc.GetElement(vp.SheetId) as ViewSheet;
+                }
+            }
+
+            if (targetSheet == null)
+            {
+                TaskDialog.Show("antiGGGravity", "Please open a Sheet or a View that is placed on a Sheet.");
+                return Result.Cancelled;
+            }
+
+            // 2. Collect Unsheeted Views
+            var allViews = new FilteredElementCollector(doc)
+                .OfClass(typeof(View))
+                .Cast<View>()
+                .Where(v => !v.IsTemplate && v.ViewType != ViewType.DrawingSheet)
+                .ToList();
+
+            List<View> unsheetedViews = allViews
+                .Where(v => Viewport.CanAddViewToSheet(doc, targetSheet.Id, v.Id))
+                .ToList();
+
+            if (unsheetedViews.Count == 0)
+            {
+                TaskDialog.Show("antiGGGravity", "No unsheeted views found in project.");
+                return Result.Cancelled;
+            }
+
+            // 3. Show Premium UI
+            AddViewsWindow window = new AddViewsWindow(unsheetedViews);
+            if (window.ShowDialog() != true || window.SelectedViews.Count == 0)
+            {
+                return Result.Cancelled;
+            }
+
+            // 4. Place with stacking logic
+            using (Transaction t = new Transaction(doc, "Add Views to Sheet"))
+            {
+                t.Start();
+                AddSelectedViewCommand.PlaceViewsOnSheet(doc, targetSheet, window.SelectedViews);
+                t.Commit();
+            }
+
             return Result.Succeeded;
         }
     }
