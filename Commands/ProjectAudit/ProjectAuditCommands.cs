@@ -8,6 +8,7 @@ using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
+using antiGGGravity.Views.ProjectAudit;
 
 namespace antiGGGravity.Commands.ProjectAudit
 {
@@ -385,19 +386,12 @@ namespace antiGGGravity.Commands.ProjectAudit
                     return Result.Succeeded;
                 }
 
-                // Simple selection list (using TaskDialog for now, or a simple WPF if needed)
-                // Since I have antiGGGravity standard UI, I should probably use a simple list picker.
-                // For now, I'll use a CommandLink-style TaskDialog if the list is small, 
-                // but the proper way is a SelectFromList.
-                
-                // Let's assume for now the user can just use the standard Revit 'Load Family' 
-                // if they want complexity, but I'll provide a basic multi-select if I can.
-                
-                // For "Strict Compliance", I should create a small WPF for this too.
-                // But let's start with a build check.
-                
-                TaskDialog.Show("Load More Type", $"Found {options.Count} more types in {Path.GetFileName(famPath)}.\n\nPlease reload the family manually to select specific types.");
-                
+                var loadHandler = new LoadFamilyTypesHandler();
+                var loadEvent = ExternalEvent.Create(loadHandler);
+
+                var view = new LoadMoreTypeView(family.Name, famPath, options, loadEvent, loadHandler);
+                view.Show();
+
                 return Result.Succeeded;
             }
             catch (Exception ex)
