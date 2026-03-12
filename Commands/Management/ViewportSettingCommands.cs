@@ -271,7 +271,9 @@ namespace antiGGGravity.Commands.Management
             var allViews = new FilteredElementCollector(doc)
                 .OfClass(typeof(View))
                 .Cast<View>()
-                .Where(v => !v.IsTemplate && v.ViewType != ViewType.DrawingSheet)
+                .Where(v => !v.IsTemplate && 
+                            v.ViewType != ViewType.DrawingSheet && 
+                            v.ViewType != ViewType.Legend)
                 .ToList();
 
             List<View> viewsToAdd = new List<View>();
@@ -383,7 +385,9 @@ namespace antiGGGravity.Commands.Management
             var allViews = new FilteredElementCollector(doc)
                 .OfClass(typeof(View))
                 .Cast<View>()
-                .Where(v => !v.IsTemplate && v.ViewType != ViewType.DrawingSheet)
+                .Where(v => !v.IsTemplate && 
+                            v.ViewType != ViewType.DrawingSheet && 
+                            v.ViewType != ViewType.Legend)
                 .ToList();
 
             List<View> unsheetedViews = allViews

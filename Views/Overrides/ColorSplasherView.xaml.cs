@@ -272,6 +272,21 @@ namespace antiGGGravity.Views.Overrides
             }
         }
 
+        private void ColorBorder_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (sender is FrameworkElement elem && elem.DataContext is ValueItem item)
+            {
+                var dialog = new ColorSelectionDialog();
+
+                if (dialog.Show() == ItemSelectionDialogResult.Confirmed)
+                {
+                    var revitColor = dialog.SelectedColor;
+                    item.RevitColor = revitColor;
+                    item.ColorBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(revitColor.Red, revitColor.Green, revitColor.Blue));
+                }
+            }
+        }
+
         private void GradientColors()
         {
             int total = Values.Count;
