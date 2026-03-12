@@ -23,6 +23,20 @@ namespace antiGGGravity.Commands.Overrides
         public AuditAction CurrentAction { get; set; }
         public Action<string> StatusCallback { get; set; }
 
+        private static readonly Dictionary<string, string> Products = new Dictionary<string, string>
+        {
+            { "HYSPAN", "hySPAN" },
+            { "HYJOIST", "hyJOIST" }
+        };
+
+        private static readonly Dictionary<string, string> Units = new Dictionary<string, string>
+        {
+            { "MM", "mm" }, { "CM", "cm" }, { "M", "m" }, { "KM", "km" },
+            { "KG", "kg" }, { "G", "g" }, { "MG", "mg" }, { "LB", "lb" },
+            { "KN", "kN" }, { "N", "N" }, { "MN", "MN" },
+            { "MPA", "MPa" }, { "KPA", "kPa" }, { "PA", "Pa" }
+        };
+
         private static readonly Regex BulletRegex = new Regex(
             @"^(\s*" +
             @"(?:" +
@@ -101,7 +115,7 @@ namespace antiGGGravity.Commands.Overrides
                             foreach (var note in selection) { note.Text = ProcessLines(note.Text, s => s.ToLower()); count++; }
                             break;
                         case AuditAction.ToUpper:
-                            foreach (var note in selection) { note.Text = ProcessLines(note.Text, s => s.ToUpper()); count++; }
+                            foreach (var note in selection) { note.Text = ProcessLines(note.Text, s => SmartUppercase(s)); count++; }
                             break;
                         case AuditAction.ToTitle:
                             var textInfo = System.Globalization.CultureInfo.CurrentCulture.TextInfo;
@@ -195,6 +209,42 @@ namespace antiGGGravity.Commands.Overrides
                 return prefix + caseFunc(content);
             }
             return caseFunc(line);
+        }
+
+        private string SmartUppercase(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return text;
+
+            // 1. Initial Uppercase
+            string s = text.ToUpper();
+
+            // 2. Restore Products
+            foreach (var kvp in Products)
+            {
+                s = Regex.Replace(s, $@"\b{kvp.Key}\b", kvp.Value, RegexOptions.IgnoreCase);
+            }
+
+            // 3. Normalize Degrees
+            s = Regex.Replace(s, @"(\d+(?:\.\d+)?)\s*(?:DEG(?:REE|REES)?|°)\s*C\b", "$1°C", RegexOptions.IgnoreCase);
+            s = Regex.Replace(s, @"(\d+(?:\.\d+)?)\s*(?:DEG(?:REE|REES)?|°)\s*F\b", "$1°F", RegexOptions.IgnoreCase);
+
+            // 4. Normalize M2/M3
+            s = Regex.Replace(s, @"(\d+(?:\.\d+)?)\s*([A-Z]*)M2\b", "$1$2m²", RegexOptions.IgnoreCase);
+            s = Regex.Replace(s, @"(\d+(?:\.\d+)?)\s*([A-Z]*)M3\b", "$1$2m³", RegexOptions.IgnoreCase);
+            s = Regex.Replace(s, @"/M2\b", "/m²", RegexOptions.IgnoreCase);
+            s = Regex.Replace(s, @"/M3\b", "/m³", RegexOptions.IgnoreCase);
+
+            // 5. Restore Units
+            foreach (var kvp in Units.OrderByDescending(x => x.Key.Length))
+            {
+                s = Regex.Replace(s, $@"(\d+(?:\.\d+)?)(\s*){kvp.Key}(?![A-Z0-9°²³])", $"$1$2{kvp.Value}", RegexOptions.IgnoreCase);
+                s = Regex.Replace(s, $@"\b{kvp.Key}\b", kvp.Value, RegexOptions.IgnoreCase);
+            }
+
+            // 6. Dimensions (300X45 -> 300x45)
+            s = Regex.Replace(s, @"(\d+)(?:\s*X\s*\d+)+", m => m.Value.Replace("X", "x").Replace(" ", ""), RegexOptions.IgnoreCase);
+
+            return s;
         }
 
         public string GetName() => "Text Audit Handler";
