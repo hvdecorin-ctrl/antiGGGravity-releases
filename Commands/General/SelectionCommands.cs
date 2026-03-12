@@ -14,7 +14,12 @@ namespace antiGGGravity.Commands.General
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            UIDocument uidoc = commandData.Application.ActiveUIDocument;
+            return Run(commandData.Application);
+        }
+
+        public Result Run(UIApplication app)
+        {
+            UIDocument uidoc = app.ActiveUIDocument;
             Document doc = uidoc.Document;
 
             var categories = doc.Settings.Categories.Cast<Category>()

@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Color Splasher" Height="550" Width="750"
+        Title="Color Splasher" Height="520" Width="660"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         WindowStartupLocation="CenterScreen" Topmost="True">
 
@@ -119,7 +119,7 @@
 
                         <Border Grid.Row="0" Background="#F8F9FA" Padding="15,10" CornerRadius="8,8,0,0" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,0,0,1">
                             <Grid>
-                                <TextBlock Text="Values &amp; Colors" Style="{StaticResource PremiumSectionLabelStyle}" VerticalAlignment="Center" Margin="0"/>
+                                <!-- Removed Values & Colors text as requested -->
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                                     <Button x:Name="UI_Btn_Randomize" Content="Random Colors" Width="120" Height="28" Padding="10,0" FontSize="12"
                                             Style="{StaticResource PremiumPrimaryButtonStyle}" Margin="0,0,10,0" Click="UI_Btn_Randomize_Click"/>

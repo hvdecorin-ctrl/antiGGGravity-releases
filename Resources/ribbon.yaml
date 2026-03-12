@@ -458,20 +458,30 @@ panels:
         icon: AssignMark
         tooltip: Create and assign unique marks to structural elements.
         buttons:
-          - name: Create Element Name
-            command: CreateElementNameParamCommand
-            icon: CreateElementName
-            tooltip: Create a shared parameter to store a custom element name.
-          
           - name: Assign Mark
             command: AssignMarkCommand
             icon: AssignMark
             tooltip: Auto-generate and assign a mark to selected elements.
 
-          - name: Remove Existing Mark
+          - name: Create ElementName
+            command: CreateElementNameParamCommand
+            icon: CreateElementName
+            tooltip: Create a shared parameter to store a custom element name.
+
+          - name: Assign ElementName
+            command: AssignElementNameCommand
+            icon: AssignElementName
+            tooltip: Auto-generate and assign an Element Name to selected elements.
+
+          - name: Remove Extg Mark
             command: RemoveMarkCommand
             icon: RemoveMark
             tooltip: Clear the mark value from selected elements.
+
+          - name: Remove Extg ElementName
+            command: RemoveElementNameCommand
+            icon: RemoveElementName
+            tooltip: Clear the 'Element Name' value from selected elements.
 
   # ============================================================
   # MODEL PANEL

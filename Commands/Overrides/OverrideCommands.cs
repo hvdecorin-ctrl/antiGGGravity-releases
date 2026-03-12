@@ -18,15 +18,20 @@ namespace antiGGGravity.Commands.Overrides
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
+            return Run(commandData.Application);
+        }
+
+        public Result Run(UIApplication app)
+        {
             try
             {
-                ColorSplasherView view = new ColorSplasherView(commandData);
+                ColorSplasherView view = new ColorSplasherView(app);
                 view.Show();
                 return Result.Succeeded;
             }
             catch (Exception ex)
             {
-                message = ex.Message;
+                TaskDialog.Show("Color Splasher Error", $"Failed to open Color Splasher.\n{ex.Message}");
                 return Result.Failed;
             }
         }
@@ -270,29 +275,28 @@ namespace antiGGGravity.Commands.Overrides
                 Element sourceElement = doc.GetElement(sourceRef);
                 OverrideGraphicSettings sourceSettings = activeView.GetElementOverrides(sourceElement.Id);
 
-                // 2. Pick Destination Elements
-                List<Reference> destRefs = null;
-                try
+                // 2. Continuous Destination Selection Loop
+                while (true)
                 {
-                    destRefs = uidoc.Selection.PickObjects(ObjectType.Element, "Select destination elements to copy overrides TO.").ToList();
-                }
-                catch (Autodesk.Revit.Exceptions.OperationCanceledException)
-                {
-                    return Result.Cancelled;
-                }
-
-                if (destRefs == null || destRefs.Count == 0) return Result.Cancelled;
-
-                // 3. Apply Overrides
-                using (Transaction t = new Transaction(doc, "Match Overrides"))
-                {
-                    t.Start();
-                    foreach (Reference refElem in destRefs)
+                    Reference destRef = null;
+                    try
                     {
-                        Element destElement = doc.GetElement(refElem);
-                        activeView.SetElementOverrides(destElement.Id, sourceSettings);
+                        destRef = uidoc.Selection.PickObject(ObjectType.Element, "Select destination element to copy overrides TO (ESC to exit).");
                     }
-                    t.Commit();
+                    catch (Autodesk.Revit.Exceptions.OperationCanceledException)
+                    {
+                        break; // User pressed ESC
+                    }
+
+                    if (destRef == null) break;
+
+                    // 3. Apply Overrides Immediately
+                    using (Transaction t = new Transaction(doc, "Match Overrides"))
+                    {
+                        t.Start();
+                        activeView.SetElementOverrides(destRef.ElementId, sourceSettings);
+                        t.Commit();
+                    }
                 }
 
                 return Result.Succeeded;

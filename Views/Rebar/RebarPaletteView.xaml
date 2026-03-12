@@ -36,9 +36,9 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}" 
-                                BorderBrush="{TemplateBinding BorderBrush}" 
-                                BorderThickness="1"
-                                CornerRadius="3">
+                                 BorderBrush="{TemplateBinding BorderBrush}" 
+                                 BorderThickness="1"
+                                 CornerRadius="3">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -90,108 +90,126 @@
                 </Grid>
             </Border>
 
-    <Grid Grid.Row="1" Margin="15,10,15,15">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        
-        <!-- Group 1: Visibility States -->
-        <TextBlock Text="Visibility States" FontSize="11" Foreground="#666" Margin="4,4,0,2" Grid.Row="0"/>
-        <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="0,0,0,6">
-            <Button Style="{StaticResource PaletteButton}" Tag="SetObscured" Click="ToolButton_Click" ToolTip="Set Obscured (Wireframe)">
-                <StackPanel Orientation="Vertical">
-                    <Image Source="pack://application:,,,/antiGGGravity;component/Resources/Icons/SetObscured(32x32).png" Width="32" Height="32"/>
-                    <TextBlock Text="Obscured" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/>
-                </StackPanel>
-            </Button>
-            <Button Style="{StaticResource PaletteButton}" Tag="SetUnobscured" Click="ToolButton_Click" ToolTip="Set Unobscured (Solid)">
-                <StackPanel Orientation="Vertical">
-                    <Image Source="pack://application:,,,/antiGGGravity;component/Resources/Icons/SetUnobscured(32x32).png" Width="32" Height="32"/>
-                    <TextBlock Text="Unobscured" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/>
-                </StackPanel>
-            </Button>
-            <Button Style="{StaticResource PaletteButton}" Tag="RebarCranked" Click="ToolButton_Click" ToolTip="Crank Rebar at Point">
-                <StackPanel Orientation="Vertical">
-                    <Image Source="pack://application:,,,/antiGGGravity;component/Resources/Icons/RebarCranked(32x32).png" Width="32" Height="32"/>
-                    <TextBlock Text="Crank Bar" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/>
-                </StackPanel>
-            </Button>
-        </StackPanel>
+            <Grid Grid.Row="1" Margin="15,10,15,15">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/> <!-- 0: Selection label -->
+                    <RowDefinition Height="Auto"/> <!-- 1: Selection row -->
+                    <RowDefinition Height="Auto"/> <!-- 2: Visibility label -->
+                    <RowDefinition Height="Auto"/> <!-- 3: Visibility row 1 -->
+                    <RowDefinition Height="Auto"/> <!-- 4: Visibility row 2 -->
+                    <RowDefinition Height="Auto"/> <!-- 5: Host label -->
+                    <RowDefinition Height="Auto"/> <!-- 6: Host row (Grid) -->
+                </Grid.RowDefinitions>
 
-        <!-- New Row: Show/Hide All and Split -->
-        <StackPanel Orientation="Horizontal" Grid.Row="2" Margin="0,0,0,6">
-            <Button Style="{StaticResource PaletteButton}" Tag="ShowRebar" Click="ToolButton_Click" ToolTip="Show All Rebar in View">
-                <StackPanel Orientation="Vertical">
-                    <Image Source="pack://application:,,,/antiGGGravity;component/Resources/Icons/ShowRebar(32x32).png" Width="32" Height="32"/>
-                    <TextBlock Text="Show All" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/>
+                <!-- Group: Selection -->
+                <TextBlock Text="Selection" FontSize="11" Foreground="#666" Margin="4,4,0,2" Grid.Row="0"/>
+                <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="0,0,0,6">
+                    <Button Style="{StaticResource PaletteButton}" Tag="QuickPick" Click="ToolButton_Click" ToolTip="Quick Pick Elements">
+                        <StackPanel Orientation="Vertical">
+                            <Image Source="pack://application:,,,/antiGGGravity;component/Resources/Icons/Pick(32x32).png" Width="32" Height="32"/>
+                            <TextBlock Text="Quick Pick" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource PaletteButton}" Tag="ColorSplasher" Click="ToolButton_Click" ToolTip="Visualize Values (Color Splasher)">
+                        <StackPanel Orientation="Vertical">
+                            <Image Source="pack://application:,,,/antiGGGravity;component/Resources/Icons/ColorSplasher(32x32).png" Width="32" Height="32"/>
+                            <TextBlock Text="Splasher" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
-            </Button>
-            <Button Style="{StaticResource PaletteButton}" Tag="HideRebar" Click="ToolButton_Click" ToolTip="Hide All Rebar in View">
-                <StackPanel Orientation="Vertical">
-                    <Image Source="pack://application:,,,/antiGGGravity;component/Resources/Icons/HideRebar(32x32).png" Width="32" Height="32"/>
-                    <TextBlock Text="Hide All" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/>
-                </StackPanel>
-            </Button>
-            <Button Style="{StaticResource PaletteButton}" Tag="RebarSplit" Click="ToolButton_Click" ToolTip="Split Rebar at Point (Straight Lap)">
-                <StackPanel Orientation="Vertical">
-                    <Image Source="pack://application:,,,/antiGGGravity;component/Resources/Icons/RebarSplit(32x32).png" Width="32" Height="32"/>
-                    <TextBlock Text="Split Bar" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/>
-                </StackPanel>
-            </Button>
-        </StackPanel>
 
-        <!-- Group 2: Host Operations -->
-        <TextBlock Text="Host &amp; Global Operations" FontSize="11" Foreground="#666" Margin="4,0,0,2" Grid.Row="3"/>
-        <Grid Grid.Row="4">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
+                <!-- Group: Visibility & Basic Tools (Restoring 3-column layout) -->
+                <TextBlock Text="Visibility &amp; Tools" FontSize="11" Foreground="#666" Margin="4,0,0,2" Grid.Row="2"/>
+                <StackPanel Orientation="Horizontal" Grid.Row="3" Margin="0,0,0,2">
+                    <Button Style="{StaticResource PaletteButton}" Tag="SetObscured" Click="ToolButton_Click" ToolTip="Set Obscured (Wireframe)">
+                        <StackPanel Orientation="Vertical">
+                            <Image Source="pack://application:,,,/antiGGGravity;component/Resources/Icons/SetObscured(32x32).png" Width="32" Height="32"/>
+                            <TextBlock Text="Obscured" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource PaletteButton}" Tag="SetUnobscured" Click="ToolButton_Click" ToolTip="Set Unobscured (Solid)">
+                        <StackPanel Orientation="Vertical">
+                            <Image Source="pack://application:,,,/antiGGGravity;component/Resources/Icons/SetUnobscured(32x32).png" Width="32" Height="32"/>
+                            <TextBlock Text="Unobscured" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource PaletteButton}" Tag="RebarCranked" Click="ToolButton_Click" ToolTip="Crank Rebar at Point">
+                        <StackPanel Orientation="Vertical">
+                            <Image Source="pack://application:,,,/antiGGGravity;component/Resources/Icons/RebarCranked(32x32).png" Width="32" Height="32"/>
+                            <TextBlock Text="Crank Bar" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
 
-            <!-- Row 1 -->
-            <Button Style="{StaticResource PaletteButton}" Tag="ShowByHost" Click="ToolButton_Click" ToolTip="Show Rebar for Selected Host" Grid.Row="0" Grid.Column="0">
-                <StackPanel Orientation="Vertical">
-                    <Image Source="pack://application:,,,/antiGGGravity;component/Resources/Icons/ShowRebarByHost(32x32).png" Width="32" Height="32"/>
-                    <TextBlock Text="Show Host" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/>
+                <StackPanel Orientation="Horizontal" Grid.Row="4" Margin="0,0,0,6">
+                    <Button Style="{StaticResource PaletteButton}" Tag="ShowRebar" Click="ToolButton_Click" ToolTip="Show All Rebar in View">
+                        <StackPanel Orientation="Vertical">
+                            <Image Source="pack://application:,,,/antiGGGravity;component/Resources/Icons/ShowRebar(32x32).png" Width="32" Height="32"/>
+                            <TextBlock Text="Show All" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource PaletteButton}" Tag="HideRebar" Click="ToolButton_Click" ToolTip="Hide All Rebar in View">
+                        <StackPanel Orientation="Vertical">
+                            <Image Source="pack://application:,,,/antiGGGravity;component/Resources/Icons/HideRebar(32x32).png" Width="32" Height="32"/>
+                            <TextBlock Text="Hide All" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource PaletteButton}" Tag="RebarSplit" Click="ToolButton_Click" ToolTip="Split Rebar at Point (Straight Lap)">
+                        <StackPanel Orientation="Vertical">
+                            <Image Source="pack://application:,,,/antiGGGravity;component/Resources/Icons/RebarSplit(32x32).png" Width="32" Height="32"/>
+                            <TextBlock Text="Split Bar" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
-            </Button>
-            <Button Style="{StaticResource PaletteButton}" Tag="HideByHost" Click="ToolButton_Click" ToolTip="Hide Rebar for Selected Host" Grid.Row="0" Grid.Column="1">
-                <StackPanel Orientation="Vertical">
-                    <Image Source="pack://application:,,,/antiGGGravity;component/Resources/Icons/HideRebarByHost(32x32).png" Width="32" Height="32"/>
-                    <TextBlock Text="Hide Host" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/>
-                </StackPanel>
-            </Button>
-            <Button Style="{StaticResource PaletteButton}" Tag="ShowByHostOnly" Click="ToolButton_Click" ToolTip="Isolate Rebar by Selected Host" Grid.Row="0" Grid.Column="2">
-                <StackPanel Orientation="Vertical">
-                    <Image Source="pack://application:,,,/antiGGGravity;component/Resources/Icons/ShowRebarByHostOnly(32x32).png" Width="32" Height="32"/>
-                    <TextBlock Text="Isolate Host" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/>
-                </StackPanel>
-            </Button>
 
-            <!-- Row 2 -->
-            <Button Style="{StaticResource PaletteButton}" Tag="SelectByHost" Click="ToolButton_Click" ToolTip="Select All Rebar in Selected Host" Grid.Row="1" Grid.Column="0">
-                <StackPanel Orientation="Vertical">
-                    <Image Source="pack://application:,,,/antiGGGravity;component/Resources/Icons/SelectRebar(32x32).png" Width="32" Height="32"/>
-                    <TextBlock Text="Select Host" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/>
-                </StackPanel>
-            </Button>
-            <Button Style="{StaticResource PaletteButton}" Tag="DeleteByHost" Click="ToolButton_Click" ToolTip="Delete All Rebar in Selected Host" Grid.Row="1" Grid.Column="1">
-                <StackPanel Orientation="Vertical">
-                    <Image Source="pack://application:,,,/antiGGGravity;component/Resources/Icons/SelectDeleteRebar(32x32).png" Width="32" Height="32"/>
-                    <TextBlock Text="Delete Host" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/>
-                </StackPanel>
-            </Button>
-        </Grid>
-    </Grid>
+                <!-- Group 3: Host Operations -->
+                <TextBlock Text="Host &amp; Global Operations" FontSize="11" Foreground="#666" Margin="4,0,0,2" Grid.Row="5"/>
+                <Grid Grid.Row="6">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Row 1 -->
+                    <Button Style="{StaticResource PaletteButton}" Tag="ShowByHost" Click="ToolButton_Click" ToolTip="Show Rebar for Selected Host" Grid.Row="0" Grid.Column="0">
+                        <StackPanel Orientation="Vertical">
+                            <Image Source="pack://application:,,,/antiGGGravity;component/Resources/Icons/ShowRebarByHost(32x32).png" Width="32" Height="32"/>
+                            <TextBlock Text="Show Host" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource PaletteButton}" Tag="HideByHost" Click="ToolButton_Click" ToolTip="Hide Rebar for Selected Host" Grid.Row="0" Grid.Column="1">
+                        <StackPanel Orientation="Vertical">
+                            <Image Source="pack://application:,,,/antiGGGravity;component/Resources/Icons/HideRebarByHost(32x32).png" Width="32" Height="32"/>
+                            <TextBlock Text="Hide Host" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource PaletteButton}" Tag="ShowByHostOnly" Click="ToolButton_Click" ToolTip="Isolate Rebar by Selected Host" Grid.Row="0" Grid.Column="2">
+                        <StackPanel Orientation="Vertical">
+                            <Image Source="pack://application:,,,/antiGGGravity;component/Resources/Icons/ShowRebarByHostOnly(32x32).png" Width="32" Height="32"/>
+                            <TextBlock Text="Isolate Host" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Row 2 -->
+                    <Button Style="{StaticResource PaletteButton}" Tag="SelectByHost" Click="ToolButton_Click" ToolTip="Select All Rebar in Selected Host" Grid.Row="1" Grid.Column="0">
+                        <StackPanel Orientation="Vertical">
+                            <Image Source="pack://application:,,,/antiGGGravity;component/Resources/Icons/SelectRebar(32x32).png" Width="32" Height="32"/>
+                            <TextBlock Text="Select Host" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource PaletteButton}" Tag="DeleteByHost" Click="ToolButton_Click" ToolTip="Delete All Rebar in Selected Host" Grid.Row="1" Grid.Column="1">
+                        <StackPanel Orientation="Vertical">
+                            <Image Source="pack://application:,,,/antiGGGravity;component/Resources/Icons/SelectDeleteRebar(32x32).png" Width="32" Height="32"/>
+                            <TextBlock Text="Delete Host" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Grid>
         </Grid>
     </Border>
 </Window>

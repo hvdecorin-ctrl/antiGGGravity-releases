@@ -1,5 +1,6 @@
 using System;
 using Autodesk.Revit.UI;
+using antiGGGravity.Commands.General;
 
 namespace antiGGGravity.Commands.Rebar
 {
@@ -26,6 +27,8 @@ namespace antiGGGravity.Commands.Rebar
                     case "DeleteByHost": new SelectDeleteRebarCommand().Run(app); break;
                     case "RebarCranked": new RebarCrankCommand().Run(app); break;
                     case "RebarSplit": new RebarSplitCommand().Run(app); break;
+                    case "QuickPick": new PickElementsCommand().Run(app); break;
+                    case "ColorSplasher": new antiGGGravity.Commands.Overrides.ColorSplashCommand().Run(app); break;
                     default:
                         TaskDialog.Show("Rebar Palette", $"Unknown command: {CommandToPost}");
                         break;

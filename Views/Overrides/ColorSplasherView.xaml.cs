@@ -12,7 +12,7 @@ namespace antiGGGravity.Views.Overrides
 {
     public partial class ColorSplasherView : Window
     {
-        private ExternalCommandData _commandData;
+        private UIApplication _uiApp;
         private UIDocument _uidoc;
         private Document _doc;
         
@@ -32,11 +32,11 @@ namespace antiGGGravity.Views.Overrides
         public ObservableCollection<ParameterItem> Parameters { get; set; }
         public ObservableCollection<ValueItem> Values { get; set; }
 
-        public ColorSplasherView(ExternalCommandData commandData)
+        public ColorSplasherView(UIApplication uiApp)
         {
             InitializeComponent();
-            _commandData = commandData;
-            _uidoc = commandData.Application.ActiveUIDocument;
+            _uiApp = uiApp;
+            _uidoc = uiApp.ActiveUIDocument;
             _doc = _uidoc.Document;
 
             // Initialize Handlers
