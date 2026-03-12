@@ -238,36 +238,58 @@ namespace antiGGGravity.Commands.Management
             
             // 1. Find the Sheet to place on
             ViewSheet targetSheet = null;
-            if (doc.ActiveView is ViewSheet sheet)
+            if (doc.ActiveView is ViewSheet activeSheet)
             {
-                targetSheet = sheet;
+                targetSheet = activeSheet;
             }
             else
             {
-                // Try to find if active view is on a sheet
-                var viewports = new FilteredElementCollector(doc).OfClass(typeof(Viewport)).Cast<Viewport>();
-                var vp = viewports.FirstOrDefault(v => v.ViewId == doc.ActiveView.Id);
-                if (vp != null)
+                // If we are INSIDE an activated view on a sheet, find its viewport
+                var vps = new FilteredElementCollector(doc).OfClass(typeof(Viewport)).Cast<Viewport>();
+                var parentVp = vps.FirstOrDefault(v => v.ViewId == doc.ActiveView.Id);
+                if (parentVp != null)
                 {
-                    targetSheet = doc.GetElement(vp.SheetId) as ViewSheet;
+                    targetSheet = doc.GetElement(parentVp.SheetId) as ViewSheet;
                 }
             }
 
             if (targetSheet == null)
             {
-                TaskDialog.Show("antiGGGravity", "Please open a Sheet or a View that is placed on a Sheet.");
+                TaskDialog.Show("antiGGGravity", "Please open a Sheet or activate a View that is placed on a Sheet.");
                 return Result.Cancelled;
             }
 
-            // 2. Get Selected Views from Browser
+            // 2. Get Selected Views (Graphic or Browser)
             var selectedIds = uidoc.Selection.GetElementIds();
+            if (selectedIds.Count == 0)
+            {
+                TaskDialog.Show("antiGGGravity", "Please select a view symbol (Section/Callout) or pick views from the Project Browser.");
+                return Result.Cancelled;
+            }
+
+            // Pre-collect views for name matching fallback
+            var allViews = new FilteredElementCollector(doc)
+                .OfClass(typeof(View))
+                .Cast<View>()
+                .Where(v => !v.IsTemplate && v.ViewType != ViewType.DrawingSheet)
+                .ToList();
+
             List<View> viewsToAdd = new List<View>();
             foreach (ElementId id in selectedIds)
             {
-                View v = doc.GetElement(id) as View;
-                if (v != null && !v.IsTemplate && v.ViewType != ViewType.DrawingSheet)
+                Element elem = doc.GetElement(id);
+                View v = elem as View;
+
+                // Fallback: If selecting a Section/Callout symbol, the element name often matches the View Name
+                if (v == null)
                 {
-                    if (Viewport.CanAddViewToSheet(doc, targetSheet.Id, id))
+                    string elemName = elem.Name;
+                    v = allViews.FirstOrDefault(x => x.Name == elemName);
+                }
+
+                if (v != null)
+                {
+                    if (Viewport.CanAddViewToSheet(doc, targetSheet.Id, v.Id))
                     {
                         viewsToAdd.Add(v);
                     }
@@ -276,7 +298,7 @@ namespace antiGGGravity.Commands.Management
 
             if (viewsToAdd.Count == 0)
             {
-                TaskDialog.Show("antiGGGravity", "No valid unsheeted views selected in Project Browser.");
+                TaskDialog.Show("antiGGGravity", "No valid unsheeted views found in selection.\n\nNote: Views already on a sheet cannot be added again.");
                 return Result.Cancelled;
             }
 
@@ -293,18 +315,31 @@ namespace antiGGGravity.Commands.Management
 
         public static void PlaceViewsOnSheet(Document doc, ViewSheet sheet, List<View> views)
         {
-            // Simple grid logic: 3 columns
-            double startX = 0;
-            double startY = 0;
-            double colSpacing = 1.0; 
-            double rowSpacing = 0.8;
+            // Find existing viewports to determine start position
+            var existingVports = new FilteredElementCollector(doc, sheet.Id)
+                .OfClass(typeof(Viewport))
+                .Cast<Viewport>()
+                .ToList();
+
+            XYZ startPos = XYZ.Zero;
+            
+            // If viewports exist, find the "lowest" one to avoid overlaps
+            if (existingVports.Any())
+            {
+                double minY = existingVports.Min(v => v.GetBoxCenter().Y);
+                startPos = new XYZ(0, minY - 0.5, 0); // Start half a foot below the lowest view
+            }
+
+            // Grid: 3 columns
+            double colSpacing = 1.0; // ~300mm
+            double rowSpacing = 0.8; // ~240mm
 
             for (int i = 0; i < views.Count; i++)
             {
                 try
                 {
-                    double x = startX + (i % 3) * colSpacing;
-                    double y = startY - (i / 3) * rowSpacing;
+                    double x = startPos.X + (i % 3) * colSpacing;
+                    double y = startPos.Y - (i / 3) * rowSpacing;
                     Viewport.Create(doc, sheet.Id, views[i].Id, new XYZ(x, y, 0));
                 }
                 catch { }
