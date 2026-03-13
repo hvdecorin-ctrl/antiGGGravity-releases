@@ -11,7 +11,7 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <!-- LEFT COLUMN: TOP & BOTTOM REINFORCEMENT -->
+        <!-- LEFT COLUMN: TOP, SIDE, MULTI-SPAN -->
         <StackPanel Grid.Column="0">
             <!-- TOP REINFORCEMENT -->
             <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#E8E8E8" BorderThickness="1" Padding="15" Margin="0,0,0,15">
@@ -35,7 +35,7 @@
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
                                         <TextBlock Text="Count" FontSize="11" Foreground="#666" Margin="0,0,0,4"/>
-                                        <TextBox x:Name="UI_Text_T1Count" Text="2" Height="30" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0"/>
+                                        <TextBox x:Name="UI_Text_T1Count" Text="2" Height="30" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0" TextChanged="toggle_visibility"/>
                                     </StackPanel>
                                 </Grid>
                             </StackPanel>
@@ -61,7 +61,7 @@
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
                                         <TextBlock Text="Count" FontSize="11" Foreground="#666" Margin="0,0,0,4"/>
-                                        <TextBox x:Name="UI_Text_T2Count" Text="3" Height="30" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0"/>
+                                        <TextBox x:Name="UI_Text_T2Count" Text="3" Height="30" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0" TextChanged="toggle_visibility"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="4" VerticalAlignment="Bottom">
                                         <CheckBox x:Name="UI_Check_T2Cont" Content="Cont." FontSize="10" Foreground="#666" ToolTip="Continuous bar (full beam length). Unchecked = additional bar at support zones only." Height="30" VerticalContentAlignment="Center" Click="toggle_visibility"/>
@@ -90,7 +90,7 @@
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
                                         <TextBlock Text="Count" FontSize="11" Foreground="#666" Margin="0,0,0,4"/>
-                                        <TextBox x:Name="UI_Text_T3Count" Text="3" Height="30" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0"/>
+                                        <TextBox x:Name="UI_Text_T3Count" Text="3" Height="30" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0" TextChanged="toggle_visibility"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="4" VerticalAlignment="Bottom">
                                         <CheckBox x:Name="UI_Check_T3Cont" Content="Cont." FontSize="10" Foreground="#666" ToolTip="Continuous bar (full beam length). Unchecked = additional bar at support zones only." Height="30" VerticalContentAlignment="Center" Click="toggle_visibility"/>
@@ -126,15 +126,74 @@
                                 </Grid.ColumnDefinitions>
                                 <CheckBox x:Name="UI_Check_TopHookOverride" Content="Override Hook Length" FontSize="11" Foreground="#666" VerticalAlignment="Center" Grid.Column="0"/>
                                 <TextBox x:Name="UI_Text_TopHookLength" Text="300" Height="30" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0" Grid.Column="2"
-                                         IsEnabled="{Binding IsChecked, ElementName=UI_Check_TopHookOverride}"/>
+                                         IsEnabled="{Binding IsChecked, ElementName=UI_Check_TopHookOverride}" TextChanged="toggle_visibility"/>
                             </Grid>
                         </StackPanel>
                     </Border>
                 </StackPanel>
             </Border>
 
-            <!-- BOTTOM REINFORCEMENT -->
+            <!-- SIDE REINFORCEMENT (Moved from right) -->
+            <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#E8E8E8" BorderThickness="1" Padding="15" Margin="0,0,0,15">
+                <StackPanel>
+                    <CheckBox x:Name="UI_Check_SideRebar" Content="Side Reinforcement" FontSize="12" FontWeight="SemiBold" Foreground="#4A759C" Margin="0,0,0,12" Click="toggle_visibility"/>
+
+                    <StackPanel x:Name="UI_Group_SideRebar">
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Rebar Type" FontSize="11" Foreground="#666" Margin="0,0,0,4"/>
+                                <ComboBox x:Name="UI_Combo_SideType" Height="30" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Rows" FontSize="11" Foreground="#666" Margin="0,0,0,4"/>
+                                <TextBox x:Name="UI_Text_SideRows" Text="2" Height="30" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0" TextChanged="toggle_visibility"/>
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock Text="Evenly Spaced Between Top And Bottom Bars. Stock Length Only." FontSize="10" Foreground="#999" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- MULTI-SPAN (Moved from right) -->
             <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#E8E8E8" BorderThickness="1" Padding="15">
+                <StackPanel>
+                    <TextBlock Text="Continuous Beams" FontSize="12" FontWeight="SemiBold" Foreground="#4A759C" Margin="0,0,0,12"/>
+                    <CheckBox x:Name="UI_Check_MultiSpan" Content="Multi-Span (Continuous)" FontSize="12" Foreground="#333" FontWeight="SemiBold" Margin="0,0,0,8"
+                               Click="toggle_visibility"
+                               ToolTip="Group selected beams into continuous spans. Top bars will bridge internal supports."/>
+                    <TextBlock Text="Group selected beams by direction and endpoints." FontSize="10" Foreground="#999" TextWrapping="Wrap" FontStyle="Italic"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+
+        <!-- CENTER COLUMN: VISUALIZATION -->
+        <StackPanel Grid.Column="2" VerticalAlignment="Top" Width="220">
+            <!-- CROSS-SECTION PREVIEW -->
+            <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#E8E8E8" BorderThickness="1" Padding="10" Margin="0,0,0,15">
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Cross Section" FontWeight="Bold" Foreground="#333" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                    <Canvas x:Name="UI_Canvas_CrossSection" Width="200" Height="190" Background="Transparent" HorizontalAlignment="Center" ClipToBounds="True"/>
+                </StackPanel>
+            </Border>
+
+            <!-- SPAN ELEVATION DIAGRAM -->
+            <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#E8E8E8" BorderThickness="1" Padding="10" Margin="0,0,0,15">
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Span Elevation" FontWeight="Bold" Foreground="#333" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                    <Canvas x:Name="UI_Canvas_SpanElevation" Width="200" Height="190" Background="Transparent" HorizontalAlignment="Center" ClipToBounds="True"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+
+        <!-- RIGHT COLUMN: BOTTOM REINF, STIRRUPS, OFFSETS -->
+        <StackPanel Grid.Column="4">
+            <!-- BOTTOM REINFORCEMENT (Moved from left) -->
+            <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#E8E8E8" BorderThickness="1" Padding="15" Margin="0,0,0,15">
                 <StackPanel>
                     <TextBlock Text="Bottom Reinforcement" FontSize="12" FontWeight="SemiBold" Foreground="#4A759C" Margin="0,0,0,12"/>
 
@@ -157,7 +216,7 @@
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
                                         <TextBlock Text="Count" FontSize="11" Foreground="#666" Margin="0,0,0,4"/>
-                                        <TextBox x:Name="UI_Text_B3Count" Text="3" Height="30" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0"/>
+                                        <TextBox x:Name="UI_Text_B3Count" Text="3" Height="30" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0" TextChanged="toggle_visibility"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="4" VerticalAlignment="Bottom">
                                         <CheckBox x:Name="UI_Check_B3Cont" Content="Cont." FontSize="10" Foreground="#666" ToolTip="Continuous bar (full beam length). Unchecked = additional bar at midspan zones only." Height="30" VerticalContentAlignment="Center" Click="toggle_visibility"/>
@@ -186,7 +245,7 @@
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
                                         <TextBlock Text="Count" FontSize="11" Foreground="#666" Margin="0,0,0,4"/>
-                                        <TextBox x:Name="UI_Text_B2Count" Text="3" Height="30" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0"/>
+                                        <TextBox x:Name="UI_Text_B2Count" Text="3" Height="30" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0" TextChanged="toggle_visibility"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="4" VerticalAlignment="Bottom">
                                         <CheckBox x:Name="UI_Check_B2Cont" Content="Cont." FontSize="10" Foreground="#666" ToolTip="Continuous bar (full beam length). Unchecked = additional bar at midspan zones only." Height="30" VerticalContentAlignment="Center" Click="toggle_visibility"/>
@@ -213,7 +272,7 @@
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
                                         <TextBlock Text="Count" FontSize="11" Foreground="#666" Margin="0,0,0,4"/>
-                                        <TextBox x:Name="UI_Text_B1Count" Text="2" Height="30" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0"/>
+                                        <TextBox x:Name="UI_Text_B1Count" Text="2" Height="30" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0" TextChanged="toggle_visibility"/>
                                     </StackPanel>
                                 </Grid>
                             </StackPanel>
@@ -247,44 +306,10 @@
                                 </Grid.ColumnDefinitions>
                                 <CheckBox x:Name="UI_Check_BotHookOverride" Content="Override Hook Length" FontSize="11" Foreground="#666" VerticalAlignment="Center" Grid.Column="0"/>
                                 <TextBox x:Name="UI_Text_BotHookLength" Text="300" Height="30" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0" Grid.Column="2"
-                                         IsEnabled="{Binding IsChecked, ElementName=UI_Check_BotHookOverride}"/>
+                                         IsEnabled="{Binding IsChecked, ElementName=UI_Check_BotHookOverride}" TextChanged="toggle_visibility"/>
                             </Grid>
                         </StackPanel>
                     </Border>
-                </StackPanel>
-            </Border>
-            
-
-        </StackPanel>
-
-        <!-- CENTER COLUMN: VISUALIZATION -->
-        <StackPanel Grid.Column="2" VerticalAlignment="Top" Width="220">
-            <!-- CROSS-SECTION PREVIEW -->
-            <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#E8E8E8" BorderThickness="1" Padding="10" Margin="0,0,0,15">
-                <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="Cross Section" FontWeight="Bold" Foreground="#333" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-                    <Canvas x:Name="UI_Canvas_CrossSection" Width="200" Height="190" Background="Transparent" HorizontalAlignment="Center" ClipToBounds="True"/>
-                </StackPanel>
-            </Border>
-
-            <!-- SPAN ELEVATION DIAGRAM -->
-            <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#E8E8E8" BorderThickness="1" Padding="10" Margin="0,0,0,15">
-                <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="Span Elevation" FontWeight="Bold" Foreground="#333" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-                    <Canvas x:Name="UI_Canvas_SpanElevation" Width="200" Height="190" Background="Transparent" HorizontalAlignment="Center" ClipToBounds="True"/>
-                </StackPanel>
-            </Border>
-        </StackPanel>
-
-        <!-- RIGHT COLUMN: STIRRUPS & RULE OFFSETS -->
-        <StackPanel Grid.Column="4">
-            <!-- MULTI-SPAN -->
-            <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#E8E8E8" BorderThickness="1" Padding="15" Margin="0,0,0,15">
-                <StackPanel>
-                    <TextBlock Text="Continuous Beams" FontSize="12" FontWeight="SemiBold" Foreground="#4A759C" Margin="0,0,0,12"/>
-                    <CheckBox x:Name="UI_Check_MultiSpan" Content="Multi-Span (Continuous)" FontSize="12" Foreground="#333" FontWeight="SemiBold" Margin="0,0,0,8"
-                               ToolTip="Group selected beams into continuous spans. Top bars will bridge internal supports."/>
-                    <TextBlock Text="Group selected beams by direction and endpoints." FontSize="10" Foreground="#999" TextWrapping="Wrap" FontStyle="Italic"/>
                 </StackPanel>
             </Border>
 
@@ -292,7 +317,7 @@
             <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#E8E8E8" BorderThickness="1" Padding="15" Margin="0,0,0,15">
                 <StackPanel>
                     <TextBlock Text="Stirrups / Links" FontSize="12" FontWeight="SemiBold" Foreground="#4A759C" Margin="0,0,0,12"/>
-                    
+
                     <TextBlock Text="Rebar Shape" FontSize="11" Foreground="#666" Margin="0,0,0,4"/>
                     <ComboBox x:Name="UI_Combo_TransShape" Height="30" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0" Margin="0,0,0,8" IsEnabled="False">
                         <ComboBoxItem Content="00" IsSelected="True"/>
@@ -310,7 +335,7 @@
                         </StackPanel>
                         <StackPanel Grid.Column="2">
                             <TextBlock Text="Spacing (mm)" FontSize="11" Foreground="#666" Margin="0,0,0,4"/>
-                            <TextBox x:Name="UI_Text_TransSpacing" Text="200" Height="30" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0"/>
+                            <TextBox x:Name="UI_Text_TransSpacing" Text="200" Height="30" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0" TextChanged="toggle_visibility"/>
                         </StackPanel>
                     </Grid>
 
@@ -358,42 +383,16 @@
             </Border>
 
             <!-- RULE OFFSETS -->
-            <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#E8E8E8" BorderThickness="1" Padding="15" Margin="0,0,0,15">
+            <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#E8E8E8" BorderThickness="1" Padding="15">
                 <StackPanel>
                     <TextBlock Text="Rule Offsets" FontSize="12" FontWeight="SemiBold" Foreground="#4A759C" Margin="0,0,0,12"/>
                     
                     <TextBlock Text="Stirrup Start Offset (mm)" FontSize="11" Foreground="#666" Margin="0,0,0,4"/>
-                    <TextBox x:Name="UI_Text_TransStartOffset" Text="100" Height="30" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0" Margin="0,0,0,10"/>
+                    <TextBox x:Name="UI_Text_TransStartOffset" Text="100" Height="30" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0" Margin="0,0,0,10" TextChanged="toggle_visibility"/>
 
                     <TextBlock Text="Layer Clear Gap (mm)" FontSize="11" Foreground="#666" Margin="0,0,0,4"
                                ToolTip="Clear vertical spacing between T1/T2 and B1/B2 layers."/>
-                    <TextBox x:Name="UI_Text_LayerGap" Text="25" Height="30" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0"/>
-                </StackPanel>
-            </Border>
-
-            <!-- SIDE REINFORCEMENT -->
-            <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#E8E8E8" BorderThickness="1" Padding="15">
-                <StackPanel>
-                    <CheckBox x:Name="UI_Check_SideRebar" Content="Side Reinforcement" FontSize="12" FontWeight="SemiBold" Foreground="#4A759C" Margin="0,0,0,12" Click="toggle_visibility"/>
-
-                    <StackPanel x:Name="UI_Group_SideRebar">
-                        <Grid Margin="0,0,0,8">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="2*"/>
-                                <ColumnDefinition Width="10"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0">
-                                <TextBlock Text="Rebar Type" FontSize="11" Foreground="#666" Margin="0,0,0,4"/>
-                                <ComboBox x:Name="UI_Combo_SideType" Height="30" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0"/>
-                            </StackPanel>
-                            <StackPanel Grid.Column="2">
-                                <TextBlock Text="Rows" FontSize="11" Foreground="#666" Margin="0,0,0,4"/>
-                                <TextBox x:Name="UI_Text_SideRows" Text="2" Height="30" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0"/>
-                            </StackPanel>
-                        </Grid>
-                        <TextBlock Text="Evenly Spaced Between Top And Bottom Bars On Both Faces. No Lap Splice — Stock Length Only." FontSize="10" Foreground="#999" TextWrapping="Wrap"/>
-                    </StackPanel>
+                    <TextBox x:Name="UI_Text_LayerGap" Text="25" Height="30" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0" TextChanged="toggle_visibility"/>
                 </StackPanel>
             </Border>
         </StackPanel>

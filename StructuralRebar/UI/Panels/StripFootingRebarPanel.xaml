@@ -12,6 +12,8 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="20"/>
+            <ColumnDefinition Width="220"/>
+            <ColumnDefinition Width="20"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
@@ -20,7 +22,7 @@
             <!-- Top Bars -->
             <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,15">
                 <StackPanel>
-                    <CheckBox x:Name="UI_Check_TopBars" Content="Enable Top Bars" FontWeight="Bold" Foreground="#333333" IsChecked="False" Margin="0,0,0,15"/>
+                    <CheckBox x:Name="UI_Check_TopBars" Content="Enable Top Bars" FontWeight="Bold" Foreground="#333333" IsChecked="False" Margin="0,0,0,15" Click="toggle_visibility"/>
                     <StackPanel Visibility="{Binding IsChecked, ElementName=UI_Check_TopBars, Converter={StaticResource BoolToVis}}">
                         <Grid Margin="0,0,0,15">
                             <Grid.ColumnDefinitions>
@@ -34,7 +36,7 @@
                             </StackPanel>
                             <StackPanel Grid.Column="2">
                                 <TextBlock Text="Count" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                                <TextBox x:Name="UI_Text_TopCount" Text="4" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
+                                <TextBox x:Name="UI_Text_TopCount" Text="4" Height="32" VerticalContentAlignment="Center" Padding="8,0" TextChanged="toggle_visibility"/>
                             </StackPanel>
                         </Grid>
                         <TextBlock Text="Hook Start/End" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
@@ -47,7 +49,7 @@
                             </Grid.ColumnDefinitions>
                             <CheckBox x:Name="UI_Check_TopHookOverride" Content="Override Hook Length" FontSize="11" Foreground="#666666" VerticalAlignment="Center" Grid.Column="0"/>
                             <TextBox x:Name="UI_Text_TopHookLength" Text="300" Height="32" VerticalContentAlignment="Center" Padding="8,0" Grid.Column="2"
-                                     IsEnabled="{Binding IsChecked, ElementName=UI_Check_TopHookOverride}"/>
+                                     IsEnabled="{Binding IsChecked, ElementName=UI_Check_TopHookOverride}" TextChanged="toggle_visibility"/>
                         </Grid>
                     </StackPanel>
                 </StackPanel>
@@ -56,7 +58,7 @@
             <!-- Bottom Bars -->
             <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,15">
                 <StackPanel>
-                    <CheckBox x:Name="UI_Check_BotBars" Content="Enable Bottom Bars" FontWeight="Bold" Foreground="#333333" IsChecked="False" Margin="0,0,0,15"/>
+                    <CheckBox x:Name="UI_Check_BotBars" Content="Enable Bottom Bars" FontWeight="Bold" Foreground="#333333" IsChecked="False" Margin="0,0,0,15" Click="toggle_visibility"/>
                     <StackPanel Visibility="{Binding IsChecked, ElementName=UI_Check_BotBars, Converter={StaticResource BoolToVis}}">
                         <Grid Margin="0,0,0,15">
                             <Grid.ColumnDefinitions>
@@ -70,7 +72,7 @@
                             </StackPanel>
                             <StackPanel Grid.Column="2">
                                 <TextBlock Text="Count" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                                <TextBox x:Name="UI_Text_BotCount" Text="4" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
+                                <TextBox x:Name="UI_Text_BotCount" Text="4" Height="32" VerticalContentAlignment="Center" Padding="8,0" TextChanged="toggle_visibility"/>
                             </StackPanel>
                         </Grid>
                         <TextBlock Text="Hook Start/End" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
@@ -83,7 +85,7 @@
                             </Grid.ColumnDefinitions>
                             <CheckBox x:Name="UI_Check_BotHookOverride" Content="Override Hook Length" FontSize="11" Foreground="#666666" VerticalAlignment="Center" Grid.Column="0"/>
                             <TextBox x:Name="UI_Text_BotHookLength" Text="300" Height="32" VerticalContentAlignment="Center" Padding="8,0" Grid.Column="2"
-                                     IsEnabled="{Binding IsChecked, ElementName=UI_Check_BotHookOverride}"/>
+                                     IsEnabled="{Binding IsChecked, ElementName=UI_Check_BotHookOverride}" TextChanged="toggle_visibility"/>
                         </Grid>
                     </StackPanel>
                 </StackPanel>
@@ -91,8 +93,18 @@
 
         </StackPanel>
 
+        <!-- CENTER COLUMN: VISUALIZATION -->
+        <StackPanel Grid.Column="2" VerticalAlignment="Top">
+            <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#E8E8E8" BorderThickness="1" Padding="10" Margin="0,0,0,15">
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Cross Section" FontWeight="Bold" Foreground="#333" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                    <Canvas x:Name="UI_Canvas_CrossSection" Width="200" Height="190" Background="Transparent" HorizontalAlignment="Center" ClipToBounds="True"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+
         <!-- RIGHT COLUMN: STIRRUPS & OPTIONS -->
-        <StackPanel Grid.Column="2">
+        <StackPanel Grid.Column="4">
 
 
             <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,15">
@@ -111,7 +123,7 @@
                         </StackPanel>
                         <StackPanel Grid.Column="2">
                             <TextBlock Text="Spacing (mm)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                            <TextBox x:Name="UI_Text_TransSpacing" Text="200" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
+                            <TextBox x:Name="UI_Text_TransSpacing" Text="200" Height="32" VerticalContentAlignment="Center" Padding="8,0" TextChanged="toggle_visibility"/>
                         </StackPanel>
                     </Grid>
 
@@ -133,7 +145,7 @@
 
                     <StackPanel Margin="0,0,0,15">
                         <TextBlock Text="Start Offset (mm)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                        <TextBox x:Name="UI_Text_TransStartOff" Text="50" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
+                        <TextBox x:Name="UI_Text_TransStartOff" Text="50" Height="32" VerticalContentAlignment="Center" Padding="8,0" TextChanged="toggle_visibility"/>
                     </StackPanel>
                     
                 </StackPanel>
@@ -142,7 +154,7 @@
             <!-- Side Bars -->
             <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,15">
                 <StackPanel>
-                    <CheckBox x:Name="UI_Check_SideRebar" Content="Enable Side Bars" FontWeight="Bold" Foreground="#333333" IsChecked="False" Margin="0,0,0,15"/>
+                    <CheckBox x:Name="UI_Check_SideRebar" Content="Enable Side Bars" FontWeight="Bold" Foreground="#333333" IsChecked="False" Margin="0,0,0,15" Click="toggle_visibility"/>
                     <StackPanel Visibility="{Binding IsChecked, ElementName=UI_Check_SideRebar, Converter={StaticResource BoolToVis}}">
                         <Grid Margin="0,0,0,15">
                             <Grid.ColumnDefinitions>
@@ -156,7 +168,7 @@
                             </StackPanel>
                             <StackPanel Grid.Column="2">
                                 <TextBlock Text="Rows (Each Side)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                                <TextBox x:Name="UI_Text_SideRows" Text="2" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
+                                <TextBox x:Name="UI_Text_SideRows" Text="2" Height="32" VerticalContentAlignment="Center" Padding="8,0" TextChanged="toggle_visibility"/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>

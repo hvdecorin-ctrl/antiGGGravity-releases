@@ -19,7 +19,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
     {
         private UIDocument _uiDoc;
         private Document _doc;
-        private RebarSuiteWindow _parentWindow;
+        private IRebarWindow _parentWindow;
 
         public ObservableCollection<string> BarTypes { get; set; } = new ObservableCollection<string>();
         
@@ -34,7 +34,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
         private List<BeamSpanResolver.SupportInfo> _lastSupports = new List<BeamSpanResolver.SupportInfo>();
         private double _totalLength = 0;
 
-        public BeamAdvancePanel(UIDocument uiDoc, RebarSuiteWindow parentWindow)
+        public BeamAdvancePanel(UIDocument uiDoc, IRebarWindow parentWindow)
         {
             InitializeComponent();
             _uiDoc = uiDoc;
@@ -122,7 +122,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
 
         private void UI_Button_Analyze_Click(object sender, RoutedEventArgs e)
         {
-            _parentWindow.Hide();
+            _parentWindow.Close();
 
             try
             {
@@ -153,8 +153,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             }
             finally
             {
-                _parentWindow.Show();
-                _parentWindow.Activate();
+                _parentWindow.ReShow();
             }
         }
 
@@ -162,7 +161,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
         {
             if (_lastSupports == null || _totalLength <= 0 || _targetBeamId == ElementId.InvalidElementId) return;
 
-            _parentWindow.Hide();
+            _parentWindow.Close();
             try
             {
                 // Prompts user to select beams in Revit UI
@@ -258,8 +257,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             }
             finally
             {
-                _parentWindow.Show();
-                _parentWindow.Activate();
+                _parentWindow.ReShow();
             }
         }
 

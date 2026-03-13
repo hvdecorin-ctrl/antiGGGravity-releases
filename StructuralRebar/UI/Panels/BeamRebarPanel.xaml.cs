@@ -18,13 +18,33 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
         private const string VIEW_NAME = "RebarSuite_Beam";
         private List<RebarBarType> _rebarTypes;
         private List<HookViewModel> _hookList;
+        private bool _isInitialized = false;
+        private bool _isUpdating = false;
 
         public BeamRebarPanel(Document doc)
         {
             InitializeComponent();
             _doc = doc;
-            LoadData();
-            LoadSettings();
+            this.Loaded += OnPanelLoaded;
+        }
+
+        private void OnPanelLoaded(object sender, RoutedEventArgs e)
+        {
+            if (_isInitialized) return;
+
+            try
+            {
+                LoadData();
+                LoadSettings();
+                _isInitialized = true;
+                
+                // Initial draw after everything is loaded and rendered
+                toggle_visibility(null, null);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("BeamRebarPanel Load Error: " + ex.Message);
+            }
         }
 
         private void LoadData()
@@ -204,24 +224,53 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
 
         public void toggle_visibility(object sender, RoutedEventArgs e)
         {
-            if (UI_Group_T1 == null) return;
-            UI_Group_T1.Visibility = UI_Check_T1.IsChecked == true ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
-            UI_Group_T2.Visibility = UI_Check_T2.IsChecked == true ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
-            UI_Group_T3.Visibility = UI_Check_T3.IsChecked == true ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
-            UI_Group_B1.Visibility = UI_Check_B1.IsChecked == true ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
-            UI_Group_B2.Visibility = UI_Check_B2.IsChecked == true ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
-            UI_Group_B3.Visibility = UI_Check_B3.IsChecked == true ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
-            UI_Group_SideRebar.Visibility = UI_Check_SideRebar.IsChecked == true ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
-            UpdateCrossSection();
-            UpdateSpanElevation();
+            if (!_isInitialized || _isUpdating) return;
+
+            if (UI_Check_T1 == null || UI_Check_T2 == null || UI_Check_T3 == null ||
+                UI_Check_B1 == null || UI_Check_B2 == null || UI_Check_B3 == null ||
+                UI_Check_SideRebar == null || UI_Check_MultiSpan == null ||
+                UI_Group_T1 == null || UI_Group_T2 == null || UI_Group_T3 == null ||
+                UI_Group_B1 == null || UI_Group_B2 == null || UI_Group_B3 == null ||
+                UI_Group_SideRebar == null) return;
+
+            try
+            {
+                UI_Group_T1.Visibility = UI_Check_T1.IsChecked == true ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+                UI_Group_T2.Visibility = UI_Check_T2.IsChecked == true ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+                UI_Group_T3.Visibility = UI_Check_T3.IsChecked == true ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+                UI_Group_B1.Visibility = UI_Check_B1.IsChecked == true ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+                UI_Group_B2.Visibility = UI_Check_B2.IsChecked == true ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+                UI_Group_B3.Visibility = UI_Check_B3.IsChecked == true ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+                UI_Group_SideRebar.Visibility = UI_Check_SideRebar.IsChecked == true ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+
+                // Use Dispatcher with Render priority to ensure graphics engine is ready
+                Dispatcher.BeginInvoke(new Action(() => {
+                    if (_isUpdating) return;
+                    _isUpdating = true;
+                    try
+                    {
+                        UpdateCrossSection();
+                        UpdateSpanElevation();
+                    }
+                    finally
+                    {
+                        _isUpdating = false;
+                    }
+                }), System.Windows.Threading.DispatcherPriority.Render);
+            }
+            catch { }
         }
 
         public void StirrupDist_Changed(object sender, RoutedEventArgs e)
         {
-            if (UI_ZoneInfo == null) return;
-            UI_ZoneInfo.Visibility = (UI_Radio_StirrupUnEQ.IsChecked == true)
-                ? System.Windows.Visibility.Visible
-                : System.Windows.Visibility.Collapsed;
+            if (!_isInitialized || UI_ZoneInfo == null || UI_Radio_StirrupUnEQ == null) return;
+            try
+            {
+                UI_ZoneInfo.Visibility = (UI_Radio_StirrupUnEQ.IsChecked == true)
+                    ? System.Windows.Visibility.Visible
+                    : System.Windows.Visibility.Collapsed;
+            }
+            catch { }
         }
 
         public void UpdateZoneInfo(DesignCodeStandard code)
@@ -402,16 +451,31 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
         private void UpdateCrossSection()
         {
             if (UI_Canvas_CrossSection == null) return;
-            var canvas = UI_Canvas_CrossSection;
-            canvas.Children.Clear();
+            if (UI_Check_T1 == null || UI_Check_T2 == null || UI_Check_T3 == null ||
+                UI_Check_B1 == null || UI_Check_B2 == null || UI_Check_B3 == null ||
+                UI_Check_SideRebar == null) return;
 
-            double cW = canvas.Width;   // 200
-            double cH = canvas.Height;  // 190
-            double marginL = 10;
-            double marginR = 55; // reserve right side for labels
-            double marginTB = 10;
-            double beamW = cW - marginL - marginR;
-            double beamH = cH - 2 * marginTB;
+            if (UI_Text_T1Count == null || UI_Text_T2Count == null || UI_Text_T3Count == null ||
+                UI_Text_B1Count == null || UI_Text_B2Count == null || UI_Text_B3Count == null ||
+                UI_Text_SideRows == null) return;
+
+            try
+            {
+                var canvas = UI_Canvas_CrossSection;
+                canvas.Children.Clear();
+
+                double cW = canvas.ActualWidth > 0 ? canvas.ActualWidth : canvas.Width;
+                double cH = canvas.ActualHeight > 0 ? canvas.ActualHeight : canvas.Height;
+                
+                if (cW <= 0 || cH <= 0 || double.IsNaN(cW) || double.IsNaN(cH)) return;
+
+                double marginL = 10;
+                double marginR = 55; 
+                double marginTB = 10;
+                double beamW = cW - marginL - marginR;
+                double beamH = cH - 2 * marginTB;
+
+                if (beamW <= 0 || beamH <= 0) return;
 
             // Concrete outline
             var concreteRect = new System.Windows.Shapes.Rectangle
@@ -441,7 +505,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             Canvas.SetTop(stirrupRect, marginTB + cover);
             canvas.Children.Add(stirrupRect);
 
-            double dotR = 4;
+            double dotR = 4.5;
             double innerL = marginL + cover + 6;
             double innerR = marginL + beamW - cover - 6;
             double innerW = innerR - innerL;
@@ -497,8 +561,8 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                     for (int r = 1; r <= sideRows; r++)
                     {
                         double y = sTop + sideStep * r;
-                        DrawDot(canvas, innerL, y, dotR - 1, Brushes.SlateGray);
-                        DrawDot(canvas, innerR, y, dotR - 1, Brushes.SlateGray);
+                        DrawDot(canvas, innerL, y, 3.5, Brushes.SlateGray); // Side dot 7px (3.5 radius)
+                        DrawDot(canvas, innerR, y, 3.5, Brushes.SlateGray);
                     }
                     var sLbl = new TextBlock { Text = "Side", FontSize = 12, Foreground = Brushes.SlateGray, FontStyle = FontStyles.Italic, FontWeight = FontWeights.Bold };
                     Canvas.SetLeft(sLbl, innerR + 15);
@@ -506,6 +570,8 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                     canvas.Children.Add(sLbl);
                 }
             }
+            }
+            catch { }
         }
 
         private void DrawBarRow(Canvas canvas, double left, double right, double y, int count, double r, string label, Brush fill)
@@ -553,26 +619,38 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
         private void UpdateSpanElevation()
         {
             if (UI_Canvas_SpanElevation == null) return;
-            var canvas = UI_Canvas_SpanElevation;
-            canvas.Children.Clear();
+            if (UI_Check_MultiSpan == null || UI_Check_T1 == null || UI_Check_T2 == null || UI_Check_T3 == null ||
+                UI_Check_B1 == null || UI_Check_B2 == null || UI_Check_B3 == null ||
+                UI_Check_T2Cont == null || UI_Check_T3Cont == null ||
+                UI_Check_B2Cont == null || UI_Check_B3Cont == null) return;
 
-            double cW = canvas.Width;   // 200
-            double cH = canvas.Height;  // 190
-            double marginL = 10;
-            double marginR = 60; // Space for staggered labels on right
-            double marginTB = 10;
+            try
+            {
+                var canvas = UI_Canvas_SpanElevation;
+                canvas.Children.Clear();
 
-            bool isMultiSpan = (UI_Check_MultiSpan.IsChecked == true);
-            int spanCount = isMultiSpan ? 2 : 1;
-            double supportW = 10;
-            double supportCount = spanCount + 1;
-            double totalSupportW = supportCount * supportW;
-            double availW = cW - marginL - marginR - totalSupportW;
-            double spanW = availW / spanCount;
+                double cW = canvas.ActualWidth > 0 ? canvas.ActualWidth : canvas.Width;
+                double cH = canvas.ActualHeight > 0 ? canvas.ActualHeight : canvas.Height;
 
-            double beamTop = marginTB;
-            double beamBot = cH - marginTB;
-            double beamH = beamBot - beamTop;
+                if (cW <= 0 || cH <= 0 || double.IsNaN(cW) || double.IsNaN(cH)) return;
+
+                double marginL = 10;
+                double marginR = 60; 
+                double marginTB = 10;
+
+                bool isMultiSpan = (UI_Check_MultiSpan.IsChecked == true);
+                int spanCount = isMultiSpan ? 2 : 1;
+                double supportW = 10;
+                double supportCount = spanCount + 1;
+                double totalSupportW = supportCount * supportW;
+                double availW = cW - marginL - marginR - totalSupportW;
+                if (availW <= 0) return;
+                double spanW = availW / spanCount;
+
+                double beamTop = marginTB;
+                double beamBot = cH - marginTB;
+                double beamH = beamBot - beamTop;
+                if (beamH <= 0) return;
 
             double cover = 12;
             double layerStep = 16;
@@ -697,6 +775,8 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 DrawHLine(canvas, fullLeft, fullRight, midY, 1.5, sideBrush);
                 DrawBarLabel(canvas, fullRight + 14, midY - 8, "S", sideBrush);
             }
+            }
+            catch { }
         }
 
         private void DrawHLine(Canvas canvas, double x1, double x2, double y, double thickness, Brush stroke)

@@ -16,8 +16,11 @@ namespace antiGGGravity.StructuralRebar.UI
             InitializeComponent();
             RefreshComparison();
         }
-
-        private void Close_Click(object sender, RoutedEventArgs e) => Close();
+        private void Close_Click(object sender, RoutedEventArgs e)
+        {
+            UI_CustomPanel?.SaveSettings(); // Save global custom parameters
+            Close();
+        }
 
         // --- Comparison Tab ---
         private void CompParam_Changed(object sender, EventArgs e)

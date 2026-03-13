@@ -427,16 +427,46 @@ panels:
     items:
       # --- Column 1 ---
       - type: pushbutton
-        name: Rebar Suite
-        command: RebarSuiteCommand
-        icon: RebarSuite
-        tooltip: Generate reinforcement for beams, walls, columns, and footings in one tool.
+        name: Design Rules
+        command: DesignSettingCommand
+        icon: RulesSetting
+        tooltip: View design codes, reference parameters, and calculation rules.
+
+      # --- Column 2 ---
+      - type: pushbutton
+        name: Foundation Rebar
+        command: FoundationRebarCommand
+        icon: RebarFoundation
+        tooltip: Reinforce Strip Footings and Pad Footings.
+
+      # --- Column 3 ---
+      - type: pushbutton
+        name: Wall Rebar
+        command: WallRebarCommand
+        icon: RebarWall
+        tooltip: Reinforce Walls and Wall Corners.
+
+      # --- Column 4 ---
+      - type: pushbutton
+        name: Column Rebar
+        command: ColumnRebarCommand
+        icon: RebarColumn
+        tooltip: Reinforce Structural Columns.
+
+      # --- Column 1 ---
+      - type: pushbutton
+        name: Beam Rebar
+        command: BeamRebarCommand
+        icon: RebarBeam
+        tooltip: Reinforce Beams (Standard & Advance).
+
       # --- Column 2 ---
       - type: pushbutton
         name: Rebar Palette
         command: RebarPaletteCommand
         icon: RebarTools
         tooltip: Floating palette for rebar visibility, selection, and host-based tools.
+        
       # --- Column 3 ---
       - type: pulldown
         name: Rebar Q'ty

@@ -20,14 +20,14 @@ namespace antiGGGravity.StructuralRebar.Core
     /// </summary>
     public class RebarGenerateHandler : IExternalEventHandler
     {
-        private RebarSuiteWindow _window;
+        private IRebarWindow _window;
 
-        public RebarGenerateHandler(RebarSuiteWindow window)
+        public RebarGenerateHandler(IRebarWindow window)
         {
             _window = window;
         }
 
-        public void SetWindow(RebarSuiteWindow window)
+        public void SetWindow(IRebarWindow window)
         {
             _window = window;
         }

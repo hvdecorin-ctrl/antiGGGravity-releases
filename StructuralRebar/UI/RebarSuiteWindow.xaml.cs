@@ -6,7 +6,7 @@ using antiGGGravity.StructuralRebar.UI.Panels;
 
 namespace antiGGGravity.StructuralRebar.UI
 {
-    public partial class RebarSuiteWindow : Window
+    public partial class RebarSuiteWindow : Window, IRebarWindow
     {
         private readonly UIDocument _uiDoc;
         private readonly Document _doc;

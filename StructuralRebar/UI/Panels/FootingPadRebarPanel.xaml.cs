@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Shapes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Structure;
 using antiGGGravity.Utilities;
@@ -24,6 +26,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             _doc = doc;
             LoadData();
             LoadSettings();
+            UpdateCrossSection();
         }
 
         private void LoadData()
@@ -176,6 +179,137 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             }
 
             return request;
+        }
+
+        public void toggle_visibility(object sender, RoutedEventArgs e)
+        {
+            UpdateCrossSection();
+        }
+
+        private void UpdateCrossSection()
+        {
+            if (UI_Canvas_CrossSection == null || UI_Check_BotBars == null || UI_Check_TopBars == null || UI_Check_SideRebar == null) return;
+            var canvas = UI_Canvas_CrossSection;
+            canvas.Children.Clear();
+
+            double cW = canvas.Width;   // 200
+            double cH = canvas.Height;  // 190
+            double marginL = 10;
+            double marginR = 10;
+            double marginTB = 10;
+            double footW = cW - marginL - marginR;
+            double footH = 120; // x2 previous (60 -> 120)
+
+            // Concrete outline
+            var concreteRect = new System.Windows.Shapes.Rectangle
+            {
+                Width = footW,
+                Height = footH,
+                Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(180, 180, 180)),
+                StrokeThickness = 2,
+                Fill = new SolidColorBrush(System.Windows.Media.Color.FromRgb(240, 240, 240)),
+                RadiusX = 3,
+                RadiusY = 3
+            };
+            Canvas.SetLeft(concreteRect, marginL);
+            Canvas.SetTop(concreteRect, cH / 2.0 - footH / 2.0);
+            canvas.Children.Add(concreteRect);
+
+            double cover = 15;
+            double dotR = 4.5; // Match column canvas (radius 4.5 = 9px diameter)
+
+            // --- BOTTOM BARS ---
+            if (UI_Check_BotBars.IsChecked == true)
+            {
+                double botY = (cH / 2.0 + footH / 2.0) - cover;
+                // Cross bar (horizontal line with hooks)
+                DrawHLineWithHooks(canvas, marginL + cover, marginL + footW - cover, botY + 2, 3, Brushes.MidnightBlue, true); // Hooks up
+                // Longitudinal bars (dots)
+                DrawBarRow(canvas, marginL + cover + 10, marginL + footW - cover - 10, botY - 5, 5, dotR, Brushes.MidnightBlue);
+            }
+
+            // --- TOP BARS ---
+            if (UI_Check_TopBars.IsChecked == true)
+            {
+                double topY = (cH / 2.0 - footH / 2.0) + cover;
+                // Cross bar (horizontal line with hooks)
+                DrawHLineWithHooks(canvas, marginL + cover, marginL + footW - cover, topY - 2, 3, Brushes.DarkRed, false); // Hooks down
+                // Longitudinal bars (dots)
+                DrawBarRow(canvas, marginL + cover + 10, marginL + footW - cover - 10, topY + 5, 5, dotR, Brushes.DarkRed);
+            }
+
+            // --- SIDE BARS ---
+            if (UI_Check_SideRebar.IsChecked == true)
+            {
+                double internalOff = 8;
+                double sideX_L = marginL + cover + internalOff;
+                double sideX_R = marginL + footW - cover - internalOff;
+                double sideY = cH / 2.0;
+                DrawDot(canvas, sideX_L, sideY, 3.5, Brushes.SlateGray); // Side dot 7px (3.5 radius)
+                DrawDot(canvas, sideX_R, sideY, 3.5, Brushes.SlateGray);
+            }
+        }
+
+        private void DrawHLine(Canvas canvas, double x1, double x2, double y, double thickness, Brush stroke)
+        {
+            var line = new System.Windows.Shapes.Line
+            {
+                X1 = x1, Y1 = y, X2 = x2, Y2 = y,
+                Stroke = stroke,
+                StrokeThickness = thickness,
+                StrokeStartLineCap = PenLineCap.Round,
+                StrokeEndLineCap = PenLineCap.Round
+            };
+            canvas.Children.Add(line);
+        }
+
+        private void DrawHLineWithHooks(Canvas canvas, double x1, double x2, double y, double thickness, Brush stroke, bool hookUp)
+        {
+            DrawHLine(canvas, x1, x2, y, thickness, stroke);
+            double hookLen = 36; // x3 current (12 -> 36)
+            double vy1 = y;
+            double vy2 = hookUp ? y - hookLen : y + hookLen;
+
+            // Left hook
+            DrawVLine(canvas, x1, vy1, vy2, thickness, stroke);
+            // Right hook
+            DrawVLine(canvas, x2, vy1, vy2, thickness, stroke);
+        }
+
+        private void DrawVLine(Canvas canvas, double x, double y1, double y2, double thickness, Brush stroke)
+        {
+            var line = new System.Windows.Shapes.Line
+            {
+                X1 = x, Y1 = y1, X2 = x, Y2 = y2,
+                Stroke = stroke,
+                StrokeThickness = thickness,
+                StrokeStartLineCap = PenLineCap.Round,
+                StrokeEndLineCap = PenLineCap.Round
+            };
+            canvas.Children.Add(line);
+        }
+
+        private void DrawBarRow(Canvas canvas, double left, double right, double y, int count, double r, Brush fill)
+        {
+            double w = right - left;
+            double step = w / (count - 1);
+            for (int i = 0; i < count; i++)
+                DrawDot(canvas, left + step * i, y, r, fill);
+        }
+
+        private void DrawDot(Canvas canvas, double cx, double cy, double r, Brush fill)
+        {
+            var dot = new System.Windows.Shapes.Ellipse
+            {
+                Width = r * 2,
+                Height = r * 2,
+                Fill = fill,
+                Stroke = Brushes.White,
+                StrokeThickness = 0.5
+            };
+            Canvas.SetLeft(dot, cx - r);
+            Canvas.SetTop(dot, cy - r);
+            canvas.Children.Add(dot);
         }
 
         // --- Helpers ---

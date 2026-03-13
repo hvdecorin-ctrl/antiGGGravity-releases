@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Shapes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Structure;
 using antiGGGravity.Utilities;
@@ -24,6 +26,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             _doc = doc;
             LoadData();
             LoadSettings();
+            UpdateCrossSection();
         }
 
         private void LoadData()
@@ -206,6 +209,125 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             }
 
             return request;
+        }
+
+        public void toggle_visibility(object sender, RoutedEventArgs e)
+        {
+            UpdateCrossSection();
+        }
+
+        private void UpdateCrossSection()
+        {
+            if (UI_Canvas_CrossSection == null || UI_Check_BotBars == null || UI_Check_TopBars == null || UI_Check_SideRebar == null) return;
+            var canvas = UI_Canvas_CrossSection;
+            canvas.Children.Clear();
+
+            double cW = canvas.Width;   // 200
+            double cH = canvas.Height;  // 190
+            double marginL = 10;
+            double marginR = 10;
+            double footW = cW - marginL - marginR;
+            double footH = 140; // x2 (70 -> 140)
+
+            // Concrete outline
+            var concreteRect = new System.Windows.Shapes.Rectangle
+            {
+                Width = footW,
+                Height = footH,
+                Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(180, 180, 180)),
+                StrokeThickness = 2,
+                Fill = new SolidColorBrush(System.Windows.Media.Color.FromRgb(240, 240, 240)),
+                RadiusX = 2,
+                RadiusY = 2
+            };
+            Canvas.SetLeft(concreteRect, marginL);
+            Canvas.SetTop(concreteRect, cH / 2.0 - footH / 2.0);
+            canvas.Children.Add(concreteRect);
+
+            double cover = 15;
+            double dotR = 4.5; // Match column canvas (radius 4.5 = 9px diameter)
+
+            // Stirrup outline (dashed)
+            var stirrupRect = new System.Windows.Shapes.Rectangle
+            {
+                Width = footW - 2 * cover,
+                Height = footH - 2 * cover,
+                Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(120, 120, 120)),
+                StrokeThickness = 3, // Thicker stirrup
+                StrokeDashArray = new DoubleCollection { 3, 2 },
+                Fill = Brushes.Transparent
+            };
+            Canvas.SetLeft(stirrupRect, marginL + cover);
+            Canvas.SetTop(stirrupRect, cH / 2.0 - footH / 2.0 + cover);
+            canvas.Children.Add(stirrupRect);
+
+            double internalOff = 8; // Offset to place bars inside stirrup
+
+            // --- BOTTOM BARS (Longitudinal) ---
+            if (UI_Check_BotBars.IsChecked == true)
+            {
+                double botY = (cH / 2.0 + footH / 2.0) - cover - internalOff;
+                int count = (int)ParseDouble(UI_Text_BotCount.Text, 4);
+                DrawBarRow(canvas, marginL + cover + internalOff, marginL + footW - cover - internalOff, botY, count, dotR, Brushes.MidnightBlue);
+            }
+
+            // --- TOP BARS (Longitudinal) ---
+            if (UI_Check_TopBars.IsChecked == true)
+            {
+                double topY = (cH / 2.0 - footH / 2.0) + cover + internalOff;
+                int count = (int)ParseDouble(UI_Text_TopCount.Text, 4);
+                DrawBarRow(canvas, marginL + cover + internalOff, marginL + footW - cover - internalOff, topY, count, dotR, Brushes.DarkRed);
+            }
+
+            // --- SIDE BARS ---
+            if (UI_Check_SideRebar.IsChecked == true)
+            {
+                int rows = (int)ParseDouble(UI_Text_SideRows.Text, 2);
+                double internalOffSide = 12; // Further inside (5 -> 12)
+                double sTop = (cH / 2.0 - footH / 2.0) + cover + 15;
+                double sBot = (cH / 2.0 + footH / 2.0) - cover - 15;
+                if (sBot > sTop && rows > 0)
+                {
+                    double step = (sBot - sTop) / (rows + 1);
+                    for (int i = 1; i <= rows; i++)
+                    {
+                        double y = sTop + step * i;
+                        DrawDot(canvas, marginL + cover + internalOffSide, y, 3.5, Brushes.SlateGray); // Side dot 7px
+                        DrawDot(canvas, marginL + footW - cover - internalOffSide, y, 3.5, Brushes.SlateGray);
+                    }
+                }
+            }
+        }
+
+        private void DrawBarRow(Canvas canvas, double left, double right, double y, int count, double r, Brush fill)
+        {
+            if (count < 1) return;
+            if (count == 1)
+            {
+                DrawDot(canvas, (left + right) / 2.0, y, r, fill);
+            }
+            else
+            {
+                double w = right - left;
+                double step = w / (count - 1);
+                for (int i = 0; i < count; i++)
+                    DrawDot(canvas, left + step * i, y, r, fill);
+            }
+        }
+
+        private void DrawDot(Canvas canvas, double cx, double cy, double r, Brush fill)
+        {
+            var dot = new System.Windows.Shapes.Ellipse
+            {
+                Width = r * 2,
+                Height = r * 2,
+                Fill = fill,
+                Stroke = Brushes.White,
+                StrokeThickness = 0.5
+            };
+            Canvas.SetLeft(dot, cx - r);
+            Canvas.SetTop(dot, cy - r);
+            canvas.Children.Add(dot);
         }
 
         // --- Helpers ---
