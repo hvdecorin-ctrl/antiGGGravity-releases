@@ -1,6 +1,7 @@
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Structure;
 using antiGGGravity.StructuralRebar.DTO;
+using antiGGGravity.StructuralRebar.Constants;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -94,9 +95,27 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                 distLen1 = length - 2 * edgeOff;
             }
 
+            XYZ legDir = isTop ? -basisH : basisH;
+            double legLen = layer.OverrideHookLength ? layer.HookLengthOverride : (height - cTop - cBot - dia);
+            if (legLen < 0.2) legLen = 0.5;
+
+            if (!isTop)
+            {
+                XYZ temp1 = p1_1; p1_1 = p2_1; p2_1 = temp1;
+            }
+
+            XYZ pStartLeg1 = p1_1 + legDir * legLen;
+            XYZ pEndLeg1 = p2_1 + legDir * legLen;
+            List<Curve> curves1 = new List<Curve>
+            {
+                Line.CreateBound(pStartLeg1, p1_1),
+                Line.CreateBound(p1_1, p2_1),
+                Line.CreateBound(p2_1, pEndLeg1)
+            };
+
             definitions.Add(new RebarDefinition
             {
-                Curves = new List<Curve> { Line.CreateBound(p1_1, p2_1) },
+                Curves = curves1,
                 Style = RebarStyle.Standard,
                 BarTypeName = layer.VerticalBarTypeName,
                 BarDiameter = dia,
@@ -105,8 +124,8 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                 Normal = distDir1,
                 HookStartName = layer.HookStartName,
                 HookEndName = layer.HookEndName,
-                HookStartOrientation = isTop ? RebarHookOrientation.Left : RebarHookOrientation.Right,
-                HookEndOrientation = isTop ? RebarHookOrientation.Left : RebarHookOrientation.Right,
+                HookStartOrientation = RebarHookOrientation.Right, // Re-verify: Inner hook bend
+                HookEndOrientation = RebarHookOrientation.Right,   // Re-verify: Inner hook bend
                 OverrideHookLength = layer.OverrideHookLength,
                 HookLengthOverride = layer.HookLengthOverride,
                 Label = "Footing Pad Mat 1",
@@ -120,33 +139,47 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
             if (shortIsL)
             {
                 // B2: Along Y (long), distributed along X
-                p1_1 = host.Origin + basisL * (length / 2.0 - edgeOff) - basisW * (width / 2.0 - cSide) + basisH * z2;
-                p2_1 = host.Origin + basisL * (length / 2.0 - edgeOff) + basisW * (width / 2.0 - cSide) + basisH * z2;
-                distDir1 = -basisL;
-                distLen1 = length - 2 * edgeOff;
+                p1_2 = host.Origin + basisL * (length / 2.0 - edgeOff) - basisW * (width / 2.0 - cSide) + basisH * z2;
+                p2_2 = host.Origin + basisL * (length / 2.0 - edgeOff) + basisW * (width / 2.0 - cSide) + basisH * z2;
+                distDir2 = -basisL;
+                distLen2 = length - 2 * edgeOff;
             }
             else
             {
                 // B2: Along X (long), distributed along Y
-                p1_1 = host.Origin - basisL * (length / 2.0 - cSide) - basisW * (width / 2.0 - edgeOff) + basisH * z2;
-                p2_1 = host.Origin + basisL * (length / 2.0 - cSide) - basisW * (width / 2.0 - edgeOff) + basisH * z2;
-                distDir1 = basisW;
-                distLen1 = width - 2 * edgeOff;
+                p1_2 = host.Origin - basisL * (length / 2.0 - cSide) - basisW * (width / 2.0 - edgeOff) + basisH * z2;
+                p2_2 = host.Origin + basisL * (length / 2.0 - cSide) - basisW * (width / 2.0 - edgeOff) + basisH * z2;
+                distDir2 = basisW;
+                distLen2 = width - 2 * edgeOff;
             }
+
+            if (!isTop)
+            {
+                XYZ temp2 = p1_2; p1_2 = p2_2; p2_2 = temp2;
+            }
+
+            XYZ pStartLeg2 = p1_2 + legDir * legLen;
+            XYZ pEndLeg2 = p2_2 + legDir * legLen;
+            List<Curve> curves2 = new List<Curve>
+            {
+                Line.CreateBound(pStartLeg2, p1_2),
+                Line.CreateBound(p1_2, p2_2),
+                Line.CreateBound(p2_2, pEndLeg2)
+            };
 
             definitions.Add(new RebarDefinition
             {
-                Curves = new List<Curve> { Line.CreateBound(p1_1, p2_1) },
+                Curves = curves2,
                 Style = RebarStyle.Standard,
                 BarTypeName = layer.VerticalBarTypeName,
                 BarDiameter = dia,
                 Spacing = spacing,
-                ArrayLength = distLen1,
-                Normal = distDir1,
+                ArrayLength = distLen2,
+                Normal = distDir2,
                 HookStartName = layer.HookStartName,
                 HookEndName = layer.HookEndName,
-                HookStartOrientation = isTop ? RebarHookOrientation.Left : RebarHookOrientation.Right,
-                HookEndOrientation = isTop ? RebarHookOrientation.Left : RebarHookOrientation.Right,
+                HookStartOrientation = RebarHookOrientation.Right,
+                HookEndOrientation = RebarHookOrientation.Right,
                 OverrideHookLength = layer.OverrideHookLength,
                 HookLengthOverride = layer.HookLengthOverride,
                 Label = "Footing Pad Mat 2",
@@ -154,6 +187,91 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
             });
 
             return definitions;
+        }
+
+        public static List<RebarDefinition> CreateSideRebars(
+            HostGeometry host, string barTypeName, double barDia, double spacing,
+            bool overrideLeg, double legLenOverride)
+        {
+            var defs = new List<RebarDefinition>();
+            if (barDia <= 0 || spacing <= 0 || string.IsNullOrEmpty(barTypeName)) return defs;
+
+            double cTop = host.CoverTop;
+            double cBot = host.CoverBottom;
+            double cOther = host.CoverExterior; 
+            double height = host.Height;
+
+            double assumedMainDia = UnitConversion.MmToFeet(25);
+            // Height available for side bars
+            double sideZTop = (height / 2.0) - cTop - assumedMainDia * 2;
+            double sideZBot = -(height / 2.0) + cBot + assumedMainDia * 2;
+            double availableHeight = sideZTop - sideZBot;
+
+            if (availableHeight <= 0) return defs;
+
+            // Maximum Spacing Rule: Calculate number of spaces needed so each space <= spacing
+            int numSpaces = (int)Math.Ceiling(availableHeight / spacing);
+            int rowCount = numSpaces - 1;
+            
+            if (rowCount < 0) rowCount = 0;
+
+            XYZ L = host.LAxis;
+            XYZ W = host.WAxis;
+            XYZ H = host.HAxis;
+            XYZ orig = host.Origin;
+
+            // Strategy: 2 faces (L- and L+)
+            // Each bar is Shape LL (U-Shape) with legs wrapping into Sides 3 and 4 (along Length).
+            
+            // Default leg length: Half of host length minus cover
+            double defaultLegLen = (host.Length / 2.0) - cOther;
+            double legLen = overrideLeg ? legLenOverride : defaultLegLen;
+            if (legLen < 0.2) legLen = 0.5;
+
+            // The main segment is across Width
+            double mainLen = host.Width - 2 * (cOther + barDia / 2.0);
+
+            for (int i = 0; i < 2; i++)
+            {
+                // Face 1: L- , Face 2: L+
+                XYZ facePos = orig + L * (i == 0 ? -(host.Length/2.0 - cOther) : (host.Length/2.0 - cOther));
+                double sign = (i == 0) ? 1.0 : -1.0; // Inward direction for legs relative to face normal
+
+                for (int row = 1; row <= rowCount; row++)
+                {
+                    double z = sideZBot + (availableHeight / numSpaces) * row;
+                    XYZ zOff = H * z;
+
+                    XYZ pMainStart = facePos - W * (mainLen / 2.0) + zOff;
+                    XYZ pMainEnd = facePos + W * (mainLen / 2.0) + zOff;
+                    XYZ pLeg1Start = pMainStart + L * (sign * legLen);
+                    XYZ pLeg2End = pMainEnd + L * (sign * legLen);
+
+                    var curves = new List<Curve>
+                    {
+                        Line.CreateBound(pLeg1Start, pMainStart),
+                        Line.CreateBound(pMainStart, pMainEnd),
+                        Line.CreateBound(pMainEnd, pLeg2End)
+                    };
+
+                    defs.Add(new RebarDefinition
+                    {
+                        Curves = curves,
+                        Style = RebarStyle.Standard,
+                        BarTypeName = barTypeName,
+                        BarDiameter = barDia,
+                        FixedCount = 1,
+                        DistributionWidth = 0,
+                        ArrayDirection = H,
+                        Normal = H, // Planes are horizontal
+                        ShapeNameHint = "Shape LL",
+                        Label = "Footing Pad Side Bar",
+                        Comment = "Side Bar"
+                    });
+                }
+            }
+
+            return defs;
         }
     }
 }

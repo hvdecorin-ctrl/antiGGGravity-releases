@@ -2741,6 +2741,63 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                 }
             }
 
+            // 3. Side Bars
+            if (request.EnableSideRebar && request.SideRebarRows > 0 && !string.IsNullOrEmpty(request.SideRebarTypeName))
+            {
+                double sideDia = GetBarDiameter(request.SideRebarTypeName);
+                var sideDefs = StripFootingLayoutGenerator.CreateSideRebars(
+                    host, request.SideRebarTypeName, sideDia, request.SideRebarRows, transDia);
+                
+                // Also split lap splice for side bars if enabled and length > stock length
+                double sideBarLen = host.Length - 2 * host.CoverExterior;
+                if (request.EnableLapSplice && sideBarLen > LapSpliceCalculator.MaxStockLengthFt)
+                {
+                    foreach (var sDef in sideDefs)
+                    {
+                        var segments = LapSpliceCalculator.SplitBarForLap(
+                            sideBarLen, sDef.BarDiameter, request.DesignCode, 0, 0); // No crank for horizontal skin bars
+
+                        if (segments.Count <= 1)
+                        {
+                            definitions.Add(sDef);
+                        }
+                        else
+                        {
+                            var origLine = sDef.Curves[0] as Line;
+                            XYZ barDir = (origLine.GetEndPoint(1) - origLine.GetEndPoint(0)).Normalize();
+                            XYZ barStart = origLine.GetEndPoint(0);
+
+                            for (int si = 0; si < segments.Count; si++)
+                            {
+                                var seg = segments[si];
+                                XYZ segStart = barStart + barDir * seg.Start;
+                                XYZ segEnd = barStart + barDir * seg.End;
+
+                                var curves = new List<Curve> { Line.CreateBound(segStart, segEnd) };
+
+                                definitions.Add(new RebarDefinition
+                                {
+                                    Curves = curves,
+                                    Style = sDef.Style,
+                                    BarTypeName = sDef.BarTypeName,
+                                    BarDiameter = sDef.BarDiameter,
+                                    FixedCount = sDef.FixedCount,
+                                    DistributionWidth = sDef.DistributionWidth,
+                                    ArrayDirection = sDef.ArrayDirection,
+                                    Normal = sDef.Normal,
+                                    Label = "Side Rebar (lapped)",
+                                    Comment = "Side Bar"
+                                });
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    definitions.AddRange(sideDefs);
+                }
+            }
+
             var ids = _creationService.PlaceRebar(foundation, definitions);
             return ids.Count > 0;
         }
@@ -2761,6 +2818,24 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                     bool isTop = (layer.Side == RebarSide.Top);
                     var matDefs = FootingPadLayoutGenerator.CreateMat(host, layer, isTop);
                     if (matDefs != null) definitions.AddRange(matDefs);
+                }
+            }
+
+            // Side Bars
+            if (request.EnableSideRebar && !string.IsNullOrEmpty(request.SideRebarTypeName))
+            {
+                double sideDia = GetBarDiameter(request.SideRebarTypeName);
+                if (sideDia > 0)
+                {
+                    var sideDefs = FootingPadLayoutGenerator.CreateSideRebars(
+                        host,
+                        request.SideRebarTypeName,
+                        sideDia,
+                        request.SideRebarSpacing,
+                        request.EnableSideRebarOverrideLeg,
+                        request.SideRebarLegLength);
+
+                    if (sideDefs != null) definitions.AddRange(sideDefs);
                 }
             }
 

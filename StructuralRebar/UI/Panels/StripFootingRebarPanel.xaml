@@ -138,6 +138,30 @@
                     
                 </StackPanel>
             </Border>
+
+            <!-- Side Bars -->
+            <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,15">
+                <StackPanel>
+                    <CheckBox x:Name="UI_Check_SideRebar" Content="Enable Side Bars" FontWeight="Bold" Foreground="#333333" IsChecked="False" Margin="0,0,0,15"/>
+                    <StackPanel Visibility="{Binding IsChecked, ElementName=UI_Check_SideRebar, Converter={StaticResource BoolToVis}}">
+                        <Grid Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="15"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Rebar Type" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                                <ComboBox x:Name="UI_Combo_SideType" Height="32" Padding="8,0" VerticalContentAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Rows (Each Side)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                                <TextBox x:Name="UI_Text_SideRows" Text="2" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
         </StackPanel>
     </Grid>
 </UserControl>

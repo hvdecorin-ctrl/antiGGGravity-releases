@@ -178,6 +178,18 @@ namespace antiGGGravity.StructuralRebar.DTO
         /// <summary>Number of rows per side face.</summary>
         public int SideRebarRows { get; set; }
 
+        /// <summary>Spacing for side/perimeter bars (feet).</summary>
+        public double SideRebarSpacing { get; set; }
+
+        /// <summary>Hook type name for side/perimeter bars.</summary>
+        public string SideRebarHookName { get; set; }
+
+        /// <summary>Whether to override the leg length for side/perimeter bars (Shape LL).</summary>
+        public bool EnableSideRebarOverrideLeg { get; set; }
+
+        /// <summary>Leg length override for side/perimeter bars (feet).</summary>
+        public double SideRebarLegLength { get; set; }
+
         /// <summary>Vertical clear gap between multiple rebar layers (T1/T2, B1/B2) (feet).</summary>
         public double LayerGap { get; set; }
     }

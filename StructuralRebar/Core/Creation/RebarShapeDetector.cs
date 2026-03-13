@@ -21,12 +21,15 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
     public static class RebarShapeDetector
     {
         /// <summary>
-        /// Determines the expected standard shape name based on curve topology,
+        /// Determines the expected standard shape name based on hint, curve topology,
         /// rebar style, and hook configuration.
         /// </summary>
         public static string GetExpectedShapeName(IList<Curve> curves, RebarStyle style,
-            bool hasHookStart, bool hasHookEnd)
+            bool hasHookStart, bool hasHookEnd, string shapeNameHint = null)
         {
+            if (!string.IsNullOrEmpty(shapeNameHint))
+                return shapeNameHint;
+
             if (curves == null || curves.Count == 0) return null;
 
             // Stirrup/Tie → Shape HT
@@ -50,14 +53,40 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
                     return "Shape 90x0";
 
                 case 3 when curves.All(c => c is Line):
-                    // Cranked bar (3 line segments)
+                    // Could be a Cranked bar OR a U-bar (Shape LL)
+                    XYZ d1 = (curves[0] as Line).Direction;
+                    XYZ d2 = (curves[1] as Line).Direction;
+                    XYZ d3 = (curves[2] as Line).Direction;
+
+                    bool isU = Math.Abs(d1.DotProduct(d3)) > 0.99 && Math.Abs(d1.DotProduct(d2)) < 0.01;
+                    if (isU)
+                    {
+                        // Match Shape LL or similar 3-segment U-shapes
+                        // If it has hooks, we might need a specific name, but often just "LL" or "U"
+                        return shapeNameHint ?? "Shape LL";
+                    }
+
+                    // Cranked bar logic
                     if (hasHookStart) return "Shape 90x0_Crk";
                     if (hasHookEnd) return "Shape 0x90_Crk";
                     return "Shape 0x0_Crk";
 
                 default:
-                    return null;
+                    return shapeNameHint;
             }
+        }
+
+        /// <summary>
+        /// Gets the standard RebarShape element based on expected code.
+        /// Returns null if the shape could not be found.
+        /// </summary>
+        public static RebarShape GetStandardShape(IList<Curve> curves, RebarStyle style,
+            bool hasHookStart, bool hasHookEnd, Dictionary<string, RebarShape> shapeCache, string shapeNameHint = null)
+        {
+            string expectedCode = GetExpectedShapeName(curves, style, hasHookStart, hasHookEnd, shapeNameHint);
+            if (expectedCode == null) return null;
+
+            return FindShapeRobustly(expectedCode, shapeCache);
         }
 
         /// <summary>
@@ -66,7 +95,7 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
         /// Returns true if reassignment was performed successfully.
         /// </summary>
         public static bool TryApplyStandardShape(Document doc, Rebar rebar,
-            IList<Curve> curves, RebarStyle style, Dictionary<string, RebarShape> shapeCache)
+            IList<Curve> curves, RebarStyle style, Dictionary<string, RebarShape> shapeCache, string shapeNameHint = null)
         {
             if (rebar == null || curves == null || curves.Count == 0) return false;
 
@@ -74,7 +103,7 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
             bool actualHookStart = rebar.GetHookTypeId(0) != ElementId.InvalidElementId;
             bool actualHookEnd = rebar.GetHookTypeId(1) != ElementId.InvalidElementId;
 
-            string expectedCode = GetExpectedShapeName(curves, style, actualHookStart, actualHookEnd);
+            string expectedCode = GetExpectedShapeName(curves, style, actualHookStart, actualHookEnd, shapeNameHint);
             if (expectedCode == null) return false;
 
             // Check current shape — skip if it already matches our expected code
@@ -93,7 +122,12 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
             RebarShape targetShape = FindShapeRobustly(expectedCode, shapeCache);
             if (targetShape == null)
             {
-                System.Diagnostics.Debug.WriteLine($"RebarShapeDetector: Could not find project shape matching '{expectedCode}'");
+                // We do NOT want to log an error here if the user explicitly provided a hint but it's missing from the project,
+                // because we intentionally want Revit to fall back to a newly generated shape.
+                if (string.IsNullOrEmpty(shapeNameHint))
+                {
+                    System.Diagnostics.Debug.WriteLine($"RebarShapeDetector: Could not find project shape matching '{expectedCode}'");
+                }
                 return false;
             }
 

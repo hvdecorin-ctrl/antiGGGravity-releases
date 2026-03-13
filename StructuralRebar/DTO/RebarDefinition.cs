@@ -64,5 +64,8 @@ namespace antiGGGravity.StructuralRebar.DTO
 
         /// <summary>Identifier to be written to the 'Comments' parameter in Revit (e.g. "U-Corner", "Top Bar").</summary>
         public string Comment { get; set; }
+
+        /// <summary>Expected standard RebarShape name if a specific shape is desired (e.g. "Shape L", "Shape LL").</summary>
+        public string ShapeNameHint { get; set; }
     }
 }

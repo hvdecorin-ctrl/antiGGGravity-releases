@@ -49,6 +49,7 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
         public List<ElementId> PlaceRebar(Element host, List<RebarDefinition> definitions)
         {
             var results = new List<ElementId>();
+            var generatedShapesToDelete = new HashSet<ElementId>();
 
             foreach (var def in definitions)
             {
@@ -63,18 +64,46 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
                     RebarHookType hookStart = ResolveHookType(def.HookStartName);
                     RebarHookType hookEnd = ResolveHookType(def.HookEndName);
 
-                    DBRebar rebar = DBRebar.CreateFromCurves(
-                        _doc,
-                        def.Style,
-                        barType,
-                        hookStart,
-                        hookEnd,
-                        host,
-                        def.Normal,
-                        def.Curves,
-                        def.HookStartOrientation,
-                        def.HookEndOrientation,
-                        true, true);
+                    RebarShape standardShape = RebarShapeDetector.GetStandardShape(def.Curves, def.Style, hookStart != null, hookEnd != null, _rebarShapes, def.ShapeNameHint);
+
+                    DBRebar rebar = null;
+                    if (standardShape != null)
+                    {
+                        try
+                        {
+                            rebar = DBRebar.CreateFromCurvesAndShape(
+                                _doc,
+                                standardShape,
+                                barType,
+                                hookStart,
+                                hookEnd,
+                                host,
+                                def.Normal,
+                                def.Curves,
+                                def.HookStartOrientation,
+                                def.HookEndOrientation);
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"RebarCreationService: Fallback from CreateFromCurvesAndShape for '{def.Label}': {ex.Message}");
+                        }
+                    }
+
+                    if (rebar == null)
+                    {
+                        rebar = DBRebar.CreateFromCurves(
+                            _doc,
+                            def.Style,
+                            barType,
+                            hookStart,
+                            hookEnd,
+                            host,
+                            def.Normal,
+                            def.Curves,
+                            def.HookStartOrientation,
+                            def.HookEndOrientation,
+                            true, true);
+                    }
 
                     if (rebar != null)
                     {
@@ -87,6 +116,12 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
 
                         if (forcedStart || forcedEnd)
                         {
+                            var shapeIdToTrash = rebar.get_Parameter(BuiltInParameter.REBAR_SHAPE)?.AsElementId();
+                            if (shapeIdToTrash != null && shapeIdToTrash != ElementId.InvalidElementId)
+                            {
+                                generatedShapesToDelete.Add(shapeIdToTrash);
+                            }
+
                             // Revit forced hooks! Delete this instance and recreate forcing a NEW shape
                             _doc.Delete(rebar.Id);
                             rebar = DBRebar.CreateFromCurves(
@@ -178,22 +213,31 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
                         // Detect the correct standard shape and reassign.
                         try
                         {
+                            var oldShapeId = rebar.get_Parameter(BuiltInParameter.REBAR_SHAPE)?.AsElementId();
+
                             bool reassigned = RebarShapeDetector.TryApplyStandardShape(
-                                _doc, rebar, def.Curves, def.Style, _rebarShapes);
+                                _doc, rebar, def.Curves, def.Style, _rebarShapes, def.ShapeNameHint);
+
+                            if (reassigned && oldShapeId != null && oldShapeId != standardShape?.Id && oldShapeId != ElementId.InvalidElementId)
+                            {
+                                generatedShapesToDelete.Add(oldShapeId);
+                            }
 
                             // Detect actual hooks from rebar element (crucial if Revit matched a shape with hooks)
-                            bool hasHookStart = rebar.GetHookTypeId(0) != ElementId.InvalidElementId;
-                            bool hasHookEnd = rebar.GetHookTypeId(1) != ElementId.InvalidElementId;
+                            bool rebarHasHookStart = rebar.GetHookTypeId(0) != ElementId.InvalidElementId;
+                            bool rebarHasHookEnd = rebar.GetHookTypeId(1) != ElementId.InvalidElementId;
 
-                            // Force re-apply desired hook orientations. 
-                            // Reassigning shapes can reset orientations to shape defaults.
-                            // We MUST also re-apply if Revit matched a shape with hooks automatically.
-                            if (reassigned || hasHookStart || hasHookEnd)
+                            // Force re-apply desired hook types and orientations. 
+                            // Reassigning shapes can reset orientations or strip hooks if the shape doesn't "expect" them.
+                            if (hookStart != null)
                             {
-                                if (hasHookStart)
-                                    rebar.SetHookOrientation(0, def.HookStartOrientation);
-                                if (hasHookEnd)
-                                    rebar.SetHookOrientation(1, def.HookEndOrientation);
+                                if (!rebarHasHookStart) rebar.SetHookTypeId(0, hookStart.Id);
+                                rebar.SetHookOrientation(0, def.HookStartOrientation);
+                            }
+                            if (hookEnd != null)
+                            {
+                                if (!rebarHasHookEnd) rebar.SetHookTypeId(1, hookEnd.Id);
+                                rebar.SetHookOrientation(1, def.HookEndOrientation);
                             }
                         }
                         catch (Exception ex)
@@ -209,6 +253,21 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
                 catch (Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine($"RebarCreationService: Failed to place '{def.Label}': {ex.Message}");
+                }
+            }
+
+            // Clean up left over generated shapes
+            foreach (var shapeId in generatedShapesToDelete)
+            {
+                if (shapeId == null || shapeId == ElementId.InvalidElementId) continue;
+                try
+                {
+                    // Revit will throw if shape is in use. We only want to delete unused ones.
+                    _doc.Delete(shapeId);
+                }
+                catch
+                {
+                    // Ignore, shape is likely in use somewhere
                 }
             }
 

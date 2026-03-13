@@ -42,6 +42,10 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             UI_Combo_BotType.DisplayMemberPath = "Name";
             UI_Combo_BotType.SelectedItem = _rebarTypes.FirstOrDefault(x => x.Name.Contains("D16")) ?? _rebarTypes.FirstOrDefault();
 
+            UI_Combo_SideType.ItemsSource = _rebarTypes;
+            UI_Combo_SideType.DisplayMemberPath = "Name";
+            UI_Combo_SideType.SelectedItem = _rebarTypes.FirstOrDefault(x => x.Name.Contains("D16")) ?? _rebarTypes.FirstOrDefault();
+
             var hookTypes = new FilteredElementCollector(_doc)
                 .OfClass(typeof(RebarHookType))
                 .Cast<RebarHookType>()
@@ -58,6 +62,9 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             UI_Combo_BotHook.ItemsSource = _hookList;
             UI_Combo_BotHook.DisplayMemberPath = "Name";
             UI_Combo_BotHook.SelectedIndex = 0;
+
+
+
         }
 
         private void LoadSettings()
@@ -69,9 +76,12 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
 
                 UI_Check_TopBars.IsChecked = SettingsManager.GetBool(VIEW_NAME, "TopBarsEnabled", true);
                 UI_Check_BotBars.IsChecked = SettingsManager.GetBool(VIEW_NAME, "BotBarsEnabled", true);
+                UI_Check_SideRebar.IsChecked = SettingsManager.GetBool(VIEW_NAME, "SideRebarEnabled", false);
+                UI_Text_SideSpacing.Text = SettingsManager.Get(VIEW_NAME, "SideSpacing", "200");
 
                 SelectByName(UI_Combo_TopType, SettingsManager.Get(VIEW_NAME, "TopType"));
                 SelectByName(UI_Combo_BotType, SettingsManager.Get(VIEW_NAME, "BotType"));
+                SelectByName(UI_Combo_SideType, SettingsManager.Get(VIEW_NAME, "SideType"));
 
                 SelectHookByName(UI_Combo_TopHook, SettingsManager.Get(VIEW_NAME, "TopHook"));
                 SelectHookByName(UI_Combo_BotHook, SettingsManager.Get(VIEW_NAME, "BotHook"));
@@ -80,6 +90,9 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 UI_Text_TopHookLength.Text = SettingsManager.Get(VIEW_NAME, "TopHookLength", "300");
                 UI_Check_BotHookOverride.IsChecked = SettingsManager.GetBool(VIEW_NAME, "BotHookOverride", false);
                 UI_Text_BotHookLength.Text = SettingsManager.Get(VIEW_NAME, "BotHookLength", "300");
+
+                UI_Check_SideLegOverride.IsChecked = SettingsManager.GetBool(VIEW_NAME, "SideLegOverride", false);
+                UI_Text_SideLegLength.Text = SettingsManager.Get(VIEW_NAME, "SideLegLength", "300");
             }
             catch { }
         }
@@ -93,9 +106,12 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
 
                 SettingsManager.Set(VIEW_NAME, "TopBarsEnabled", (UI_Check_TopBars.IsChecked == true).ToString());
                 SettingsManager.Set(VIEW_NAME, "BotBarsEnabled", (UI_Check_BotBars.IsChecked == true).ToString());
+                SettingsManager.Set(VIEW_NAME, "SideRebarEnabled", (UI_Check_SideRebar.IsChecked == true).ToString());
+                SettingsManager.Set(VIEW_NAME, "SideSpacing", UI_Text_SideSpacing.Text);
 
                 SettingsManager.Set(VIEW_NAME, "TopType", TransTypeName(UI_Combo_TopType));
                 SettingsManager.Set(VIEW_NAME, "BotType", TransTypeName(UI_Combo_BotType));
+                SettingsManager.Set(VIEW_NAME, "SideType", TransTypeName(UI_Combo_SideType));
 
                 SettingsManager.Set(VIEW_NAME, "TopHook", HookName(UI_Combo_TopHook));
                 SettingsManager.Set(VIEW_NAME, "BotHook", HookName(UI_Combo_BotHook));
@@ -104,6 +120,9 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 SettingsManager.Set(VIEW_NAME, "TopHookLength", UI_Text_TopHookLength.Text);
                 SettingsManager.Set(VIEW_NAME, "BotHookOverride", (UI_Check_BotHookOverride.IsChecked == true).ToString());
                 SettingsManager.Set(VIEW_NAME, "BotHookLength", UI_Text_BotHookLength.Text);
+
+                SettingsManager.Set(VIEW_NAME, "SideLegOverride", (UI_Check_SideLegOverride.IsChecked == true).ToString());
+                SettingsManager.Set(VIEW_NAME, "SideLegLength", UI_Text_SideLegLength.Text);
 
                 SettingsManager.SaveAll();
             }
@@ -116,6 +135,13 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             {
                 HostType = ElementHostType.FootingPad,
                 RemoveExisting = false, // Handled by Window level
+                
+                EnableSideRebar = UI_Check_SideRebar.IsChecked == true,
+                SideRebarTypeName = TransTypeName(UI_Combo_SideType),
+                SideRebarSpacing = UnitConversion.MmToFeet(ParseDouble(UI_Text_SideSpacing.Text, 200)),
+                EnableSideRebarOverrideLeg = UI_Check_SideLegOverride.IsChecked == true,
+                SideRebarLegLength = UnitConversion.MmToFeet(ParseDouble(UI_Text_SideLegLength.Text, 300)),
+
                 Layers = new List<RebarLayerConfig>()
             };
 

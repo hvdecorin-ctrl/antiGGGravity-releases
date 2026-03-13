@@ -146,5 +146,59 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                 Comment = layer.Side == RebarSide.Top ? "Top Bar" : "Btm Bar"
             };
         }
+
+        public static List<RebarDefinition> CreateSideRebars(
+            HostGeometry host, string barTypeName, double barDia, int rows, double transDia)
+        {
+            var defs = new List<RebarDefinition>();
+            if (rows <= 0 || barDia <= 0 || string.IsNullOrEmpty(barTypeName)) return defs;
+
+            double cTop = host.CoverTop;
+            double cBot = host.CoverBottom;
+            double cOther = host.CoverOther; // Side cover
+            double height = host.Height;
+
+            // Space between top and bottom layers 
+            double assumedMainDia = UnitConversion.MmToFeet(25);
+            double sideZTop = (height / 2.0) - cTop - transDia - assumedMainDia;
+            double sideZBot = -(height / 2.0) + cBot + transDia + assumedMainDia;
+            
+            double availableHeight = sideZTop - sideZBot;
+
+            if (availableHeight > 0)
+            {
+                double rowSpacing = availableHeight / (rows + 1);
+                double innerOffset = cOther + transDia + barDia / 2.0;
+                double distWidth = host.Width - 2 * innerOffset;
+                
+                XYZ basisL = host.LAxis;
+                XYZ basisW = host.WAxis;
+                XYZ basisH = host.HAxis;
+
+                for (int row = 1; row <= rows; row++)
+                {
+                    double zPos = sideZBot + rowSpacing * row;
+
+                    XYZ barStart = host.StartPoint + basisL * host.CoverExterior + basisH * zPos - basisW * (distWidth / 2.0);
+                    XYZ barEnd = host.EndPoint - basisL * host.CoverExterior + basisH * zPos - basisW * (distWidth / 2.0);
+
+                    defs.Add(new RebarDefinition
+                    {
+                        Curves = new List<Curve> { Line.CreateBound(barStart, barEnd) },
+                        Style = RebarStyle.Standard,
+                        BarTypeName = barTypeName,
+                        BarDiameter = barDia,
+                        FixedCount = 2,
+                        DistributionWidth = distWidth,
+                        ArrayDirection = basisW,
+                        Normal = basisW,
+                        Label = "Side Rebar",
+                        Comment = "Side Bar"
+                    });
+                }
+            }
+
+            return defs;
+        }
     }
 }

@@ -72,7 +72,8 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                     HookStartName = null, // Hooks could be added to DTO if needed
                     HookEndName = null,
                     Label = "Wall Corner L",
-                    Comment = "L-Corner"
+                    Comment = "L-Corner",
+                    ShapeNameHint = "Shape L"
                 });
             }
 
@@ -130,13 +131,13 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
             definitions.Add(CreateSingleUDef(corner.Wall1, request.VerticalBarTypeName, barDia, 
                 cp, dir1, dir2, normal1, normal2, 
                 zMin + request.TransverseStartOffset, request.LegLength1, request.LegLength1, 
-                spacing, hRange, offset1, offset2, "Wall 1 U-Bar", "U-Corner"));
+                spacing, hRange, offset1, offset2, "Wall 1 U-Bar", "U-Corner", "Shape LL"));
 
             // U-bar for Wall 2
             definitions.Add(CreateSingleUDef(corner.Wall2, request.VerticalBarTypeName, barDia, 
                 cp, dir2, dir1, normal2, normal1, 
                 zMin + request.TransverseStartOffset, request.LegLength2, request.LegLength2, 
-                spacing, hRange, offset2, offset1, "Wall 2 U-Bar", "U-Corner"));
+                spacing, hRange, offset2, offset1, "Wall 2 U-Bar", "U-Corner", "Shape LL"));
 
             // Trimmers
             if (request.AddTrimmers && !string.IsNullOrEmpty(request.TrimmerBarTypeName))
@@ -226,7 +227,8 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                 ArrayLength = hRange,
                 Normal = XYZ.BasisZ,
                 Label = "Wall End U-Bar",
-                Comment = "U-End"
+                Comment = "U-End",
+                ShapeNameHint = "Shape LL"
             });
 
             return definitions;
@@ -321,7 +323,8 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                 ArrayLength = arrayLen,
                 Normal = tangent,
                 Label = "Wall Top U-Bar",
-                Comment = "U-Top"
+                Comment = "U-Top",
+                ShapeNameHint = "Shape LL"
             });
 
             return definitions;
@@ -415,7 +418,8 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                 ArrayLength = arrayLen,
                 Normal = tangent,
                 Label = "Wall Bottom U-Bar",
-                Comment = "U-Bot"
+                Comment = "U-Bot",
+                ShapeNameHint = "Shape LL"
             });
 
             return definitions;
@@ -425,7 +429,7 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
             Wall host, string barType, double dia,
             XYZ cp, XYZ d1, XYZ d2, XYZ n1, XYZ n2,
             double zStart, double leg1, double leg2,
-            double spacing, double hRange, double off1, double off2, string label, string comment = null)
+            double spacing, double hRange, double off1, double off2, string label, string comment = null, string shapeNameHint = null)
         {
             XYZ p1 = cp + n1 * off1 - d1 * off2;
             XYZ p2 = cp - n1 * off1 - d1 * off2;
@@ -451,7 +455,8 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                 ArrayLength = hRange,
                 Normal = XYZ.BasisZ,
                 Label = label,
-                Comment = comment
+                Comment = comment,
+                ShapeNameHint = shapeNameHint
             };
         }
 
