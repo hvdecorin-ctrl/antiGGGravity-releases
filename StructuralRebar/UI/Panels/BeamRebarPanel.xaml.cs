@@ -235,13 +235,33 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
 
             try
             {
-                UI_Group_T1.Visibility = UI_Check_T1.IsChecked == true ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
-                UI_Group_T2.Visibility = UI_Check_T2.IsChecked == true ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
-                UI_Group_T3.Visibility = UI_Check_T3.IsChecked == true ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
-                UI_Group_B1.Visibility = UI_Check_B1.IsChecked == true ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
-                UI_Group_B2.Visibility = UI_Check_B2.IsChecked == true ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
-                UI_Group_B3.Visibility = UI_Check_B3.IsChecked == true ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
-                UI_Group_SideRebar.Visibility = UI_Check_SideRebar.IsChecked == true ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+                UI_Group_T1.IsEnabled = UI_Check_T1.IsChecked == true;
+                UI_Group_T1.Opacity = UI_Check_T1.IsChecked == true ? 1.0 : 0.5;
+                UI_Check_T1.Opacity = UI_Check_T1.IsChecked == true ? 1.0 : 0.5;
+
+                UI_Group_T2.IsEnabled = UI_Check_T2.IsChecked == true;
+                UI_Group_T2.Opacity = UI_Check_T2.IsChecked == true ? 1.0 : 0.5;
+                UI_Check_T2.Opacity = UI_Check_T2.IsChecked == true ? 1.0 : 0.5;
+
+                UI_Group_T3.IsEnabled = UI_Check_T3.IsChecked == true;
+                UI_Group_T3.Opacity = UI_Check_T3.IsChecked == true ? 1.0 : 0.5;
+                UI_Check_T3.Opacity = UI_Check_T3.IsChecked == true ? 1.0 : 0.5;
+
+                UI_Group_B1.IsEnabled = UI_Check_B1.IsChecked == true;
+                UI_Group_B1.Opacity = UI_Check_B1.IsChecked == true ? 1.0 : 0.5;
+                UI_Check_B1.Opacity = UI_Check_B1.IsChecked == true ? 1.0 : 0.5;
+
+                UI_Group_B2.IsEnabled = UI_Check_B2.IsChecked == true;
+                UI_Group_B2.Opacity = UI_Check_B2.IsChecked == true ? 1.0 : 0.5;
+                UI_Check_B2.Opacity = UI_Check_B2.IsChecked == true ? 1.0 : 0.5;
+
+                UI_Group_B3.IsEnabled = UI_Check_B3.IsChecked == true;
+                UI_Group_B3.Opacity = UI_Check_B3.IsChecked == true ? 1.0 : 0.5;
+                UI_Check_B3.Opacity = UI_Check_B3.IsChecked == true ? 1.0 : 0.5;
+
+                UI_Group_SideRebar.IsEnabled = UI_Check_SideRebar.IsChecked == true;
+                UI_Group_SideRebar.Opacity = UI_Check_SideRebar.IsChecked == true ? 1.0 : 0.5;
+                UI_Check_SideRebar.Opacity = UI_Check_SideRebar.IsChecked == true ? 1.0 : 0.5;
 
                 // Use Dispatcher with Render priority to ensure graphics engine is ready
                 Dispatcher.BeginInvoke(new Action(() => {

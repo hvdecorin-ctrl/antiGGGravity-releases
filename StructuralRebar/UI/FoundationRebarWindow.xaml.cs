@@ -21,6 +21,10 @@ namespace antiGGGravity.StructuralRebar.UI
         {
             _doc = uiDoc.Document;
             _externalEvent = externalEvent;
+            
+            // Merge shared resources before initializing component to prevent parsing delay
+            this.Resources.MergedDictionaries.Add(SharedResources.GlobalResources);
+            
             InitializeComponent();
 
             _stripFootingPanel = new StripFootingRebarPanel(_doc);

@@ -22,11 +22,11 @@
     <!-- ============================================================ -->
     <!-- COMPANY IDENTITY — Change these to rebrand everything        -->
     <!-- ============================================================ -->
-    <sys:String x:Key="CompanyName" xmlns:sys="clr-namespace:System;assembly=System.Runtime">antiGGGravity</sys:String>
+    <sys:String x:Key="CompanyName" xmlns:sys="clr-namespace:System;assembly=System.Runtime">H&amp;V Decor</sys:String>
 
     <!-- Company Logo TextBlock Style (shown top-left in gradient headers) -->
     <Style x:Key="CompanyLogoStyle" TargetType="TextBlock">
-        <Setter Property="Text" Value="antiGGGravity"/>
+        <Setter Property="Text" Value="{StaticResource CompanyName}"/>
         <Setter Property="FontSize" Value="18"/>    <!-- Company name: Anchor size -->
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground" Value="#FFF8E8"/>  <!-- Warm white: bridges blue-to-gold gradient -->
@@ -46,7 +46,7 @@
 
     <!-- Company Footer Label -->
     <Style x:Key="CompanyFooterStyle" TargetType="TextBlock">
-        <Setter Property="Text" Value="antiGGGravity"/>
+        <Setter Property="Text" Value="{StaticResource CompanyName}"/>
         <Setter Property="FontSize" Value="11"/>
         <Setter Property="Foreground" Value="#AAAAAA"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
@@ -217,8 +217,42 @@
                   CaptionHeight="55" 
                   CornerRadius="12" 
                   GlassFrameThickness="0" 
-                  ResizeBorderThickness="10"/>
+                  ResizeBorderThickness="15"/>
 
     <GridLength x:Key="PremiumHeaderHeight">55</GridLength>
+
+    <!-- Standardized Margins -->
+    <Thickness x:Key="PremiumContentMargin">20,15,20,20</Thickness>
+    <Thickness x:Key="PremiumSidebarMargin">15,15,15,20</Thickness>
+    
+    <!-- Premium Sidebar Button Style (Centralized) -->
+    <Style x:Key="PremiumSidebarButtonStyle" TargetType="RadioButton">
+        <Setter Property="Height" Value="36"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="#444444"/>
+        <Setter Property="Margin" Value="0,2"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Border x:Name="border" Background="{TemplateBinding Background}" 
+                            BorderBrush="{TemplateBinding BorderBrush}" 
+                            BorderThickness="0" CornerRadius="6">
+                        <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center" Margin="12,0"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="#F2F2F2"/>
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="#4A759C"/>
+                            <Setter Property="Foreground" Value="White"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
 </ResourceDictionary>

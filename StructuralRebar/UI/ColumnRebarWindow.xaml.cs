@@ -19,10 +19,26 @@ namespace antiGGGravity.StructuralRebar.UI
         {
             _doc = uiDoc.Document;
             _externalEvent = externalEvent;
+            
+            // Merge shared resources before initializing component to prevent parsing delay
+            this.Resources.MergedDictionaries.Add(SharedResources.GlobalResources);
+            
             InitializeComponent();
 
             _columnPanel = new ColumnRebarPanel(_doc);
             UI_PanelHost.Content = _columnPanel;
+        }
+
+        private void ElementType_Changed(object sender, RoutedEventArgs e)
+        {
+            if (_doc == null || UI_PanelHost == null) return;
+            SaveActivePanel();
+
+            if (UI_Radio_Column?.IsChecked == true)
+            {
+                if (_columnPanel == null) _columnPanel = new ColumnRebarPanel(_doc);
+                UI_PanelHost.Content = _columnPanel;
+            }
         }
 
         private void UI_Button_Generate_Click(object sender, RoutedEventArgs e) { SaveActivePanel(); Hide(); _externalEvent?.Raise(); }

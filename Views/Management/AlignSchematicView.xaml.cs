@@ -7,6 +7,8 @@ using System.ComponentModel;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 
+using antiGGGravity.Utilities;
+
 namespace antiGGGravity.Views.Management
 {
     public partial class AlignSchematicView : Window
@@ -17,6 +19,9 @@ namespace antiGGGravity.Views.Management
 
         public AlignSchematicView(ExternalCommandData commandData)
         {
+            // Merge shared resources before initializing component to prevent parsing delay
+            this.Resources.MergedDictionaries.Add(SharedResources.GlobalResources);
+
             InitializeComponent();
             _commandData = commandData;
             _doc = commandData.Application.ActiveUIDocument.Document;

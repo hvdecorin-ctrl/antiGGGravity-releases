@@ -12,6 +12,9 @@ namespace antiGGGravity
         {
             try
             {
+                // Pre-load global UI resources for all windows to prevent latency
+                SharedResources.Load();
+
                 // Load ribbon configuration from embedded YAML
                 var config = RibbonConfigLoader.Load();
                 
@@ -26,7 +29,7 @@ namespace antiGGGravity
                 // Log error and show message if ribbon creation fails
                 System.Windows.MessageBox.Show(
                     $"Failed to create antiGGGravity ribbon:\n\n{ex.Message}\n\n{ex.StackTrace}",
-                    "antiGGGravity Error",
+                    $"{antiGGGravity.Resources.Branding.COMPANY_NAME} Error",
                     System.Windows.MessageBoxButton.OK,
                     System.Windows.MessageBoxImage.Error);
                 return Result.Failed;

@@ -183,6 +183,35 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
 
         public void toggle_visibility(object sender, RoutedEventArgs e)
         {
+            if (UI_Check_TopBars == null || UI_Check_BotBars == null || UI_Check_SideRebar == null) return;
+
+            // Halftone effect for Top Bars
+            bool topEnabled = UI_Check_TopBars.IsChecked == true;
+            UI_Check_TopBars.Opacity = topEnabled ? 1.0 : 0.5;
+            if (UI_Group_TopBars != null)
+            {
+                UI_Group_TopBars.IsEnabled = topEnabled;
+                UI_Group_TopBars.Opacity = topEnabled ? 1.0 : 0.5;
+            }
+
+            // Halftone effect for Bottom Bars
+            bool botEnabled = UI_Check_BotBars.IsChecked == true;
+            UI_Check_BotBars.Opacity = botEnabled ? 1.0 : 0.5;
+            if (UI_Group_BotBars != null)
+            {
+                UI_Group_BotBars.IsEnabled = botEnabled;
+                UI_Group_BotBars.Opacity = botEnabled ? 1.0 : 0.5;
+            }
+
+            // Halftone effect for Side Bars
+            bool sideEnabled = UI_Check_SideRebar.IsChecked == true;
+            UI_Check_SideRebar.Opacity = sideEnabled ? 1.0 : 0.5;
+            if (UI_Group_SideRebar != null)
+            {
+                UI_Group_SideRebar.IsEnabled = sideEnabled;
+                UI_Group_SideRebar.Opacity = sideEnabled ? 1.0 : 0.5;
+            }
+
             UpdateCrossSection();
         }
 

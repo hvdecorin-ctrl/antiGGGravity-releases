@@ -11,42 +11,8 @@
         <WindowChrome CaptionHeight="55" CornerRadius="12" GlassFrameThickness="0" ResizeBorderThickness="10"/>
     </WindowChrome.WindowChrome>
 
-    <Window.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/antiGGGravity;component/Resources/Pre_BrandStyles.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-            
-            <Style x:Key="PremiumSidebarButtonStyle" TargetType="RadioButton">
-                <Setter Property="Height" Value="36"/>
-                <Setter Property="Background" Value="Transparent"/>
-                <Setter Property="Foreground" Value="#444444"/>
-                <Setter Property="Margin" Value="0,2"/>
-                <Setter Property="Cursor" Value="Hand"/>
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="RadioButton">
-                            <Border x:Name="border" Background="{TemplateBinding Background}" 
-                                    BorderBrush="{TemplateBinding BorderBrush}" 
-                                    BorderThickness="0" CornerRadius="6">
-                                <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center" Margin="12,0"/>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="border" Property="Background" Value="#E0E0E0"/>
-                                </Trigger>
-                                <Trigger Property="IsChecked" Value="True">
-                                    <Setter TargetName="border" Property="Background" Value="#4A759C"/>
-                                    <Setter Property="Foreground" Value="White"/>
-                                    <Setter Property="FontWeight" Value="SemiBold"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
-        </ResourceDictionary>
-    </Window.Resources>
+    
+    <!-- Resources are merged in code-behind via SharedResources to prevent latency -->
     
     <Border Style="{StaticResource PremiumBorderStyle}">
 
@@ -82,8 +48,8 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- SIDEBAR -->
-                <Border Grid.Column="0" Background="#F5F5F5" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,0,1,0">
-                    <StackPanel Margin="10,15">
+                <Border Grid.Column="0" Background="#F8F9FA" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,0,1,0">
+                    <StackPanel Margin="{StaticResource PremiumSidebarMargin}">
                         <TextBlock Text="Sub-Category" FontSize="11" FontWeight="SemiBold" Foreground="#888888" Margin="8,0,0,10"/>
                         
                         <RadioButton x:Name="UI_Radio_Beam" Content="Beam Standard" IsChecked="True"
@@ -93,12 +59,14 @@
                                      GroupName="ElementType" Style="{StaticResource PremiumSidebarButtonStyle}"
                                      Checked="ElementType_Changed"/>
 
-                        <Separator Margin="5,15,5,10" Background="#E0E0E0"/>
+                        <Separator Margin="5,10,5,10" Background="#E0E0E0"/>
 
                         <TextBlock Text="Options" FontSize="11" FontWeight="SemiBold" Foreground="#888888" Margin="8,0,0,10"/>
                         <CheckBox x:Name="UI_Check_RemoveExisting" Content="Remove Existing" FontSize="13" Foreground="#555" Margin="8,0,0,8" IsChecked="True"/>
                         <CheckBox x:Name="UI_Check_CutRebar" Content="Cut Rebar (>12m)" FontSize="13" Foreground="#555" Margin="8,0,0,15" IsChecked="True"/>
 
+                        <Separator Margin="5,0,5,10" Background="#E0E0E0"/>
+                        
                         <TextBlock Text="Design Code" FontSize="11" FontWeight="SemiBold" Foreground="#888888" Margin="8,0,0,4"/>
                         <ComboBox x:Name="UI_Combo_DesignCode" Margin="8,0,8,10" Height="28" SelectionChanged="DesignCode_Changed">
                             <ComboBoxItem Content="ACI 318" IsSelected="True"/>
@@ -117,7 +85,7 @@
 
                 <!-- PANEL CONTENT AREA -->
                 <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
-                    <ContentControl x:Name="UI_PanelHost" Margin="20"/>
+                    <ContentControl x:Name="UI_PanelHost" Margin="{StaticResource PremiumContentMargin}"/>
                 </ScrollViewer>
             </Grid>
 

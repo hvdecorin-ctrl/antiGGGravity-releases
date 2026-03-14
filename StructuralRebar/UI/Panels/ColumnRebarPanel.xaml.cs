@@ -268,26 +268,28 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
 
         public void TieDist_Changed(object sender, RoutedEventArgs e)
         {
-            if (UI_TieZoneInfo == null) return;
-            UI_TieZoneInfo.Visibility = (UI_Radio_TieUnEQ.IsChecked == true)
-                ? System.Windows.Visibility.Visible
-                : System.Windows.Visibility.Collapsed;
+            if (UI_TieZoneInfo == null || UI_Radio_TieUnEQ == null) return;
+            bool isUnEQ = UI_Radio_TieUnEQ.IsChecked == true;
+            UI_TieZoneInfo.IsEnabled = isUnEQ;
+            UI_TieZoneInfo.Opacity = isUnEQ ? 1.0 : 0.5;
         }
 
         private void MultiLevel_Changed(object sender, RoutedEventArgs e)
         {
-            if (UI_Panel_MultiLevelFields == null) return;
-            UI_Panel_MultiLevelFields.Visibility = (UI_Check_MultiLevel.IsChecked == true)
-                ? System.Windows.Visibility.Visible
-                : System.Windows.Visibility.Collapsed;
+            if (UI_Panel_MultiLevelFields == null || UI_Check_MultiLevel == null) return;
+            bool isMultiLevel = UI_Check_MultiLevel.IsChecked == true;
+            
+            UI_Check_MultiLevel.Opacity = isMultiLevel ? 1.0 : 0.5;
+            UI_Panel_MultiLevelFields.IsEnabled = isMultiLevel;
+            UI_Panel_MultiLevelFields.Opacity = isMultiLevel ? 1.0 : 0.5;
         }
 
         private void UI_Combo_LapMode_Changed(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             if (UI_Text_LapSplice == null) return;
-            UI_Text_LapSplice.Visibility = IsAutoLapMode()
-                ? System.Windows.Visibility.Collapsed
-                : System.Windows.Visibility.Visible;
+            bool isAuto = IsAutoLapMode();
+            UI_Text_LapSplice.IsEnabled = !isAuto;
+            UI_Text_LapSplice.Opacity = !isAuto ? 1.0 : 0.5;
         }
 
         private bool IsAutoLapMode()
@@ -298,9 +300,12 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
 
         private void Starters_Changed(object sender, RoutedEventArgs e)
         {
-            if (UI_Panel_StarterFields == null) return;
-            bool show = (UI_Check_Starters.IsChecked == true);
-            UI_Panel_StarterFields.Visibility = show ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+            if (UI_Panel_StarterFields == null || UI_Check_Starters == null) return;
+            bool hasStarters = UI_Check_Starters.IsChecked == true;
+            
+            UI_Check_Starters.Opacity = hasStarters ? 1.0 : 0.5;
+            UI_Panel_StarterFields.IsEnabled = hasStarters;
+            UI_Panel_StarterFields.Opacity = hasStarters ? 1.0 : 0.5;
         }
 
         private void BarCount_Changed(object sender, TextChangedEventArgs e)

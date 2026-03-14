@@ -23,7 +23,7 @@
             <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,15">
                 <StackPanel>
                     <CheckBox x:Name="UI_Check_TopBars" Content="Top Reinforcement" FontWeight="Bold" Foreground="#333333" IsChecked="False" Margin="0,0,0,15" Click="toggle_visibility"/>
-                    <StackPanel IsEnabled="{Binding IsChecked, ElementName=UI_Check_TopBars}">
+                    <StackPanel x:Name="UI_Group_TopBars">
                         <Grid Margin="0,0,0,15">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -71,7 +71,7 @@
             <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,15">
                 <StackPanel>
                     <CheckBox x:Name="UI_Check_BotBars" Content="Bottom Reinforcement" FontWeight="Bold" Foreground="#333333" IsChecked="False" Margin="0,0,0,15" Click="toggle_visibility"/>
-                    <StackPanel IsEnabled="{Binding IsChecked, ElementName=UI_Check_BotBars}">
+                    <StackPanel x:Name="UI_Group_BotBars">
                         <Grid Margin="0,0,0,15">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -108,8 +108,8 @@
         <StackPanel Grid.Row="1" Grid.ColumnSpan="5">
             <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,15">
                 <StackPanel>
-                    <CheckBox x:Name="UI_Check_SideRebar" Content="Side/Perimeter Bars" FontWeight="Bold" Foreground="#333333" IsChecked="False" Margin="0,0,0,15" Click="toggle_visibility"/>
-                    <StackPanel IsEnabled="{Binding IsChecked, ElementName=UI_Check_SideRebar}">
+                    <CheckBox x:Name="UI_Check_SideRebar" Content="Side/Perimeter Reinforcement" FontWeight="Bold" Foreground="#333333" IsChecked="False" Margin="0,0,0,15" Click="toggle_visibility"/>
+                    <StackPanel x:Name="UI_Group_SideRebar">
                         <Grid Margin="0,0,0,15">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>

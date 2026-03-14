@@ -345,22 +345,29 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
         private static string HookName(ComboBox combo) => (combo.SelectedItem as HookViewModel)?.Hook?.Name ?? "";
         private void UI_Check_VertBotExt_Click(object sender, RoutedEventArgs e)
         {
-            if (UI_Text_VertBotExt != null)
-                UI_Text_VertBotExt.Visibility = UI_Check_VertBotExt.IsChecked == true ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+            if (UI_Text_VertBotExt == null || UI_Check_VertBotExt == null) return;
+            bool hasExt = UI_Check_VertBotExt.IsChecked == true;
+            UI_Check_VertBotExt.Opacity = hasExt ? 1.0 : 0.5;
+            UI_Text_VertBotExt.IsEnabled = hasExt;
+            UI_Text_VertBotExt.Opacity = hasExt ? 1.0 : 0.5;
         }
 
         private void UI_Check_StarterEnabled_Click(object sender, RoutedEventArgs e)
         {
-            if (UI_Panel_StarterFields != null)
-                UI_Panel_StarterFields.Visibility = UI_Check_StarterEnabled.IsChecked == true
-                    ? System.Windows.Visibility.Visible
-                    : System.Windows.Visibility.Collapsed;
+            if (UI_Panel_StarterFields == null || UI_Check_StarterEnabled == null) return;
+            bool hasStarters = UI_Check_StarterEnabled.IsChecked == true;
+            UI_Check_StarterEnabled.Opacity = hasStarters ? 1.0 : 0.5;
+            UI_Panel_StarterFields.IsEnabled = hasStarters;
+            UI_Panel_StarterFields.Opacity = hasStarters ? 1.0 : 0.5;
         }
 
         private void UI_Check_VertTopExt_Click(object sender, RoutedEventArgs e)
         {
-            if (UI_Text_VertTopExt != null)
-                UI_Text_VertTopExt.Visibility = UI_Check_VertTopExt.IsChecked == true ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+            if (UI_Text_VertTopExt == null || UI_Check_VertTopExt == null) return;
+            bool hasTopExt = UI_Check_VertTopExt.IsChecked == true;
+            UI_Check_VertTopExt.Opacity = hasTopExt ? 1.0 : 0.5;
+            UI_Text_VertTopExt.IsEnabled = hasTopExt;
+            UI_Text_VertTopExt.Opacity = hasTopExt ? 1.0 : 0.5;
         }
 
         private double ParseDouble(string text, double defaultValue)
@@ -484,18 +491,19 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
 
         private void UI_Check_MultiLevel_Changed(object sender, RoutedEventArgs e)
         {
-            if (UI_Panel_MultiLevelFields != null)
-                UI_Panel_MultiLevelFields.Visibility = UI_Check_MultiLevel.IsChecked == true 
-                    ? System.Windows.Visibility.Visible 
-                    : System.Windows.Visibility.Collapsed;
+            if (UI_Panel_MultiLevelFields == null || UI_Check_MultiLevel == null) return;
+            bool isMultiLevel = UI_Check_MultiLevel.IsChecked == true;
+            UI_Check_MultiLevel.Opacity = isMultiLevel ? 1.0 : 0.5;
+            UI_Panel_MultiLevelFields.IsEnabled = isMultiLevel;
+            UI_Panel_MultiLevelFields.Opacity = isMultiLevel ? 1.0 : 0.5;
         }
 
         private void UI_Combo_LapMode_Changed(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             if (UI_Text_LapSplice == null) return;
-            UI_Text_LapSplice.Visibility = IsAutoLapMode()
-                ? System.Windows.Visibility.Collapsed
-                : System.Windows.Visibility.Visible;
+            bool isAuto = IsAutoLapMode();
+            UI_Text_LapSplice.IsEnabled = !isAuto;
+            UI_Text_LapSplice.Opacity = !isAuto ? 1.0 : 0.5;
         }
 
         private bool IsAutoLapMode()

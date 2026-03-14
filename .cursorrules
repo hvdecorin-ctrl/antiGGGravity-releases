@@ -12,3 +12,20 @@
 3. **DEBUGGING**: When the user asks to "build" or "check errors", always use a standard `dotnet build antiGGGravity.csproj -c Debug`.
 4. **ITERATION**: For testing and building, always prefer Workflow A in `.agent/skills/revit_management/SKILL.md` (Add-In Manager).
 5. **REVIT MANAGEMENT SKILL**: Every agent MUST strictly follow `.agent/skills/revit_management/SKILL.md` for both Fast Testing and Full Deployment.
+
+## UI & UX Standard (Premium)
+1. **ZERO LATENCY**: All new Windows MUST use `SharedResources.GlobalResources` merged in the constructor BEFORE `InitializeComponent()`.
+2. **STANDARD MARGINS**: Use `{StaticResource PremiumContentMargin}` (20,15,20,20) for all main content grids.
+3. **RESYNC**: All tools (Wall, Column, Beam, Foundation, Align Schematic) must follow the "Premium" layout (Header Gradient, Border Radius 12, Resize Border 15).
+
+## Branding (Single Source of Truth)
+1. **COMPANY NAME**: All branding text must be linked to a single source of truth.
+   - **XAML**: Use `{StaticResource CompanyName}` from `Pre_BrandStyles.xaml`.
+   - **C#**: Use `Branding.COMPANY_NAME` from `antiGGGravity.Resources`.
+2. **NO HARDCODING**: Never hardcode the string "Branding.COMPANY_NAME" for display. Always reference the resources above.
+
+## Icon Standard (32x32)
+1. **RESOLUTION**: All icons MUST be 32x32 pixels PNGs.
+2. **NAMING**: Must follow the pattern `IconName(32x32).png`.
+3. **PLACEMENT**: Store in `Resources\Icons\`.
+4. **RIBBON**: Every button/pulldown in `Resources\ribbon.yaml` MUST have a unique, individual icon.

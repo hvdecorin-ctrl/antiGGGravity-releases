@@ -21,6 +21,10 @@ namespace antiGGGravity.StructuralRebar.UI
         {
             _doc = uiDoc.Document;
             _externalEvent = externalEvent;
+            
+            // Merge shared resources before initializing component to prevent parsing delay
+            this.Resources.MergedDictionaries.Add(SharedResources.GlobalResources);
+            
             InitializeComponent();
 
             _wallPanel = new WallRebarPanel(_doc);
@@ -32,7 +36,7 @@ namespace antiGGGravity.StructuralRebar.UI
             if (_doc == null || UI_PanelHost == null) return;
             SaveActivePanel();
 
-            if (UI_Radio_Wall?.IsChecked == true)
+            if (UI_Radio_WallStandard?.IsChecked == true)
             {
                 SelectedHostType = ElementHostType.Wall;
                 if (_wallPanel == null) _wallPanel = new WallRebarPanel(_doc);
@@ -65,7 +69,7 @@ namespace antiGGGravity.StructuralRebar.UI
         }
 
         public bool RemoveExisting => UI_Check_RemoveExisting.IsChecked == true;
-        public bool EnableLapSplice => true;
+        public bool EnableLapSplice => UI_Check_CutRebar.IsChecked == true;
 
         public DesignCodeStandard DesignCode
         {

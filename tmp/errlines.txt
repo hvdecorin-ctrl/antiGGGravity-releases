@@ -1,3 +1,0 @@
-: error CS1503: Argument 1: cannot convert from 'System.Collections.Generic.ICollection<Autodesk.Revit.DB.ElementId>' to 'System.Collections.Generic.IList<Autodesk.Revit.DB.ElementId>' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_5ciw0xjf_wpftmp.csproj]
-: error CS1503: Argument 1: cannot convert from 'System.Collections.Generic.ICollection<Autodesk.Revit.DB.ElementId>' to 'System.Collections.Generic.IList<Autodesk.Revit.DB.ElementId>' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_5ciw0xjf_wpftmp.csproj]
-    1 Error(s)

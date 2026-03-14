@@ -19,11 +19,11 @@
 
         <!-- LEFT COLUMN: LONGITUDINAL BARS -->
         <StackPanel Grid.Column="0">
-            <!-- Top Bars -->
+            <!-- Top Reinforcement -->
             <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,15">
                 <StackPanel>
-                    <CheckBox x:Name="UI_Check_TopBars" Content="Enable Top Bars" FontWeight="Bold" Foreground="#333333" IsChecked="False" Margin="0,0,0,15" Click="toggle_visibility"/>
-                    <StackPanel Visibility="{Binding IsChecked, ElementName=UI_Check_TopBars, Converter={StaticResource BoolToVis}}">
+                    <CheckBox x:Name="UI_Check_TopBars" Content="Top Reinforcement" FontWeight="Bold" Foreground="#333333" IsChecked="True" Margin="0,0,0,15" Click="toggle_visibility" Opacity="0.5"/>
+                    <StackPanel x:Name="UI_Group_TopBars" IsEnabled="False" Opacity="0.5">
                         <Grid Margin="0,0,0,15">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="2*"/>
@@ -55,11 +55,51 @@
                 </StackPanel>
             </Border>
 
-            <!-- Bottom Bars -->
+            <!-- Side/Perimeter Reinforcement (Moved from Right) -->
             <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,15">
                 <StackPanel>
-                    <CheckBox x:Name="UI_Check_BotBars" Content="Enable Bottom Bars" FontWeight="Bold" Foreground="#333333" IsChecked="False" Margin="0,0,0,15" Click="toggle_visibility"/>
-                    <StackPanel Visibility="{Binding IsChecked, ElementName=UI_Check_BotBars, Converter={StaticResource BoolToVis}}">
+                    <CheckBox x:Name="UI_Check_SideRebar" Content="Side/Perimeter Reinforcement" FontWeight="Bold" Foreground="#333333" IsChecked="True" Margin="0,0,0,15" Click="toggle_visibility" Opacity="0.5"/>
+                    <StackPanel x:Name="UI_Group_SideRebar" IsEnabled="False" Opacity="0.5">
+                        <Grid Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="15"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Rebar Type" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                                <ComboBox x:Name="UI_Combo_SideType" Height="32" Padding="8,0" VerticalContentAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Rows (Each Side)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                                <TextBox x:Name="UI_Text_SideRows" Text="2" Height="32" VerticalContentAlignment="Center" Padding="8,0" TextChanged="toggle_visibility"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+
+        <!-- CENTER COLUMN: VISUALIZATION -->
+        <StackPanel Grid.Column="2" VerticalAlignment="Top">
+            <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#E8E8E8" BorderThickness="1" Padding="10" Margin="0,0,0,15">
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Cross Section" FontWeight="Bold" Foreground="#333" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                    <Canvas x:Name="UI_Canvas_CrossSection" Width="200" Height="190" Background="Transparent" HorizontalAlignment="Center" ClipToBounds="True"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+
+        <!-- RIGHT COLUMN: STIRRUPS & OPTIONS -->
+        <StackPanel Grid.Column="4">
+
+
+            <!-- Bottom Reinforcement (Moved to Top of Column) -->
+            <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,15">
+                <StackPanel>
+                    <CheckBox x:Name="UI_Check_BotBars" Content="Bottom Reinforcement" FontWeight="Bold" Foreground="#333333" IsChecked="True" Margin="0,0,0,15" Click="toggle_visibility" Opacity="0.5"/>
+                    <StackPanel x:Name="UI_Group_BotBars" IsEnabled="False" Opacity="0.5">
                         <Grid Margin="0,0,0,15">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="2*"/>
@@ -90,22 +130,6 @@
                     </StackPanel>
                 </StackPanel>
             </Border>
-
-        </StackPanel>
-
-        <!-- CENTER COLUMN: VISUALIZATION -->
-        <StackPanel Grid.Column="2" VerticalAlignment="Top">
-            <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#E8E8E8" BorderThickness="1" Padding="10" Margin="0,0,0,15">
-                <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="Cross Section" FontWeight="Bold" Foreground="#333" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-                    <Canvas x:Name="UI_Canvas_CrossSection" Width="200" Height="190" Background="Transparent" HorizontalAlignment="Center" ClipToBounds="True"/>
-                </StackPanel>
-            </Border>
-        </StackPanel>
-
-        <!-- RIGHT COLUMN: STIRRUPS & OPTIONS -->
-        <StackPanel Grid.Column="4">
-
 
             <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,15">
                 <StackPanel>
@@ -148,30 +172,6 @@
                         <TextBox x:Name="UI_Text_TransStartOff" Text="50" Height="32" VerticalContentAlignment="Center" Padding="8,0" TextChanged="toggle_visibility"/>
                     </StackPanel>
                     
-                </StackPanel>
-            </Border>
-
-            <!-- Side Bars -->
-            <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,15">
-                <StackPanel>
-                    <CheckBox x:Name="UI_Check_SideRebar" Content="Enable Side Bars" FontWeight="Bold" Foreground="#333333" IsChecked="False" Margin="0,0,0,15" Click="toggle_visibility"/>
-                    <StackPanel Visibility="{Binding IsChecked, ElementName=UI_Check_SideRebar, Converter={StaticResource BoolToVis}}">
-                        <Grid Margin="0,0,0,15">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="2*"/>
-                                <ColumnDefinition Width="15"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0">
-                                <TextBlock Text="Rebar Type" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                                <ComboBox x:Name="UI_Combo_SideType" Height="32" Padding="8,0" VerticalContentAlignment="Center"/>
-                            </StackPanel>
-                            <StackPanel Grid.Column="2">
-                                <TextBlock Text="Rows (Each Side)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                                <TextBox x:Name="UI_Text_SideRows" Text="2" Height="32" VerticalContentAlignment="Center" Padding="8,0" TextChanged="toggle_visibility"/>
-                            </StackPanel>
-                        </Grid>
-                    </StackPanel>
                 </StackPanel>
             </Border>
         </StackPanel>

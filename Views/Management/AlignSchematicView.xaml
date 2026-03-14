@@ -7,16 +7,10 @@
         WindowStartupLocation="CenterScreen" Topmost="True">
 
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="55" CornerRadius="12" GlassFrameThickness="0"/>
+        <StaticResource ResourceKey="PremiumWindowChrome"/>
     </WindowChrome.WindowChrome>
 
-    <Window.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/antiGGGravity;component/Resources/Pre_BrandStyles.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-    </Window.Resources>
+    <!-- Resources are merged in code-behind via SharedResources to prevent latency -->
 
     <Border Style="{StaticResource PremiumBorderStyle}">
         <Grid>
@@ -44,7 +38,7 @@
             </Border>
 
             <!-- CONTENT -->
-            <Grid Grid.Row="1" Margin="25">
+            <Grid Grid.Row="1" Margin="{StaticResource PremiumContentMargin}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*"/>
                     <ColumnDefinition Width="20"/>
