@@ -1,0 +1,91 @@
+panels:
+  # ============================================================
+  # VISIBILITY GRAPHIC PANEL
+  # ============================================================
+  - name: Visibility Graphic
+    items:
+      - type: pulldown
+        name: Visibility
+        icon: Visibility
+        tooltip: Toggle visibility of elements and categories in the active view.
+        buttons:
+          - name: Toggle All Elements
+            command: ToggleAllElementsCommand
+            icon: ToggleAllElements
+            tooltip: Show or hide all model elements in the active view.
+          - name: Toggle 2D Elements
+            command: Toggle2DCommand
+            icon: Toggle2D
+            tooltip: Show or hide all 2D annotation elements.
+          - name: Toggle 3D Elements
+            command: Toggle3DCommand
+            icon: Toggle3D
+            tooltip: Show or hide all 3D model elements.
+          - name: Toggle Structural Packs
+            command: ToggleStructuralPacksCommand
+            icon: ToggleStructuralPacks
+            tooltip: Show or hide structural connection packs.
+          - separator: true
+          - name: Toggle Foundations
+            command: ToggleFoundationsCommand
+            icon: ToggleFoundations
+            tooltip: Show or hide foundation elements.
+          - name: Toggle Walls
+            command: ToggleWallsCommand
+            icon: ToggleWalls
+            tooltip: Show or hide wall elements.
+          - name: Toggle Floors (Slabs)
+            command: ToggleFloorsCommand
+            icon: ToggleFloors
+            tooltip: Show or hide floor and slab elements.
+          - name: Toggle Columns
+            command: ToggleColumnsCommand
+            icon: ToggleColumns
+            tooltip: Show or hide structural column elements.
+          - name: Toggle Framing
+            command: ToggleFramingCommand
+            icon: ToggleFraming
+            tooltip: Show or hide structural framing (beams, braces).
+          - name: Toggle Roof
+            command: ToggleRoofsCommand
+            icon: ToggleRoofs
+            tooltip: Show or hide roof elements.
+          - name: Toggle Connections
+            command: ToggleConnectionsCommand
+            icon: ToggleConnections
+            tooltip: Show or hide structural connection elements.
+          - name: Toggle Rebar
+            command: ToggleRebarCommand
+            icon: ToggleRebar
+            tooltip: Show or hide rebar elements in the active view.
+          - separator: true
+          - name: Toggle Grids
+            command: ToggleGridsCommand
+            icon: ToggleGrids
+            tooltip: Show or hide grid lines.
+          - name: Toggle Levels
+            command: ToggleLevelsCommand
+            icon: ToggleLevels
+            tooltip: Show or hide level datum elements.
+          - name: Toggle Ref Planes
+            command: ToggleRefPlanesCommand
+            icon: ToggleRefPlanes
+            tooltip: Show or hide reference planes.
+          - name: Toggle Scope Box
+            command: ToggleScopeBoxesCommand
+            icon: ToggleScopeBox
+            tooltip: Show or hide scope boxes.
+          - separator: true
+          - name: Toggle CAD Links
+            command: ToggleCadLinksCommand
+            icon: ToggleCadLinks
+            tooltip: Show or hide all linked CAD files.
+          - name: Toggle Revit Links
+            command: ToggleLinksCommand
+            icon: ToggleLinks
+            tooltip: Show or hide all linked Revit models.
+      - type: pushbutton
+        name: Quick VG
+        command: QuickVgCommand
+        icon: QuickVG
+        tooltip: Batch toggle element categories via a quick Visibility/Graphic panel.

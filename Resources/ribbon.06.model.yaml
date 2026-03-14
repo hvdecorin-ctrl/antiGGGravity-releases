@@ -1,0 +1,31 @@
+panels:
+  # ============================================================
+  # MODEL PANEL
+  # ============================================================
+  - name: Model
+    items:
+      - type: stacked
+        buttons:
+          - name: Roof Framing
+            command: RoofFramingCommand
+            icon: RoofFraming
+            tooltip: Generate purlins and rafters on roof or slab faces.
+      - type: stacked
+        buttons:
+          - type: pulldown
+            name: Bracing
+            icon: Bracing
+            tooltip: Structural bracing creation tools.
+            buttons:
+              - name: X-Brace
+                command: XBraceCommand
+                icon: XBrace
+                tooltip: Create crossed (X) diagonal bracing between two columns.
+              - name: K-Brace
+                command: KBraceCommand
+                icon: KBrace
+                tooltip: Create K-shaped bracing with a central apex point.
+              - name: H-Frame
+                command: HFrameCommand
+                icon: HFrame
+                tooltip: Create parallel horizontal braces spanning multiple bays.

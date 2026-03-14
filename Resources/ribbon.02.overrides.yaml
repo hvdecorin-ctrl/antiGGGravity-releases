@@ -1,0 +1,111 @@
+panels:
+  # ============================================================
+  # OVERRIDES PANEL
+  # ============================================================
+  - name: Overrides
+    items:
+      - type: pushbutton
+        name: Color Splasher
+        command: ColorSplashCommand
+        icon: ColorSplasher
+        tooltip: Color-code elements by a chosen parameter value.
+      - type: stacked
+        buttons:
+          - type: pulldown
+            name: Dim & Text
+            icon: DimText
+            tooltip: Dimension and text override tools.
+            buttons:
+              - name: DimFake
+                command: DimFakeCommand
+                icon: DimFake
+                tooltip: Override dimension text with a custom value.
+              - name: Text Audit
+                command: TextAuditCommand
+                icon: TextAudit
+                tooltip: Audit and report all text elements in the view.
+              - name: Text Upper
+                command: TextUpperCommand
+                icon: TextUpper
+                tooltip: Convert selected text elements to uppercase.
+          - type: pulldown
+            name: Cad Override
+            icon: CadOverride
+            tooltip: Apply preset graphic override styles to selected CAD elements.
+            buttons:
+              - name: Black / Half / Trans
+                command: Style1Command
+                icon: Style1
+                tooltip: Apply black lines, half-tone, transparent fill.
+              - name: Orange / Half / Trans
+                command: Style2Command
+                icon: Style2
+                tooltip: Apply orange lines, half-tone, transparent fill.
+              - name: Blue / Half / Trans
+                command: Style3Command
+                icon: Style3
+                tooltip: Apply blue lines, half-tone, transparent fill.
+              - name: Green / Half / Trans
+                command: Style4Command
+                icon: Style4
+                tooltip: Apply green lines, half-tone, transparent fill.
+              - name: Purple-Blue / Hidden / Half
+                command: Style5Command
+                icon: Style5
+                tooltip: Apply purple-blue, hidden lines, half-tone.
+              - separator: true
+              - name: Project CAD Override
+                command: ProjectCadOverrideCommand
+                icon: CadOverride
+                tooltip: Apply a saved CAD override style across all views.
+      - type: stacked
+        buttons:
+          - type: pulldown
+            name: Transparency
+            icon: Transparency
+            tooltip: Set surface transparency on selected elements.
+            buttons:
+              - name: 60 Pct Transparency
+                command: Transparency60Command
+                icon: Transparency60
+                tooltip: Set surface transparency to 60%.
+              - name: 100 Pct Transparency
+                command: Transparency100Command
+                icon: Transparency100
+                tooltip: Set surface transparency to 100% (fully transparent).
+          - type: pulldown
+            name: Match & Reset
+            icon: MatchReset
+            tooltip: Match or reset graphic overrides between elements.
+            buttons:
+              - name: Match Overrides
+                command: MatchOverridesCommand
+                icon: MatchOverrides
+                tooltip: Copy graphic overrides from one element to selected elements.
+              - separator: true
+              - name: Reset Selected
+                command: ResetSelectedCommand
+                icon: ResetSelected
+                tooltip: Clear all graphic overrides from the selection.
+              - name: Reset All Overrides
+                command: ResetOverridesCommand
+                icon: ResetOverrides
+                tooltip: Clear all graphic overrides in the active view.
+          - type: pulldown
+            name: Reset Filters
+            icon: RemoveFilters
+            tooltip: Enable, disable, or remove view filters.
+            buttons:
+              - name: Disable Filters
+                command: DisableFiltersCommand
+                icon: DisableFilters
+                tooltip: Disable all view filters without removing them.
+              - name: Enable Filters
+                command: EnableFiltersCommand
+                icon: EnableFilters
+                tooltip: Re-enable all previously disabled view filters.
+              - separator: true
+              - name: Remove Filters
+                command: RemoveFiltersCommand
+                icon: RemoveFilters
+                tooltip: Permanently remove all filters from the active view.

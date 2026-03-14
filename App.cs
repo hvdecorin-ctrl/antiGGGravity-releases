@@ -38,7 +38,16 @@ namespace antiGGGravity
 
         public Result OnShutdown(UIControlledApplication application)
         {
-            return Result.Succeeded;
+            try
+            {
+                // Clean up any global resources or event handlers here
+                // For now, ensuring we return Succeeded
+                return Result.Succeeded;
+            }
+            catch (Exception)
+            {
+                return Result.Failed;
+            }
         }
     }
 }

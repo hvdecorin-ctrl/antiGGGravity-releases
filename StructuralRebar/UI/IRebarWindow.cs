@@ -25,6 +25,7 @@ namespace antiGGGravity.StructuralRebar.UI
 
         BeamRebarPanel GetOrCreateBeamPanel();
         void ReShow();
+        void Hide();
         void Close();
     }
 }

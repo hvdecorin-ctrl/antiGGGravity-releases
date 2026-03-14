@@ -380,7 +380,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                         OverrideHookLength = layer.OverrideHookLength,
                         HookLengthOverride = layer.HookLengthOverride,
                         Label = layer.IsContinuous ? (segments.Count > 1 ? "Top Continuous (lapped)" : "Top Continuous") : "Top Additional (Hogging)",
-                        Comment = layer.IsContinuous ? "Top Bar" : "Top Additional Bar"
+                        Comment = (topLayerIdx == 0) ? "Top Bar" : (topLayerIdx == 1 ? "Top T2" : (topLayerIdx == 2 ? "Top T3" : "Top Bar"))
                     });
                 }
 
@@ -453,7 +453,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                                 HookStartName = (t1Layer != null && Math.Abs(seg.Start - 0) < 0.001) ? t1Layer.HookStartName : null,
                                 HookEndName = (t1Layer != null && Math.Abs(seg.End - barLen) < 0.01) ? t1Layer.HookEndName : null,
                                 Label = $"T2 @ {over.SupportName}",
-                                Comment = "Top Additional Bar"
+                                Comment = "Top T2"
                             });
                         }
                         topZ -= (maxT2Dia + Math.Max(minLayerGap, maxT2Dia));
@@ -512,7 +512,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                                 HookStartName = (t1Layer != null && Math.Abs(seg.Start - 0) < 0.001) ? t1Layer.HookStartName : null,
                                 HookEndName = (t1Layer != null && Math.Abs(seg.End - barLen) < 0.01) ? t1Layer.HookEndName : null,
                                 Label = $"T3 @ {over.SupportName}",
-                                Comment = "Top Additional Bar"
+                                Comment = "Top T3"
                             });
                         }
                         topZ -= (maxT3Dia + Math.Max(minLayerGap, maxT3Dia));
@@ -601,8 +601,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                         HookEndName = (Math.Abs(seg.End - barLen) < 0.001) ? layer.HookEndName : null,
                         OverrideHookLength = layer.OverrideHookLength,
                         HookLengthOverride = layer.HookLengthOverride,
-                        Label = layer.IsContinuous ? (segments.Count > 1 ? "Btm Continuous (lapped)" : "Btm Continuous") : "Btm Additional (Sagging)",
-                        Comment = layer.IsContinuous ? "Btm Bar" : "Btm Additional Bar"
+                        Label = layer.IsContinuous ? (segments.Count > 1 ? "Btm Continuous (lapped)" : "Btm Continuous") : "Btm Continuous",
+                        Comment = (botLayerIdx == 0) ? "Btm Bar" : (botLayerIdx == 1 ? "Btm B2" : (botLayerIdx == 2 ? "Btm B3" : "Btm Bar"))
                     });
                 }
 
@@ -676,7 +676,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                                 HookStartName = (b1Layer != null && Math.Abs(seg.Start - 0) < 0.001) ? b1Layer.HookStartName : null,
                                 HookEndName = (b1Layer != null && Math.Abs(seg.End - barLen) < 0.01) ? b1Layer.HookEndName : null,
                                 Label = $"B2 @ {over.SpanName}",
-                                Comment = "Btm Additional Bar"
+                                Comment = "Btm B2"
                             });
                         }
                         botZ += (maxB2Dia + Math.Max(minLayerGap, maxB2Dia));
@@ -739,7 +739,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                                 HookStartName = (b1Layer != null && Math.Abs(seg.Start - 0) < 0.001) ? b1Layer.HookStartName : null,
                                 HookEndName = (b1Layer != null && Math.Abs(seg.End - barLen) < 0.01) ? b1Layer.HookEndName : null,
                                 Label = $"B3 @ {over.SpanName}",
-                                Comment = "Btm Additional Bar"
+                                Comment = "Btm B3"
                             });
                         }
                         botZ += (maxB3Dia + Math.Max(minLayerGap, maxB3Dia));
@@ -1201,7 +1201,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                         OverrideHookLength = layer.OverrideHookLength,
                         HookLengthOverride = layer.HookLengthOverride,
                         Label = segments.Count > 1 ? "Top Layer (lapped)" : "Top Layer",
-                        Comment = "Top Bar"
+                        Comment = (topLayerIdx == 0) ? "Top Bar" : (topLayerIdx == 1 ? "Top T2" : (topLayerIdx == 2 ? "Top T3" : "Top Bar"))
                     };
                     definitions.Add(segDef);
                 }
@@ -1289,7 +1289,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                         OverrideHookLength = layer.OverrideHookLength,
                         HookLengthOverride = layer.HookLengthOverride,
                         Label = segments.Count > 1 ? "Bottom Layer (lapped)" : "Bottom Layer",
-                        Comment = "Btm Bar"
+                        Comment = (botLayerIdx == 0) ? "Btm Bar" : (botLayerIdx == 1 ? "Btm B2" : (botLayerIdx == 2 ? "Btm B3" : "Btm Bar"))
                     };
                     definitions.Add(segDef);
                 }
@@ -1416,6 +1416,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
 
             // Top layers
             double topOffset = host.Height / 2.0 - host.CoverTop - transDia;
+            int topLayerIdx = 0;
             foreach (var layer in request.Layers.Where(l =>
                 l.Face == RebarLayerFace.Exterior || l.VerticalOffset > 0))
             {
@@ -1428,15 +1429,18 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                     host, layer.VerticalBarTypeName, barDia,
                     count, offset, transDia, true,
                     layer.HookStartName, layer.HookEndName, "Top Layer",
-                    layer.OverrideHookLength, layer.HookLengthOverride, "Top Bar");
+                    layer.OverrideHookLength, layer.HookLengthOverride, 
+                    (topLayerIdx == 0) ? "Top Bar" : (topLayerIdx == 1 ? "Top T2" : (topLayerIdx == 2 ? "Top T3" : "Top Bar")));
 
                 if (def != null) definitions.Add(def);
                 double effectiveGap = Math.Max(minLayerGap, barDia);
                 topOffset -= (barDia + effectiveGap);
+                topLayerIdx++;
             }
 
             // Bottom layers
             double botOffset = -(host.Height / 2.0 - host.CoverBottom - transDia);
+            int botLayerIdx = 0;
             foreach (var layer in request.Layers.Where(l =>
                 l.Face == RebarLayerFace.Interior || l.VerticalOffset < 0))
             {
@@ -1449,11 +1453,13 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                     host, layer.VerticalBarTypeName, barDia,
                     count, offset, transDia, false,
                     layer.HookStartName, layer.HookEndName, "Bottom Layer",
-                    layer.OverrideHookLength, layer.HookLengthOverride, "Btm Bar");
+                    layer.OverrideHookLength, layer.HookLengthOverride, 
+                    (botLayerIdx == 0) ? "Btm Bar" : (botLayerIdx == 1 ? "Btm B2" : (botLayerIdx == 2 ? "Btm B3" : "Btm Bar")));
 
                 if (def != null) definitions.Add(def);
                 double effectiveGap = Math.Max(minLayerGap, barDia);
                 botOffset += (barDia + effectiveGap);
+                botLayerIdx++;
             }
         }
 

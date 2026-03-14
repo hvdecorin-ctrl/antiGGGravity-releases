@@ -2,6 +2,7 @@ using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 
 namespace antiGGGravity.Utilities
@@ -60,41 +61,63 @@ namespace antiGGGravity.Utilities
     }
 
     /// <summary>
-    /// Loads ribbon configuration from embedded YAML resource.
+    /// Loads ribbon configuration from modular embedded YAML resources.
     /// </summary>
     public static class RibbonConfigLoader
     {
-        private const string ResourceName = "antiGGGravity.Resources.ribbon.yaml";
+        private const string ResourcePrefix = "antiGGGravity.Resources.ribbon.";
 
         /// <summary>
-        /// Load and parse the embedded ribbon.yaml configuration.
+        /// Load and parse all embedded ribbon.*.yaml configurations.
         /// </summary>
         public static RibbonConfiguration Load()
         {
             var assembly = Assembly.GetExecutingAssembly();
+            var resources = assembly.GetManifestResourceNames().OrderBy(x => x).ToList();
             
-            using (var stream = assembly.GetManifestResourceStream(ResourceName))
+            var combinedConfig = new RibbonConfiguration();
+            var deserializer = new DeserializerBuilder()
+                .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                .IgnoreUnmatchedProperties()
+                .Build();
+
+            foreach (var resource in resources)
             {
-                if (stream == null)
-                {
-                    // List available resources for debugging
-                    var available = string.Join(", ", assembly.GetManifestResourceNames());
-                    throw new FileNotFoundException(
-                        $"Embedded resource '{ResourceName}' not found. Available: {available}");
-                }
+                if (!resource.StartsWith(ResourcePrefix) || !resource.EndsWith(".yaml"))
+                    continue;
 
-                using (var reader = new StreamReader(stream))
+                using (var stream = assembly.GetManifestResourceStream(resource))
                 {
-                    var yaml = reader.ReadToEnd();
-                    
-                    var deserializer = new DeserializerBuilder()
-                        .WithNamingConvention(CamelCaseNamingConvention.Instance)
-                        .IgnoreUnmatchedProperties()
-                        .Build();
+                    if (stream == null) continue;
 
-                    return deserializer.Deserialize<RibbonConfiguration>(yaml);
+                    using (var reader = new StreamReader(stream))
+                    {
+                        var yaml = reader.ReadToEnd();
+                        var configPart = deserializer.Deserialize<RibbonConfiguration>(yaml);
+                        
+                        if (configPart == null) continue;
+
+                        // Set tab name from the first part that has it
+                        if (combinedConfig.Tab == null && configPart.Tab != null)
+                        {
+                            combinedConfig.Tab = configPart.Tab;
+                        }
+
+                        // Accumulate panels
+                        if (configPart.Panels != null)
+                        {
+                            combinedConfig.Panels.AddRange(configPart.Panels);
+                        }
+                    }
                 }
             }
+
+            if (combinedConfig.Tab == null)
+            {
+                combinedConfig.Tab = new TabConfig { Name = "antiGGGravity" };
+            }
+
+            return combinedConfig;
         }
     }
 }

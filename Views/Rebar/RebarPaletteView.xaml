@@ -101,21 +101,51 @@
                     <RowDefinition Height="Auto"/> <!-- 6: Host row (Grid) -->
                 </Grid.RowDefinitions>
 
-                <!-- Group: Selection -->
-                <TextBlock Text="Selection" FontSize="11" Foreground="#666" Margin="4,4,0,2" Grid.Row="0"/>
-                <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="0,0,0,6">
-                    <Button Style="{StaticResource PaletteButton}" Tag="QuickPick" Click="ToolButton_Click" ToolTip="Quick Pick Elements">
-                        <StackPanel Orientation="Vertical">
-                            <Image Source="pack://application:,,,/antiGGGravity;component/Resources/Icons/Pick(32x32).png" Width="32" Height="32"/>
-                            <TextBlock Text="Quick Pick" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/>
-                        </StackPanel>
-                    </Button>
-                    <Button Style="{StaticResource PaletteButton}" Tag="ColorSplasher" Click="ToolButton_Click" ToolTip="Visualize Values (Color Splasher)">
-                        <StackPanel Orientation="Vertical">
-                            <Image Source="pack://application:,,,/antiGGGravity;component/Resources/Icons/ColorSplasher(32x32).png" Width="32" Height="32"/>
-                            <TextBlock Text="Splasher" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/>
-                        </StackPanel>
-                    </Button>
+                <!-- Group: Selection & Reinforcement -->
+                <TextBlock Text="Reinforcement &amp; Selection" FontSize="11" Foreground="#666" Margin="4,4,0,2" Grid.Row="0"/>
+                <StackPanel Orientation="Vertical" Grid.Row="1" Margin="0,0,0,6">
+                    <!-- Row 1 -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
+                        <Button Style="{StaticResource PaletteButton}" Tag="QuickPick" Click="ToolButton_Click" ToolTip="Quick Pick Elements">
+                            <StackPanel Orientation="Vertical">
+                                <Image Source="pack://application:,,,/antiGGGravity;component/Resources/Icons/Pick(32x32).png" Width="32" Height="32"/>
+                                <TextBlock Text="Quick Pick" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource PaletteButton}" Tag="ColorSplasher" Click="ToolButton_Click" ToolTip="Visualize Values (Color Splasher)">
+                            <StackPanel Orientation="Vertical">
+                                <Image Source="pack://application:,,,/antiGGGravity;component/Resources/Icons/ColorSplasher(32x32).png" Width="32" Height="32"/>
+                                <TextBlock Text="Splasher" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource PaletteButton}" Tag="BeamRebar" Click="ToolButton_Click" ToolTip="Reinforce Beams">
+                            <StackPanel Orientation="Vertical">
+                                <Image Source="pack://application:,,,/antiGGGravity;component/Resources/Icons/RebarBeam(32x32).png" Width="32" Height="32"/>
+                                <TextBlock Text="Beam Rebar" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                    <!-- Row 2 -->
+                    <StackPanel Orientation="Horizontal">
+                        <Button Style="{StaticResource PaletteButton}" Tag="FoundationRebar" Click="ToolButton_Click" ToolTip="Reinforce Foundations">
+                            <StackPanel Orientation="Vertical">
+                                <Image Source="pack://application:,,,/antiGGGravity;component/Resources/Icons/RebarFoundation(32x32).png" Width="32" Height="32"/>
+                                <TextBlock Text="Foundation" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource PaletteButton}" Tag="WallRebar" Click="ToolButton_Click" ToolTip="Reinforce Walls">
+                            <StackPanel Orientation="Vertical">
+                                <Image Source="pack://application:,,,/antiGGGravity;component/Resources/Icons/RebarWall(32x32).png" Width="32" Height="32"/>
+                                <TextBlock Text="Wall Rebar" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource PaletteButton}" Tag="ColumnRebar" Click="ToolButton_Click" ToolTip="Reinforce Columns">
+                            <StackPanel Orientation="Vertical">
+                                <Image Source="pack://application:,,,/antiGGGravity;component/Resources/Icons/RebarColumn(32x32).png" Width="32" Height="32"/>
+                                <TextBlock Text="Column Reo" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
                 </StackPanel>
 
                 <!-- Group: Visibility & Basic Tools (Restoring 3-column layout) -->

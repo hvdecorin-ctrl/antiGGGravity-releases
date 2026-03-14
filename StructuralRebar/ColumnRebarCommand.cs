@@ -16,7 +16,11 @@ namespace antiGGGravity.StructuralRebar
 
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            UIApplication uiApp = commandData.Application;
+            return Run(commandData.Application);
+        }
+
+        public Result Run(UIApplication uiApp)
+        {
             if (uiApp.ActiveUIDocument == null) return Result.Cancelled;
 
             if (_window != null)

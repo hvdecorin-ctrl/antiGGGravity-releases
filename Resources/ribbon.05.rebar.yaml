@@ -1,0 +1,74 @@
+panels:
+  # ============================================================
+  # REBAR PANEL
+  # ============================================================
+  - name: Rebar
+    items:
+      - type: pushbutton
+        name: Design Rules
+        command: DesignSettingCommand
+        icon: RulesSetting
+        tooltip: View design codes, reference parameters, and calculation rules.
+      - type: pushbutton
+        name: Foundation Rebar
+        command: FoundationRebarCommand
+        icon: RebarFoundation
+        tooltip: Reinforce Strip Footings and Pad Footings.
+      - type: pushbutton
+        name: Wall Rebar
+        command: WallRebarCommand
+        icon: RebarWall
+        tooltip: Reinforce Walls and Wall Corners.
+      - type: pushbutton
+        name: Column Rebar
+        command: ColumnRebarCommand
+        icon: RebarColumn
+        tooltip: Reinforce Structural Columns.
+      - type: pushbutton
+        name: Beam Rebar
+        command: BeamRebarCommand
+        icon: RebarBeam
+        tooltip: Reinforce Beams (Standard & Advance).
+      - type: pushbutton
+        name: Rebar Palette
+        command: RebarPaletteCommand
+        icon: RebarTools
+        tooltip: Floating palette for rebar visibility, selection, and host-based tools.
+      - type: pulldown
+        name: Rebar Q'ty
+        icon: RebarQty
+        tooltip: Summarise rebar quantities grouped by host category or host mark.
+        buttons:
+          - name: Rebar Q'ty Host Category
+            command: RebarQtyHostCategoryCommand
+            icon: RebarQtyHostCategory
+            tooltip: Show rebar quantity summary grouped by host category (beam, wall, etc.).
+          - name: Rebar Q'ty Host Mark
+            command: RebarQtyHostMarkCommand
+            icon: RebarQtyHostMark
+            tooltip: Show rebar quantity summary grouped by host mark (element ID).
+      - type: pulldown
+        name: Assign Mark
+        icon: AssignMark
+        tooltip: Create and assign unique marks to structural elements.
+        buttons:
+          - name: Assign Mark
+            command: AssignMarkCommand
+            icon: AssignMark
+            tooltip: Auto-generate and assign a mark to selected elements.
+          - name: Create ElementName
+            command: CreateElementNameParamCommand
+            icon: CreateElementName
+            tooltip: Create a shared parameter to store a custom element name.
+          - name: Assign ElementName
+            command: AssignElementNameCommand
+            icon: AssignElementName
+            tooltip: Auto-generate and assign an Element Name to selected elements.
+          - name: Remove Extg Mark
+            command: RemoveMarkCommand
+            icon: RemoveMark
+            tooltip: Clear the mark value from selected elements.
+          - name: Remove Extg ElementName
+            command: RemoveElementNameCommand
+            icon: RemoveElementName
+            tooltip: Clear the 'Element Name' value from selected elements.

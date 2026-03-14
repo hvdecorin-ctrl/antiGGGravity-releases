@@ -122,7 +122,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
 
         private void UI_Button_Analyze_Click(object sender, RoutedEventArgs e)
         {
-            _parentWindow.Close();
+            _parentWindow.Hide();
 
             try
             {
@@ -161,7 +161,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
         {
             if (_lastSupports == null || _totalLength <= 0 || _targetBeamId == ElementId.InvalidElementId) return;
 
-            _parentWindow.Close();
+            _parentWindow.Hide();
             try
             {
                 // Prompts user to select beams in Revit UI

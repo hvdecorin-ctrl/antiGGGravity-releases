@@ -1,0 +1,79 @@
+panels:
+  # ============================================================
+  # MANAGEMENT PANEL
+  # ============================================================
+  - name: Management
+    items:
+      - type: stacked
+        buttons:
+          - type: pulldown
+            name: Rename View
+            icon: Views
+            tooltip: Rename views on sheets.
+            buttons:
+              - name: Rename Views (Active Sheet)
+                command: RenameViewsActiveSheetCommand
+                icon: RenameViews
+                tooltip: Rename all viewports on the currently active sheet.
+              - name: Rename View (all Sheets)
+                command: RenameViewsAllSheetsCommand
+                icon: RenameViews
+                tooltip: Rename viewports across all sheets using a naming rule.
+              - name: Renumber Viewports
+                command: RenumberViewportsCommand
+                icon: RenumberViewports
+                tooltip: Renumber viewports on the active sheet sequentially.
+          - type: pulldown
+            name: Add Views
+            icon: AddViews
+            tooltip: Add views to sheets.
+            buttons:
+              - name: Add Selected View
+                command: AddSelectedViewCommand
+                icon: AddSelectedView
+                tooltip: Place the selected view onto a chosen sheet.
+              - name: Add Views
+                command: AddViewsCommand
+                icon: AddViews
+                tooltip: Batch-place multiple views onto sheets.
+          - type: pulldown
+            name: Sheets
+            icon: Sheets
+            tooltip: Sheet management tools.
+            buttons:
+              - name: Duplicate Sheets
+                command: DuplicateSheetsCommand
+                icon: DuplicateSheets
+                tooltip: Duplicate selected sheets with views and title blocks.
+      - type: stacked
+        buttons:
+          - name: Set Crop View
+            command: SetCropCommand
+            icon: SetCrop
+            tooltip: Set the crop region boundary for the active view.
+          - name: Toggle Crop
+            command: ToggleCropRegionCommand
+            icon: ToggleCrop
+            tooltip: Show or hide the crop region boundary in the active view.
+          - name: Zoom To
+            command: ZoomToSelectionCommand
+            icon: ZoomTo
+            tooltip: Zoom the view to fit the current selection.
+      - type: stacked
+        buttons:
+          - name: Auto 3D
+            command: Auto3DCommand
+            icon: Auto3D
+            tooltip: Create a 3D view auto-fitted to selected elements.
+          - name: Toggle 3D
+            command: Toggle3DSectionBoxCommand
+            icon: ToggleSectionBoxActive
+            tooltip: Show or hide the section box in the active 3D view.
+          - name: Sectbox
+            command: ToggleSectionBoxVisibilityCommand
+            icon: ToggleSectionBox
+            tooltip: Toggle section box visibility without resizing it.
+      - name: Align Schematic
+        command: AlignSchematicCommand
+        icon: AlignSchematic
+        tooltip: Align viewports to a consistent position across multiple sheets.

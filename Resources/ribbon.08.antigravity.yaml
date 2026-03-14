@@ -1,0 +1,20 @@
+panels:
+  # ============================================================
+  # ANTIGRAVITY PANEL
+  # ============================================================
+  - name: AntiGravity
+    items:
+      - type: stacked
+        buttons:
+          - name: Hardware ID
+            command: GetHardwareIdCommand
+            icon: HardwareID
+            tooltip: Copy your machine ID for license activation.
+          - name: License Status
+            command: LicensedCommand
+            icon: LicenseStatus
+            tooltip: Check the current license activation status.
+          - name: Inspect Resources
+            command: InspectResourcesCommand
+            icon: InspectResources
+            tooltip: List embedded resources (debug use).

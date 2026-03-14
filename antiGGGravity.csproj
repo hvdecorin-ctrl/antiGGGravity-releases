@@ -35,7 +35,7 @@
   <ItemGroup>
     <Resource Include="Resources\Icons\**\*.png" />
     <Resource Include="Resources\beam_cut_diagram.png" />
-    <EmbeddedResource Include="Resources\ribbon.yaml" />
+    <EmbeddedResource Include="Resources\ribbon*.yaml" />
   </ItemGroup>
 
   <!-- Exclude Python reference source from compilation -->

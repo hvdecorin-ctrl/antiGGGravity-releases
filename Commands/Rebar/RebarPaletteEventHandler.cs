@@ -1,6 +1,7 @@
 using System;
 using Autodesk.Revit.UI;
 using antiGGGravity.Commands.General;
+using antiGGGravity.StructuralRebar;
 
 namespace antiGGGravity.Commands.Rebar
 {
@@ -29,6 +30,10 @@ namespace antiGGGravity.Commands.Rebar
                     case "RebarSplit": new RebarSplitCommand().Run(app); break;
                     case "QuickPick": new PickElementsCommand().Run(app); break;
                     case "ColorSplasher": new antiGGGravity.Commands.Overrides.ColorSplashCommand().Run(app); break;
+                    case "BeamRebar": new BeamRebarCommand().Run(app); break;
+                    case "FoundationRebar": new FoundationRebarCommand().Run(app); break;
+                    case "WallRebar": new WallRebarCommand().Run(app); break;
+                    case "ColumnRebar": new ColumnRebarCommand().Run(app); break;
                     default:
                         TaskDialog.Show("Rebar Palette", $"Unknown command: {CommandToPost}");
                         break;
