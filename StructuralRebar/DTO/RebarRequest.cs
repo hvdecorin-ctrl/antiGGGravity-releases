@@ -145,6 +145,9 @@ namespace antiGGGravity.StructuralRebar.DTO
         // === BORED PILE SPECIFIC ===
         public int PileBarCount { get; set; }
         public bool EnableSpiral { get; set; }
+        public string PileMainExtensionMode { get; set; } = "Auto";
+        public double PileMainExtensionVal { get; set; }
+        public double PileTransverseExtensionVal { get; set; }
 
         // Top U-Bars
         public bool AddTopEndUBars { get; set; }

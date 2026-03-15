@@ -57,6 +57,10 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             UI_Combo_MainHook.ItemsSource = _hookList;
             UI_Combo_MainHook.DisplayMemberPath = "Name";
             UI_Combo_MainHook.SelectedIndex = 0;
+
+            UI_Combo_MainHookBot.ItemsSource = _hookList.ToList();
+            UI_Combo_MainHookBot.DisplayMemberPath = "Name";
+            UI_Combo_MainHookBot.SelectedIndex = 0;
         }
 
         private void LoadSettings()
@@ -70,6 +74,10 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 SelectByName(UI_Combo_MainType, SettingsManager.Get(VIEW_NAME, "MainType"));
                 SelectByName(UI_Combo_TransType, SettingsManager.Get(VIEW_NAME, "TransType"));
                 SelectHookByName(UI_Combo_MainHook, SettingsManager.Get(VIEW_NAME, "MainHook"));
+                SelectHookByName(UI_Combo_MainHookBot, SettingsManager.Get(VIEW_NAME, "MainHookBot"));
+                UI_Combo_ExtensionMode.SelectedIndex = SettingsManager.GetInt(VIEW_NAME, "ExtensionMode", 0);
+                UI_Text_ManualExtension.Text = SettingsManager.Get(VIEW_NAME, "ManualExtension", "500");
+                UI_Text_TransExtension.Text = SettingsManager.Get(VIEW_NAME, "TransExtension", "0");
             }
             catch { }
         }
@@ -85,6 +93,10 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 SettingsManager.Set(VIEW_NAME, "MainType", TransTypeName(UI_Combo_MainType));
                 SettingsManager.Set(VIEW_NAME, "TransType", TransTypeName(UI_Combo_TransType));
                 SettingsManager.Set(VIEW_NAME, "MainHook", HookName(UI_Combo_MainHook));
+                SettingsManager.Set(VIEW_NAME, "MainHookBot", HookName(UI_Combo_MainHookBot));
+                SettingsManager.Set(VIEW_NAME, "ExtensionMode", UI_Combo_ExtensionMode.SelectedIndex.ToString());
+                SettingsManager.Set(VIEW_NAME, "ManualExtension", UI_Text_ManualExtension.Text);
+                SettingsManager.Set(VIEW_NAME, "TransExtension", UI_Text_TransExtension.Text);
 
                 SettingsManager.SaveAll();
             }
@@ -105,8 +117,24 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 TransverseSpacing = UnitConversion.MmToFeet(ParseDouble(UI_Text_TransSpacing.Text, 200)),
                 EnableSpiral = UI_Combo_TransMode.SelectedIndex == 1,
                 
-                TransverseHookStartName = HookName(UI_Combo_MainHook), // Using for top reinforcement if needed, or mapping specifically
+                TransverseHookStartName = HookName(UI_Combo_MainHook),
+                TransverseHookEndName = HookName(UI_Combo_MainHookBot),
             };
+
+            // Extension Mode: 0=Auto, 1=Manual
+            int extMode = UI_Combo_ExtensionMode.SelectedIndex;
+            if (extMode == 0)
+            {
+                request.PileMainExtensionMode = "Auto";
+            }
+            else
+            {
+                request.PileMainExtensionMode = "Manual";
+                request.PileMainExtensionVal = UnitConversion.MmToFeet(ParseDouble(UI_Text_ManualExtension.Text, 500));
+            }
+
+            // Separate transverse extension (spiral/hoop)
+            request.PileTransverseExtensionVal = UnitConversion.MmToFeet(ParseDouble(UI_Text_TransExtension.Text, 0));
 
             return request;
         }
@@ -196,5 +224,14 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
 
         private double ParseDouble(string text, double defaultValue) => double.TryParse(text, out double result) ? result : defaultValue;
         private int ParseInt(string text, int defaultValue) => int.TryParse(text, out int result) ? result : defaultValue;
+
+        private void ExtensionModeChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (UI_Panel_ManualExtension == null) return;
+            // 0=Auto, 1=Manual
+            UI_Panel_ManualExtension.Visibility = (UI_Combo_ExtensionMode.SelectedIndex == 1)
+                ? System.Windows.Visibility.Visible
+                : System.Windows.Visibility.Collapsed;
+        }
     }
 }

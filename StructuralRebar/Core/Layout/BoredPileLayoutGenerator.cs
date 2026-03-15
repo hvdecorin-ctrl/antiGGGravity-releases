@@ -11,7 +11,7 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
 {
     public static class BoredPileLayoutGenerator
     {
-        public static List<RebarDefinition> Generate(HostGeometry host, RebarRequest request)
+        public static List<RebarDefinition> Generate(HostGeometry host, RebarRequest request, double? overrideZEnd = null)
         {
             var definitions = new List<RebarDefinition>();
 
@@ -38,9 +38,15 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
             double zStart = host.SolidZMin + host.CoverBottom;
             double zEnd = host.SolidZMax - host.CoverTop;
             
-            // Safety gap for main bars (70mm)
-            double safetyGap = UnitConversion.MmToFeet(70);
-            zEnd -= safetyGap;
+            if (overrideZEnd.HasValue)
+            {
+                zEnd = overrideZEnd.Value;
+            }
+            else
+            {
+                // Comply with host cover strictly
+                zEnd = host.SolidZMax - host.CoverTop;
+            }
 
             int count = request.PileBarCount;
             if (zEnd - zStart > UnitConversion.MmToFeet(100))
@@ -64,7 +70,11 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                         Style = RebarStyle.Standard,
                         Label = "Main Bar",
                         Comment = "Pile Main Bar",
-                        Normal = tangentNormal
+                        Normal = tangentNormal,
+                        // Hook Bottom (start = bottom of vertical bar)
+                        HookStartName = !string.IsNullOrEmpty(request.TransverseHookEndName) ? request.TransverseHookEndName : null,
+                        // Hook Top (end = top of vertical bar) 
+                        HookEndName = !string.IsNullOrEmpty(request.TransverseHookStartName) ? request.TransverseHookStartName : null,
                     });
                 }
             }

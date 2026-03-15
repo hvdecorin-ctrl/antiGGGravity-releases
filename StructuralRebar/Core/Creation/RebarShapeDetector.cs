@@ -42,10 +42,7 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
             switch (curves.Count)
             {
                 case 1 when curves[0] is Line:
-                    // Single straight line
-                    if (hasBothHooks) return "Shape 90x90";
-                    if (hasHookStart) return "Shape 90x0";
-                    if (hasHookEnd) return "Shape 0x90";
+                    // Always return Shape 00 for straight bars to allow instance hook overrides (90, 135, 180 etc)
                     return "Shape 00";
 
                 case 2 when curves.All(c => c is Line):
