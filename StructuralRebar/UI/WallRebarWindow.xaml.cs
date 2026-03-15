@@ -70,6 +70,7 @@ namespace antiGGGravity.StructuralRebar.UI
 
         public bool RemoveExisting => UI_Check_RemoveExisting.IsChecked == true;
         public bool EnableLapSplice => UI_Check_CutRebar.IsChecked == true;
+        public bool IsCircularColumn => false;
 
         public DesignCodeStandard DesignCode
         {
@@ -99,6 +100,9 @@ namespace antiGGGravity.StructuralRebar.UI
         public ColumnRebarPanel ColumnPanel => null;
         public StripFootingRebarPanel StripFootingPanel => null;
         public FootingPadRebarPanel FootingPadPanel => null;
+        public PadShapeRebarPanel PadShapePanel => null;
+        public BoredPileRebarPanel BoredPilePanel => null;
+        public CircularColumnPanel CircularColumnPanel => null;
         public WallCornerLPanel WallCornerLPanel => _wallCornerLPanel;
         public WallCornerUPanel WallCornerUPanel => _wallCornerUPanel;
         public BeamAdvancePanel BeamAdvancePanel => null;

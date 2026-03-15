@@ -63,10 +63,12 @@ namespace antiGGGravity.StructuralRebar.Constants
         Wall,
         Column,
         FootingPad,
+        PadShape,
         StripFooting,
         WallCornerL,
         WallCornerU,
-        BeamAdvance
+        BeamAdvance,
+        BoredPile
     }
 
     public static class DesignCodes

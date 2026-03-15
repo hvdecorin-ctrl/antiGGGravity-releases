@@ -16,6 +16,8 @@ namespace antiGGGravity.StructuralRebar.UI
 
         private StripFootingRebarPanel _stripFootingPanel;
         private FootingPadRebarPanel _footingPadPanel;
+        private PadShapeRebarPanel _padShapePanel;
+        private BoredPileRebarPanel _boredPilePanel;
 
         public FoundationRebarWindow(UIDocument uiDoc, ExternalEvent externalEvent)
         {
@@ -48,6 +50,18 @@ namespace antiGGGravity.StructuralRebar.UI
                 if (_footingPadPanel == null) _footingPadPanel = new FootingPadRebarPanel(_doc);
                 UI_PanelHost.Content = _footingPadPanel;
             }
+            else if (UI_Radio_PadShape?.IsChecked == true)
+            {
+                SelectedHostType = ElementHostType.PadShape;
+                if (_padShapePanel == null) _padShapePanel = new PadShapeRebarPanel(_doc);
+                UI_PanelHost.Content = _padShapePanel;
+            }
+            else if (UI_Radio_BoredPile?.IsChecked == true)
+            {
+                SelectedHostType = ElementHostType.BoredPile;
+                if (_boredPilePanel == null) _boredPilePanel = new BoredPileRebarPanel(_doc);
+                UI_PanelHost.Content = _boredPilePanel;
+            }
         }
 
         private void UI_Button_Generate_Click(object sender, RoutedEventArgs e)
@@ -69,12 +83,15 @@ namespace antiGGGravity.StructuralRebar.UI
         {
             if (UI_PanelHost.Content is StripFootingRebarPanel sfp) sfp.SaveSettings();
             else if (UI_PanelHost.Content is FootingPadRebarPanel fpp) fpp.SaveSettings();
+            else if (UI_PanelHost.Content is PadShapeRebarPanel psp) psp.SaveSettings();
+            else if (UI_PanelHost.Content is BoredPileRebarPanel bpp) bpp.SaveSettings();
         }
 
         private void DesignCode_Changed(object sender, SelectionChangedEventArgs e) { }
 
         public bool RemoveExisting => UI_Check_RemoveExisting.IsChecked == true;
         public bool EnableLapSplice => UI_Check_CutRebar.IsChecked == true;
+        public bool IsCircularColumn => false;
         public DesignCodeStandard DesignCode => DesignCodeStandard.ACI318; // Default
 
         public BeamRebarPanel BeamPanel => null;
@@ -82,6 +99,9 @@ namespace antiGGGravity.StructuralRebar.UI
         public ColumnRebarPanel ColumnPanel => null;
         public StripFootingRebarPanel StripFootingPanel => _stripFootingPanel;
         public FootingPadRebarPanel FootingPadPanel => _footingPadPanel;
+        public PadShapeRebarPanel PadShapePanel => _padShapePanel;
+        public BoredPileRebarPanel BoredPilePanel => _boredPilePanel;
+        public CircularColumnPanel CircularColumnPanel => null;
         public WallCornerLPanel WallCornerLPanel => null;
         public WallCornerUPanel WallCornerUPanel => null;
         public BeamAdvancePanel BeamAdvancePanel => null;

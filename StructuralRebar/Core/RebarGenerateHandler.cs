@@ -68,6 +68,12 @@ namespace antiGGGravity.StructuralRebar.Core
                     case ElementHostType.FootingPad:
                         resultMessage = ProcessFootingPads(uidoc, doc);
                         break;
+                    case ElementHostType.PadShape:
+                        resultMessage = ProcessPadShapes(uidoc, doc);
+                        break;
+                    case ElementHostType.BoredPile:
+                        resultMessage = ProcessBoredPiles(uidoc, doc);
+                        break;
                     case ElementHostType.WallCornerL:
                         resultMessage = ProcessWallCornerL(uidoc, doc);
                         break;
@@ -233,7 +239,10 @@ namespace antiGGGravity.StructuralRebar.Core
 
             if (columns.Count == 0) return null;
 
-            var request = _window.ColumnPanel.GetRequest();
+            var request = _window.IsCircularColumn 
+                ? _window.CircularColumnPanel.GetRequest() 
+                : _window.ColumnPanel.GetRequest();
+                
             request.RemoveExisting = _window.RemoveExisting;
             request.EnableLapSplice = _window.EnableLapSplice;
             request.DesignCode = _window.DesignCode;
@@ -302,6 +311,50 @@ namespace antiGGGravity.StructuralRebar.Core
             var engine = new RebarEngine(doc);
             var (processed, total) = engine.GenerateFootingPadRebar(foundations, request);
             return $"Successfully reinforced {processed} of {total} footing pads.";
+        }
+
+        private string ProcessPadShapes(UIDocument uidoc, Document doc)
+        {
+            var refs = uidoc.Selection.PickObjects(
+                ObjectType.Element,
+                new StripFootingSelectionFilter(),
+                "Select foundations for Pad Shape rebar (press Finish)");
+            var foundations = refs
+                .Select(r => doc.GetElement(r.ElementId))
+                .Where(f => f != null)
+                .ToList();
+
+            if (foundations.Count == 0) return null;
+
+            var request = _window.PadShapePanel.GetRequest();
+            request.RemoveExisting = _window.RemoveExisting;
+            request.EnableLapSplice = _window.EnableLapSplice;
+            request.DesignCode = _window.DesignCode;
+            var engine = new RebarEngine(doc);
+            var (processed, total) = engine.GeneratePadShapeRebar(foundations, request);
+            return $"Successfully reinforced {processed} of {total} foundations (Pad Shape).";
+        }
+
+        private string ProcessBoredPiles(UIDocument uidoc, Document doc)
+        {
+            var refs = uidoc.Selection.PickObjects(
+                ObjectType.Element,
+                new StripFootingSelectionFilter(), // Bored piles are usually OST_StructuralFoundation
+                "Select bored piles to reinforce (press Finish)");
+            var foundations = refs
+                .Select(r => doc.GetElement(r.ElementId))
+                .Where(f => f != null)
+                .ToList();
+
+            if (foundations.Count == 0) return null;
+
+            var request = _window.BoredPilePanel.GetRequest();
+            request.RemoveExisting = _window.RemoveExisting;
+            request.EnableLapSplice = _window.EnableLapSplice;
+            request.DesignCode = _window.DesignCode;
+            var engine = new RebarEngine(doc);
+            var (processed, total) = engine.GenerateBoredPileRebar(foundations, request);
+            return $"Successfully reinforced {processed} of {total} bored piles.";
         }
 
         private string ProcessWallCornerL(UIDocument uidoc, Document doc)

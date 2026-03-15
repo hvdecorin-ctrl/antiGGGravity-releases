@@ -20,6 +20,7 @@ namespace antiGGGravity.StructuralRebar.UI
         private ColumnRebarPanel _columnPanel;
         private StripFootingRebarPanel _stripFootingPanel;
         private FootingPadRebarPanel _footingPadPanel;
+        private PadShapeRebarPanel _padShapePanel;
         private WallCornerLPanel _wallCornerLPanel;
         private WallCornerUPanel _wallCornerUPanel;
         private CustomDesignPanel _customDesignPanel;
@@ -84,6 +85,12 @@ namespace antiGGGravity.StructuralRebar.UI
                 if (_footingPadPanel == null) _footingPadPanel = new FootingPadRebarPanel(_doc);
                 UI_PanelHost.Content = _footingPadPanel;
             }
+            else if (UI_Radio_PadShape?.IsChecked == true)
+            {
+                SelectedHostType = ElementHostType.PadShape;
+                if (_padShapePanel == null) _padShapePanel = new PadShapeRebarPanel(_doc);
+                UI_PanelHost.Content = _padShapePanel;
+            }
             else if (UI_Radio_WallCornerL?.IsChecked == true)
             {
                 SelectedHostType = ElementHostType.WallCornerL;
@@ -144,6 +151,7 @@ namespace antiGGGravity.StructuralRebar.UI
             else if (UI_PanelHost.Content is ColumnRebarPanel cp) cp.SaveSettings();
             else if (UI_PanelHost.Content is StripFootingRebarPanel sfp) sfp.SaveSettings();
             else if (UI_PanelHost.Content is FootingPadRebarPanel fpp) fpp.SaveSettings();
+            else if (UI_PanelHost.Content is PadShapeRebarPanel psp) psp.SaveSettings();
             else if (UI_PanelHost.Content is WallCornerLPanel wcl) wcl.SaveSettings();
             else if (UI_PanelHost.Content is WallCornerUPanel wcu) wcu.SaveSettings();
             else if (UI_PanelHost.Content is CustomDesignPanel cdp) cdp.SaveSettings();
@@ -188,6 +196,7 @@ namespace antiGGGravity.StructuralRebar.UI
         // --- Accessors for the handler ---
         public bool RemoveExisting => UI_Check_RemoveExisting.IsChecked == true;
         public bool EnableLapSplice => UI_Check_CutRebar.IsChecked == true;
+        public bool IsCircularColumn => false;
         
         public DesignCodeStandard DesignCode 
         {
@@ -216,6 +225,9 @@ namespace antiGGGravity.StructuralRebar.UI
         public ColumnRebarPanel ColumnPanel => _columnPanel;
         public StripFootingRebarPanel StripFootingPanel => _stripFootingPanel;
         public FootingPadRebarPanel FootingPadPanel => _footingPadPanel;
+        public PadShapeRebarPanel PadShapePanel => _padShapePanel;
+        public BoredPileRebarPanel BoredPilePanel => null;
+        public CircularColumnPanel CircularColumnPanel => null;
         public WallCornerLPanel WallCornerLPanel => _wallCornerLPanel;
         public WallCornerUPanel WallCornerUPanel => _wallCornerUPanel;
         public BeamAdvancePanel BeamAdvancePanel => _beamAdvancePanel;

@@ -1011,6 +1011,18 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
             return GenerateRebarInternal(foundations, request, "Generate Footing Pad Rebar");
         }
 
+        public (int Processed, int Total) GeneratePadShapeRebar(
+            List<Element> foundations, RebarRequest request)
+        {
+            return GenerateRebarInternal(foundations, request, "Generate Pad Shape Rebar");
+        }
+
+        public (int Processed, int Total) GenerateBoredPileRebar(
+            List<Element> foundations, RebarRequest request)
+        {
+            return GenerateRebarInternal(foundations, request, "Generate Bored Pile Rebar");
+        }
+
 
         private (int Processed, int Total) GenerateRebarInternal<T>(
             List<T> elements, RebarRequest request, string transactionName) where T : Element
@@ -1039,6 +1051,10 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                             success = ProcessStripFooting(element, request);
                         else if (element.Category?.Id.Value == (long)BuiltInCategory.OST_StructuralFoundation && request.HostType == ElementHostType.FootingPad)
                             success = ProcessFootingPad(element, request);
+                        else if (element.Category?.Id.Value == (long)BuiltInCategory.OST_StructuralFoundation && request.HostType == ElementHostType.PadShape)
+                            success = ProcessPadShape(element, request);
+                        else if (element.Category?.Id.Value == (long)BuiltInCategory.OST_StructuralFoundation && request.HostType == ElementHostType.BoredPile)
+                            success = ProcessBoredPile(element, request);
 
                         if (success) processed++;
                     }
@@ -2095,6 +2111,82 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
             if (!hostOpt.HasValue) return false;
             HostGeometry host = hostOpt.Value;
 
+            if (request.IsCircularColumn)
+            {
+                var circDefs = CircularColumnLayoutGenerator.Generate(host, request);
+                var circIds = _creationService.PlaceRebar(column, circDefs);
+                bool success = circIds.Count > 0;
+
+                // Manually generate Transverse Reinforcement for Circular Columns
+                if (!string.IsNullOrEmpty(request.TransverseBarTypeName))
+                {
+                    double hostRadius = 0;
+                    if (host.BoundaryCurves.Count > 0 && host.BoundaryCurves.Any(c => c is Arc))
+                    {
+                        var arcs = host.BoundaryCurves.OfType<Arc>().ToList();
+                        hostRadius = arcs.Max(a => a.Radius);
+                    }
+                    else
+                    {
+                        hostRadius = Math.Min(host.Width, host.Length) / 2.0;
+                    }
+
+                    if (hostRadius > 0)
+                    {
+                        double rebarRadius = hostRadius - host.CoverExterior;
+                        if (rebarRadius <= 0) rebarRadius = hostRadius * 0.8;
+                        XYZ center = host.Origin;
+                        
+                        double zStart = host.SolidZMin + host.CoverBottom + UnitConversion.MmToFeet(50);
+                        double zEnd = host.SolidZMax - host.CoverTop - UnitConversion.MmToFeet(120); // 70mm gap + 50mm hoop gap
+                        double dist = zEnd - zStart;
+
+                        Autodesk.Revit.DB.Structure.RebarBarType tieBarType = new FilteredElementCollector(_doc)
+                            .OfClass(typeof(Autodesk.Revit.DB.Structure.RebarBarType))
+                            .Cast<Autodesk.Revit.DB.Structure.RebarBarType>()
+                            .FirstOrDefault(t => t.Name.Equals(request.TransverseBarTypeName, StringComparison.OrdinalIgnoreCase));
+
+                        Autodesk.Revit.DB.Structure.RebarShape tieShape = new FilteredElementCollector(_doc)
+                            .OfClass(typeof(Autodesk.Revit.DB.Structure.RebarShape))
+                            .Cast<Autodesk.Revit.DB.Structure.RebarShape>()
+                            .FirstOrDefault(s => s.Name == (request.EnableSpiral ? "SP" : "CT") || s.Name == (request.EnableSpiral ? "Shape SP" : "Shape CT"));
+
+                        if (tieBarType != null && dist > 0)
+                        {
+                            try 
+                            {
+                                if (request.EnableSpiral)
+                                {
+                                    var tie = CreateSpiralFromRing(_doc, column, center, rebarRadius, zStart, zEnd, tieBarType, request.TransverseSpacing, tieShape);
+                                    if (tie != null) success = true;
+                                }
+                                else
+                                {
+                                    // Distribute as a Rebar Set using Maximum Spacing
+                                    var tie = CreateCircularTie(_doc, column, center, rebarRadius, zStart, tieBarType, tieShape);
+                                    if (tie != null)
+                                    {
+                                        var accessor = tie.GetShapeDrivenAccessor();
+                                        accessor.SetLayoutAsMaximumSpacing(
+                                            request.TransverseSpacing,
+                                            dist,
+                                            true,
+                                            true,
+                                            true
+                                        );
+                                        success = true;
+                                    }
+                                }
+                            } catch (Exception ex) {
+                                System.Diagnostics.Debug.WriteLine($"Error creating circular ties: {ex.Message}");
+                            }
+                        }
+                    }
+                }
+                
+                return success;
+            }
+
             var definitions = new List<RebarDefinition>();
 
             // 1. Ties (Transverse)
@@ -2307,6 +2399,70 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
 
                 if (request.RemoveExisting)
                     _creationService.DeleteExistingRebar(column);
+
+                if (request.IsCircularColumn)
+                {
+                    var circDefs = CircularColumnLayoutGenerator.Generate(host, request);
+                    var circIds = _creationService.PlaceRebar(column, circDefs);
+                    if (circIds.Count > 0) anySuccess = true;
+
+                    // Manually generate Transverse Reinforcement for Circular Columns
+                    if (!string.IsNullOrEmpty(request.TransverseBarTypeName))
+                    {
+                        double hostRadius = 0;
+                        if (host.BoundaryCurves.Count > 0 && host.BoundaryCurves.Any(c => c is Arc))
+                        {
+                            var arcs = host.BoundaryCurves.OfType<Arc>().ToList();
+                            hostRadius = arcs.Max(a => a.Radius);
+                        }
+                        else
+                        {
+                            hostRadius = Math.Min(host.Width, host.Length) / 2.0;
+                        }
+
+                        if (hostRadius > 0)
+                        {
+                            double rebarRadius = hostRadius - host.CoverExterior;
+                            if (rebarRadius <= 0) rebarRadius = hostRadius * 0.8;
+                            XYZ center = host.Origin;
+                            
+                            double zStart = host.SolidZMin + host.CoverBottom + UnitConversion.MmToFeet(50);
+                            double zEnd = host.SolidZMax - host.CoverTop - UnitConversion.MmToFeet(120); // 70mm gap + 50mm hoop gap
+                            double dist = zEnd - zStart;
+
+                            Autodesk.Revit.DB.Structure.RebarBarType tieBarType = new FilteredElementCollector(_doc)
+                                .OfClass(typeof(Autodesk.Revit.DB.Structure.RebarBarType))
+                                .Cast<Autodesk.Revit.DB.Structure.RebarBarType>()
+                                .FirstOrDefault(t => t.Name.Equals(request.TransverseBarTypeName, StringComparison.OrdinalIgnoreCase));
+
+                            if (tieBarType != null && dist > 0)
+                            {
+                                try 
+                                {
+                                    if (request.EnableSpiral)
+                                    {
+                                        var tie = CreateSpiralFromRing(_doc, column, center, rebarRadius, zStart, zEnd, tieBarType, request.TransverseSpacing);
+                                        if (tie != null) anySuccess = true;
+                                    }
+                                    else
+                                    {
+                                        int numSpaces = (int)Math.Max(1, Math.Floor(dist / request.TransverseSpacing));
+                                        for (int j = 0; j <= numSpaces; j++)
+                                        {
+                                            double z = zStart + j * (dist / numSpaces);
+                                            var tie = CreateCircularTie(_doc, column, center, rebarRadius, z, tieBarType);
+                                            if (tie != null) anySuccess = true;
+                                        }
+                                    }
+                                } catch (Exception ex) {
+                                    System.Diagnostics.Debug.WriteLine($"Error creating circular ties in stack: {ex.Message}");
+                                }
+                            }
+                        }
+                    }
+
+                    continue;
+                }
 
                 var definitions = new List<RebarDefinition>();
 
@@ -2808,6 +2964,131 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
             return ids.Count > 0;
         }
 
+        private bool ProcessBoredPile(Element foundation, RebarRequest request)
+        {
+            HostGeometry? bpHostOpt = BoredPileGeometryModule.Read(_doc, foundation);
+            if (!bpHostOpt.HasValue) return false;
+            HostGeometry bpHost = bpHostOpt.Value;
+ 
+            var definitions = BoredPileLayoutGenerator.Generate(bpHost, request);
+            var ids = _creationService.PlaceRebar(foundation, definitions);
+            bool success = ids.Count > 0;
+
+            // Manually generate Transverse Reinforcement for Bored Piles
+            if (!string.IsNullOrEmpty(request.TransverseBarTypeName))
+            {
+                double hostRadius = 0;
+                if (bpHost.BoundaryCurves.Count > 0 && bpHost.BoundaryCurves.Any(c => c is Arc))
+                {
+                    var arcs = bpHost.BoundaryCurves.OfType<Arc>().ToList();
+                    hostRadius = arcs.Max(a => a.Radius);
+                }
+                else
+                {
+                    hostRadius = Math.Min(bpHost.Width, bpHost.Length) / 2.0;
+                }
+
+                if (hostRadius > 0)
+                {
+                    double rebarRadius = hostRadius - bpHost.CoverExterior;
+                    if (rebarRadius <= 0) rebarRadius = hostRadius * 0.8;
+                    XYZ center = bpHost.Origin;
+                    
+                    double zStart = bpHost.SolidZMin + bpHost.CoverBottom + UnitConversion.MmToFeet(50);
+                    double zEnd = bpHost.SolidZMax - bpHost.CoverTop - UnitConversion.MmToFeet(50); // only 50mm hoop gap at top
+                    double dist = zEnd - zStart;
+
+                    Autodesk.Revit.DB.Structure.RebarBarType tieBarType = new FilteredElementCollector(_doc)
+                        .OfClass(typeof(Autodesk.Revit.DB.Structure.RebarBarType))
+                        .Cast<Autodesk.Revit.DB.Structure.RebarBarType>()
+                        .FirstOrDefault(t => t.Name.Equals(request.TransverseBarTypeName, StringComparison.OrdinalIgnoreCase));
+
+                    Autodesk.Revit.DB.Structure.RebarShape tieShape = new FilteredElementCollector(_doc)
+                        .OfClass(typeof(Autodesk.Revit.DB.Structure.RebarShape))
+                        .Cast<Autodesk.Revit.DB.Structure.RebarShape>()
+                        .FirstOrDefault(s => s.Name == (request.EnableSpiral ? "SP" : "CT") || s.Name == (request.EnableSpiral ? "Shape SP" : "Shape CT"));
+
+                    if (tieBarType != null && dist > 0)
+                    {
+                        try 
+                        {
+                            if (request.EnableSpiral)
+                            {
+                                var tie = CreateSpiralFromRing(_doc, foundation, center, rebarRadius, zStart, zEnd, tieBarType, request.TransverseSpacing, tieShape);
+                                if (tie != null) success = true;
+                            }
+                            else
+                            {
+                                // Distribute as a Rebar Set using Maximum Spacing
+                                var tie = CreateCircularTie(_doc, foundation, center, rebarRadius, zStart, tieBarType, tieShape);
+                                if (tie != null)
+                                {
+                                    var accessor = tie.GetShapeDrivenAccessor();
+                                    accessor.SetLayoutAsMaximumSpacing(
+                                        request.TransverseSpacing,
+                                        dist,
+                                        true,
+                                        true,
+                                        true
+                                    );
+                                    success = true;
+                                }
+                            }
+                        } catch (Exception ex) {
+                            System.Diagnostics.Debug.WriteLine($"Error creating circular ties in pile: {ex.Message}");
+                        }
+                    }
+                }
+            }
+            
+            return success;
+        }
+
+        private bool ProcessPadShape(Element foundation, RebarRequest request)
+        {
+            HostGeometry? hostOpt = PadShapeGeometryModule.Read(_doc, foundation);
+            if (!hostOpt.HasValue) return false;
+            HostGeometry host = hostOpt.Value;
+
+            var definitions = new List<RebarDefinition>();
+
+            foreach (var layer in request.Layers)
+            {
+                layer.BarDiameter_Backing = GetBarDiameter(layer.VerticalBarTypeName);
+                if (layer.BarDiameter_Backing > 0)
+                {
+                    bool isTop = (layer.Side == RebarSide.Top);
+                    var matDefs = PadShapeLayoutGenerator.CreateMat(host, layer, isTop);
+                    if (matDefs != null) definitions.AddRange(matDefs);
+                }
+            }
+
+            // Side Bars
+            if (request.EnableSideRebar && !string.IsNullOrEmpty(request.SideRebarTypeName))
+            {
+                double sideDia = GetBarDiameter(request.SideRebarTypeName);
+                if (sideDia > 0)
+                {
+                    // Use the largest main bar diameter for the internal offset
+                    double mainBarDia = request.Layers.Select(l => GetBarDiameter(l.VerticalBarTypeName)).DefaultIfEmpty(0).Max();
+
+                    var sideDefs = PadShapeLayoutGenerator.CreateSideRebars(
+                        host,
+                        request.SideRebarTypeName,
+                        sideDia,
+                        request.SideRebarSpacing,
+                        request.EnableSideRebarOverrideLeg,
+                        request.SideRebarLegLength,
+                        mainBarDia);
+
+                    if (sideDefs != null) definitions.AddRange(sideDefs);
+                }
+            }
+
+            var ids = _creationService.PlaceRebar(foundation, definitions);
+            return ids.Count > 0;
+        }
+
         private bool ProcessFootingPad(Element foundation, RebarRequest request)
         {
             HostGeometry? hostOpt = FootingPadGeometryModule.Read(_doc, foundation);
@@ -2833,13 +3114,17 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                 double sideDia = GetBarDiameter(request.SideRebarTypeName);
                 if (sideDia > 0)
                 {
+                    // Use the largest main bar diameter for the internal offset
+                    double mainBarDia = request.Layers.Select(l => GetBarDiameter(l.VerticalBarTypeName)).DefaultIfEmpty(0).Max();
+
                     var sideDefs = FootingPadLayoutGenerator.CreateSideRebars(
                         host,
                         request.SideRebarTypeName,
                         sideDia,
                         request.SideRebarSpacing,
                         request.EnableSideRebarOverrideLeg,
-                        request.SideRebarLegLength);
+                        request.SideRebarLegLength,
+                        mainBarDia);
 
                     if (sideDefs != null) definitions.AddRange(sideDefs);
                 }
@@ -3142,6 +3427,292 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
             double dx = a.X - b.X;
             double dy = a.Y - b.Y;
             return Math.Sqrt(dx * dx + dy * dy);
+        }
+
+        // =========================================================================================
+        // USER-PROVIDED CIRCULAR HOOP / SPIRAL GENERATION LOGIC
+        // =========================================================================================
+
+        public static Autodesk.Revit.DB.Structure.Rebar CreateCircularTie(
+            Document doc,
+            Element host,
+            XYZ center,
+            double radius,
+            double elevation,
+            Autodesk.Revit.DB.Structure.RebarBarType barType,
+            Autodesk.Revit.DB.Structure.RebarShape shape = null)
+        {
+            XYZ origin = new XYZ(center.X, center.Y, elevation);
+            Autodesk.Revit.DB.Structure.Rebar tie = null;
+
+            // Strategy 1: Use Rebar.CreateFromRebarShape with the user's CT/SP shape
+            if (shape != null)
+            {
+                try
+                {
+                    tie = Autodesk.Revit.DB.Structure.Rebar.CreateFromRebarShape(
+                        doc,
+                        shape,
+                        barType,
+                        host,
+                        origin,
+                        XYZ.BasisX,
+                        XYZ.BasisY
+                    );
+
+                    if (tie != null)
+                    {
+                        // Scale the shape to the desired diameter/radius
+                        try
+                        {
+                            string[] diaNames = { "Geometry Dia", "Diameter", "Dia", "A", "B", "C", "D", "E", "F", "O" };
+                            foreach (var pName in diaNames)
+                            {
+                                var p = tie.LookupParameter(pName);
+                                if (p != null && !p.IsReadOnly && p.StorageType == StorageType.Double)
+                                {
+                                    p.Set(2 * radius);
+                                    break;
+                                }
+                            }
+
+                            string[] radNames = { "Geometry Rad", "Radius", "Rad", "R" };
+                            foreach (var pName in radNames)
+                            {
+                                var p = tie.LookupParameter(pName);
+                                if (p != null && !p.IsReadOnly && p.StorageType == StorageType.Double)
+                                {
+                                    p.Set(radius);
+                                    break;
+                                }
+                            }
+                        }
+                        catch { }
+
+                        // Reposition the rebar to center it on the host
+                        try
+                        {
+                            doc.Regenerate(); // force Revit to update geometry after parameter change
+
+                            // Get the actual center of the created rebar using its driving curves
+                            var drivingCurves = tie.GetShapeDrivenAccessor().ComputeDrivingCurves();
+                            if (drivingCurves != null && drivingCurves.Count > 0)
+                            {
+                                XYZ rebarCenter = null;
+                                foreach (var curve in drivingCurves)
+                                {
+                                    if (curve is Arc arc)
+                                    {
+                                        // Identify the main circular ring (not a tiny hook segment)
+                                        if (rebarCenter == null || arc.Length > Math.PI * radius / 2)
+                                        {
+                                            rebarCenter = arc.Center;
+                                        }
+                                    }
+                                }
+
+                                if (rebarCenter != null)
+                                {
+                                    // We only want to translate in the XY plane to maintain the specified elevation
+                                    XYZ translation = new XYZ(origin.X - rebarCenter.X, origin.Y - rebarCenter.Y, 0);
+                                    if (translation.GetLength() > 0.001) // only move if offset is physically meaningful
+                                    {
+                                        ElementTransformUtils.MoveElement(doc, tie.Id, translation);
+                                    }
+                                }
+                            }
+                        }
+                        catch { }
+                    }
+                }
+                catch { }
+            }
+
+            // Strategy 2: CreateFromCurves with true circle arc as fallback
+            if (tie == null)
+            {
+                try
+                {
+                    Arc circle = Arc.Create(
+                        origin,
+                        radius,
+                        0,
+                        2 * Math.PI,
+                        XYZ.BasisX,
+                        XYZ.BasisY
+                    );
+
+                    IList<Curve> curves = new List<Curve> { circle };
+
+                    tie = Autodesk.Revit.DB.Structure.Rebar.CreateFromCurves(
+                        doc,
+                        Autodesk.Revit.DB.Structure.RebarStyle.StirrupTie,
+                        barType,
+                        null,
+                        null,
+                        host,
+                        XYZ.BasisZ,
+                        curves,
+                        Autodesk.Revit.DB.Structure.RebarHookOrientation.Left,
+                        Autodesk.Revit.DB.Structure.RebarHookOrientation.Left,
+                        true,
+                        true
+                    );
+                }
+                catch { }
+            }
+
+            return tie;
+        }
+
+        public static void ApplySpiralPitch(
+            Autodesk.Revit.DB.Structure.Rebar baseRing,
+            double height,
+            double pitch)
+        {
+            var accessor = baseRing.GetShapeDrivenAccessor();
+
+            accessor.SetLayoutAsMaximumSpacing(
+                pitch,
+                height,
+                true,
+                true,
+                true
+            );
+        }
+
+        public static Autodesk.Revit.DB.Structure.Rebar CreateSpiralFromRing(
+            Document doc,
+            Element host,
+            XYZ center,
+            double radius,
+            double bottom,
+            double top,
+            Autodesk.Revit.DB.Structure.RebarBarType tieBarType,
+            double pitch,
+            Autodesk.Revit.DB.Structure.RebarShape shape = null)
+        {
+            double height = top - bottom;
+            XYZ origin = new XYZ(center.X, center.Y, bottom);
+            Autodesk.Revit.DB.Structure.Rebar spiral = null;
+
+            if (shape != null)
+            {
+                try
+                {
+                    spiral = Autodesk.Revit.DB.Structure.Rebar.CreateFromRebarShape(
+                        doc,
+                        shape,
+                        tieBarType,
+                        host,
+                        origin,
+                        XYZ.BasisX,
+                        XYZ.BasisY
+                    );
+
+                    if (spiral != null)
+                    {
+                        // 1. Scale Diameter/Radius
+                        try
+                        {
+                            string[] diaNames = { "Geometry Dia", "Diameter", "Dia", "A", "B", "C", "O" };
+                            foreach (var pName in diaNames)
+                            {
+                                var p = spiral.LookupParameter(pName);
+                                if (p != null && !p.IsReadOnly && p.StorageType == StorageType.Double) { p.Set(2 * radius); break; }
+                            }
+
+                            string[] radNames = { "Geometry Rad", "Radius", "Rad", "R" };
+                            foreach (var pName in radNames)
+                            {
+                                var p = spiral.LookupParameter(pName);
+                                if (p != null && !p.IsReadOnly && p.StorageType == StorageType.Double) { p.Set(radius); break; }
+                            }
+                        } catch { }
+
+                        // 2. Scale Height (Often D, H, Length)
+                        try
+                        {
+                            string[] hNames = { "Height", "H", "Length", "L", "Pitch Height", "Spiral Height", "D", "E" };
+                            foreach (var hName in hNames)
+                            {
+                                var p = spiral.LookupParameter(hName);
+                                if (p != null && !p.IsReadOnly && p.StorageType == StorageType.Double) { p.Set(height); break; }
+                            }
+                        } catch { }
+
+                        // 3. Scale Pitch (Often P, Pitch)
+                        try
+                        {
+                            string[] pNames = { "Pitch", "P" };
+                            foreach (var pName in pNames)
+                            {
+                                var p = spiral.LookupParameter(pName);
+                                if (p != null && !p.IsReadOnly && p.StorageType == StorageType.Double) { p.Set(pitch); break; }
+                            }
+                        } catch { }
+
+                        // 4. Reposition to Center
+                        try
+                        {
+                            doc.Regenerate();
+                            var drivingCurves = spiral.GetShapeDrivenAccessor().ComputeDrivingCurves();
+                            if (drivingCurves != null && drivingCurves.Count > 0)
+                            {
+                                XYZ rebarCenter = null;
+                                foreach (var curve in drivingCurves)
+                                {
+                                    if (curve is Arc arc && (rebarCenter == null || arc.Length > Math.PI * radius / 2))
+                                    {
+                                        rebarCenter = arc.Center;
+                                    }
+                                }
+
+                                if (rebarCenter != null)
+                                {
+                                    XYZ translation = new XYZ(origin.X - rebarCenter.X, origin.Y - rebarCenter.Y, 0);
+                                    if (translation.GetLength() > 0.001)
+                                    {
+                                        ElementTransformUtils.MoveElement(doc, spiral.Id, translation);
+                                    }
+                                }
+                            }
+                        } catch { }
+                    }
+                } catch { }
+            }
+
+            // Fallback CreateFromCurves if shape failed or is null
+            if (spiral == null)
+            {
+                try
+                {
+                    Arc circle = Arc.Create(origin, radius, 0, 2 * Math.PI, XYZ.BasisX, XYZ.BasisY);
+                    IList<Curve> curves = new List<Curve> { circle };
+                    spiral = Autodesk.Revit.DB.Structure.Rebar.CreateFromCurves(
+                        doc,
+                        Autodesk.Revit.DB.Structure.RebarStyle.StirrupTie,
+                        tieBarType,
+                        null,
+                        null,
+                        host,
+                        XYZ.BasisZ,
+                        curves,
+                        Autodesk.Revit.DB.Structure.RebarHookOrientation.Left,
+                        Autodesk.Revit.DB.Structure.RebarHookOrientation.Left,
+                        true,
+                        true
+                    );
+                } catch { }
+            }
+
+            // Apply Accessor Layout rules for pitch distribution
+            if (spiral != null)
+            {
+                ApplySpiralPitch(spiral, height, pitch);
+            }
+
+            return spiral;
         }
     }
 }

@@ -8,10 +8,6 @@ using DBRebar = Autodesk.Revit.DB.Structure.Rebar;
 
 namespace antiGGGravity.StructuralRebar.Core.Creation
 {
-    /// <summary>
-    /// Thin Revit API wrapper. Takes RebarDefinitions and creates actual Rebar elements.
-    /// Pre-caches RebarBarType and RebarHookType dictionaries for performance.
-    /// </summary>
     public class RebarCreationService
     {
         private readonly Document _doc;
@@ -22,30 +18,22 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
         public RebarCreationService(Document doc)
         {
             _doc = doc;
-
-            // Pre-cache all bar types (read ONCE)
             _barTypes = new FilteredElementCollector(doc)
                 .OfClass(typeof(RebarBarType))
                 .Cast<RebarBarType>()
                 .ToDictionary(t => t.Name, t => t, StringComparer.OrdinalIgnoreCase);
 
-            // Pre-cache all hook types (read ONCE)
             _hookTypes = new FilteredElementCollector(doc)
                 .OfClass(typeof(RebarHookType))
                 .Cast<RebarHookType>()
                 .ToDictionary(t => t.Name, t => t, StringComparer.OrdinalIgnoreCase);
 
-            // Pre-cache all rebar shapes for post-creation shape reassignment
             _rebarShapes = new FilteredElementCollector(doc)
                 .OfClass(typeof(RebarShape))
                 .Cast<RebarShape>()
                 .ToDictionary(s => s.Name, s => s, StringComparer.OrdinalIgnoreCase);
         }
 
-        /// <summary>
-        /// Places a list of RebarDefinitions on a host element.
-        /// Returns element IDs of created rebar.
-        /// </summary>
         public List<ElementId> PlaceRebar(Element host, List<RebarDefinition> definitions)
         {
             var results = new List<ElementId>();
@@ -53,8 +41,7 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
 
             foreach (var def in definitions)
             {
-                if (def == null || def.Curves == null || def.Curves.Count == 0)
-                    continue;
+                if (def == null || def.Curves == null || def.Curves.Count == 0) continue;
 
                 try
                 {
@@ -64,190 +51,167 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
                     RebarHookType hookStart = ResolveHookType(def.HookStartName);
                     RebarHookType hookEnd = ResolveHookType(def.HookEndName);
 
-                    RebarShape standardShape = RebarShapeDetector.GetStandardShape(def.Curves, def.Style, hookStart != null, hookEnd != null, _rebarShapes, def.ShapeNameHint);
+                    RebarShape standardShape = null;
+                    if (!def.SkipShapeReassignment)
+                    {
+                        standardShape = RebarShapeDetector.GetStandardShape(def.Curves, def.Style, hookStart != null, hookEnd != null, _rebarShapes, def.ShapeNameHint);
+                    }
 
                     DBRebar rebar = null;
-                    if (standardShape != null)
+                    try 
                     {
-                        try
+                        if (standardShape != null)
                         {
-                            rebar = DBRebar.CreateFromCurvesAndShape(
-                                _doc,
-                                standardShape,
-                                barType,
-                                hookStart,
-                                hookEnd,
-                                host,
-                                def.Normal,
-                                def.Curves,
-                                def.HookStartOrientation,
-                                def.HookEndOrientation);
+                            rebar = DBRebar.CreateFromCurvesAndShape(_doc, standardShape, barType, hookStart, hookEnd, host, def.Normal, def.Curves, def.HookStartOrientation, def.HookEndOrientation);
                         }
-                        catch (Exception ex)
-                        {
-                            System.Diagnostics.Debug.WriteLine($"RebarCreationService: Fallback from CreateFromCurvesAndShape for '{def.Label}': {ex.Message}");
-                        }
+                    }
+                    catch (Exception ex1)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"RebarCreationService: CreateFromCurvesAndShape failed for '{def.Label}': {ex1.Message}");
                     }
 
                     if (rebar == null)
                     {
-                        rebar = DBRebar.CreateFromCurves(
-                            _doc,
-                            def.Style,
-                            barType,
-                            hookStart,
-                            hookEnd,
-                            host,
-                            def.Normal,
-                            def.Curves,
-                            def.HookStartOrientation,
-                            def.HookEndOrientation,
-                            true, true);
+                        try 
+                        {
+                            rebar = DBRebar.CreateFromCurves(_doc, def.Style, barType, hookStart, hookEnd, host, def.Normal, def.Curves, def.HookStartOrientation, def.HookEndOrientation, true, true);
+                        }
+                        catch (Exception ex2)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"RebarCreationService: CreateFromCurves ALSO failed for '{def.Label}': {ex2.Message}");
+                        }
                     }
 
                     if (rebar != null)
                     {
-                        // Check if Revit aggressively matched a shape that forced hooks on us
                         var paramStart = rebar.get_Parameter(BuiltInParameter.REBAR_ELEM_HOOK_START_TYPE);
                         var paramEnd = rebar.get_Parameter(BuiltInParameter.REBAR_ELEM_HOOK_END_TYPE);
-                        
                         bool forcedStart = (hookStart == null) && paramStart != null && paramStart.AsElementId() != ElementId.InvalidElementId;
                         bool forcedEnd = (hookEnd == null) && paramEnd != null && paramEnd.AsElementId() != ElementId.InvalidElementId;
 
                         if (forcedStart || forcedEnd)
                         {
                             var shapeIdToTrash = rebar.get_Parameter(BuiltInParameter.REBAR_SHAPE)?.AsElementId();
-                            if (shapeIdToTrash != null && shapeIdToTrash != ElementId.InvalidElementId)
-                            {
-                                generatedShapesToDelete.Add(shapeIdToTrash);
-                            }
+                            if (shapeIdToTrash != null && shapeIdToTrash != ElementId.InvalidElementId) generatedShapesToDelete.Add(shapeIdToTrash);
 
-                            // Revit forced hooks! Delete this instance and recreate forcing a NEW shape
                             _doc.Delete(rebar.Id);
-                            rebar = DBRebar.CreateFromCurves(
-                                _doc, def.Style, barType, hookStart, hookEnd, host,
-                                def.Normal, def.Curves, def.HookStartOrientation, def.HookEndOrientation,
-                                false, true); // <--- false to force a clean shape
+                            rebar = DBRebar.CreateFromCurves(_doc, def.Style, barType, hookStart, hookEnd, host, def.Normal, def.Curves, def.HookStartOrientation, def.HookEndOrientation, false, true);
+                        }
+                    }
+
+                    if (rebar != null)
+                    {
+                        if (hookStart == null) try { rebar.SetHookTypeId(0, ElementId.InvalidElementId); } catch { }
+                        if (hookEnd == null) try { rebar.SetHookTypeId(1, ElementId.InvalidElementId); } catch { }
+
+                        if (def.IsSpiral)
+                        {
+                            // Setting parameters by BuiltInName failed (possibly different Revit version)
+                            // We will rely on the RebarShape parameters for now.
+                            // var pitchParam = rebar.get_Parameter(BuiltInParameter.REBAR_ELEM_SPIRAL_PITCH);
                         }
 
-                        if (rebar != null)
+                        var accessor = rebar.GetShapeDrivenAccessor();
+                        if (def.FixedCount > 1 && def.DistributionWidth > 0)
                         {
-                            // Attempt to force strip any residual default hooks generated by Revit
-                            if (hookStart == null)
-                            {
-                                try { rebar.SetHookTypeId(0, ElementId.InvalidElementId); } catch { }
-                            }
-                            if (hookEnd == null)
-                            {
-                                try { rebar.SetHookTypeId(1, ElementId.InvalidElementId); } catch { }
-                            }
-
-                            var accessor = rebar.GetShapeDrivenAccessor();
-                            if (def.FixedCount > 1 && def.DistributionWidth > 0)
-                            {
-                            // Longitudinal bars: fixed count layout
                             accessor.SetLayoutAsFixedNumber(def.FixedCount, def.DistributionWidth, true, true, true);
                         }
                         else if (def.FixedCount == 1 && def.DistributionWidth > 0)
                         {
-                            // Single bar: center it
                             ElementTransformUtils.MoveElement(_doc, rebar.Id, def.ArrayDirection * (def.DistributionWidth / 2.0));
                         }
                         else if (def.Spacing > 0 && def.ArrayLength > 0)
                         {
-                            // Stirrups/ties: max spacing layout
                             accessor.SetLayoutAsMaximumSpacing(def.Spacing, def.ArrayLength, true, true, true);
                         }
 
-                        // Apply hook length override if requested
                         if (def.OverrideHookLength && def.HookLengthOverride > 0)
                         {
-                            try
-                            {
-                                // Enable hook length override (Revit 2021+ API)
+                            try {
                                 rebar.EnableHookLengthOverride(true);
-                                _doc.Regenerate(); // Make override parameters writable
-
-                                // Get the overridable hook parameter definition IDs
-                                // Signature: (out startHookLengthIds, out startHookOffsetIds, out endHookLengthIds, out endHookOffsetIds)
-                                rebar.GetOverridableHookParameters(
-                                    out ISet<ElementId> startHookLenIds,
-                                    out ISet<ElementId> startHookOffIds,
-                                    out ISet<ElementId> endHookLenIds,
-                                    out ISet<ElementId> endHookOffIds);
-
-                                // Collect only the hook LENGTH param IDs (not offset)
-                                var hookLenParamIds = new HashSet<ElementId>();
-                                if (startHookLenIds != null) foreach (var id in startHookLenIds) hookLenParamIds.Add(id);
-                                if (endHookLenIds != null) foreach (var id in endHookLenIds) hookLenParamIds.Add(id);
-
-                                // Find matching parameters on the rebar instance and set values
-                                foreach (Parameter p in rebar.Parameters)
-                                {
+                                _doc.Regenerate();
+                                rebar.GetOverridableHookParameters(out ISet<ElementId> sL, out ISet<ElementId> sO, out ISet<ElementId> eL, out ISet<ElementId> eO);
+                                foreach (Parameter p in rebar.Parameters) {
                                     if (p.IsReadOnly || p.StorageType != StorageType.Double) continue;
-                                    if (hookLenParamIds.Contains(p.Id))
-                                    {
-                                        p.Set(def.HookLengthOverride);
-                                    }
+                                    if ((sL != null && sL.Contains(p.Id)) || (eL != null && eL.Contains(p.Id))) p.Set(def.HookLengthOverride);
                                 }
-                            }
-                            catch (Exception ex)
-                            {
-                                System.Diagnostics.Debug.WriteLine($"RebarCreationService: Failed to override hook length for '{def.Label}': {ex.Message}");
-                            }
+                            } catch { }
                         }
 
-                        // Apply the auto-comment
                         if (!string.IsNullOrEmpty(def.Comment))
                         {
                             Parameter commentsParam = rebar.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS);
-                            if (commentsParam != null && !commentsParam.IsReadOnly)
-                            {
-                                commentsParam.Set(def.Comment);
-                            }
+                            if (commentsParam != null && !commentsParam.IsReadOnly) commentsParam.Set(def.Comment);
                         }
 
-                        // === SHAPE REASSIGNMENT ===
-                        // Revit's CreateFromCurves often auto-generates new shape definitions
-                        // (Shape 1, Shape 2, etc.) instead of matching standard project shapes.
-                        // Detect the correct standard shape and reassign.
-                        try
-                        {
-                            var oldShapeId = rebar.get_Parameter(BuiltInParameter.REBAR_SHAPE)?.AsElementId();
-
-                            bool reassigned = RebarShapeDetector.TryApplyStandardShape(
-                                _doc, rebar, def.Curves, def.Style, _rebarShapes, def.ShapeNameHint);
-
-                            if (reassigned && oldShapeId != null && oldShapeId != standardShape?.Id && oldShapeId != ElementId.InvalidElementId)
+                        try {
+                            if (!def.SkipShapeReassignment)
                             {
-                                generatedShapesToDelete.Add(oldShapeId);
+                                var oldShapeId = rebar.get_Parameter(BuiltInParameter.REBAR_SHAPE)?.AsElementId();
+                                bool reassigned = RebarShapeDetector.TryApplyStandardShape(_doc, rebar, def.Curves, def.Style, _rebarShapes, def.ShapeNameHint);
+                                if (reassigned && oldShapeId != null && oldShapeId != standardShape?.Id && oldShapeId != ElementId.InvalidElementId) generatedShapesToDelete.Add(oldShapeId);
                             }
+                            else if (!string.IsNullOrEmpty(def.ShapeNameHint))
+                            {
+                                // Assign shape post-creation with position correction.
+                                // Polygon curves give correct placement; setting shape may shift geometry.
+                                var targetShape = RebarShapeDetector.GetStandardShape(
+                                    def.Curves, def.Style, false, false, _rebarShapes, def.ShapeNameHint);
+                                if (targetShape != null)
+                                {
+                                    var shapeParam = rebar.get_Parameter(BuiltInParameter.REBAR_SHAPE);
+                                    if (shapeParam != null && !shapeParam.IsReadOnly)
+                                    {
+                                        BoundingBoxXYZ bbBefore = rebar.get_BoundingBox(null);
+                                        XYZ centerBeforeBB = bbBefore != null
+                                            ? (bbBefore.Min + bbBefore.Max) / 2.0 : null;
 
-                            // Detect actual hooks from rebar element (crucial if Revit matched a shape with hooks)
-                            bool rebarHasHookStart = rebar.GetHookTypeId(0) != ElementId.InvalidElementId;
-                            bool rebarHasHookEnd = rebar.GetHookTypeId(1) != ElementId.InvalidElementId;
+                                        var oldId = shapeParam.AsElementId();
+                                        shapeParam.Set(targetShape.Id);
+                                        if (oldId != null && oldId != ElementId.InvalidElementId)
+                                            generatedShapesToDelete.Add(oldId);
 
-                            // Force re-apply desired hook types and orientations. 
-                            // Reassigning shapes can reset orientations or strip hooks if the shape doesn't "expect" them.
+                                        // Correct position offset caused by shape change
+                                        bool isCircular = def.ShapeNameHint == "Shape SP" || def.ShapeNameHint == "Shape CT" || def.IsSpiral;
+                                        if (isCircular)
+                                        {
+                                            XYZ centerBefore = GetGeometricCenter(def.Curves);
+                                            XYZ centerAfter = GetRebarCenter(rebar);
+                                            if (centerBefore != null && centerAfter != null)
+                                            {
+                                                XYZ offset = centerBefore - centerAfter;
+                                                if (offset.GetLength() > 0.001)
+                                                    ElementTransformUtils.MoveElement(_doc, rebar.Id, offset);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            BoundingBoxXYZ bbAfter = rebar.get_BoundingBox(null);
+                                            if (centerBeforeBB != null && bbAfter != null)
+                                            {
+                                                XYZ centerAfter = (bbAfter.Min + bbAfter.Max) / 2.0;
+                                                XYZ offset = centerBeforeBB - centerAfter;
+                                                if (offset.GetLength() > 0.001)
+                                                    ElementTransformUtils.MoveElement(_doc, rebar.Id, offset);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            
                             if (hookStart != null)
                             {
-                                if (!rebarHasHookStart) rebar.SetHookTypeId(0, hookStart.Id);
+                                if (rebar.GetHookTypeId(0) == ElementId.InvalidElementId) rebar.SetHookTypeId(0, hookStart.Id);
                                 rebar.SetHookOrientation(0, def.HookStartOrientation);
                             }
                             if (hookEnd != null)
                             {
-                                if (!rebarHasHookEnd) rebar.SetHookTypeId(1, hookEnd.Id);
+                                if (rebar.GetHookTypeId(1) == ElementId.InvalidElementId) rebar.SetHookTypeId(1, hookEnd.Id);
                                 rebar.SetHookOrientation(1, def.HookEndOrientation);
                             }
-                        }
-                        catch (Exception ex)
-                        {
-                            System.Diagnostics.Debug.WriteLine(
-                                $"RebarCreationService: Shape/Orientation fix failed for '{def.Label}': {ex.Message}");
-                        }
+                        } catch { }
 
                         results.Add(rebar.Id);
-                    }
                     }
                 }
                 catch (Exception ex)
@@ -256,36 +220,55 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
                 }
             }
 
-            // Clean up left over generated shapes
             foreach (var shapeId in generatedShapesToDelete)
             {
                 if (shapeId == null || shapeId == ElementId.InvalidElementId) continue;
-                try
-                {
-                    // Revit will throw if shape is in use. We only want to delete unused ones.
-                    _doc.Delete(shapeId);
-                }
-                catch
-                {
-                    // Ignore, shape is likely in use somewhere
-                }
+                try { _doc.Delete(shapeId); } catch { }
             }
 
             return results;
         }
 
-        /// <summary>
-        /// Deletes all existing rebar hosted on an element.
-        /// </summary>
         public void DeleteExistingRebar(Element host)
         {
             var rebarHostData = RebarHostData.GetRebarHostData(host);
             if (rebarHostData == null) return;
-
             foreach (var rebar in rebarHostData.GetRebarsInHost())
             {
                 try { _doc.Delete(new List<ElementId> { rebar.Id }); } catch { }
             }
+        }
+
+        private XYZ GetGeometricCenter(IList<Curve> curves)
+        {
+            if (curves == null || curves.Count == 0) return null;
+            XYZ sum = XYZ.Zero;
+            foreach (var c in curves) sum += c.GetEndPoint(0);
+            return sum / curves.Count;
+        }
+
+        private XYZ GetRebarCenter(DBRebar rebar)
+        {
+            try
+            {
+                var curves = rebar.GetCenterlineCurves(false, false, false, MultiplanarOption.IncludeOnlyPlanarCurves, 0);
+                var arcs = curves.OfType<Arc>().ToList();
+                if (arcs.Count > 0)
+                {
+                    return arcs.OrderByDescending(a => a.Radius).First().Center;
+                }
+                foreach (var c in curves)
+                {
+                    if (c.GetType().Name.Contains("CylindricalHelix"))
+                    {
+                        dynamic helix = c;
+                        return helix.BasePoint;
+                    }
+                }
+            }
+            catch { }
+            var bb = rebar.get_BoundingBox(null);
+            return bb != null ? (bb.Min + bb.Max) / 2.0 : null;
         }
 
         private RebarBarType ResolveBarType(string name)

@@ -13,12 +13,16 @@ namespace antiGGGravity.StructuralRebar.UI
         bool RemoveExisting { get; }
         bool EnableLapSplice { get; }
         DesignCodeStandard DesignCode { get; }
+        bool IsCircularColumn { get; }
 
         BeamRebarPanel BeamPanel { get; }
         WallRebarPanel WallPanel { get; }
         ColumnRebarPanel ColumnPanel { get; }
         StripFootingRebarPanel StripFootingPanel { get; }
         FootingPadRebarPanel FootingPadPanel { get; }
+        PadShapeRebarPanel PadShapePanel { get; }
+        BoredPileRebarPanel BoredPilePanel { get; }
+        CircularColumnPanel CircularColumnPanel { get; }
         WallCornerLPanel WallCornerLPanel { get; }
         WallCornerUPanel WallCornerUPanel { get; }
         BeamAdvancePanel BeamAdvancePanel { get; }

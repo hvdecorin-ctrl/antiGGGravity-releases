@@ -84,6 +84,9 @@ namespace antiGGGravity.StructuralRebar.DTO
         public int ColumnCountX { get; set; }
         /// <summary>Number of bars along Y direction (columns).</summary>
         public int ColumnCountY { get; set; }
+        
+        /// <summary>True if this column is circular, bypassing rectangular logic.</summary>
+        public bool IsCircularColumn { get; set; }
 
         public string VerticalBarTypeNameX { get; set; }
         public string VerticalBarTypeNameY { get; set; }
@@ -138,6 +141,10 @@ namespace antiGGGravity.StructuralRebar.DTO
         public double WallEndSpacing { get; set; }
         public double WallEndLeg1 { get; set; }
         public double WallEndLeg2 { get; set; }
+        
+        // === BORED PILE SPECIFIC ===
+        public int PileBarCount { get; set; }
+        public bool EnableSpiral { get; set; }
 
         // Top U-Bars
         public bool AddTopEndUBars { get; set; }

@@ -14,6 +14,7 @@ namespace antiGGGravity.StructuralRebar.UI
         public ElementHostType SelectedHostType => ElementHostType.Column;
 
         private ColumnRebarPanel _columnPanel;
+        private CircularColumnPanel _circularPanel;
 
         public ColumnRebarWindow(UIDocument uiDoc, ExternalEvent externalEvent)
         {
@@ -39,6 +40,11 @@ namespace antiGGGravity.StructuralRebar.UI
                 if (_columnPanel == null) _columnPanel = new ColumnRebarPanel(_doc);
                 UI_PanelHost.Content = _columnPanel;
             }
+            else if (UI_Radio_CircularColumn?.IsChecked == true)
+            {
+                if (_circularPanel == null) _circularPanel = new CircularColumnPanel(_doc);
+                UI_PanelHost.Content = _circularPanel;
+            }
         }
 
         private void UI_Button_Generate_Click(object sender, RoutedEventArgs e) { SaveActivePanel(); Hide(); _externalEvent?.Raise(); }
@@ -46,10 +52,15 @@ namespace antiGGGravity.StructuralRebar.UI
 
         public void ReShow() => Dispatcher.Invoke(() => { Show(); Activate(); });
 
-        private void SaveActivePanel() => _columnPanel?.SaveSettings();
+        private void SaveActivePanel()
+        {
+            _columnPanel?.SaveSettings();
+            _circularPanel?.SaveSettings();
+        }
 
         public bool RemoveExisting => UI_Check_RemoveExisting.IsChecked == true;
         public bool EnableLapSplice => UI_Check_CutRebar.IsChecked == true;
+        public bool IsCircularColumn => UI_Radio_CircularColumn?.IsChecked == true;
         
         public DesignCodeStandard DesignCode
         {
@@ -76,8 +87,11 @@ namespace antiGGGravity.StructuralRebar.UI
         public BeamRebarPanel BeamPanel => null;
         public WallRebarPanel WallPanel => null;
         public ColumnRebarPanel ColumnPanel => _columnPanel;
+        public CircularColumnPanel CircularColumnPanel => _circularPanel;
         public StripFootingRebarPanel StripFootingPanel => null;
         public FootingPadRebarPanel FootingPadPanel => null;
+        public PadShapeRebarPanel PadShapePanel => null;
+        public BoredPileRebarPanel BoredPilePanel => null;
         public WallCornerLPanel WallCornerLPanel => null;
         public WallCornerUPanel WallCornerUPanel => null;
         public BeamAdvancePanel BeamAdvancePanel => null;

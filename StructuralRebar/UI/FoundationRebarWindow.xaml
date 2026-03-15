@@ -57,6 +57,12 @@
                         <RadioButton x:Name="UI_Radio_FootingPad" Content="Footing Pad" 
                                      GroupName="ElementType" Style="{StaticResource PremiumSidebarButtonStyle}"
                                      Checked="ElementType_Changed"/>
+                        <RadioButton x:Name="UI_Radio_PadShape" Content="Pad Shape" 
+                                     GroupName="ElementType" Style="{StaticResource PremiumSidebarButtonStyle}" 
+                                     Checked="ElementType_Changed"/>
+                        <RadioButton x:Name="UI_Radio_BoredPile" Content="Bored Pile" 
+                                     GroupName="ElementType" Style="{StaticResource PremiumSidebarButtonStyle}" 
+                                     Checked="ElementType_Changed"/>
 
                         <Separator Margin="5,10,5,10" Background="#E0E0E0"/>
 

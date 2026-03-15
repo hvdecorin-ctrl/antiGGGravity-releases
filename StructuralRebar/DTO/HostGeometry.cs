@@ -57,6 +57,12 @@ namespace antiGGGravity.StructuralRebar.DTO
         /// <summary>Wall thickness (= Width for walls). Zero for non-walls.</summary>
         public readonly double Thickness;
 
+        // === SHAPE-SPECIFIC (for non-rectangular pads) ===
+        /// <summary>Footprint boundary curves (bottom face).</summary>
+        public readonly System.Collections.Generic.List<Curve> BoundaryCurves;
+        /// <summary>Top face boundary curves (if different from bottom).</summary>
+        public readonly System.Collections.Generic.List<Curve> TopBoundaryCurves;
+
         // === METADATA ===
         /// <summary>Which extraction method produced the primary dimensions.</summary>
         public readonly GeometrySource Source;
@@ -69,7 +75,9 @@ namespace antiGGGravity.StructuralRebar.DTO
             double coverExterior, double coverInterior, double coverOther,
             XYZ normal, double thickness,
             GeometrySource source,
-            double solidZMin = 0, double solidZMax = 0)
+            double solidZMin = 0, double solidZMax = 0,
+            System.Collections.Generic.List<Curve> boundaryCurves = null,
+            System.Collections.Generic.List<Curve> topBoundaryCurves = null)
         {
             LAxis = lAxis;
             WAxis = wAxis;
@@ -91,6 +99,8 @@ namespace antiGGGravity.StructuralRebar.DTO
             Normal = normal ?? XYZ.Zero;
             Thickness = thickness;
             Source = source;
+            BoundaryCurves = boundaryCurves ?? new System.Collections.Generic.List<Curve>();
+            TopBoundaryCurves = topBoundaryCurves ?? new System.Collections.Generic.List<Curve>();
         }
     }
 

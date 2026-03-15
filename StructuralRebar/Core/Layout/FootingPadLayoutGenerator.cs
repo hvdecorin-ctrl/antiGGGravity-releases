@@ -2,6 +2,7 @@ using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Structure;
 using antiGGGravity.StructuralRebar.DTO;
 using antiGGGravity.StructuralRebar.Constants;
+using antiGGGravity.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -96,7 +97,8 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
             }
 
             XYZ legDir = isTop ? -basisH : basisH;
-            double legLen = layer.OverrideHookLength ? layer.HookLengthOverride : (height - cTop - cBot - dia);
+            double safetyGapMain = UnitConversion.MmToFeet(70);
+            double legLen = layer.OverrideHookLength ? layer.HookLengthOverride : (height - cTop - cBot - dia - safetyGapMain);
             if (legLen < 0.2) legLen = 0.5;
 
             if (!isTop)
@@ -191,7 +193,7 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
 
         public static List<RebarDefinition> CreateSideRebars(
             HostGeometry host, string barTypeName, double barDia, double spacing,
-            bool overrideLeg, double legLenOverride)
+            bool overrideLeg, double legLenOverride, double mainBarDia)
         {
             var defs = new List<RebarDefinition>();
             if (barDia <= 0 || spacing <= 0 || string.IsNullOrEmpty(barTypeName)) return defs;
@@ -201,10 +203,9 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
             double cOther = host.CoverExterior; 
             double height = host.Height;
 
-            double assumedMainDia = UnitConversion.MmToFeet(25);
-            // Height available for side bars
-            double sideZTop = (height / 2.0) - cTop - assumedMainDia * 2;
-            double sideZBot = -(height / 2.0) + cBot + assumedMainDia * 2;
+            // Height available for side bars - now using actual main bar dia
+            double sideZTop = (height / 2.0) - cTop - mainBarDia * 2;
+            double sideZBot = -(height / 2.0) + cBot + mainBarDia * 2;
             double availableHeight = sideZTop - sideZBot;
 
             if (availableHeight <= 0) return defs;
@@ -223,18 +224,27 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
             // Strategy: 2 faces (L- and L+)
             // Each bar is Shape LL (U-Shape) with legs wrapping into Sides 3 and 4 (along Length).
             
-            // Default leg length: Half of host length minus cover
-            double defaultLegLen = (host.Length / 2.0) - cOther;
-            double legLen = overrideLeg ? legLenOverride : defaultLegLen;
+            // NEW RULE: Default leg length = (Length / 2.0) + 25 * barDia
+            // But must comply with host cover (cannot exceed host.Length - 2 * cover)
+            // Added safety gap: minus another 25mm (0.082 ft) to ensure it doesn't hit the cover
+            double autoLegLen = (host.Length / 2.0) + (25 * barDia);
+            double safetyGap = UnitConversion.MmToFeet(25);
+            double maxLegLen = host.Length - 2 * cOther - safetyGap;
+            
+            if (autoLegLen > maxLegLen) autoLegLen = maxLegLen;
+
+            double legLen = overrideLeg ? legLenOverride : autoLegLen;
             if (legLen < 0.2) legLen = 0.5;
 
             // The main segment is across Width
-            double mainLen = host.Width - 2 * (cOther + barDia / 2.0);
+            double mainLen = host.Width - 2 * (cOther + mainBarDia + barDia / 2.0);
 
             for (int i = 0; i < 2; i++)
             {
                 // Face 1: L- , Face 2: L+
-                XYZ facePos = orig + L * (i == 0 ? -(host.Length/2.0 - cOther) : (host.Length/2.0 - cOther));
+                // Offset calculation: Cover + mainBarDia + sideBarHalfDia
+                double offsetFromFace = cOther + mainBarDia + barDia / 2.0;
+                XYZ facePos = orig + L * (i == 0 ? -(host.Length/2.0 - offsetFromFace) : (host.Length/2.0 - offsetFromFace));
                 double sign = (i == 0) ? 1.0 : -1.0; // Inward direction for legs relative to face normal
 
                 for (int row = 1; row <= rowCount; row++)

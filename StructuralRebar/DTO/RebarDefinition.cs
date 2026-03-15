@@ -67,5 +67,11 @@ namespace antiGGGravity.StructuralRebar.DTO
 
         /// <summary>Expected standard RebarShape name if a specific shape is desired (e.g. "Shape L", "Shape LL").</summary>
         public string ShapeNameHint { get; set; }
+
+        /// <summary>Whether this definition represents a spiral rebar.</summary>
+        public bool IsSpiral { get; set; }
+
+        /// <summary>If true, skip shape matching and reassignment — use the auto-generated shape from CreateFromCurves.</summary>
+        public bool SkipShapeReassignment { get; set; }
     }
 }
