@@ -45,6 +45,10 @@ panels:
                 command: DuplicateSheetsCommand
                 icon: DuplicateSheets
                 tooltip: Duplicate selected sheets with views and title blocks.
+          - name: View Transfer
+            command: ViewTransferCommand
+            icon: Views
+            tooltip: Transfer live views, drafting views, and sheets between Revit documents.
       - type: stacked
         buttons:
           - name: Set Crop View
