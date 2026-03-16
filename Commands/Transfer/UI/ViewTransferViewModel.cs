@@ -26,15 +26,21 @@ namespace antiGGGravity.Commands.Transfer.UI
 
         private string _viewSearchText;
         private string _sheetSearchText;
+        private string _familySearchText;
         private string _selectedCategory = "All";
+        private string _currentTab = "General";
         private SheetTransferItem _selectedSheet;
+        private FamilyTransferItem _selectedFamily;
 
         public ObservableCollection<ViewTransferItem> AvailableViews { get; set; } = new ObservableCollection<ViewTransferItem>();
         public ObservableCollection<SheetTransferItem> AvailableSheets { get; set; } = new ObservableCollection<SheetTransferItem>();
         public ObservableCollection<ViewTransferItem> ViewportsInSelectedSheet { get; set; } = new ObservableCollection<ViewTransferItem>();
+        public ObservableCollection<FamilyTransferItem> AvailableFamilies { get; set; } = new ObservableCollection<FamilyTransferItem>();
+        public ObservableCollection<FamilyTypeItem> SelectedFamilyTypes { get; set; } = new ObservableCollection<FamilyTypeItem>();
         
         public ICollectionView FilteredViews { get; private set; }
         public ICollectionView FilteredSheets { get; private set; }
+        public ICollectionView FilteredFamilies { get; private set; }
 
         public TransferOptions Options { get; set; } = new TransferOptions();
 
@@ -53,6 +59,29 @@ namespace antiGGGravity.Commands.Transfer.UI
             set { _sheetSearchText = value; FilteredSheets.Refresh(); OnPropertyChanged(); }
         }
 
+        public string FamilySearchText
+        {
+            get => _familySearchText;
+            set { _familySearchText = value; FilteredFamilies.Refresh(); OnPropertyChanged(); }
+        }
+
+        public string CurrentTab
+        {
+            get => _currentTab;
+            set 
+            { 
+                _currentTab = value; 
+                OnPropertyChanged(); 
+                OnPropertyChanged(nameof(IsGeneralTab));
+                OnPropertyChanged(nameof(IsFamiliesTab));
+            }
+        }
+
+        public bool IsGeneralTab => CurrentTab == "General";
+        public bool IsFamiliesTab => CurrentTab == "Families";
+
+        public ICommand SetTabCommand => new RelayCommand(p => CurrentTab = p?.ToString());
+
         public string SelectedCategory
         {
             get => _selectedCategory;
@@ -65,6 +94,8 @@ namespace antiGGGravity.Commands.Transfer.UI
                 OnPropertyChanged(nameof(IsDetailSelected));
                 OnPropertyChanged(nameof(IsDraftingSelected));
                 OnPropertyChanged(nameof(IsLegendSelected));
+                OnPropertyChanged(nameof(Is2DSelected));
+                OnPropertyChanged(nameof(Is3DSelected));
             }
         }
 
@@ -72,6 +103,8 @@ namespace antiGGGravity.Commands.Transfer.UI
         public bool IsDetailSelected => SelectedCategory == "Detail";
         public bool IsDraftingSelected => SelectedCategory == "Drafting";
         public bool IsLegendSelected => SelectedCategory == "Legend";
+        public bool Is2DSelected => SelectedCategory == "2D";
+        public bool Is3DSelected => SelectedCategory == "3D";
 
         public ICommand SetCategoryCommand => new RelayCommand(p => SelectedCategory = p?.ToString());
 
@@ -83,6 +116,17 @@ namespace antiGGGravity.Commands.Transfer.UI
                 _selectedSheet = value; 
                 UpdateViewportsList();
                 OnPropertyChanged(); 
+            }
+        }
+
+        public FamilyTransferItem SelectedFamily
+        {
+            get => _selectedFamily;
+            set
+            {
+                _selectedFamily = value;
+                UpdateFamilyTypesList();
+                OnPropertyChanged();
             }
         }
 
@@ -128,6 +172,13 @@ namespace antiGGGravity.Commands.Transfer.UI
                     categoryMatch = item.ViewType == ViewType.DraftingView;
                 else if (SelectedCategory == "Legend") 
                     categoryMatch = item.ViewType == ViewType.Legend;
+                else if (SelectedCategory == "2D")
+                    categoryMatch = item.ViewType == ViewType.DraftingView || item.ViewType == ViewType.Legend || 
+                                    item.ViewType == ViewType.Detail || item.ViewType == ViewType.Section ||
+                                    item.ViewType == ViewType.Elevation || item.ViewType == ViewType.FloorPlan ||
+                                    item.ViewType == ViewType.CeilingPlan;
+                else if (SelectedCategory == "3D")
+                    categoryMatch = item.ViewType == ViewType.ThreeD;
 
                 if (!categoryMatch) return false;
 
@@ -144,12 +195,22 @@ namespace antiGGGravity.Commands.Transfer.UI
                 return item.SheetName.IndexOf(SheetSearchText, StringComparison.OrdinalIgnoreCase) >= 0 ||
                        item.SheetNumber.IndexOf(SheetSearchText, StringComparison.OrdinalIgnoreCase) >= 0;
             };
+
+            FilteredFamilies = CollectionViewSource.GetDefaultView(AvailableFamilies);
+            FilteredFamilies.Filter = (obj) =>
+            {
+                if (string.IsNullOrWhiteSpace(FamilySearchText)) return true;
+                var item = obj as FamilyTransferItem;
+                return item.FamilyName.IndexOf(FamilySearchText, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                       item.CategoryName.IndexOf(FamilySearchText, StringComparison.OrdinalIgnoreCase) >= 0;
+            };
         }
 
         private void UpdateViewportsList()
         {
             ViewportsInSelectedSheet.Clear();
             if (SelectedSheet == null) return;
+            if (_fileManager.DocLoader.SourceDocument == null) return;
 
             var sourceSheet = _fileManager.DocLoader.SourceDocument.GetElement(SelectedSheet.SourceSheetId) as ViewSheet;
             if (sourceSheet == null) return;
@@ -168,6 +229,16 @@ namespace antiGGGravity.Commands.Transfer.UI
             }
         }
 
+        private void UpdateFamilyTypesList()
+        {
+            SelectedFamilyTypes.Clear();
+            if (SelectedFamily == null) return;
+            foreach (var type in SelectedFamily.Types)
+            {
+                SelectedFamilyTypes.Add(type);
+            }
+        }
+
         public void LoadSourceModel(string path)
         {
             StatusText = "Loading model in background...";
@@ -176,9 +247,9 @@ namespace antiGGGravity.Commands.Transfer.UI
             if (_fileManager.SelectAndLoadSourceFile(path, out string error))
             {
                 _viewCollector = new ViewCollectorModule(_fileManager.DocLoader.SourceDocument);
-                
                 var views = _viewCollector.GetTransferableViews();
                 var sheets = _viewCollector.GetSheets();
+                var families = _viewCollector.GetFamilies(_fileManager.DocLoader.SourceDocument);
 
                 AvailableViews.Clear();
                 foreach (var v in views)
@@ -194,8 +265,14 @@ namespace antiGGGravity.Commands.Transfer.UI
                     AvailableSheets.Add(s);
                 }
 
+                AvailableFamilies.Clear();
+                foreach (var f in families)
+                {
+                    AvailableFamilies.Add(f);
+                }
+
                 IsSourceLoaded = true;
-                StatusText = $"Loaded {views.Count} views, {sheets.Count} sheets.";
+                StatusText = $"Loaded {views.Count} Views, {sheets.Count} Sheets, {families.Count} Families.";
             }
             else
             {
@@ -243,10 +320,33 @@ namespace antiGGGravity.Commands.Transfer.UI
 
             var selectedViews = AvailableViews.Where(v => v.IsSelected).ToList();
             var selectedSheets = AvailableSheets.Where(s => s.IsSelected).ToList();
-
-            if (selectedViews.Count == 0 && selectedSheets.Count == 0)
+            
+            // Collect all selected types across all families
+            var selectedFamilies = new List<FamilyTransferItem>();
+            foreach (var family in AvailableFamilies)
             {
-                StatusText = "Please select at least one view or sheet.";
+                var selectedTypes = family.Types.Where(t => t.IsSelected).ToList();
+                if (selectedTypes.Count > 0)
+                {
+                    // For the engine, we can either pass specific symbols or 
+                    // reconstructed FamilyTransferItems (flattened again for the engine logic)
+                    foreach (var type in selectedTypes)
+                    {
+                        selectedFamilies.Add(new FamilyTransferItem
+                        {
+                            SourceFamilyId = family.SourceFamilyId,
+                            SourceSymbolId = type.SourceSymbolId,
+                            FamilyName = family.FamilyName,
+                            TypeName = type.TypeName,
+                            CategoryName = family.CategoryName
+                        });
+                    }
+                }
+            }
+
+            if (selectedViews.Count == 0 && selectedSheets.Count == 0 && selectedFamilies.Count == 0)
+            {
+                StatusText = "Please select at least one item to transfer.";
                 return;
             }
 
@@ -255,6 +355,7 @@ namespace antiGGGravity.Commands.Transfer.UI
             RequestHandler.Options = Options;
             RequestHandler.SelectedViews = selectedViews;
             RequestHandler.SelectedSheets = selectedSheets;
+            RequestHandler.SelectedFamilies = selectedFamilies;
 
             StatusText = "Transferring items...";
             

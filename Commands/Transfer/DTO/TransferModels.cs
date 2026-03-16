@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Autodesk.Revit.DB;
@@ -53,5 +54,45 @@ namespace antiGGGravity.Commands.Transfer.DTO
         public string SheetName { get => _sheetName; set { _sheetName = value; OnPropertyChanged(); } }
         public bool IsSelected { get => _isSelected; set { _isSelected = value; OnPropertyChanged(); } }
         public List<ViewTransferItem> PlacedViews { get; set; } = new List<ViewTransferItem>();
+    }
+
+    public class FamilyTransferItem : BaseObservable
+    {
+        private ElementId _sourceFamilyId;
+        private ElementId _sourceSymbolId;
+        private string _familyName;
+        private string _typeName;
+        private string _categoryName;
+        private bool _isSelected; // This can be "Select All"
+
+        public ElementId SourceFamilyId { get => _sourceFamilyId; set { _sourceFamilyId = value; OnPropertyChanged(); } }
+        public ElementId SourceSymbolId { get => _sourceSymbolId; set { _sourceSymbolId = value; OnPropertyChanged(); } }
+        public string FamilyName { get => _familyName; set { _familyName = value; OnPropertyChanged(); } }
+        public string TypeName { get => _typeName; set { _typeName = value; OnPropertyChanged(); } }
+        public string CategoryName { get => _categoryName; set { _categoryName = value; OnPropertyChanged(); } }
+        
+        public bool IsSelected 
+        { 
+            get => _isSelected; 
+            set 
+            { 
+                _isSelected = value; 
+                foreach (var t in Types) t.IsSelected = value;
+                OnPropertyChanged(); 
+            } 
+        }
+
+        public ObservableCollection<FamilyTypeItem> Types { get; set; } = new ObservableCollection<FamilyTypeItem>();
+    }
+
+    public class FamilyTypeItem : BaseObservable
+    {
+        private ElementId _sourceSymbolId;
+        private string _typeName;
+        private bool _isSelected;
+
+        public ElementId SourceSymbolId { get => _sourceSymbolId; set { _sourceSymbolId = value; OnPropertyChanged(); } }
+        public string TypeName { get => _typeName; set { _typeName = value; OnPropertyChanged(); } }
+        public bool IsSelected { get => _isSelected; set { _isSelected = value; OnPropertyChanged(); } }
     }
 }
