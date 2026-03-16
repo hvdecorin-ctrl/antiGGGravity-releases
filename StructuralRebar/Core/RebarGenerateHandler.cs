@@ -124,7 +124,7 @@ namespace antiGGGravity.StructuralRebar.Core
             var request = _window.BeamPanel.BuildRequest(_window.RemoveExisting);
             request.EnableLapSplice = _window.EnableLapSplice;
             request.DesignCode = _window.DesignCode;
-            var engine = new RebarEngine(doc);
+            var engine = new BeamEngine(doc);
 
             if (request.MultiSpan)
             {
@@ -166,7 +166,7 @@ namespace antiGGGravity.StructuralRebar.Core
             // Inject the advanced T2/T3/B2/B3 overrides
             _window.BeamAdvancePanel.InjectDTO(request);
 
-            var engine = new RebarEngine(doc);
+            var engine = new BeamEngine(doc);
 
             // Collect ALL structural framing in the model so GroupSelectedBeams can find the full chain
             var allBeams = new FilteredElementCollector(doc)
