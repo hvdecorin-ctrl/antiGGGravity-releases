@@ -225,6 +225,38 @@
     <Thickness x:Key="PremiumContentMargin">20,15,20,20</Thickness>
     <Thickness x:Key="PremiumSidebarMargin">15,15,15,20</Thickness>
     
+    <!-- Premium Tab Button Style (For horizontal filters) -->
+    <Style x:Key="PremiumTabButtonStyle" TargetType="RadioButton">
+        <Setter Property="Height" Value="28"/>
+        <Setter Property="Background" Value="#F2F2F2"/>
+        <Setter Property="Foreground" Value="#666666"/>
+        <Setter Property="BorderBrush" Value="#DEDEDE"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Border x:Name="border" Background="{TemplateBinding Background}" 
+                            BorderBrush="{TemplateBinding BorderBrush}" 
+                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10,0"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="#EAEAEA"/>
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="#4A759C"/>
+                            <Setter TargetName="border" Property="BorderBrush" Value="#4A759C"/>
+                            <Setter Property="Foreground" Value="White"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- Premium Sidebar Button Style (Centralized) -->
     <Style x:Key="PremiumSidebarButtonStyle" TargetType="RadioButton">
         <Setter Property="Height" Value="36"/>

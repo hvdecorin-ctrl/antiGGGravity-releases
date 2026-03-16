@@ -38,5 +38,45 @@ namespace antiGGGravity.Commands.Transfer.Modules
                 IsSelected = false
             }).ToList();
         }
+
+        public List<FamilyTransferItem> GetFamilies(Document doc)
+        {
+            var families = new FilteredElementCollector(doc)
+                .OfClass(typeof(Family))
+                .Cast<Family>()
+                .ToList();
+
+            var items = new List<FamilyTransferItem>();
+            foreach (var f in families)
+            {
+                var familyItem = new FamilyTransferItem
+                {
+                    SourceFamilyId = f.Id,
+                    FamilyName = f.Name,
+                    CategoryName = f.FamilyCategory?.Name ?? "General",
+                    IsSelected = false
+                };
+
+                var symbolIds = f.GetFamilySymbolIds();
+                foreach (var symbolId in symbolIds)
+                {
+                    var symbol = doc.GetElement(symbolId) as FamilySymbol;
+                    if (symbol == null) continue;
+
+                    familyItem.Types.Add(new FamilyTypeItem
+                    {
+                        SourceSymbolId = symbolId,
+                        TypeName = symbol.Name,
+                        IsSelected = false
+                    });
+                }
+
+                if (familyItem.Types.Count > 0)
+                {
+                    items.Add(familyItem);
+                }
+            }
+            return items.OrderBy(i => i.CategoryName).ThenBy(i => i.FamilyName).ToList();
+        }
     }
 }

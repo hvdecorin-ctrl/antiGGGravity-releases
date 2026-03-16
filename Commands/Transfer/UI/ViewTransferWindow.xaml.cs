@@ -1,7 +1,9 @@
 using System;
 using System.Windows;
 using Microsoft.Win32;
+using System.Windows.Interop;
 using Autodesk.Revit.UI;
+using System.Diagnostics;
 
 namespace antiGGGravity.Commands.Transfer.UI
 {
@@ -14,6 +16,10 @@ namespace antiGGGravity.Commands.Transfer.UI
             InitializeComponent();
             _viewModel = new ViewTransferViewModel(uiApp, handler, exEvent);
             this.DataContext = _viewModel;
+
+            // Set Revit as owner to prevent crashes with Style=None and Transparency=True
+            WindowInteropHelper helper = new WindowInteropHelper(this);
+            helper.Owner = Process.GetCurrentProcess().MainWindowHandle;
         }
 
         private void Close_Click(object sender, RoutedEventArgs e)

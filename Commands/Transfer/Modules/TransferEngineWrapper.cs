@@ -25,10 +25,23 @@ namespace antiGGGravity.Commands.Transfer.Modules
             _sheetBuilder = new SheetBuilder(sourceDoc, targetDoc, _conflictResolver);
         }
 
-        public void ExecuteTransfer(List<ViewTransferItem> viewsToCopy, List<SheetTransferItem> sheetsToCopy)
+        public void ExecuteTransfer(List<ViewTransferItem> viewsToCopy, List<SheetTransferItem> sheetsToCopy, List<FamilyTransferItem> familiesToCopy)
         {
-            if ((viewsToCopy == null || viewsToCopy.Count == 0) && (sheetsToCopy == null || sheetsToCopy.Count == 0))
+            if ((viewsToCopy == null || viewsToCopy.Count == 0) && 
+                (sheetsToCopy == null || sheetsToCopy.Count == 0) &&
+                (familiesToCopy == null || familiesToCopy.Count == 0))
                 return;
+
+            // Step 0: Copy Families first (as views might depend on them)
+            if (familiesToCopy != null && familiesToCopy.Count > 0)
+            {
+                var idsToCopy = familiesToCopy
+                    .Select(f => f.SourceSymbolId ?? f.SourceFamilyId)
+                    .Where(id => id != null && id != ElementId.InvalidElementId)
+                    .Distinct()
+                    .ToList();
+                _copyEngine.CopyFamilies(idsToCopy);
+            }
 
             // Step 1: Gather all unique view IDs that need copying
             HashSet<ElementId> allViewIdsToCopy = new HashSet<ElementId>();
@@ -38,14 +51,7 @@ namespace antiGGGravity.Commands.Transfer.Modules
                 foreach (var v in viewsToCopy) allViewIdsToCopy.Add(v.SourceViewId);
             }
 
-            if (sheetsToCopy != null)
-            {
-                // We no longer auto-add all viewports here. 
-                // The UI selection handles which views are copied.
-                // Sheets will only place viewports for views that were successfully copied.
-            }
-
-            // Step 2 & 2.5: Copy views one by one for reliable mapping and 1:1 content transfer
+            // Step 2 & 2.5: Copy views... (rest of the logic)
             Dictionary<ElementId, ElementId> viewMap = new Dictionary<ElementId, ElementId>();
             foreach (ElementId sourceViewId in allViewIdsToCopy)
             {
@@ -59,16 +65,12 @@ namespace antiGGGravity.Commands.Transfer.Modules
                         viewMap[sourceViewId] = newViewId;
                     }
                 }
-                catch (Exception)
-                {
-                    // Skip failed views but keep going for others
-                }
+                catch (Exception) { /* Skip failures */ }
             }
 
-            // Step 3: Rebuild Sheets
+            // Step 3: Rebuild Sheets...
             if (sheetsToCopy != null && sheetsToCopy.Count > 0)
             {
-                // Find a default titleblock in target doc
                 ElementId defaultTbId = new FilteredElementCollector(_targetDoc)
                                             .OfCategory(BuiltInCategory.OST_TitleBlocks)
                                             .WhereElementIsElementType()

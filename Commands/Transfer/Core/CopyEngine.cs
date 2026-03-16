@@ -156,6 +156,25 @@ namespace antiGGGravity.Commands.Transfer.Core
                 
             return targetViewId;
         }
+
+        public void CopyFamilies(List<ElementId> familyIds)
+        {
+            if (familyIds == null || familyIds.Count == 0) return;
+
+            CopyPasteOptions options = new CopyPasteOptions();
+            options.SetDuplicateTypeNamesHandler(new CustomCopyHandler());
+
+            using (Transaction t = new Transaction(_targetDoc, "Transfer Families"))
+            {
+                t.Start();
+                try
+                {
+                    ElementTransformUtils.CopyElements(_sourceDoc, familyIds, _targetDoc, null, options);
+                }
+                catch (Exception) { }
+                t.Commit();
+            }
+        }
     }
 
     public class CustomCopyHandler : IDuplicateTypeNamesHandler
