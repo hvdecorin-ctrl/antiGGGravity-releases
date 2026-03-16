@@ -123,7 +123,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 SelectHookByName(UI_Combo_StarterHook, SettingsManager.Get(VIEW_NAME, "StarterHook"));
 
                 // Lap Length Mode
-                UI_Text_LapSplice.Text = SettingsManager.Get(VIEW_NAME, "LapSplice", "600");
+                UI_Text_LapSplice.Text = SettingsManager.Get(VIEW_NAME, "LapSplice", "40");
                 string lapMode = SettingsManager.Get(VIEW_NAME, "LapMode", "Auto (Code)");
                 foreach (ComboBoxItem item in UI_Combo_LapMode.Items)
                 {
@@ -212,6 +212,15 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             double tieBotOff = UnitConversion.MmToFeet(ParseDouble(UI_Text_TieBotOffset.Text, 100));
             double tieTopOff = UnitConversion.MmToFeet(ParseDouble(UI_Text_TieTopOffset.Text, 100));
 
+            double lapMultiplier = ParseDouble(UI_Text_LapSplice.Text, 40);
+            
+            double vBarDiaX = (UI_Combo_VerticalTypeX.SelectedItem as RebarBarType)?.BarModelDiameter ?? 0;
+            double vBarDiaY = (UI_Combo_VerticalTypeY.SelectedItem as RebarBarType)?.BarModelDiameter ?? 0;
+            double sBarDia = (UI_Combo_StarterType.SelectedItem as RebarBarType)?.BarModelDiameter ?? 0;
+            double maxDia = Math.Max(vBarDiaX, Math.Max(vBarDiaY, sBarDia));
+            
+            double manuallyCalculatedLap = lapMultiplier * maxDia;
+
             var request = new RebarRequest
             {
                 HostType = ElementHostType.Column,
@@ -241,9 +250,11 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 MultiLevel = (UI_Check_MultiLevel.IsChecked == true),
                 SplicePosition = (UI_Combo_SplicePos.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Above Slab",
                 CrankPosition = (UI_Combo_CrankPos.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Upper Column",
+                LapSpliceMode = (UI_Combo_LapMode.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Auto (Code)",
+                LapSpliceLength = manuallyCalculatedLap,
                 VerticalContinuousSpliceLength = IsAutoLapMode()
                     ? 0  // Auto: engine uses code-calculated lap length
-                    : UnitConversion.MmToFeet(ParseDouble(UI_Text_LapSplice.Text, 600)),
+                    : manuallyCalculatedLap,
 
                 // Starter Bars
                 EnableStarterBars = (UI_Check_Starters.IsChecked == true),

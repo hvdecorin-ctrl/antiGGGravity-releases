@@ -13,7 +13,7 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
         private readonly Document _doc;
         private readonly Dictionary<string, RebarBarType> _barTypes;
         private readonly Dictionary<string, RebarHookType> _hookTypes;
-        private readonly Dictionary<string, RebarShape> _rebarShapes;
+        private readonly StandardShapeService _shapeService;
 
         public RebarCreationService(Document doc)
         {
@@ -28,10 +28,7 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
                 .Cast<RebarHookType>()
                 .ToDictionary(t => t.Name, t => t, StringComparer.OrdinalIgnoreCase);
 
-            _rebarShapes = new FilteredElementCollector(doc)
-                .OfClass(typeof(RebarShape))
-                .Cast<RebarShape>()
-                .ToDictionary(s => s.Name, s => s, StringComparer.OrdinalIgnoreCase);
+            _shapeService = new StandardShapeService(doc);
         }
 
         public List<ElementId> PlaceRebar(Element host, List<RebarDefinition> definitions)
@@ -54,7 +51,8 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
                     RebarShape standardShape = null;
                     if (!def.SkipShapeReassignment)
                     {
-                        standardShape = RebarShapeDetector.GetStandardShape(def.Curves, def.Style, hookStart != null, hookEnd != null, _rebarShapes, def.ShapeNameHint);
+                        standardShape = _shapeService.FindShapeRobustly(
+                            _shapeService.GetExpectedName(def.Curves, def.Style, hookStart != null, hookEnd != null, def.ShapeNameHint));
                     }
 
                     DBRebar rebar = null;
@@ -145,60 +143,8 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
                         }
 
                         try {
-                            if (!def.SkipShapeReassignment)
-                            {
-                                var oldShapeId = rebar.get_Parameter(BuiltInParameter.REBAR_SHAPE)?.AsElementId();
-                                bool reassigned = RebarShapeDetector.TryApplyStandardShape(_doc, rebar, def.Curves, def.Style, _rebarShapes, def.ShapeNameHint);
-                                if (reassigned && oldShapeId != null && oldShapeId != standardShape?.Id && oldShapeId != ElementId.InvalidElementId) generatedShapesToDelete.Add(oldShapeId);
-                            }
-                            else if (!string.IsNullOrEmpty(def.ShapeNameHint))
-                            {
-                                // Assign shape post-creation with position correction.
-                                // Polygon curves give correct placement; setting shape may shift geometry.
-                                var targetShape = RebarShapeDetector.GetStandardShape(
-                                    def.Curves, def.Style, false, false, _rebarShapes, def.ShapeNameHint);
-                                if (targetShape != null)
-                                {
-                                    var shapeParam = rebar.get_Parameter(BuiltInParameter.REBAR_SHAPE);
-                                    if (shapeParam != null && !shapeParam.IsReadOnly)
-                                    {
-                                        BoundingBoxXYZ bbBefore = rebar.get_BoundingBox(null);
-                                        XYZ centerBeforeBB = bbBefore != null
-                                            ? (bbBefore.Min + bbBefore.Max) / 2.0 : null;
+                            _shapeService.MatchAndApply(rebar, def, generatedShapesToDelete);
 
-                                        var oldId = shapeParam.AsElementId();
-                                        shapeParam.Set(targetShape.Id);
-                                        if (oldId != null && oldId != ElementId.InvalidElementId)
-                                            generatedShapesToDelete.Add(oldId);
-
-                                        // Correct position offset caused by shape change
-                                        bool isCircular = def.ShapeNameHint == "Shape SP" || def.ShapeNameHint == "Shape CT" || def.IsSpiral;
-                                        if (isCircular)
-                                        {
-                                            XYZ centerBefore = GetGeometricCenter(def.Curves);
-                                            XYZ centerAfter = GetRebarCenter(rebar);
-                                            if (centerBefore != null && centerAfter != null)
-                                            {
-                                                XYZ offset = centerBefore - centerAfter;
-                                                if (offset.GetLength() > 0.001)
-                                                    ElementTransformUtils.MoveElement(_doc, rebar.Id, offset);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            BoundingBoxXYZ bbAfter = rebar.get_BoundingBox(null);
-                                            if (centerBeforeBB != null && bbAfter != null)
-                                            {
-                                                XYZ centerAfter = (bbAfter.Min + bbAfter.Max) / 2.0;
-                                                XYZ offset = centerBeforeBB - centerAfter;
-                                                if (offset.GetLength() > 0.001)
-                                                    ElementTransformUtils.MoveElement(_doc, rebar.Id, offset);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            
                             if (hookStart != null)
                             {
                                 if (rebar.GetHookTypeId(0) == ElementId.InvalidElementId) rebar.SetHookTypeId(0, hookStart.Id);

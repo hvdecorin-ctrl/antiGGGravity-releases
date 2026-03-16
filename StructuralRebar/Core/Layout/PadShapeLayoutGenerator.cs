@@ -27,17 +27,19 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
 
             // We'll generate rebar in two directions: L and W.
             // Direction 1: Parallel to LAxis
-            definitions.AddRange(GenerateDirectionalBars(host, host.LAxis, host.WAxis, zPos, spacing, coverSide, layer, "Dir 1"));
+            string c1 = isTop ? "Top Bar" : "Btm Bar";
+            definitions.AddRange(GenerateDirectionalBars(host, host.LAxis, host.WAxis, zPos, spacing, coverSide, layer, "Dir 1", c1));
 
             // Direction 2: Parallel to WAxis (placed slightly offset in Z to avoid clashes)
             double zOffset = isTop ? -barDia : barDia;
-            definitions.AddRange(GenerateDirectionalBars(host, host.WAxis, host.LAxis, zPos + zOffset, spacing, coverSide, layer, "Dir 2"));
+            string c2 = isTop ? "Top T2" : "Btm B2";
+            definitions.AddRange(GenerateDirectionalBars(host, host.WAxis, host.LAxis, zPos + zOffset, spacing, coverSide, layer, "Dir 2", c2));
 
             return definitions;
         }
 
         private static List<RebarDefinition> GenerateDirectionalBars(
-            HostGeometry host, XYZ barDir, XYZ stepDir, double z, double spacing, double sideCover, RebarLayerConfig layer, string labelSuffix)
+            HostGeometry host, XYZ barDir, XYZ stepDir, double z, double spacing, double sideCover, RebarLayerConfig layer, string labelSuffix, string comment)
         {
             var results = new List<RebarDefinition>();
             
@@ -120,7 +122,8 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                         HookEndName = layer.HookEndName,
                         OverrideHookLength = layer.OverrideHookLength,
                         HookLengthOverride = layer.HookLengthOverride,
-                        ShapeNameHint = "Shape LL"
+                        ShapeNameHint = "Shape LL",
+                        Comment = comment
                     });
                 }
             }

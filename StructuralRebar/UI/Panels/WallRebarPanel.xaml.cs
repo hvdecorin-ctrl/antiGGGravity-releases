@@ -105,7 +105,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 // Multi-Level
                 UI_Check_MultiLevel.IsChecked = SettingsManager.GetBool(VIEW_NAME, "MultiLevel", false);
                 UI_Check_MultiLevel_Changed(null, null);
-                UI_Text_LapSplice.Text = SettingsManager.Get(VIEW_NAME, "LapSplice", "600");
+                UI_Text_LapSplice.Text = SettingsManager.Get(VIEW_NAME, "LapSplice", "40");
 
                 string lapMode = SettingsManager.Get(VIEW_NAME, "LapMode", "Auto (Code)");
                 foreach (ComboBoxItem item in UI_Combo_LapMode.Items)
@@ -221,6 +221,14 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             double hTop = UnitConversion.MmToFeet(ParseDouble(UI_Text_HorizTopOffset.Text, 50));
             double hBot = UnitConversion.MmToFeet(ParseDouble(UI_Text_HorizBottomOffset.Text, 50));
 
+            double lapMultiplier = ParseDouble(UI_Text_LapSplice.Text, 40);
+            
+            double vBarDia = (UI_Combo_VertType.SelectedItem as RebarBarType)?.BarModelDiameter ?? 0;
+            double sBarDia = (UI_Combo_StarterType.SelectedItem as RebarBarType)?.BarModelDiameter ?? vBarDia;
+            double maxDia = Math.Max(vBarDia, sBarDia);
+            
+            double manuallyCalculatedLap = lapMultiplier * maxDia;
+
             var request = new RebarRequest
             {
                 HostType = ElementHostType.Wall,
@@ -229,9 +237,11 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 
                 // Multi-Level specific parameters mapping to DTO
                 EnableZoneSpacing = false, // Walls usually don't have confinement zones like columns
+                LapSpliceMode = (UI_Combo_LapMode.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Auto (Code)",
+                LapSpliceLength = manuallyCalculatedLap,
                 VerticalContinuousSpliceLength = IsAutoLapMode()
                     ? 0  // Auto: engine uses code-calculated lap length
-                    : UnitConversion.MmToFeet(ParseDouble(UI_Text_LapSplice.Text, 600)),
+                    : manuallyCalculatedLap,
                 StarterDevLength = (UI_Check_StarterEnabled.IsChecked == true)
                     ? UnitConversion.MmToFeet(ParseDouble(UI_Text_StarterBar.Text, 800))
                     : 0,

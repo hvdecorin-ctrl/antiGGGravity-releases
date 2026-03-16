@@ -198,7 +198,10 @@
                                 <ComboBoxItem Content="Auto (Code)" IsSelected="True"/>
                                 <ComboBoxItem Content="Manual"/>
                             </ComboBox>
-                            <TextBox x:Name="UI_Text_LapSplice" Text="600" Height="32" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0" Margin="0,0,0,10" />
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <TextBox x:Name="UI_Text_LapSplice" Text="40" Height="32" Width="60" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0" />
+                                <TextBlock Text="x Dia Bar" FontSize="12" Foreground="#666666" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                            </StackPanel>
                         </StackPanel>
                         <StackPanel Grid.Column="2">
                             <TextBlock Text="Crank Position" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>

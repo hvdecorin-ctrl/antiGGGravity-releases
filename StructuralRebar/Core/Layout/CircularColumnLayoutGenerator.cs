@@ -63,7 +63,7 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                         BarTypeName = request.VerticalBarTypeName,
                         Style = RebarStyle.Standard,
                         Label = "Main Bar",
-                        Comment = "Pile Main Bar",
+                        Comment = "Main Bar",
                         Normal = tangentNormal
                     });
                 }

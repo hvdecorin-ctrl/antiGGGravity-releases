@@ -75,6 +75,12 @@ namespace antiGGGravity.StructuralRebar.DTO
         /// <summary>Enable automatic lap splicing for long elements.</summary>
         public bool EnableLapSplice { get; set; }
 
+        /// <summary>Lap length mode: "Auto" or "Manual".</summary>
+        public string LapSpliceMode { get; set; } = "Auto";
+
+        /// <summary>Manual lap length override (feet). Used when mode is "Manual".</summary>
+        public double LapSpliceLength { get; set; }
+
         /// <summary>Stock bar length (feet). 0 = use 12m default.</summary>
         public double StockLength { get; set; }
         public double StockLength_Backing { get; set; }

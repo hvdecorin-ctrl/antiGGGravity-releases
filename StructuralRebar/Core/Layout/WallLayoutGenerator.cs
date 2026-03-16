@@ -81,7 +81,8 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                 HookEndName = hookEndName,
                 HookStartOrientation = orientS,
                 HookEndOrientation = orientE,
-                Label = "Vertical Bar"
+                Label = "Vertical Bar",
+                Comment = "Vertical Bar"
             };
         }
 
@@ -149,7 +150,8 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                 HookEndName = hookEndName,
                 HookStartOrientation = orientS,
                 HookEndOrientation = orientE,
-                Label = "Horizontal Bar"
+                Label = "Horizontal Bar",
+                Comment = "Horizontal Bar"
             };
         }
     }

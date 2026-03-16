@@ -73,7 +73,8 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
         /// </summary>
         public static List<(double Start, double End)> SplitBarForLap(
             double totalLength, double barDia, DesignCodeStandard code,
-            double maxStockLength = 0, double crankRun = 0, BarPosition position = BarPosition.Other)
+            double maxStockLength = 0, double crankRun = 0, BarPosition position = BarPosition.Other,
+            double customLapLen = 0)
         {
             if (maxStockLength <= 0) maxStockLength = MaxStockLengthFt;
 
@@ -86,7 +87,9 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
                 return segments;
             }
 
-            double lapLen = CalculateTensionLapLength(barDia, code, ConcreteGrade.C30, SteelGrade.Grade500E, position);
+            double lapLen = customLapLen > 0 
+                ? customLapLen 
+                : CalculateTensionLapLength(barDia, code, ConcreteGrade.C30, SteelGrade.Grade500E, position);
             double totalOverlap = lapLen + crankRun; // Full overlap: lap + crank transition
 
             // Effective advance per segment = stock length minus total overlap
@@ -127,7 +130,8 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
         /// </summary>
         public static List<(double Start, double End)> SplitBeamBarForLap(
             double totalLength, double barDia, DesignCodeStandard code,
-            bool isTopBar, int layerIndex = 0, double maxStockLength = 0, double crankRun = 0)
+            bool isTopBar, int layerIndex = 0, double maxStockLength = 0, double crankRun = 0,
+            double customLapLen = 0)
         {
             BarPosition position = isTopBar ? BarPosition.Top : BarPosition.Bottom;
             if (maxStockLength <= 0) maxStockLength = MaxStockLengthFt;
@@ -142,7 +146,9 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
                 return segments;
             }
 
-            double lapLen = CalculateTensionLapLength(barDia, code, ConcreteGrade.C30, SteelGrade.Grade500E, position);
+            double lapLen = customLapLen > 0 
+                ? customLapLen 
+                : CalculateTensionLapLength(barDia, code, ConcreteGrade.C30, SteelGrade.Grade500E, position);
             double totalOverlap = lapLen + crankRun;
 
             // Stagger offset for alternating layers (odd layers shift deeper into zone)

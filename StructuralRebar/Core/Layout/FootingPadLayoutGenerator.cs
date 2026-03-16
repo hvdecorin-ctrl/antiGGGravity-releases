@@ -185,7 +185,7 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                 OverrideHookLength = layer.OverrideHookLength,
                 HookLengthOverride = layer.HookLengthOverride,
                 Label = "Footing Pad Mat 2",
-                Comment = isTop ? "Top Bar" : "Btm Bar"
+                Comment = isTop ? "Top T2" : "Btm B2"
             });
 
             return definitions;

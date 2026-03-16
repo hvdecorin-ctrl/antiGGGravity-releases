@@ -203,7 +203,7 @@ namespace antiGGGravity.StructuralRebar.Core
             request.RemoveExisting = _window.RemoveExisting;
             // Note: EnableLapSplice is set inside WallPanel.GetRequest based on the Multi-Level Checkbox
             request.DesignCode = _window.DesignCode;
-            var engine = new RebarEngine(doc);
+            var engine = new WallEngine(doc);
 
             if (request.EnableLapSplice)
             {
@@ -246,7 +246,7 @@ namespace antiGGGravity.StructuralRebar.Core
             request.RemoveExisting = _window.RemoveExisting;
             request.EnableLapSplice = _window.EnableLapSplice;
             request.DesignCode = _window.DesignCode;
-            var engine = new RebarEngine(doc);
+            var engine = new ColumnEngine(doc);
 
             if (request.MultiLevel)
             {
@@ -374,7 +374,7 @@ namespace antiGGGravity.StructuralRebar.Core
             request.RemoveExisting = _window.RemoveExisting;
             request.EnableLapSplice = _window.EnableLapSplice;
             request.DesignCode = _window.DesignCode;
-            var engine = new RebarEngine(doc);
+            var engine = new WallEngine(doc);
             var (processed, total) = engine.GenerateWallCornerRebar(walls, request);
             return $"Successfully generated rebar at {processed} of {total} identified corners.";
         }
@@ -396,7 +396,7 @@ namespace antiGGGravity.StructuralRebar.Core
             request.RemoveExisting = _window.RemoveExisting;
             request.EnableLapSplice = _window.EnableLapSplice;
             request.DesignCode = _window.DesignCode;
-            var engine = new RebarEngine(doc);
+            var engine = new WallEngine(doc);
             var (processed, total) = engine.GenerateWallCornerRebar(walls, request);
             return $"Successfully generated rebar: {processed} of {total} items processed.";
         }
