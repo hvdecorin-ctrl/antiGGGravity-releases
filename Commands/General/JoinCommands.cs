@@ -32,7 +32,7 @@ namespace antiGGGravity.Commands.General
                     if (el == null) continue;
 
                     if (el.Category == null) continue;
-                    long catVal = el.Category.Id.Value;
+                    long catVal = el.Category.Id.GetIdValue();
 
                     if (catVal == (long)BuiltInCategory.OST_StructuralFraming)
                     {
@@ -118,7 +118,7 @@ namespace antiGGGravity.Commands.General
                     if (el == null) continue;
 
                     if (el.Category == null) continue;
-                    long catVal = el.Category.Id.Value;
+                    long catVal = el.Category.Id.GetIdValue();
 
                     if (catVal == (long)BuiltInCategory.OST_StructuralFraming)
                     {

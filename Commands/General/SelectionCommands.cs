@@ -101,7 +101,7 @@ namespace antiGGGravity.Commands.General
     {
         private BuiltInCategory _bic;
         public BuiltInCategorySelectionFilter(BuiltInCategory bic) { _bic = bic; }
-        public bool AllowElement(Element elem) => elem.Category != null && elem.Category.Id.Value == (long)_bic;
+        public bool AllowElement(Element elem) => elem.Category != null && elem.Category.Id.GetIdValue() == (long)_bic;
         public bool AllowReference(Reference reference, XYZ position) => false;
     }
 
@@ -116,7 +116,7 @@ namespace antiGGGravity.Commands.General
             if (elem.ViewSpecific) return false;
 
             // Explicitly exclude categories we defined as 2D
-            BuiltInCategory bic = (BuiltInCategory)elem.Category.Id.Value;
+            BuiltInCategory bic = (BuiltInCategory)elem.Category.Id.GetIdValue();
             if (bic == BuiltInCategory.OST_TextNotes ||
                 bic == BuiltInCategory.OST_Lines ||
                 bic == BuiltInCategory.OST_DetailComponents)
@@ -137,7 +137,7 @@ namespace antiGGGravity.Commands.General
 
             if (elem.Category.CategoryType == CategoryType.Annotation) return true;
 
-            BuiltInCategory bic = (BuiltInCategory)elem.Category.Id.Value;
+            BuiltInCategory bic = (BuiltInCategory)elem.Category.Id.GetIdValue();
             if (bic == BuiltInCategory.OST_TextNotes ||
                 bic == BuiltInCategory.OST_Lines ||
                 bic == BuiltInCategory.OST_DetailComponents)

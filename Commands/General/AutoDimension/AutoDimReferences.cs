@@ -133,7 +133,7 @@ namespace antiGGGravity.Commands.General.AutoDimension
 
             var faces = axis == "x" ? ei.FacesX : ei.FacesY;
             if (faces.Count >= 2)
-                return (faces[0].Ref, faces[^1].Ref, faces[0].Coord, faces[^1].Coord);
+                return (faces[0].Ref, faces[faces.Count - 1].Ref, faces[0].Coord, faces[faces.Count - 1].Coord);
 
             // Fallback: center reference for any remaining elements
             {

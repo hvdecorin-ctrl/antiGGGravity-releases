@@ -126,8 +126,8 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                 Normal = distDir1,
                 HookStartName = layer.HookStartName,
                 HookEndName = layer.HookEndName,
-                HookStartOrientation = RebarHookOrientation.Right, // Re-verify: Inner hook bend
-                HookEndOrientation = RebarHookOrientation.Right,   // Re-verify: Inner hook bend
+                HookStartOrientation = (RebarHookOrientation)(-1), // Right
+                HookEndOrientation = (RebarHookOrientation)(-1),   // Right
                 OverrideHookLength = layer.OverrideHookLength,
                 HookLengthOverride = layer.HookLengthOverride,
                 Label = "Footing Pad Mat 1",
@@ -180,8 +180,8 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                 Normal = distDir2,
                 HookStartName = layer.HookStartName,
                 HookEndName = layer.HookEndName,
-                HookStartOrientation = RebarHookOrientation.Right,
-                HookEndOrientation = RebarHookOrientation.Right,
+                HookStartOrientation = (RebarHookOrientation)(-1), // Right
+                HookEndOrientation = (RebarHookOrientation)(-1),   // Right
                 OverrideHookLength = layer.OverrideHookLength,
                 HookLengthOverride = layer.HookLengthOverride,
                 Label = "Footing Pad Mat 2",

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
+using antiGGGravity.Utilities;
 
 namespace antiGGGravity.Views.Overrides
 {
@@ -338,29 +339,33 @@ namespace antiGGGravity.Views.Overrides
                             FilterRule rule = null;
                             if (paramItem.StorageType == StorageType.Double)
                             {
-                                rule = ParameterFilterRuleFactory.CreateEqualsRule(paramId, valItem.DoubleValue, 0.001);
+                                rule = ParameterFilterRuleFactory.CreateEqualsRule(RevitCompatibility.NewElementId(paramId.GetIdValue()), valItem.DoubleValue, 0.001);
                             }
                             else if (paramItem.StorageType == StorageType.ElementId)
                             {
                                 if (long.TryParse(valItem.Value, out long idAsLong))
                                 {
-                                    rule = ParameterFilterRuleFactory.CreateEqualsRule(paramId, new ElementId(idAsLong));
+                                    rule = ParameterFilterRuleFactory.CreateEqualsRule(RevitCompatibility.NewElementId(paramId.GetIdValue()), RevitCompatibility.NewElementId(idAsLong));
                                 }
                                 else
                                 {
-                                    rule = ParameterFilterRuleFactory.CreateEqualsRule(paramId, ElementId.InvalidElementId);
+                                    rule = ParameterFilterRuleFactory.CreateEqualsRule(RevitCompatibility.NewElementId(paramId.GetIdValue()), ElementId.InvalidElementId);
                                 }
                             }
                             else if (paramItem.StorageType == StorageType.Integer)
                             {
                                 int val = 0;
                                 int.TryParse(valItem.Value, out val);
-                                rule = ParameterFilterRuleFactory.CreateEqualsRule(paramId, val);
+                                rule = ParameterFilterRuleFactory.CreateEqualsRule(RevitCompatibility.NewElementId(paramId.GetIdValue()), val);
                             }
                             else if (paramItem.StorageType == StorageType.String)
                             {
                                 string val = valItem.Value == "<empty>" || valItem.Value == "<null>" ? "" : valItem.Value;
-                                rule = ParameterFilterRuleFactory.CreateEqualsRule(paramId, val);
+#if REVIT2022 || REVIT2023 || REVIT2024
+                                rule = ParameterFilterRuleFactory.CreateEqualsRule(RevitCompatibility.NewElementId(paramId.GetIdValue()), val, false);
+#else
+                                rule = ParameterFilterRuleFactory.CreateEqualsRule(RevitCompatibility.NewElementId(paramId.GetIdValue()), val);
+#endif
                             }
 
                             if (rule != null)

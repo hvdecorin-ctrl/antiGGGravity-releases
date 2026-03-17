@@ -71,8 +71,8 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                 Normal = basisL,
                 HookStartName = hookStartName,
                 HookEndName = hookEndName,
-                HookStartOrientation = RebarHookOrientation.Left,
-                HookEndOrientation = RebarHookOrientation.Left,
+                HookStartOrientation = (RebarHookOrientation)1, // Left
+                HookEndOrientation = (RebarHookOrientation)1,   // Left
                 Label = "Footing Stirrup",
                 Comment = "Stirrup"
             };
@@ -112,12 +112,12 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
             if (layer.Side == RebarSide.Top)
             {
                 zPos = (height / 2.0) - cTop - transDia - barDia / 2.0;
-                orient = RebarHookOrientation.Left; // Pointing inward
+                orient = (RebarHookOrientation)1; // Pointing inward (Left)
             }
             else
             {
                 zPos = -(height / 2.0) + cBot + transDia + barDia / 2.0;
-                orient = RebarHookOrientation.Right; // Pointing inward
+                orient = (RebarHookOrientation)(-1); // Pointing inward (Right)
             }
 
             // Start/End points of the FIRST bar in the set (Far Left)

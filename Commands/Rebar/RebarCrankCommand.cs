@@ -9,6 +9,7 @@ using Autodesk.Revit.UI.Selection;
 using antiGGGravity.Commands;
 using antiGGGravity.StructuralRebar.Core.Calculators;
 using antiGGGravity.StructuralRebar.Constants;
+using antiGGGravity.Utilities;
 
 namespace antiGGGravity.Commands.Rebar
 {
@@ -255,7 +256,7 @@ namespace antiGGGravity.Commands.Rebar
             // So we check: does (normal × barDir) point INWARD toward host center?
             //   If yes → Left = inward
             //   If no  → Right = inward
-            RebarHookOrientation inwardOrient = RebarHookOrientation.Left; // default
+            RebarHookOrientation inwardOrient = (RebarHookOrientation)1; // Default Left
             if (hostBox != null)
             {
                 XYZ hostCenter = (hostBox.Min + hostBox.Max) / 2.0;
@@ -270,10 +271,9 @@ namespace antiGGGravity.Commands.Rebar
 
                 if (toCenterPerp.GetLength() > 1e-9 && hookLeftDir.GetLength() > 1e-9)
                 {
-                    // If "Left" bends toward center → use Left; otherwise Right
                     inwardOrient = hookLeftDir.DotProduct(toCenterPerp) > 0
-                        ? RebarHookOrientation.Left
-                        : RebarHookOrientation.Right;
+                        ? (RebarHookOrientation)1   // Left
+                        : (RebarHookOrientation)(-1); // Right
                 }
             }
 
@@ -333,7 +333,7 @@ namespace antiGGGravity.Commands.Rebar
                     doc.Delete(rebar.Id);
 
                     // Create segment 1 (straight, with original start hook)
-                    var rebar1 = Autodesk.Revit.DB.Structure.Rebar.CreateFromCurves(
+                    var rebar1 = RevitCompatibility.CreateRebar(
                         doc, RebarStyle.Standard, barType,
                         hookStartType, null, // start hook only
                         host, normal, curves1,
@@ -341,7 +341,7 @@ namespace antiGGGravity.Commands.Rebar
                         true, true);
 
                     // Create segment 2 (cranked, with original end hook)
-                    var rebar2 = Autodesk.Revit.DB.Structure.Rebar.CreateFromCurves(
+                    var rebar2 = RevitCompatibility.CreateRebar(
                         doc, RebarStyle.Standard, barType,
                         null, hookEndType, // end hook only
                         host, normal, curves2,

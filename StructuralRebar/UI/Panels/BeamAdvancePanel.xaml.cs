@@ -531,7 +531,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
         public bool AllowElement(Element elem)
         {
             return elem.Category != null && 
-                   elem.Category.Id.Value == (long)BuiltInCategory.OST_StructuralFraming && 
+                   elem.Category.Id.GetIdValue() == (long)BuiltInCategory.OST_StructuralFraming && 
                    elem is FamilyInstance;
         }
 

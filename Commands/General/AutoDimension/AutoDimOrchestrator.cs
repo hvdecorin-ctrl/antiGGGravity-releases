@@ -92,7 +92,7 @@ namespace antiGGGravity.Commands.General.AutoDimension
                 {
                     // Overall (extreme grids)
                     nChains += GridDimensionEngine.MakeGridChain(doc, view,
-                        new List<GridInfo> { vGrids[0], vGrids[^1] }, "x",
+                        new List<GridInfo> { vGrids[0], vGrids[vGrids.Count - 1] }, "x",
                         settings.OffsetChain1Mm, settings);
                     // Pairwise chain
                     if (vGrids.Count > 2)
@@ -104,7 +104,7 @@ namespace antiGGGravity.Commands.General.AutoDimension
                 if (settings.DimGrids && hGrids.Count >= 2)
                 {
                     nChains += GridDimensionEngine.MakeGridChain(doc, view,
-                        new List<GridInfo> { hGrids[0], hGrids[^1] }, "y",
+                        new List<GridInfo> { hGrids[0], hGrids[hGrids.Count - 1] }, "y",
                         settings.OffsetChain1Mm, settings);
                     if (hGrids.Count > 2)
                         nChains += GridDimensionEngine.MakeGridChain(doc, view,

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -28,7 +28,7 @@ namespace antiGGGravity.Views.ProjectAudit
         public ObservableCollection<DuplicationRow> Rows { get; set; } = new ObservableCollection<DuplicationRow>();
 
         // ============================================================
-        // TYPE CACHING â€” matches Python's category_types_cache
+        // TYPE CACHING — matches Python's category_types_cache
         // ============================================================
         private static readonly Dictionary<string, BuiltInCategory> SupportedCategories = new Dictionary<string, BuiltInCategory>
         {
@@ -170,7 +170,7 @@ namespace antiGGGravity.Views.ProjectAudit
         }
 
         // ============================================================
-        // CLIPBOARD â€” PASTE with fuzzy BaseType matching (matches Python)
+        // CLIPBOARD — PASTE with fuzzy BaseType matching (matches Python)
         // ============================================================
         private void PasteFromClipboard()
         {
@@ -225,7 +225,7 @@ namespace antiGGGravity.Views.ProjectAudit
         }
 
         /// <summary>
-        /// Fuzzy matching for BaseType paste â€” exact, case-insensitive, then partial.
+        /// Fuzzy matching for BaseType paste — exact, case-insensitive, then partial.
         /// Matches Python's paste logic.
         /// </summary>
         private string FuzzyMatchBaseType(string value)
@@ -254,7 +254,7 @@ namespace antiGGGravity.Views.ProjectAudit
         }
 
         // ============================================================
-        // CELL EDIT EVENTS â€” auto-copy TypeCommentâ†’Description, filter combo
+        // CELL EDIT EVENTS — auto-copy TypeComment→Description, filter combo
         // ============================================================
         private void UI_Grid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
@@ -470,8 +470,8 @@ namespace antiGGGravity.Views.ProjectAudit
                 return;
             }
 
-            // Normalize × (multiplication sign) and x for comparison
-            string normalizedFilter = filter.Replace("×", "x");
+            // Normalize � (multiplication sign) and x for comparison
+            string normalizedFilter = filter.Replace("�", "x");
 
             // Primary filter: match on the type NAME (Family:TypeName)
             var filtered = allList
@@ -521,11 +521,11 @@ namespace antiGGGravity.Views.ProjectAudit
         }
 
         /// <summary>
-        /// Normalize a name for comparison: lowercase and replace × with x.
+        /// Normalize a name for comparison: lowercase and replace � with x.
         /// </summary>
         private static string NormalizeName(string name)
         {
-            return (name ?? "").ToLower().Replace("×", "x");
+            return (name ?? "").ToLower().Replace("�", "x");
         }
 
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
@@ -534,7 +534,7 @@ namespace antiGGGravity.Views.ProjectAudit
     }
 
     // ================================================================
-    // DUPLICATION HANDLER â€” with duplicate check (matches Python)
+    // DUPLICATION HANDLER — with duplicate check (matches Python)
     // ================================================================
     public class FamilyDuplicationHandler : IExternalEventHandler
     {
@@ -634,7 +634,7 @@ namespace antiGGGravity.Views.ProjectAudit
                 t.Commit();
             }
 
-            string msg = $"✓ Created {success} types.";
+            string msg = $"? Created {success} types.";
             if (skipped > 0) msg += $" Skipped {skipped} (already exist).";
             if (failed > 0) msg += $" Failed: {failed}.";
             StatusCallback?.Invoke(msg);

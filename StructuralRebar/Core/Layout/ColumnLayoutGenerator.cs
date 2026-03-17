@@ -64,8 +64,8 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                 Normal = basisZ,
                 HookStartName = hookStartName,
                 HookEndName = hookEndName,
-                HookStartOrientation = RebarHookOrientation.Left,
-                HookEndOrientation = RebarHookOrientation.Left,
+                HookStartOrientation = (RebarHookOrientation)1, // Left
+                HookEndOrientation = (RebarHookOrientation)1,   // Left
                 Label = "Column Tie",
                 Comment = "Stirrup"
             };
@@ -129,8 +129,8 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                     Normal = basisZ,
                     HookStartName = hookStartName,
                     HookEndName = hookEndName,
-                    HookStartOrientation = RebarHookOrientation.Left,
-                    HookEndOrientation = RebarHookOrientation.Left,
+                    HookStartOrientation = (RebarHookOrientation)1, // Left
+                    HookEndOrientation = (RebarHookOrientation)1,   // Left
                     Label = $"Column Tie ({zone.Label})",
                     Comment = "Stirrup"
                 });
@@ -201,8 +201,8 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                     DistributionWidth = distWidth,
                     HookStartName = hookStartName,
                     HookEndName = hookEndName,
-                    HookStartOrientation = hookStartOut ? RebarHookOrientation.Left : RebarHookOrientation.Right,
-                    HookEndOrientation = hookEndOut ? RebarHookOrientation.Left : RebarHookOrientation.Right,
+                    HookStartOrientation = hookStartOut ? (RebarHookOrientation)1 : (RebarHookOrientation)(-1),
+                    HookEndOrientation = hookEndOut ? (RebarHookOrientation)1 : (RebarHookOrientation)(-1),
                     Label = label,
                     Comment = "Main Bar"
                 });

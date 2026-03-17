@@ -7,6 +7,7 @@ using Autodesk.Revit.DB.Structure;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
 using antiGGGravity.Views.Model;
+using antiGGGravity.Utilities;
 
 namespace antiGGGravity.Commands.Model
 {
@@ -21,7 +22,7 @@ namespace antiGGGravity.Commands.Model
                 Reference selectedRef = selection.PickObject(ObjectType.Element, "Select a structural framing element (beam) to use its type for the brace");
                 Element selectedElement = doc.GetElement(selectedRef);
 
-                if (selectedElement.Category.Id.Value == (long)BuiltInCategory.OST_StructuralFraming)
+                if (selectedElement.Category.Id.GetIdValue() == (long)BuiltInCategory.OST_StructuralFraming)
                 {
                     if (selectedElement is FamilyInstance fi)
                         return fi.Symbol;
@@ -57,7 +58,7 @@ namespace antiGGGravity.Commands.Model
 
                 foreach (var element in elements)
                 {
-                    long catId = element.Category.Id.Value;
+                    long catId = element.Category.Id.GetIdValue();
                     if (catId != (long)BuiltInCategory.OST_StructuralFraming && catId != (long)BuiltInCategory.OST_StructuralColumns)
                     {
                         TaskDialog.Show("Error", "Selected elements must be structural framing or structural columns.");
@@ -216,7 +217,7 @@ namespace antiGGGravity.Commands.Model
             if (location is LocationPoint)
             {
                 // Handle vertical columns by computing actual top/bottom points
-                if (element.Category.Id.Value == (long)BuiltInCategory.OST_StructuralColumns)
+                if (element.Category.Id.GetIdValue() == (long)BuiltInCategory.OST_StructuralColumns)
                     return GetVerticalColumnPoints(element);
 
                 return (((LocationPoint)location).Point, ((LocationPoint)location).Point);
@@ -238,7 +239,7 @@ namespace antiGGGravity.Commands.Model
             if (location is LocationPoint)
             {
                 // Handle vertical columns by computing actual top/bottom points with offset
-                if (element.Category.Id.Value == (long)BuiltInCategory.OST_StructuralColumns)
+                if (element.Category.Id.GetIdValue() == (long)BuiltInCategory.OST_StructuralColumns)
                 {
                     var (bottom, top) = GetVerticalColumnPoints(element);
                     if (bottom != null && top != null)
@@ -282,7 +283,7 @@ namespace antiGGGravity.Commands.Model
             var view = new BracingParametersView(doc, "H-Frame");
             if (view.ShowDialog() != true) return Result.Cancelled;
 
-            double offsetFeet = UnitUtils.ConvertToInternalUnits(view.OffsetMm, UnitTypeId.Millimeters);
+            double offsetFeet = RevitCompatibility.MmToInternal(view.OffsetMm);
             int numBraces = view.NumBraces;
 
             var pointsA = GetElementPointsWithOffset(selectedElements[0], offsetFeet);
@@ -352,7 +353,7 @@ namespace antiGGGravity.Commands.Model
             var view = new BracingParametersView(doc, "K-Brace");
             if (view.ShowDialog() != true) return Result.Cancelled;
 
-            double offsetFeet = UnitUtils.ConvertToInternalUnits(view.OffsetMm, UnitTypeId.Millimeters);
+            double offsetFeet = RevitCompatibility.MmToInternal(view.OffsetMm);
             
             // Re-select apex element via prompt vs just picking from the two?
             // User script uses PickObject for apex.
@@ -409,7 +410,7 @@ namespace antiGGGravity.Commands.Model
             var view = new BracingParametersView(doc, "X-Brace");
             if (view.ShowDialog() != true) return Result.Cancelled;
 
-            double offsetFeet = UnitUtils.ConvertToInternalUnits(view.OffsetMm, UnitTypeId.Millimeters);
+            double offsetFeet = RevitCompatibility.MmToInternal(view.OffsetMm);
 
             var pointsA = GetElementPointsWithOffset(selectedElements[0], offsetFeet);
             var pointsB = GetElementPointsWithOffset(selectedElements[1], offsetFeet);

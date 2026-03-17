@@ -84,12 +84,12 @@ namespace antiGGGravity.Commands.General.AutoDimension
             if (measureAxis == "x")
             {
                 p0 = new XYZ(gridsSorted[0].CoordFt, perp, 0);
-                p1 = new XYZ(gridsSorted[^1].CoordFt, perp, 0);
+                p1 = new XYZ(gridsSorted[gridsSorted.Count - 1].CoordFt, perp, 0);
             }
             else
             {
                 p0 = new XYZ(perp, gridsSorted[0].CoordFt, 0);
-                p1 = new XYZ(perp, gridsSorted[^1].CoordFt, 0);
+                p1 = new XYZ(perp, gridsSorted[gridsSorted.Count - 1].CoordFt, 0);
             }
 
             var ra = new ReferenceArray();
@@ -117,7 +117,7 @@ namespace antiGGGravity.Commands.General.AutoDimension
 
                     var dimRefIds = new HashSet<long>();
                     foreach (Reference r in refs)
-                        dimRefIds.Add(r.ElementId.Value);
+                        dimRefIds.Add(r.ElementId.GetIdValue());
 
                     if (gridIds.IsSubsetOf(dimRefIds)) return true;
                 }
@@ -173,7 +173,7 @@ namespace antiGGGravity.Commands.General.AutoDimension
 
                     int matchCount = 0;
                     foreach (Reference r in refs)
-                        if (gridIds.Contains(r.ElementId.Value)) matchCount++;
+                        if (gridIds.Contains(r.ElementId.GetIdValue())) matchCount++;
                     if (matchCount < 2) continue;
 
                     if (dim.Curve is Line line)

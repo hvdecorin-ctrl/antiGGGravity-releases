@@ -37,7 +37,7 @@ namespace antiGGGravity.Commands.Rebar
             if (elem.ViewSpecific) return false;
 
             // 2. Exclude Rebar
-            if (elem.Category != null && elem.Category.Id.Value == (long)BuiltInCategory.OST_Rebar) return false;
+            if (elem.Category != null && elem.Category.Id.GetIdValue() == (long)BuiltInCategory.OST_Rebar) return false;
             
             // 3. Ensure it has a category (safety)
             if (elem.Category == null) return false;
@@ -243,7 +243,7 @@ namespace antiGGGravity.Commands.Rebar
                 foreach (var id in selection)
                 {
                     Element el = doc.GetElement(id);
-                    if (el != null && !el.ViewSpecific && (el.Category == null || el.Category.Id.Value != (long)BuiltInCategory.OST_Rebar))
+                    if (el != null && !el.ViewSpecific && (el.Category == null || el.Category.Id.GetIdValue() != (long)BuiltInCategory.OST_Rebar))
                     {
                         hostIds.Add(id);
                     }
@@ -320,7 +320,7 @@ namespace antiGGGravity.Commands.Rebar
                 foreach (var id in selection)
                 {
                     Element el = doc.GetElement(id);
-                    if (el != null && el.Category != null && el.Category.Id.Value != (long)BuiltInCategory.OST_Rebar)
+                    if (el != null && el.Category != null && el.Category.Id.GetIdValue() != (long)BuiltInCategory.OST_Rebar)
                     {
                         hostIds.Add(id);
                     }
@@ -405,7 +405,7 @@ namespace antiGGGravity.Commands.Rebar
                 foreach (var eid in selectionIds)
                 {
                     Element elem = doc.GetElement(eid);
-                    if (elem != null && !elem.ViewSpecific && (elem.Category == null || elem.Category.Id.Value != (long)BuiltInCategory.OST_Rebar))
+                    if (elem != null && !elem.ViewSpecific && (elem.Category == null || elem.Category.Id.GetIdValue() != (long)BuiltInCategory.OST_Rebar))
                     {
                         preSelectedHosts.Add(elem);
                     }
@@ -507,7 +507,7 @@ namespace antiGGGravity.Commands.Rebar
                 foreach (var eid in selectionIds)
                 {
                     Element elem = doc.GetElement(eid);
-                    if (elem != null && !elem.ViewSpecific && (elem.Category == null || elem.Category.Id.Value != (long)BuiltInCategory.OST_Rebar))
+                    if (elem != null && !elem.ViewSpecific && (elem.Category == null || elem.Category.Id.GetIdValue() != (long)BuiltInCategory.OST_Rebar))
                     {
                         preSelectedHosts.Add(elem);
                     }
@@ -608,7 +608,7 @@ namespace antiGGGravity.Commands.Rebar
                 foreach (var eid in selectionIds)
                 {
                     Element elem = doc.GetElement(eid);
-                    if (elem != null && !elem.ViewSpecific && (elem.Category == null || elem.Category.Id.Value != (long)BuiltInCategory.OST_Rebar))
+                    if (elem != null && !elem.ViewSpecific && (elem.Category == null || elem.Category.Id.GetIdValue() != (long)BuiltInCategory.OST_Rebar))
                     {
                         preSelectedHosts.Add(elem);
                     }

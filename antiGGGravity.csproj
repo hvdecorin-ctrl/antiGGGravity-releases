@@ -1,7 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <Configurations>Debug;Release;R22;R23;R24;R25;R26</Configurations>
+    <TargetFramework Condition="'$(Configuration)' == 'R22' OR '$(Configuration)' == 'R23' OR '$(Configuration)' == 'R24'">net48</TargetFramework>
+    <TargetFramework Condition="'$(Configuration)' == 'R25' OR '$(Configuration)' == 'R26' OR '$(Configuration)' == 'Debug' OR '$(Configuration)' == 'Release'">net8.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <LangVersion>latest</LangVersion>
     <AssemblyName>antiGGGravity</AssemblyName>
@@ -15,21 +16,57 @@
     <NoWarn>$(NoWarn);CA1416</NoWarn>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Using Include="antiGGGravity.Commands" />
+  <ItemGroup Condition="'$(TargetFramework)' != 'net48'">
     <Using Include="antiGGGravity.Utilities" />
+    <Using Include="antiGGGravity.Commands" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="System.Drawing.Common" Version="10.0.2" />
+  <!-- Preprocessor Constants -->
+  <PropertyGroup Condition="'$(Configuration)' == 'R22'">
+    <DefineConstants>REVIT2022;REVIT2022_OR_GREATER</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'R23'">
+    <DefineConstants>REVIT2023;REVIT2022_OR_GREATER;REVIT2023_OR_GREATER</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'R24'">
+    <DefineConstants>REVIT2024;REVIT2022_OR_GREATER;REVIT2023_OR_GREATER;REVIT2024_OR_GREATER</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'R25'">
+    <DefineConstants>REVIT2025;REVIT2022_OR_GREATER;REVIT2023_OR_GREATER;REVIT2024_OR_GREATER;REVIT2025_OR_GREATER</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'R26' Or '$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Release'">
+    <DefineConstants>REVIT2026;REVIT2022_OR_GREATER;REVIT2023_OR_GREATER;REVIT2024_OR_GREATER;REVIT2025_OR_GREATER;REVIT2026_OR_GREATER</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' != 'net48'">
+    <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
     <PackageReference Include="System.Management" Version="8.0.0" />
     <PackageReference Include="YamlDotNet" Version="16.3.0" />
-    <PackageReference Include="Autodesk.Revit.SDK.Refs.2026" Version="1.2.0" />
+    <PackageReference Include="System.Text.Json" Version="8.0.0" />
   </ItemGroup>
 
-  <!-- Remove absolute references -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows'">
-    <!-- The NuGet package handles RevitAPI, RevitAPIUI, and StructuralDBAPI for us -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+    <Reference Include="System.Management" />
+    <Reference Include="System.Drawing" />
+    <PackageReference Include="YamlDotNet" Version="13.7.1" />
+    <PackageReference Include="System.Text.Json" Version="8.0.0" />
+  </ItemGroup>
+
+  <!-- Conditional Revit SDK References -->
+  <ItemGroup Condition="'$(Configuration)' == 'R22'">
+    <PackageReference Include="Autodesk.Revit.SDK.Refs.2022" Version="*" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'R23'">
+    <PackageReference Include="Autodesk.Revit.SDK.Refs.2023" Version="*" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'R24'">
+    <PackageReference Include="Autodesk.Revit.SDK.Refs.2024" Version="*" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'R25'">
+    <PackageReference Include="Autodesk.Revit.SDK.Refs.2025" Version="*" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'R26' Or '$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Release'">
+    <PackageReference Include="Autodesk.Revit.SDK.Refs.2026" Version="*" />
   </ItemGroup>
 
   <ItemGroup>
@@ -38,48 +75,34 @@
     <EmbeddedResource Include="Resources\ribbon*.yaml" />
   </ItemGroup>
 
-  <!-- Exclude Python reference source from compilation -->
-  <ItemGroup>
-    <None Remove="Reference\**" />
-    <Compile Remove="Reference\**" />
-    <EmbeddedResource Remove="Reference\**" />
-    <Page Remove="Reference\**" />
-    <Resource Remove="Reference\**" />
-  </ItemGroup>
-
   <PropertyGroup>
-    <!-- Set to false to prevent automatic copy to Revit Addins folder during regular builds -->
-    <!-- We set default to false so F5 or dotnet build doesn't disrupt an open Revit session -->
-    <DeployToRevit Condition="'$(DeployToRevit)' == ''">false</DeployToRevit>
+    <DeployToRevit Condition="'$(DeployToRevit)' == ''">true</DeployToRevit>
   </PropertyGroup>
 
-  <!-- Post-Build Event for Automatic Revit Installation -->
   <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(DeployToRevit)' == 'true'">
+    <PropertyGroup>
+      <RevitYear Condition="'$(Configuration)' == 'R22'">2022</RevitYear>
+      <RevitYear Condition="'$(Configuration)' == 'R23'">2023</RevitYear>
+      <RevitYear Condition="'$(Configuration)' == 'R24'">2024</RevitYear>
+      <RevitYear Condition="'$(Configuration)' == 'R25'">2025</RevitYear>
+      <RevitYear Condition="'$(Configuration)' == 'R26' Or '$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Release'">2026</RevitYear>
+    </PropertyGroup>
+
     <ItemGroup>
-      <RevitVersions Include="2025;2026" />
-      <AllOutputFiles Include="$(OutputPath)*.dll" />
+      <AllOutputFiles Include="$(OutputPath)**\*.*" />
     </ItemGroup>
     
-    <!-- Deploy to each version if directory exists -->
-    <Message Text="Deploying to Revit versions: @(RevitVersions)" Importance="high" />
+    <Message Text="Deploying to Revit $(RevitYear)..." Importance="high" />
 
-    <!-- Ensure antiGGGravity.addin is portable (relative path) before copying -->
-    <Exec Command="powershell -Command &quot;(Get-Content antiGGGravity.addin) -replace '&lt;Assembly&gt;.*\\(.*\.dll)&lt;/Assembly&gt;', '&lt;Assembly&gt;$1&lt;/Assembly&gt;' | Set-Content antiGGGravity.addin&quot;" />
+    <Exec Command="powershell -Command &quot;(Get-Content antiGGGravity.addin) -replace '&lt;Assembly&gt;.*&lt;/Assembly&gt;', '&lt;Assembly&gt;antiGGGravity\antiGGGravity.dll&lt;/Assembly&gt;' | Set-Content antiGGGravity.addin&quot;" />
     
-    <MakeDir Directories="$(AppData)\Autodesk\Revit\Addins\%(RevitVersions.Identity)" 
-             Condition="Exists('$(AppData)\Autodesk\Revit\Addins\%(RevitVersions.Identity)')" />
-    
-    <Copy SourceFiles="antiGGGravity.addin" 
-          DestinationFolder="$(AppData)\Autodesk\Revit\Addins\%(RevitVersions.Identity)" 
-          SkipUnchangedFiles="true"
-          ContinueOnError="WarnAndContinue"
-          Condition="Exists('$(AppData)\Autodesk\Revit\Addins\%(RevitVersions.Identity)')" />
-    
-    <Copy SourceFiles="@(AllOutputFiles)" 
-          DestinationFolder="$(AppData)\Autodesk\Revit\Addins\%(RevitVersions.Identity)" 
-          SkipUnchangedFiles="true"
-          ContinueOnError="WarnAndContinue"
-          Condition="Exists('$(AppData)\Autodesk\Revit\Addins\%(RevitVersions.Identity)')" />
+    <PropertyGroup>
+      <AddinsFolder>$(AppData)\Autodesk\Revit\Addins\$(RevitYear)</AddinsFolder>
+      <TargetAddinFolder>$(AddinsFolder)\antiGGGravity</TargetAddinFolder>
+    </PropertyGroup>
+
+    <MakeDir Directories="$(TargetAddinFolder)" />
+    <Copy SourceFiles="antiGGGravity.addin" DestinationFolder="$(AddinsFolder)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(AllOutputFiles)" DestinationFolder="$(TargetAddinFolder)\%(RecursiveDir)" SkipUnchangedFiles="true" />
   </Target>
-
 </Project>

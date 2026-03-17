@@ -9,6 +9,7 @@ using Autodesk.Revit.UI.Selection;
 using antiGGGravity.Commands;
 using antiGGGravity.StructuralRebar.Core.Calculators;
 using antiGGGravity.StructuralRebar.Constants;
+using antiGGGravity.Utilities;
 
 namespace antiGGGravity.Commands.Rebar
 {
@@ -205,8 +206,8 @@ namespace antiGGGravity.Commands.Rebar
                 if (toCenterPerp.GetLength() > 1e-9 && hookLeftDir.GetLength() > 1e-9)
                 {
                     inwardOrient = hookLeftDir.DotProduct(toCenterPerp) > 0
-                        ? RebarHookOrientation.Left
-                        : RebarHookOrientation.Right;
+                        ? (RebarHookOrientation)1  // Left
+                        : (RebarHookOrientation)(-1); // Right
                 }
             }
 
@@ -256,7 +257,7 @@ namespace antiGGGravity.Commands.Rebar
                     doc.Delete(rebar.Id);
 
                     // Create segment 1
-                    var rebar1 = Autodesk.Revit.DB.Structure.Rebar.CreateFromCurves(
+                    var rebar1 = RevitCompatibility.CreateRebar(
                         doc, RebarStyle.Standard, barType,
                         hookStartType, null, // start hook only
                         host, normal, curves1,
@@ -264,7 +265,7 @@ namespace antiGGGravity.Commands.Rebar
                         true, true);
 
                     // Create segment 2
-                    var rebar2 = Autodesk.Revit.DB.Structure.Rebar.CreateFromCurves(
+                    var rebar2 = RevitCompatibility.CreateRebar(
                         doc, RebarStyle.Standard, barType,
                         null, hookEndType, // end hook only
                         host, normal, curves2,

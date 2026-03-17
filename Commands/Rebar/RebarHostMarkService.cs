@@ -40,7 +40,7 @@ namespace antiGGGravity.Commands.Rebar
                 {
                     allRebarElements = selectedIds.Select(id => doc.GetElement(id))
                         .Where(e => e != null && e.IsValidObject && !(e is ElementType))
-                        .Where(e => e.Category != null && e.Category.Id.Value == (long)BuiltInCategory.OST_Rebar)
+                        .Where(e => e.Category != null && e.Category.Id.GetIdValue() == (long)BuiltInCategory.OST_Rebar)
                         .ToList();
                 }
                 else

@@ -1,6 +1,7 @@
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Structure;
 using antiGGGravity.StructuralRebar.Core.Geometry;
+using antiGGGravity.Utilities;
 using System;
 using System.Collections.Generic;
 
@@ -80,7 +81,7 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
                 try
                 {
                     Arc circle = Arc.Create(origin, radius, 0, 2 * Math.PI, XYZ.BasisX, XYZ.BasisY);
-                    tie = Rebar.CreateFromCurves(doc, RebarStyle.StirrupTie, barType, null, null, host, XYZ.BasisZ, new List<Curve> { circle }, RebarHookOrientation.Left, RebarHookOrientation.Left, true, true);
+                    tie = RevitCompatibility.CreateRebar(doc, RebarStyle.StirrupTie, barType, null, null, host, XYZ.BasisZ, new List<Curve> { circle }, (RebarHookOrientation)1, (RebarHookOrientation)1, true, true);
                 } catch { }
             }
 
@@ -176,7 +177,7 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
                 try
                 {
                     Arc circle = Arc.Create(origin, radius, 0, 2 * Math.PI, XYZ.BasisX, XYZ.BasisY);
-                    spiral = Rebar.CreateFromCurves(doc, RebarStyle.StirrupTie, tieBarType, null, null, host, XYZ.BasisZ, new List<Curve> { circle }, RebarHookOrientation.Left, RebarHookOrientation.Left, true, true);
+                    spiral = RevitCompatibility.CreateRebar(doc, RebarStyle.StirrupTie, tieBarType, null, null, host, XYZ.BasisZ, new List<Curve> { circle }, (RebarHookOrientation)1, (RebarHookOrientation)1, true, true);
                 } catch { }
             }
 

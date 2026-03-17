@@ -47,13 +47,13 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
             RebarHookOrientation orientS, orientE;
             if (sideOffset >= 0) // Exterior or Centre
             {
-                orientS = hookStartOut ? RebarHookOrientation.Right : RebarHookOrientation.Left;
-                orientE = hookEndOut ? RebarHookOrientation.Right : RebarHookOrientation.Left;
+                orientS = hookStartOut ? (RebarHookOrientation)(-1) : (RebarHookOrientation)1;
+                orientE = hookEndOut ? (RebarHookOrientation)(-1) : (RebarHookOrientation)1;
             }
             else // Interior
             {
-                orientS = hookStartOut ? RebarHookOrientation.Left : RebarHookOrientation.Right;
-                orientE = hookEndOut ? RebarHookOrientation.Left : RebarHookOrientation.Right;
+                orientS = hookStartOut ? (RebarHookOrientation)1 : (RebarHookOrientation)(-1);
+                orientE = hookEndOut ? (RebarHookOrientation)1 : (RebarHookOrientation)(-1);
             }
 
             // Position the FIRST bar at the start offset
@@ -117,13 +117,13 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
             RebarHookOrientation orientS, orientE;
             if (sideOffset >= 0) // Exterior or Centre
             {
-                orientS = hookStartOut ? RebarHookOrientation.Left : RebarHookOrientation.Right;
-                orientE = hookEndOut ? RebarHookOrientation.Left : RebarHookOrientation.Right;
+                orientS = hookStartOut ? (RebarHookOrientation)1 : (RebarHookOrientation)(-1);
+                orientE = hookEndOut ? (RebarHookOrientation)1 : (RebarHookOrientation)(-1);
             }
             else // Interior
             {
-                orientS = hookStartOut ? RebarHookOrientation.Right : RebarHookOrientation.Left;
-                orientE = hookEndOut ? RebarHookOrientation.Right : RebarHookOrientation.Left;
+                orientS = hookStartOut ? (RebarHookOrientation)(-1) : (RebarHookOrientation)1;
+                orientE = hookEndOut ? (RebarHookOrientation)(-1) : (RebarHookOrientation)1;
             }
 
             // Position: bottom bar at z = zMin + botOffset

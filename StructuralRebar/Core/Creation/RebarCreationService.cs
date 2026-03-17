@@ -4,6 +4,7 @@ using antiGGGravity.StructuralRebar.DTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using antiGGGravity.Utilities;
 using DBRebar = Autodesk.Revit.DB.Structure.Rebar;
 
 namespace antiGGGravity.StructuralRebar.Core.Creation
@@ -60,7 +61,7 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
                     {
                         if (standardShape != null)
                         {
-                            rebar = DBRebar.CreateFromCurvesAndShape(_doc, standardShape, barType, hookStart, hookEnd, host, def.Normal, def.Curves, def.HookStartOrientation, def.HookEndOrientation);
+                            rebar = RevitCompatibility.CreateRebarWithShape(_doc, standardShape, barType, hookStart, hookEnd, host, def.Normal, def.Curves, def.HookStartOrientation, def.HookEndOrientation);
                         }
                     }
                     catch (Exception ex1)
@@ -72,7 +73,7 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
                     {
                         try 
                         {
-                            rebar = DBRebar.CreateFromCurves(_doc, def.Style, barType, hookStart, hookEnd, host, def.Normal, def.Curves, def.HookStartOrientation, def.HookEndOrientation, true, true);
+                            rebar = RevitCompatibility.CreateRebar(_doc, def.Style, barType, hookStart, hookEnd, host, def.Normal, def.Curves, def.HookStartOrientation, def.HookEndOrientation, true, true);
                         }
                         catch (Exception ex2)
                         {
@@ -93,7 +94,7 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
                             if (shapeIdToTrash != null && shapeIdToTrash != ElementId.InvalidElementId) generatedShapesToDelete.Add(shapeIdToTrash);
 
                             _doc.Delete(rebar.Id);
-                            rebar = DBRebar.CreateFromCurves(_doc, def.Style, barType, hookStart, hookEnd, host, def.Normal, def.Curves, def.HookStartOrientation, def.HookEndOrientation, false, true);
+                            rebar = RevitCompatibility.CreateRebar(_doc, def.Style, barType, hookStart, hookEnd, host, def.Normal, def.Curves, def.HookStartOrientation, def.HookEndOrientation, false, true);
                         }
                     }
 
@@ -148,12 +149,12 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
                             if (hookStart != null)
                             {
                                 if (rebar.GetHookTypeId(0) == ElementId.InvalidElementId) rebar.SetHookTypeId(0, hookStart.Id);
-                                rebar.SetHookOrientation(0, def.HookStartOrientation);
+                                RevitCompatibility.SetHookOrientationCompatible(rebar, 0, def.HookStartOrientation);
                             }
                             if (hookEnd != null)
                             {
                                 if (rebar.GetHookTypeId(1) == ElementId.InvalidElementId) rebar.SetHookTypeId(1, hookEnd.Id);
-                                rebar.SetHookOrientation(1, def.HookEndOrientation);
+                                RevitCompatibility.SetHookOrientationCompatible(rebar, 1, def.HookEndOrientation);
                             }
                         } catch { }
 

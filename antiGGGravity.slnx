@@ -1,3 +1,11 @@
 <Solution>
-  <Project Path="antiGGGravity.csproj" />
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="R22" />
+    <BuildType Name="R24" />
+    <BuildType Name="Release" />
+  </Configurations>
+  <Project Path="antiGGGravity.csproj">
+    <BuildType Solution="Debug|*" Project="R22" />
+  </Project>
 </Solution>

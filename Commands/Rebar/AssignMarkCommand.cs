@@ -564,7 +564,7 @@ namespace antiGGGravity.Commands.Rebar
         public bool AllowElement(Element elem)
         {
             if (elem?.Category == null) return false;
-            return _allowed.Contains((BuiltInCategory)elem.Category.Id.Value);
+            return _allowed.Contains((BuiltInCategory)elem.Category.Id.GetIdValue());
         }
 
         public bool AllowReference(Reference reference, XYZ position) => false;

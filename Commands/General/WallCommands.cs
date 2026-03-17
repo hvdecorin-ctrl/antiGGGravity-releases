@@ -26,7 +26,7 @@ namespace antiGGGravity.Commands.General
             catch { return Result.Cancelled; }
 
             ElementId topId = sourceWall.get_Parameter(BuiltInParameter.WALL_HEIGHT_TYPE).AsElementId();
-            bool isUnconnected = topId.Value == -1;
+            bool isUnconnected = topId.GetIdValue() == -1;
 
             double mainUnconnectedHeight = sourceWall.get_Parameter(BuiltInParameter.WALL_USER_HEIGHT_PARAM).AsDouble();
             double mainBaseOffset = sourceWall.get_Parameter(BuiltInParameter.WALL_BASE_OFFSET).AsDouble();
@@ -136,7 +136,7 @@ namespace antiGGGravity.Commands.General
                     targetWall.get_Parameter(BuiltInParameter.WALL_BASE_OFFSET).Set(baseOffset);
                     // Top
                     targetWall.get_Parameter(BuiltInParameter.WALL_HEIGHT_TYPE).Set(topId);
-                    if (topId.Value == -1)
+                    if (topId.GetIdValue() == -1)
                         targetWall.get_Parameter(BuiltInParameter.WALL_USER_HEIGHT_PARAM).Set(unconnectedHeight);
                     else
                         targetWall.get_Parameter(BuiltInParameter.WALL_TOP_OFFSET).Set(topOffset);

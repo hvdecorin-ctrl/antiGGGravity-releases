@@ -35,7 +35,7 @@ namespace antiGGGravity.Commands.VisibilityGraphic
             var structModels = new List<CategoryVisibilityModel>();
             foreach (var id in customIds)
             {
-                var eid = new ElementId(id);
+                var eid = RevitCompatibility.NewElementId(id);
                 if (dict.TryGetValue(eid, out var model))
                 {
                     structModels.Add(new CategoryVisibilityModel 

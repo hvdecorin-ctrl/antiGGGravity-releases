@@ -314,7 +314,7 @@ namespace antiGGGravity.Commands.General.AutoDimension
             var deduped = new List<(Reference Ref, double Coord)> { allRefs[0] };
             for (int i = 1; i < allRefs.Count; i++)
             {
-                if (Math.Abs(allRefs[i].Coord - deduped[^1].Coord) > dedupTol)
+                if (Math.Abs(allRefs[i].Coord - deduped[deduped.Count - 1].Coord) > dedupTol)
                     deduped.Add(allRefs[i]);
             }
             if (deduped.Count < 1) return 0;
@@ -323,7 +323,7 @@ namespace antiGGGravity.Commands.General.AutoDimension
             GridInfo bestGrid = null;
             double? bestD = null;
             double clusterMin = deduped[0].Coord;
-            double clusterMax = deduped[^1].Coord;
+            double clusterMax = deduped[deduped.Count - 1].Coord;
             double clusterCentroid = (clusterMin + clusterMax) / 2.0;
 
             foreach (var g in gridsPerp)
@@ -370,7 +370,7 @@ namespace antiGGGravity.Commands.General.AutoDimension
                     var dedupedFinal = new List<(Reference Ref, double Coord)> { withGrid[0] };
                     for (int i = 1; i < withGrid.Count; i++)
                     {
-                        if (Math.Abs(withGrid[i].Coord - dedupedFinal[^1].Coord) > dedupTol)
+                        if (Math.Abs(withGrid[i].Coord - dedupedFinal[dedupedFinal.Count - 1].Coord) > dedupTol)
                             dedupedFinal.Add(withGrid[i]);
                     }
                     refsFinal = dedupedFinal.Select(r => r.Ref).ToList();
@@ -405,7 +405,7 @@ namespace antiGGGravity.Commands.General.AutoDimension
                 double pBase = s < 0 ? pLo - off : pHi + off;
                 double pAdj = pBase;
                 if (occupiedZones != null)
-                    pAdj = AdjustPerpForCollisions(axis, deduped[0].Coord, deduped[^1].Coord, pBase, s, occupiedZones, settings);
+                    pAdj = AdjustPerpForCollisions(axis, deduped[0].Coord, deduped[deduped.Count - 1].Coord, pBase, s, occupiedZones, settings);
                 return (pAdj, Math.Abs(pAdj - pBase));
             }
 
@@ -426,7 +426,7 @@ namespace antiGGGravity.Commands.General.AutoDimension
 
             // Create dimension chain
             int created2 = 0;
-            var (p0, p1) = LinePoints(deduped[0].Coord, deduped[^1].Coord, axis, linePos, gridCoord);
+            var (p0, p1) = LinePoints(deduped[0].Coord, deduped[deduped.Count - 1].Coord, axis, linePos, gridCoord);
             var clusterDim = MakeDim(doc, view, refsFinal, p0, p1);
             if (clusterDim != null)
             {

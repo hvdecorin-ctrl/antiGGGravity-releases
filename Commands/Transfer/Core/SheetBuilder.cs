@@ -61,7 +61,7 @@ namespace antiGGGravity.Commands.Transfer.Core
                                         var targetVpType = new FilteredElementCollector(_targetDoc)
                                             .OfClass(typeof(ElementType))
                                             .Cast<ElementType>()
-                                            .FirstOrDefault(e => e.Category != null && e.Category.Id.Value == (long)BuiltInCategory.OST_Viewports && e.Name == vpTypeName);
+                                            .FirstOrDefault(e => e.Category != null && e.Category.Id.GetIdValue() == (long)BuiltInCategory.OST_Viewports && e.Name == vpTypeName);
                                         
                                         if (targetVpType != null)
                                         {

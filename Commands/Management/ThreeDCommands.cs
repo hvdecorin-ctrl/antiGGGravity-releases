@@ -145,7 +145,7 @@ namespace antiGGGravity.Commands.Management
             
             var data = new System.Collections.Generic.Dictionary<string, object>
             {
-                { "view_id", view.Id.Value },
+                { "view_id", view.Id.GetIdValue() },
                 { "min_x", bbox.Min.X }, { "min_y", bbox.Min.Y }, { "min_z", bbox.Min.Z },
                 { "max_x", bbox.Max.X }, { "max_y", bbox.Max.Y }, { "max_z", bbox.Max.Z },
                 { "origin_x", t.Origin.X }, { "origin_y", t.Origin.Y }, { "origin_z", t.Origin.Z },
@@ -176,7 +176,7 @@ namespace antiGGGravity.Commands.Management
 
                 // Check if this saved box belongs to the current view
                 long savedViewId = data["view_id"].GetInt64();
-                if (savedViewId != view.Id.Value) return;
+                if (savedViewId != view.Id.GetIdValue()) return;
 
                 XYZ origin = new XYZ(data["origin_x"].GetDouble(), data["origin_y"].GetDouble(), data["origin_z"].GetDouble());
                 XYZ basisX = new XYZ(data["basis_x_x"].GetDouble(), data["basis_x_y"].GetDouble(), data["basis_x_z"].GetDouble());

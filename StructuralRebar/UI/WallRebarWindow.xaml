@@ -89,7 +89,7 @@
             <!-- FOOTER -->
             <Border Grid.Row="2" Background="#F9F9F9" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,1,0,0" CornerRadius="0,0,12,12" Padding="25,12">
                 <Grid>
-                    <TextBlock VerticalAlignment="Center" FontSize="11" Foreground="#AAAAAA" Text="antiGGGravity © 2026 HV Decorin"/>
+                    <TextBlock VerticalAlignment="Center" FontSize="11" Foreground="#AAAAAA" Text="antiGGGravity © 2026 HV Sponsor"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <Button Content="Close" Width="100" Height="36" Margin="0,0,10,0"
                                 Style="{StaticResource PremiumPrimaryButtonStyle}" Click="UI_Button_Cancel_Click"

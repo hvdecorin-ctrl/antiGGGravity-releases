@@ -8,6 +8,6 @@ namespace antiGGGravity.Resources
     /// </summary>
     public static class Branding
     {
-        public const string COMPANY_NAME = "H&V Decor";
+        public const string COMPANY_NAME = "H&V Sponsor";
     }
 }

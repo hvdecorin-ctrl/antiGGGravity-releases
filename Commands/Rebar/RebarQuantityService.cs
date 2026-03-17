@@ -91,7 +91,7 @@ namespace antiGGGravity.Commands.Rebar
                 {
                     allRebarElements = selectedIds.Select(id => doc.GetElement(id))
                         .Where(e => e != null && e.IsValidObject && !(e is ElementType))
-                        .Where(e => e.Category != null && e.Category.Id.Value == (long)BuiltInCategory.OST_Rebar)
+                        .Where(e => e.Category != null && e.Category.Id.GetIdValue() == (long)BuiltInCategory.OST_Rebar)
                         .ToList();
                 }
                 else
@@ -218,7 +218,7 @@ namespace antiGGGravity.Commands.Rebar
                 if (host == null || !host.IsValidObject) return "Deleted/Missing Host";
                 if (host.Category == null) return "Unknown Category";
 
-                long catId = host.Category.Id.Value;
+                long catId = host.Category.Id.GetIdValue();
 
                 if (catId == (long)BuiltInCategory.OST_StructuralFoundation) return "Foundation";
                 if (catId == (long)BuiltInCategory.OST_Walls) return "Wall";

@@ -55,9 +55,9 @@ namespace antiGGGravity.Commands.General.AutoDimension
         /// Extracts a long value from ElementId, compatible with Revit 2025+ API.
         /// </summary>
         public static long GetIdValue(Autodesk.Revit.DB.ElementId id)
-            => id.Value;
+            => id.GetIdValue();
 
         public static long GetIdValue(Autodesk.Revit.DB.Element elem)
-            => elem.Id.Value;
+            => elem.Id.GetIdValue();
     }
 }

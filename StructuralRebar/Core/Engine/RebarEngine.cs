@@ -113,13 +113,13 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                             success = new WallEngine(_doc).Execute(wall, request);
                         else if (element is FamilyInstance col && request.HostType == ElementHostType.Column)
                             success = new ColumnEngine(_doc).Execute(col, request);
-                        else if (element.Category?.Id.Value == (long)BuiltInCategory.OST_StructuralFoundation && request.HostType == ElementHostType.StripFooting)
+                        else if (element.Category?.Id.GetIdValue() == (long)BuiltInCategory.OST_StructuralFoundation && request.HostType == ElementHostType.StripFooting)
                             success = new FootingEngine(_doc).Execute(element, request);
-                        else if (element.Category?.Id.Value == (long)BuiltInCategory.OST_StructuralFoundation && request.HostType == ElementHostType.FootingPad)
+                        else if (element.Category?.Id.GetIdValue() == (long)BuiltInCategory.OST_StructuralFoundation && request.HostType == ElementHostType.FootingPad)
                             success = new FootingEngine(_doc).Execute(element, request);
-                        else if (element.Category?.Id.Value == (long)BuiltInCategory.OST_StructuralFoundation && request.HostType == ElementHostType.PadShape)
+                        else if (element.Category?.Id.GetIdValue() == (long)BuiltInCategory.OST_StructuralFoundation && request.HostType == ElementHostType.PadShape)
                             success = new PadShapeEngine(_doc).Execute(element, request);
-                        else if (element.Category?.Id.Value == (long)BuiltInCategory.OST_StructuralFoundation && request.HostType == ElementHostType.BoredPile)
+                        else if (element.Category?.Id.GetIdValue() == (long)BuiltInCategory.OST_StructuralFoundation && request.HostType == ElementHostType.BoredPile)
                             success = new BoredPileEngine(_doc).Execute(element, request);
 
                         if (success) processed++;

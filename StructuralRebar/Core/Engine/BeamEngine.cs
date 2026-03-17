@@ -559,8 +559,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                         DistributionWidth = distWidthL,
                         ArrayDirection = firstHost.WAxis,
                         Normal = firstHost.WAxis,
-                        HookStartOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Right,
-                        HookEndOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Right,
+                        HookStartOrientation = (RebarHookOrientation)(-1), // Right
+                        HookEndOrientation = (RebarHookOrientation)(-1),   // Right
                         HookStartName = (Math.Abs(seg.Start - 0) < 0.001) ? layer.HookStartName : null,
                         HookEndName = (Math.Abs(seg.End - barLen) < 0.001) ? layer.HookEndName : null,
                         OverrideHookLength = layer.OverrideHookLength,
@@ -628,8 +628,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                                 DistributionWidth = distWidth_base,
                                 ArrayDirection = firstHost.WAxis,
                                 Normal = firstHost.WAxis,
-                                HookStartOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Right,
-                                HookEndOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Right,
+                                HookStartOrientation = (RebarHookOrientation)(-1), // Right
+                                HookEndOrientation = (RebarHookOrientation)(-1),   // Right
                                 HookStartName = (b1Layer != null && Math.Abs(seg.Start - 0) < 0.001) ? b1Layer.HookStartName : null,
                                 HookEndName = (b1Layer != null && Math.Abs(seg.End - barLen) < 0.01) ? b1Layer.HookEndName : null,
                                 Label = $"B2 @ {over.SpanName}",
@@ -688,8 +688,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                                 DistributionWidth = distWidthL,
                                 ArrayDirection = firstHost.WAxis,
                                 Normal = firstHost.WAxis,
-                                HookStartOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Right,
-                                HookEndOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Right,
+                                HookStartOrientation = (RebarHookOrientation)(-1), // Right
+                                HookEndOrientation = (RebarHookOrientation)(-1),   // Right
                                 HookStartName = (b1Layer != null && Math.Abs(seg.Start - 0) < 0.001) ? b1Layer.HookStartName : null,
                                 HookEndName = (b1Layer != null && Math.Abs(seg.End - barLen) < 0.01) ? b1Layer.HookEndName : null,
                                 Label = $"B3 @ {over.SpanName}",
@@ -899,8 +899,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                         FixedCount = count,
                         DistributionWidth = distWidthSeg,
                         Normal = host.WAxis,
-                        HookStartOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Left,
-                        HookEndOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Left,
+                        HookStartOrientation = (RebarHookOrientation)1, // Left
+                        HookEndOrientation = (RebarHookOrientation)1,   // Left
                         HookStartName = (seg.Start == 0) ? layer.HookStartName : null,
                         HookEndName = (seg.End >= barLen - 0.001) ? layer.HookEndName : null,
                         OverrideHookLength = layer.OverrideHookLength,
@@ -972,8 +972,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                         FixedCount = count,
                         DistributionWidth = distWidthSeg,
                         Normal = host.WAxis,
-                        HookStartOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Right,
-                        HookEndOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Right,
+                        HookStartOrientation = (RebarHookOrientation)(-1), // Right
+                        HookEndOrientation = (RebarHookOrientation)(-1),   // Right
                         HookStartName = (seg.Start == 0) ? layer.HookStartName : null,
                         HookEndName = (seg.End >= barLen - 0.001) ? layer.HookEndName : null,
                         OverrideHookLength = layer.OverrideHookLength,

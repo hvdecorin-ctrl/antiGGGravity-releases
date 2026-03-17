@@ -730,8 +730,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                     FixedCount = count,
                     DistributionWidth = distWidth,
                     HookStartName = hookEndName,  // Hook at bottom of starter
-                    HookStartOrientation = RebarHookOrientation.Left,
-                    HookEndOrientation = RebarHookOrientation.Left,
+                    HookStartOrientation = (RebarHookOrientation)1, // Left
+                    HookEndOrientation = (RebarHookOrientation)1,   // Left
                     Label = label,
                     Comment = "Starter Bar"
                 });

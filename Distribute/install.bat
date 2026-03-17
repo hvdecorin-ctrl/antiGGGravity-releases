@@ -1,50 +1,60 @@
 @echo off
+setlocal enabledelayedexpansion
 echo ============================================
-echo   antiGGGravity Revit Add-in Installer
+echo   antiGGGravity Revit Add-in Multi-Installer
 echo ============================================
 echo.
 
-:: Set install directory
-set INSTALL_DIR=C:\antiGGGravity
-set ADDIN_2025=C:\ProgramData\Autodesk\Revit\Addins\2025
-set ADDIN_2026=C:\ProgramData\Autodesk\Revit\Addins\2026
-
-:: Check for admin rights (needed for ProgramData)
+:: Check for admin rights
 net session >nul 2>&1
 if %errorlevel% neq 0 (
     echo [!] Please run this script as Administrator.
-    echo     Right-click install.bat and select "Run as administrator"
+    echo     Right-click and select "Run as administrator"
     pause
     exit /b 1
 )
 
-:: Create install directory
-echo [1/3] Installing add-in files to %INSTALL_DIR% ...
-if not exist "%INSTALL_DIR%" mkdir "%INSTALL_DIR%"
-xcopy /E /Y /Q "%~dp0addin\*" "%INSTALL_DIR%\" >nul
-echo       Done.
+set "BASE_INSTALL=C:\ProgramData\antiGGGravity"
+if not exist "%BASE_INSTALL%" mkdir "%BASE_INSTALL%"
 
-:: Deploy .addin manifest to Revit 2025
-echo [2/3] Registering with Revit 2025 ...
-if exist "%ADDIN_2025%" (
-    copy /Y "%~dp0antiGGGravity.addin" "%ADDIN_2025%\" >nul
-    echo       Done.
-) else (
-    echo       Skipped - Revit 2025 not found.
-)
+:: Versions to check
+set "VERSIONS=2022 2023 2024 2025 2026"
 
-:: Deploy .addin manifest to Revit 2026
-echo [3/3] Registering with Revit 2026 ...
-if exist "%ADDIN_2026%" (
-    copy /Y "%~dp0antiGGGravity.addin" "%ADDIN_2026%\" >nul
-    echo       Done.
-) else (
-    echo       Skipped - Revit 2026 not found.
+for %%V in (%VERSIONS%) do (
+    echo.
+    echo [*] Checking Revit %%V ...
+    set "REVIT_ADDIN_PATH=C:\ProgramData\Autodesk\Revit\Addins\%%V"
+    
+    if exist "!REVIT_ADDIN_PATH!" (
+        echo     Revit %%V found. Deploying...
+        
+        set "TARGET_DIR=%BASE_INSTALL%\%%V"
+        if not exist "!TARGET_DIR!" mkdir "!TARGET_DIR!"
+        
+        :: Copy version-specific binaries
+        xcopy /E /Y /Q "%~dp0R%%V\*" "!TARGET_DIR!\" >nul
+        
+        :: Copy and Patch Manifest
+        set "MANIFEST_SRC=!TARGET_DIR!\antiGGGravity.addin"
+        set "MANIFEST_DEST=!REVIT_ADDIN_PATH!\antiGGGravity.addin"
+        
+        if exist "!MANIFEST_SRC!" (
+            copy /Y "!MANIFEST_SRC!" "!MANIFEST_DEST!" >nul
+            
+            :: Update Assembly path in .addin to absolute path
+            powershell -Command "(Get-Content '!MANIFEST_DEST!') -replace '<Assembly>.*</Assembly>', '<Assembly>!TARGET_DIR!\antiGGGravity.dll</Assembly>' | Set-Content '!MANIFEST_DEST!'"
+            echo     Successfully installed into Revit %%V.
+        ) else (
+            echo     Error: Manifest not found in %~dp0R%%V
+        )
+    ) else (
+        echo     Revit %%V not installed ^(Dir not found^).
+    )
 )
 
 echo.
 echo ============================================
-echo   Installation complete!
-echo   Please restart Revit to load the add-in.
+echo   Multi-Version Installation Complete!
+echo   Supported Versions: 2022 - 2026
 echo ============================================
 pause

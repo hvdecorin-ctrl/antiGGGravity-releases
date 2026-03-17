@@ -168,7 +168,7 @@ namespace antiGGGravity.Views.VisibilityGraphic
 
             if (changed)
             {
-                QuickVgLogic.SaveCustomCategoryIds(_structCategories.Select(c => c.Id.Value));
+                QuickVgLogic.SaveCustomCategoryIds(_structCategories.Select(c => c.Id.GetIdValue()));
             }
         }
 
@@ -186,7 +186,7 @@ namespace antiGGGravity.Views.VisibilityGraphic
                 }
             }
 
-            QuickVgLogic.SaveCustomCategoryIds(_structCategories.Select(c => c.Id.Value));
+            QuickVgLogic.SaveCustomCategoryIds(_structCategories.Select(c => c.Id.GetIdValue()));
         }
 
         private void StructListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -197,7 +197,7 @@ namespace antiGGGravity.Views.VisibilityGraphic
                 if (existing != null)
                 {
                     _structCategories.Remove(existing);
-                    QuickVgLogic.SaveCustomCategoryIds(_structCategories.Select(c => c.Id.Value));
+                    QuickVgLogic.SaveCustomCategoryIds(_structCategories.Select(c => c.Id.GetIdValue()));
                     e.Handled = true;
                 }
             }
@@ -216,7 +216,7 @@ namespace antiGGGravity.Views.VisibilityGraphic
                         IsVisible = item.IsVisible 
                     });
                     
-                    QuickVgLogic.SaveCustomCategoryIds(_structCategories.Select(c => c.Id.Value));
+                    QuickVgLogic.SaveCustomCategoryIds(_structCategories.Select(c => c.Id.GetIdValue()));
                     e.Handled = true;
                 }
             }

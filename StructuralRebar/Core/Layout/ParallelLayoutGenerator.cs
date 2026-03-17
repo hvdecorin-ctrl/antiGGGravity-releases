@@ -91,8 +91,8 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
         {
             Curve barLine = Line.CreateBound(barStart, barEnd);
             RebarHookOrientation orient = isTop
-                ? RebarHookOrientation.Left
-                : RebarHookOrientation.Right;
+                ? (RebarHookOrientation)1   // Left
+                : (RebarHookOrientation)(-1); // Right
 
             return new RebarDefinition
             {

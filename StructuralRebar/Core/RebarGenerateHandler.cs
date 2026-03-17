@@ -408,7 +408,7 @@ namespace antiGGGravity.StructuralRebar.Core
         private class BeamSelectionFilter : ISelectionFilter
         {
             public bool AllowElement(Element elem) =>
-                elem.Category?.Id.Value == (long)BuiltInCategory.OST_StructuralFraming;
+                elem.Category?.Id.GetIdValue() == (long)BuiltInCategory.OST_StructuralFraming;
             public bool AllowReference(Reference reference, XYZ position) => false;
         }
 
@@ -421,14 +421,14 @@ namespace antiGGGravity.StructuralRebar.Core
         private class ColumnSelectionFilter : ISelectionFilter
         {
             public bool AllowElement(Element elem) =>
-                elem.Category?.Id.Value == (long)BuiltInCategory.OST_StructuralColumns;
+                elem.Category?.Id.GetIdValue() == (long)BuiltInCategory.OST_StructuralColumns;
             public bool AllowReference(Reference reference, XYZ position) => false;
         }
 
         private class StripFootingSelectionFilter : ISelectionFilter
         {
             public bool AllowElement(Element elem) =>
-                elem.Category?.Id.Value == (long)BuiltInCategory.OST_StructuralFoundation;
+                elem.Category?.Id.GetIdValue() == (long)BuiltInCategory.OST_StructuralFoundation;
             public bool AllowReference(Reference reference, XYZ position) => false;
         }
     }

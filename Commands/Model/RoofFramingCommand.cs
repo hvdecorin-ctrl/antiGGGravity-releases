@@ -68,11 +68,11 @@ namespace antiGGGravity.Commands.Model
                     List<(Line, double, XYZ)> allRafterLines = new List<(Line, double, XYZ)>();
                     List<(Line, double, XYZ)> edgeLines = new List<(Line, double, XYZ)>();
 
-                    double purlinSpacingInternal = UnitUtils.ConvertToInternalUnits(view.PurlinSpacing, UnitTypeId.Millimeters);
-                    double rafterSpacingInternal = UnitUtils.ConvertToInternalUnits(view.RafterSpacing, UnitTypeId.Millimeters);
-                    double purlinOffsetInternal = UnitUtils.ConvertToInternalUnits(view.PurlinOffset, UnitTypeId.Millimeters);
-                    double rafterOffsetInternal = UnitUtils.ConvertToInternalUnits(view.RafterOffset, UnitTypeId.Millimeters);
-                    double finishingOffsetInternal = UnitUtils.ConvertToInternalUnits(view.FinishingOffsetValue, UnitTypeId.Millimeters);
+                    double purlinSpacingInternal = RevitCompatibility.MmToInternal(view.PurlinSpacing);
+                    double rafterSpacingInternal = RevitCompatibility.MmToInternal(view.RafterSpacing);
+                    double purlinOffsetInternal = RevitCompatibility.MmToInternal(view.PurlinOffset);
+                    double rafterOffsetInternal = RevitCompatibility.MmToInternal(view.RafterOffset);
+                    double finishingOffsetInternal = RevitCompatibility.MmToInternal(view.FinishingOffsetValue);
 
                     foreach (Face face in faces)
                     {
@@ -385,7 +385,7 @@ namespace antiGGGravity.Commands.Model
         private double GetBeamDepth(FamilySymbol sym)
         {
             var p = sym.LookupParameter("d") ?? sym.LookupParameter("Depth") ?? sym.LookupParameter("Height");
-            return (p != null && p.HasValue) ? p.AsDouble() : UnitUtils.ConvertToInternalUnits(200, UnitTypeId.Millimeters);
+            return (p != null && p.HasValue) ? p.AsDouble() : RevitCompatibility.MmToInternal(200);
         }
 
         private Level GetNearestLevel(Document doc, XYZ point)
