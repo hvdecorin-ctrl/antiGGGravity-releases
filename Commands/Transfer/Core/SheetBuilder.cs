@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Autodesk.Revit.DB;
+using antiGGGravity.Utilities;
 
 namespace antiGGGravity.Commands.Transfer.Core
 {
@@ -48,6 +49,18 @@ namespace antiGGGravity.Commands.Transfer.Core
                         if (Viewport.CanAddViewToSheet(_targetDoc, newSheet.Id, newViewId))
                         {
                             Viewport newVp = Viewport.Create(_targetDoc, newSheet.Id, newViewId, vp.GetBoxCenter());
+                            
+                            // Copy Detail Number
+                            var sourceDetailNum = vp.get_Parameter(BuiltInParameter.VIEWPORT_DETAIL_NUMBER);
+                            var targetDetailNum = newVp.get_Parameter(BuiltInParameter.VIEWPORT_DETAIL_NUMBER);
+                            if (sourceDetailNum != null && targetDetailNum != null && !targetDetailNum.IsReadOnly)
+                            {
+                                try
+                                {
+                                    targetDetailNum.Set(sourceDetailNum.AsString());
+                                }
+                                catch { }
+                            }
                             
                             // Attempt to map type (titleline behavior etc)
                             try

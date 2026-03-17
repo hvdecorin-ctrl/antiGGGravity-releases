@@ -1,8 +1,11 @@
 # Deploy multi-version script
-$versions = @("R22", "R23", "R24", "R25", "R26")
+param (
+    [string[]]$VersionsToBuild = @("R22", "R23", "R24", "R25", "R26")
+)
+
 $distRoot = "Distribute"
 
-foreach ($v in $versions) {
+foreach ($v in $VersionsToBuild) {
     Write-Host "Building for $v..." -ForegroundColor Cyan
     dotnet build antiGGGravity.csproj -c $v
     

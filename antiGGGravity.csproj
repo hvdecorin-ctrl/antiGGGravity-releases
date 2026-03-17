@@ -76,7 +76,7 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <DeployToRevit Condition="'$(DeployToRevit)' == ''">true</DeployToRevit>
+    <DeployToRevit Condition="'$(DeployToRevit)' == ''">false</DeployToRevit>
   </PropertyGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(DeployToRevit)' == 'true'">
