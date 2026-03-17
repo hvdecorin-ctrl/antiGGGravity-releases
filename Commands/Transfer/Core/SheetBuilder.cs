@@ -6,6 +6,42 @@ using antiGGGravity.Utilities;
 
 namespace antiGGGravity.Commands.Transfer.Core
 {
+    /// <summary>
+    /// Suppresses non-critical Revit warnings during transfer (e.g., "Detail Number is empty").
+    /// </summary>
+    public class TransferFailuresPreprocessor : IFailuresPreprocessor
+    {
+        public FailureProcessingResult PreprocessFailures(FailuresAccessor failuresAccessor)
+        {
+            var failures = failuresAccessor.GetFailureMessages();
+            foreach (FailureMessageAccessor failure in failures)
+            {
+                // Delete all warnings — they should not block the transfer
+                if (failure.GetSeverity() == FailureSeverity.Warning)
+                {
+                    failuresAccessor.DeleteWarning(failure);
+                }
+                else
+                {
+                    // For errors, try to resolve or delete them too
+                    try
+                    {
+                        failuresAccessor.DeleteWarning(failure);
+                    }
+                    catch
+                    {
+                        try
+                        {
+                            failuresAccessor.ResolveFailure(failure);
+                        }
+                        catch { }
+                    }
+                }
+            }
+            return FailureProcessingResult.Continue;
+        }
+    }
+
     public class SheetBuilder
     {
         private readonly Document _sourceDoc;
@@ -23,7 +59,13 @@ namespace antiGGGravity.Commands.Transfer.Core
         {
             using (Transaction t = new Transaction(_targetDoc, "Rebuild Sheet"))
             {
+                // Attach failure handler to suppress "Detail Number is empty" warnings
+                var failureOptions = t.GetFailureHandlingOptions();
+                failureOptions.SetFailuresPreprocessor(new TransferFailuresPreprocessor());
+                t.SetFailureHandlingOptions(failureOptions);
+
                 t.Start();
+
                 ViewSheet newSheet = ViewSheet.Create(_targetDoc, targetTitleblockId);
 
                 // Set Name and Number
@@ -31,7 +73,7 @@ namespace antiGGGravity.Commands.Transfer.Core
                 newSheet.SheetNumber = safeNumber;
                 
                 try { newSheet.Name = sourceSheet.Name; }
-                catch (Exception) { /* Sometimes Names are reserved but less common for sheets */ }
+                catch (Exception) { }
 
                 // Place corresponding viewports
                 var vpIds = sourceSheet.GetAllViewports();
@@ -46,45 +88,56 @@ namespace antiGGGravity.Commands.Transfer.Core
                     {
                         if (newViewId == null || newViewId == ElementId.InvalidElementId) continue;
 
-                        if (Viewport.CanAddViewToSheet(_targetDoc, newSheet.Id, newViewId))
+                        try
                         {
-                            Viewport newVp = Viewport.Create(_targetDoc, newSheet.Id, newViewId, vp.GetBoxCenter());
-                            
-                            // Copy Detail Number
-                            var sourceDetailNum = vp.get_Parameter(BuiltInParameter.VIEWPORT_DETAIL_NUMBER);
-                            var targetDetailNum = newVp.get_Parameter(BuiltInParameter.VIEWPORT_DETAIL_NUMBER);
-                            if (sourceDetailNum != null && targetDetailNum != null && !targetDetailNum.IsReadOnly)
+                            if (Viewport.CanAddViewToSheet(_targetDoc, newSheet.Id, newViewId))
                             {
+                                Viewport newVp = Viewport.Create(_targetDoc, newSheet.Id, newViewId, vp.GetBoxCenter());
+                                
+                                // Copy Detail Number (with null check to avoid "Detail Number is empty")
                                 try
                                 {
-                                    targetDetailNum.Set(sourceDetailNum.AsString());
-                                }
-                                catch { }
-                            }
-                            
-                            // Attempt to map type (titleline behavior etc)
-                            try
-                            {
-                                ElementId typeId = vp.GetTypeId();
-                                if (typeId != null && typeId != ElementId.InvalidElementId)
-                                {
-                                    string vpTypeName = _sourceDoc.GetElement(typeId)?.Name;
-                                    if (!string.IsNullOrEmpty(vpTypeName))
+                                    var sourceDetailNum = vp.get_Parameter(BuiltInParameter.VIEWPORT_DETAIL_NUMBER);
+                                    if (sourceDetailNum != null)
                                     {
-                                        var targetVpType = new FilteredElementCollector(_targetDoc)
-                                            .OfClass(typeof(ElementType))
-                                            .Cast<ElementType>()
-                                            .FirstOrDefault(e => e.Category != null && e.Category.Id.GetIdValue() == (long)BuiltInCategory.OST_Viewports && e.Name == vpTypeName);
-                                        
-                                        if (targetVpType != null)
+                                        string detailNumStr = sourceDetailNum.AsString();
+                                        if (!string.IsNullOrEmpty(detailNumStr))
                                         {
-                                            newVp.ChangeTypeId(targetVpType.Id);
+                                            var targetDetailNum = newVp.get_Parameter(BuiltInParameter.VIEWPORT_DETAIL_NUMBER);
+                                            if (targetDetailNum != null && !targetDetailNum.IsReadOnly)
+                                            {
+                                                targetDetailNum.Set(detailNumStr);
+                                            }
                                         }
                                     }
                                 }
+                                catch { }
+                                
+                                // Attempt to map viewport type
+                                try
+                                {
+                                    ElementId typeId = vp.GetTypeId();
+                                    if (typeId != null && typeId != ElementId.InvalidElementId)
+                                    {
+                                        string vpTypeName = _sourceDoc.GetElement(typeId)?.Name;
+                                        if (!string.IsNullOrEmpty(vpTypeName))
+                                        {
+                                            var targetVpType = new FilteredElementCollector(_targetDoc)
+                                                .OfClass(typeof(ElementType))
+                                                .Cast<ElementType>()
+                                                .FirstOrDefault(e => e.Category != null && e.Category.Id.GetIdValue() == (long)BuiltInCategory.OST_Viewports && e.Name == vpTypeName);
+                                            
+                                            if (targetVpType != null)
+                                            {
+                                                newVp.ChangeTypeId(targetVpType.Id);
+                                            }
+                                        }
+                                    }
+                                }
+                                catch (Exception) { }
                             }
-                            catch (Exception) { /* Ignored if type fails to swap */ }
                         }
+                        catch (Exception) { /* Skip individual viewport failures */ }
                     }
                 }
 

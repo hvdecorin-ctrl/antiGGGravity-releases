@@ -48,6 +48,7 @@ namespace antiGGGravity.Commands.Transfer.Core
                 case ViewType.Legend:
                 case ViewType.FloorPlan:
                 case ViewType.CeilingPlan:
+                case ViewType.EngineeringPlan:
                     return true;
                 default:
                     return false;

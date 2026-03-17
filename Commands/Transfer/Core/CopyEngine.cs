@@ -6,11 +6,81 @@ using antiGGGravity.Utilities;
 
 namespace antiGGGravity.Commands.Transfer.Core
 {
+    /// <summary>
+    /// Pre-queries and caches target document data to avoid repeated FilteredElementCollector calls.
+    /// Built once, reused for every view in the batch.
+    /// </summary>
+    public class DependencyCache
+    {
+        public Dictionary<string, Level> LevelsByName { get; }
+        public List<Level> AllLevels { get; }
+        public List<ViewFamilyType> AllViewFamilyTypes { get; }
+        public Dictionary<string, View> TemplatesByName { get; }
+        public List<View> AllTargetViews { get; private set; }
+
+        public DependencyCache(Document targetDoc)
+        {
+            AllLevels = new FilteredElementCollector(targetDoc)
+                .OfClass(typeof(Level))
+                .Cast<Level>()
+                .ToList();
+
+            LevelsByName = new Dictionary<string, Level>();
+            foreach (var l in AllLevels)
+            {
+                if (!LevelsByName.ContainsKey(l.Name))
+                    LevelsByName[l.Name] = l;
+            }
+
+            AllViewFamilyTypes = new FilteredElementCollector(targetDoc)
+                .OfClass(typeof(ViewFamilyType))
+                .Cast<ViewFamilyType>()
+                .ToList();
+
+            TemplatesByName = new FilteredElementCollector(targetDoc)
+                .OfClass(typeof(View))
+                .Cast<View>()
+                .Where(v => v.IsTemplate)
+                .GroupBy(v => v.Name)
+                .ToDictionary(g => g.Key, g => g.First());
+        }
+
+        /// <summary>Refreshes the target view list (call after creating views).</summary>
+        public void RefreshTargetViews(Document targetDoc)
+        {
+            AllTargetViews = new FilteredElementCollector(targetDoc)
+                .OfClass(typeof(View))
+                .Cast<View>()
+                .Where(v => !v.IsTemplate)
+                .ToList();
+        }
+
+        public Level FindLevel(string name, double elevation)
+        {
+            if (LevelsByName.TryGetValue(name, out Level match))
+                return match;
+
+            return AllLevels.FirstOrDefault(l => Math.Abs(l.Elevation - elevation) < 0.004);
+        }
+
+        public ViewFamilyType FindViewFamilyType(string typeName, ViewFamily family)
+        {
+            if (!string.IsNullOrEmpty(typeName))
+            {
+                var byName = AllViewFamilyTypes.FirstOrDefault(t => t.Name == typeName && t.ViewFamily == family);
+                if (byName != null) return byName;
+            }
+
+            return AllViewFamilyTypes.FirstOrDefault(t => t.ViewFamily == family);
+        }
+    }
+
     public class CopyEngine
     {
         private readonly Document _sourceDoc;
         private readonly Document _targetDoc;
         private readonly ConflictResolver _conflictResolver;
+        private DependencyCache _cache;
 
         public CopyEngine(Document sourceDoc, Document targetDoc, ConflictResolver conflictResolver)
         {
@@ -19,6 +89,292 @@ namespace antiGGGravity.Commands.Transfer.Core
             _conflictResolver = conflictResolver;
         }
 
+        public void BuildCache()
+        {
+            _cache = new DependencyCache(_targetDoc);
+        }
+
+        public DependencyCache GetCache() => _cache;
+
+        // ─── Pipeline Step: Batch Copy Non-Plan View Definitions ───────────
+        /// <summary>
+        /// Copies all non-plan view definitions WITH their 2D content in a single CopyElements call.
+        /// Includes view-specific elements (detail lines, text, fill regions, dimensions) alongside
+        /// view IDs so Revit maintains ownership. Uses before/after snapshot + name matching for mapping.
+        /// </summary>
+        public Dictionary<ElementId, ElementId> BatchCopyViewDefinitions(List<ElementId> sourceViewIds)
+        {
+            var viewMap = new Dictionary<ElementId, ElementId>();
+            if (sourceViewIds == null || sourceViewIds.Count == 0) return viewMap;
+
+            CopyPasteOptions options = new CopyPasteOptions();
+            options.SetDuplicateTypeNamesHandler(new CustomCopyHandler());
+
+            // Collect view IDs AND all their view-specific content in one list
+            var allIdsToCopy = new List<ElementId>();
+            foreach (var viewId in sourceViewIds)
+            {
+                allIdsToCopy.Add(viewId);
+
+                // Include all view-specific 2D elements owned by this view
+                var viewElements = new FilteredElementCollector(_sourceDoc)
+                    .WhereElementIsNotElementType()
+                    .WherePasses(new ElementOwnerViewFilter(viewId))
+                    .ToElements()
+                    .Where(e => !(e is View) && !(e is Viewport))
+                    .Select(e => e.Id)
+                    .ToList();
+
+                allIdsToCopy.AddRange(viewElements);
+            }
+
+            // Snapshot target views BEFORE copy
+            var viewIdsBefore = new HashSet<ElementId>(
+                new FilteredElementCollector(_targetDoc).OfClass(typeof(View)).ToElementIds());
+
+            using (Transaction t = new Transaction(_targetDoc, "Batch Copy Views With Content"))
+            {
+                t.Start();
+                try
+                {
+                    ElementTransformUtils.CopyElements(_sourceDoc, allIdsToCopy, _targetDoc, null, options);
+                }
+                catch (Exception) { }
+                t.Commit();
+            }
+
+            // Snapshot AFTER — find newly created views
+            var newTargetViews = new FilteredElementCollector(_targetDoc)
+                .OfClass(typeof(View))
+                .Cast<View>()
+                .Where(v => !viewIdsBefore.Contains(v.Id) && !v.IsTemplate)
+                .ToList();
+
+            // Match source views to new target views by name
+            var unmatchedTargets = new List<View>(newTargetViews);
+            foreach (ElementId sourceId in sourceViewIds)
+            {
+                View sourceView = _sourceDoc.GetElement(sourceId) as View;
+                if (sourceView == null) continue;
+
+                var match = unmatchedTargets.FirstOrDefault(v => v.Name == sourceView.Name)
+                         ?? unmatchedTargets.FirstOrDefault(v => v.Name.StartsWith(sourceView.Name));
+
+                if (match != null)
+                {
+                    viewMap[sourceId] = match.Id;
+                    unmatchedTargets.Remove(match);
+                }
+            }
+
+            return viewMap;
+        }
+
+        // ─── Pipeline Step: Batch Create Plan Views ────────────────────────
+        /// <summary>
+        /// Creates all plan views via ViewPlan.Create() in a single transaction.
+        /// </summary>
+        public Dictionary<ElementId, ElementId> BatchCreatePlanViews(List<View> sourcePlanViews)
+        {
+            var viewMap = new Dictionary<ElementId, ElementId>();
+            if (sourcePlanViews == null || sourcePlanViews.Count == 0) return viewMap;
+
+            using (Transaction t = new Transaction(_targetDoc, "Batch Create Plan Views"))
+            {
+                t.Start();
+
+                foreach (View sourceView in sourcePlanViews)
+                {
+                    try
+                    {
+                        ViewPlan sourcePlan = sourceView as ViewPlan;
+                        if (sourcePlan == null) continue;
+
+                        ViewFamily viewFamily;
+                        if (sourceView.ViewType == ViewType.CeilingPlan)
+                            viewFamily = ViewFamily.CeilingPlan;
+                        else if (sourceView.ViewType == ViewType.EngineeringPlan)
+                            viewFamily = ViewFamily.StructuralPlan;
+                        else
+                            viewFamily = ViewFamily.FloorPlan;
+
+                        Level sourceLevel = sourcePlan.GenLevel;
+                        if (sourceLevel == null) continue;
+
+                        Level targetLevel = _cache.FindLevel(sourceLevel.Name, sourceLevel.Elevation);
+                        ElementId targetLevelId;
+
+                        if (targetLevel != null)
+                        {
+                            targetLevelId = targetLevel.Id;
+                        }
+                        else
+                        {
+                            Level newLevel = Level.Create(_targetDoc, sourceLevel.Elevation);
+                            try { newLevel.Name = sourceLevel.Name; } catch { }
+                            targetLevelId = newLevel.Id;
+                            _cache.AllLevels.Add(newLevel);
+                            _cache.LevelsByName[newLevel.Name] = newLevel;
+                        }
+
+                        string sourceTypeName = _sourceDoc.GetElement(sourceView.GetTypeId())?.Name;
+                        ViewFamilyType vft = _cache.FindViewFamilyType(sourceTypeName, viewFamily);
+                        if (vft == null) continue;
+
+                        ViewPlan newPlan = ViewPlan.Create(_targetDoc, vft.Id, targetLevelId);
+                        if (newPlan == null) continue;
+
+                        try { newPlan.Scale = sourcePlan.Scale; } catch { }
+                        try { newPlan.DetailLevel = sourcePlan.DetailLevel; } catch { }
+
+                        try
+                        {
+                            newPlan.CropBoxActive = sourcePlan.CropBoxActive;
+                            if (sourcePlan.CropBoxActive)
+                            {
+                                newPlan.CropBox = sourcePlan.CropBox;
+                                newPlan.CropBoxVisible = sourcePlan.CropBoxVisible;
+                            }
+                        }
+                        catch { }
+
+                        try
+                        {
+                            ElementId srcTemplateId = sourcePlan.ViewTemplateId;
+                            if (srcTemplateId != null && srcTemplateId != ElementId.InvalidElementId)
+                            {
+                                View srcTemplate = _sourceDoc.GetElement(srcTemplateId) as View;
+                                if (srcTemplate != null && _cache.TemplatesByName.TryGetValue(srcTemplate.Name, out View targetTemplate))
+                                {
+                                    newPlan.ViewTemplateId = targetTemplate.Id;
+                                }
+                            }
+                        }
+                        catch { }
+
+                        viewMap[sourceView.Id] = newPlan.Id;
+                    }
+                    catch (Exception) { }
+                }
+
+                t.Commit();
+            }
+
+            return viewMap;
+        }
+
+        // ─── Pipeline Step: Batch Copy View Contents ───────────────────────
+        /// <summary>
+        /// Copies all view-specific 2D elements and viewers in a single transaction.
+        /// </summary>
+        public void BatchCopyViewContents(Dictionary<ElementId, ElementId> viewMap)
+        {
+            if (viewMap == null || viewMap.Count == 0) return;
+
+            CopyPasteOptions options = new CopyPasteOptions();
+            options.SetDuplicateTypeNamesHandler(new CustomCopyHandler());
+
+            using (Transaction t = new Transaction(_targetDoc, "Batch Copy View Contents"))
+            {
+                t.Start();
+
+                foreach (var kvp in viewMap)
+                {
+                    try
+                    {
+                        View sourceView = _sourceDoc.GetElement(kvp.Key) as View;
+                        View targetView = _targetDoc.GetElement(kvp.Value) as View;
+                        if (sourceView == null || targetView == null) continue;
+
+                        // 2D elements (excluding viewers, views, viewports)
+                        var elementsToCopy = new FilteredElementCollector(_sourceDoc)
+                            .WhereElementIsNotElementType()
+                            .WherePasses(new ElementOwnerViewFilter(kvp.Key))
+                            .ToElements()
+                            .Where(e => !(e is View) && !(e is Viewport) &&
+                                   (e.Category == null || e.Category.Id.GetIdValue() != (long)BuiltInCategory.OST_Viewers))
+                            .Select(e => e.Id)
+                            .ToList();
+
+                        if (elementsToCopy.Count > 0)
+                        {
+                            try
+                            {
+                                ElementTransformUtils.CopyElements(sourceView, elementsToCopy, targetView, Transform.Identity, options);
+                            }
+                            catch (Exception) { }
+                        }
+
+                        // Viewers (callout/section marks)
+                        var viewersToCopy = new FilteredElementCollector(_sourceDoc, kvp.Key)
+                            .OfCategory(BuiltInCategory.OST_Viewers)
+                            .WhereElementIsNotElementType()
+                            .ToList();
+
+                        if (viewersToCopy.Count > 0)
+                        {
+                            var nonViewSpecific = viewersToCopy
+                                .Where(e => e.OwnerViewId == ElementId.InvalidElementId)
+                                .Select(e => e.Id).ToList();
+
+                            if (nonViewSpecific.Count > 0)
+                            {
+                                try
+                                {
+                                    ElementTransformUtils.CopyElements(_sourceDoc, nonViewSpecific, _targetDoc, null, options);
+                                }
+                                catch (Exception) { }
+                            }
+
+                            var viewSpecific = viewersToCopy
+                                .Where(e => e.OwnerViewId != ElementId.InvalidElementId)
+                                .Select(e => e.Id).ToList();
+
+                            if (viewSpecific.Count > 0)
+                            {
+                                try
+                                {
+                                    ElementTransformUtils.CopyElements(sourceView, viewSpecific, targetView, Transform.Identity, options);
+                                }
+                                catch (Exception) { }
+                            }
+                        }
+                    }
+                    catch (Exception) { }
+                }
+
+                t.Commit();
+            }
+        }
+
+        // ─── Pipeline Step: Batch Rename Views ─────────────────────────────
+        public void BatchRenameViews(Dictionary<ElementId, ElementId> viewMap)
+        {
+            if (viewMap == null || viewMap.Count == 0) return;
+
+            using (Transaction t = new Transaction(_targetDoc, "Batch Rename Views"))
+            {
+                t.Start();
+
+                foreach (var kvp in viewMap)
+                {
+                    try
+                    {
+                        View sourceView = _sourceDoc.GetElement(kvp.Key) as View;
+                        View targetView = _targetDoc.GetElement(kvp.Value) as View;
+                        if (sourceView == null || targetView == null) continue;
+
+                        string targetName = _conflictResolver.GetUniqueViewName(sourceView.Name);
+                        try { targetView.Name = targetName; } catch { }
+                    }
+                    catch (Exception) { }
+                }
+
+                t.Commit();
+            }
+        }
+
+        // ─── Fallback: Single View Copy ────────────────────────────────────
         public ElementId CopySingleView(ElementId sourceViewId)
         {
             if (sourceViewId == null || sourceViewId == ElementId.InvalidElementId) return ElementId.InvalidElementId;
@@ -26,274 +382,55 @@ namespace antiGGGravity.Commands.Transfer.Core
             View sourceView = _sourceDoc.GetElement(sourceViewId) as View;
             if (sourceView == null) return ElementId.InvalidElementId;
 
-            CopyPasteOptions options = new CopyPasteOptions();
-            options.SetDuplicateTypeNamesHandler(new CustomCopyHandler());
-
-            ElementId initialViewId = ElementId.InvalidElementId;
-            ElementId finalViewId = ElementId.InvalidElementId;
-
-            // Step 1: Copy the view definition
-            using (Transaction t = new Transaction(_targetDoc, "Transfer View Definition"))
+            if (sourceView.ViewType == ViewType.FloorPlan || sourceView.ViewType == ViewType.CeilingPlan || sourceView.ViewType == ViewType.EngineeringPlan)
             {
-                t.Start();
-                ICollection<ElementId> copiedIds = ElementTransformUtils.CopyElements(_sourceDoc, new List<ElementId> { sourceViewId }, _targetDoc, null, options);
-                
-                if (copiedIds != null && copiedIds.Count > 0)
+                if (_cache == null) BuildCache();
+                var planMap = BatchCreatePlanViews(new List<View> { sourceView });
+                if (planMap.TryGetValue(sourceViewId, out ElementId newPlanId))
                 {
-                    foreach (ElementId id in copiedIds)
+                    var singleMap = new Dictionary<ElementId, ElementId> { { sourceViewId, newPlanId } };
+                    BatchCopyViewContents(singleMap);
+
+                    using (Transaction tName = new Transaction(_targetDoc, "Rename View"))
                     {
-                        if (id == null || id == ElementId.InvalidElementId) continue;
-                        if (_targetDoc.GetElement(id) is View)
+                        tName.Start();
+                        View newView = _targetDoc.GetElement(newPlanId) as View;
+                        if (newView != null)
                         {
-                            initialViewId = id;
-                            break;
+                            string name = _conflictResolver.GetUniqueViewName(sourceView.Name);
+                            try { newView.Name = name; } catch { }
                         }
+                        tName.Commit();
                     }
+                    return newPlanId;
                 }
-                t.Commit();
+                return ElementId.InvalidElementId;
             }
 
-            if (initialViewId == null || initialViewId == ElementId.InvalidElementId) return ElementId.InvalidElementId;
-            finalViewId = initialViewId;
-
-            // Step 2: Copy 2D contents (Always do this for all view types including Drafting)
-            // We use a set comparison to find if Revit creates a superior 'detailed' view automatically.
-            ICollection<ElementId> viewsBefore = new FilteredElementCollector(_targetDoc).OfClass(typeof(View)).ToElementIds();
-            
-            ElementId secondaryViewId = CopyViewSpecificElements(sourceViewId, initialViewId);
-            
-            ICollection<ElementId> viewsAfter = new FilteredElementCollector(_targetDoc).OfClass(typeof(View)).ToElementIds();
-            
-            // Identify if any NEW views appeared during the content copy (dependency views)
-            ElementId newlyCreatedViewId = viewsAfter.FirstOrDefault(id => !viewsBefore.Contains(id));
-
-            if (newlyCreatedViewId != null && newlyCreatedViewId != ElementId.InvalidElementId)
+            var batchMap = BatchCopyViewDefinitions(new List<ElementId> { sourceViewId });
+            if (batchMap.TryGetValue(sourceViewId, out ElementId newViewId))
             {
-                finalViewId = newlyCreatedViewId;
-                
-                // Cleanup: Delete the initial empty view definition if we have a better one
-                if (finalViewId != initialViewId)
-                {
-                    using (Transaction tCleanup = new Transaction(_targetDoc, "Cleanup Redundant View"))
-                    {
-                        tCleanup.Start();
-                        try { _targetDoc.Delete(initialViewId); } catch { }
-                        tCleanup.Commit();
-                    }
-                }
-            }
-            else if (secondaryViewId != null && secondaryViewId != ElementId.InvalidElementId)
-            {
-                finalViewId = secondaryViewId;
-            }
+                var singleMap = new Dictionary<ElementId, ElementId> { { sourceViewId, newViewId } };
+                BatchCopyViewContents(singleMap);
 
-            // Step 3: Set correct name on the final view
-            if (finalViewId != null && finalViewId != ElementId.InvalidElementId)
-            {
-                using (Transaction tName = new Transaction(_targetDoc, "Finalize View Name"))
+                using (Transaction tName = new Transaction(_targetDoc, "Rename View"))
                 {
                     tName.Start();
-                    View finalView = _targetDoc.GetElement(finalViewId) as View;
-                    if (finalView != null)
+                    View newView = _targetDoc.GetElement(newViewId) as View;
+                    if (newView != null)
                     {
-                        string targetName = _conflictResolver.GetUniqueViewName(sourceView.Name);
-                        try { finalView.Name = targetName; } catch { }
+                        string name = _conflictResolver.GetUniqueViewName(sourceView.Name);
+                        try { newView.Name = name; } catch { }
                     }
                     tName.Commit();
                 }
+                return newViewId;
             }
 
-            return finalViewId;
+            return ElementId.InvalidElementId;
         }
 
-        public ElementId CopyViewSpecificElements(ElementId sourceViewId, ElementId targetViewId)
-        {
-            View sourceView = _sourceDoc.GetElement(sourceViewId) as View;
-            View targetView = _targetDoc.GetElement(targetViewId) as View;
-
-            if (sourceView == null || targetView == null) return ElementId.InvalidElementId;
-
-            var elementsToCopy = new FilteredElementCollector(_sourceDoc)
-                .WhereElementIsNotElementType()
-                .WherePasses(new ElementOwnerViewFilter(sourceViewId))
-                .ToElements()
-                .Where(e => !(e is View) && !(e is Viewport) && (e.Category == null || e.Category.Id.GetIdValue() != (long)BuiltInCategory.OST_Viewers))
-                .Select(e => e.Id)
-                .ToList();
-
-            var viewersToCopy = new FilteredElementCollector(_sourceDoc, sourceViewId)
-                .OfCategory(BuiltInCategory.OST_Viewers)
-                .WhereElementIsNotElementType()
-                .Select(e => e.Id)
-                .ToList();
-
-            if (elementsToCopy.Count == 0 && viewersToCopy.Count == 0) return targetViewId;
-
-            CopyPasteOptions options = new CopyPasteOptions();
-            options.SetDuplicateTypeNamesHandler(new CustomCopyHandler());
-
-            ElementId discoveredViewId = ElementId.InvalidElementId;
-
-            using (Transaction t = new Transaction(_targetDoc, "Transfer Contents"))
-            {
-                t.Start();
-                try
-                {
-                    if (elementsToCopy.Count > 0)
-                    {
-                        ICollection<ElementId> copiedIds = ElementTransformUtils.CopyElements(sourceView, elementsToCopy, targetView, Transform.Identity, options);
-                        
-                        if (copiedIds != null && copiedIds.Count > 0)
-                        {
-                            foreach (ElementId id in copiedIds)
-                            {
-                                if (id == null || id == ElementId.InvalidElementId) continue;
-                                if (_targetDoc.GetElement(id) is View)
-                                {
-                                    discoveredViewId = id;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-                catch (Exception) { }
-                t.Commit();
-            }
-
-            if (viewersToCopy.Count > 0)
-            {
-                var nonViewSpecificViewers = new List<ElementId>();
-                var viewSpecificViewers = new List<ElementId>();
-                
-                foreach(var id in viewersToCopy)
-                {
-                    var viewer = _sourceDoc.GetElement(id);
-                    if (viewer != null && viewer.OwnerViewId == ElementId.InvalidElementId)
-                        nonViewSpecificViewers.Add(id);
-                    else
-                        viewSpecificViewers.Add(id);
-                }
-
-                if (nonViewSpecificViewers.Count > 0)
-                {
-                    using (Transaction t2 = new Transaction(_targetDoc, "Transfer Callouts and Sections"))
-                    {
-                        t2.Start();
-                        try
-                        {
-                            var copiedViewerIds = ElementTransformUtils.CopyElements(_sourceDoc, nonViewSpecificViewers, _targetDoc, null, options);
-                            if (copiedViewerIds != null && copiedViewerIds.Count > 0 && (discoveredViewId == null || discoveredViewId == ElementId.InvalidElementId))
-                            {
-                                foreach (ElementId id in copiedViewerIds)
-                                {
-                                    if (id == null || id == ElementId.InvalidElementId) continue;
-                                    if (_targetDoc.GetElement(id) is View)
-                                    {
-                                        discoveredViewId = id;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                        catch (Exception) { }
-                        t2.Commit();
-                    }
-                }
-                
-                if (viewSpecificViewers.Count > 0)
-                {
-                    using (Transaction tCallouts = new Transaction(_targetDoc, "Recreate Detail Callouts"))
-                    {
-                        tCallouts.Start();
-                        
-                        foreach (var viewerId in viewSpecificViewers)
-                        {
-                            try
-                            {
-                                // In Revit, the Viewer element name often matches the View it represents
-                                var viewerElement = _sourceDoc.GetElement(viewerId);
-                                if (viewerElement == null) continue;
-                                
-                                // Find the actual View element associated with this viewer
-                                // The most reliable way is to find a view with the same name, or check parameter View Name
-                                string viewName = viewerElement.Name;
-                                View associatedSourceView = new FilteredElementCollector(_sourceDoc)
-                                    .OfClass(typeof(View))
-                                    .Cast<View>()
-                                    .FirstOrDefault(v => v.Name == viewName);
-                                    
-                                if (associatedSourceView == null) continue;
-                                
-                                // Get crop box to define callout corners
-                                BoundingBoxXYZ cropBox = associatedSourceView.CropBox;
-                                if (cropBox == null) continue;
-                                
-                                // Transform crop box to model space if needed (CropBox is usually in view space)
-                                XYZ ptMin = cropBox.Transform.OfPoint(cropBox.Min);
-                                XYZ ptMax = cropBox.Transform.OfPoint(cropBox.Max);
-                                
-                                XYZ p1 = new XYZ(ptMin.X, ptMin.Y, 0);
-                                XYZ p2 = new XYZ(ptMax.X, ptMax.Y, 0);
-
-                                // Find matching ViewFamilyType in target doc
-                                ElementId sourceTypeId = associatedSourceView.GetTypeId();
-                                ElementType sourceType = _sourceDoc.GetElement(sourceTypeId) as ElementType;
-                                
-                                ElementId targetTypeId = ElementId.InvalidElementId;
-                                if (sourceType != null)
-                                {
-                                    var matchingTargetType = new FilteredElementCollector(_targetDoc)
-                                        .OfClass(typeof(ViewFamilyType))
-                                        .Cast<ViewFamilyType>()
-                                        .FirstOrDefault(vft => vft.Name == sourceType.Name);
-                                        
-                                    if (matchingTargetType != null)
-                                        targetTypeId = matchingTargetType.Id;
-                                }
-                                
-                                // Fallback if type not found
-                                if (targetTypeId == ElementId.InvalidElementId)
-                                {
-                                    ViewFamily fallbackFamily = ViewFamily.Detail;
-                                    if (associatedSourceView.ViewType == ViewType.FloorPlan)
-                                        fallbackFamily = ViewFamily.FloorPlan;
-                                    else if (associatedSourceView.ViewType == ViewType.CeilingPlan)
-                                        fallbackFamily = ViewFamily.CeilingPlan;
-
-                                    var defaultDetailType = new FilteredElementCollector(_targetDoc)
-                                        .OfClass(typeof(ViewFamilyType))
-                                        .Cast<ViewFamilyType>()
-                                        .FirstOrDefault(vft => vft.ViewFamily == fallbackFamily);
-                                        
-                                    if (defaultDetailType != null)
-                                        targetTypeId = defaultDetailType.Id;
-                                }
-
-                                if (targetTypeId != ElementId.InvalidElementId)
-                                {
-                                    // Manually create the callout in the target view
-                                    var calloutView = ViewSection.CreateCallout(_targetDoc, targetViewId, targetTypeId, p1, p2);
-                                    
-                                    // Try to name it
-                                    string safeName = _conflictResolver.GetUniqueViewName(viewName);
-                                    try { calloutView.Name = safeName; } catch { }
-                                }
-                            }
-                            catch (Exception) { /* Skip if reconstruction fails for this specific callout */ }
-                        }
-                        
-                        tCallouts.Commit();
-                    }
-                }
-            }
-
-            if (discoveredViewId != null && discoveredViewId != ElementId.InvalidElementId)
-                return discoveredViewId;
-                
-            return targetViewId;
-        }
-
+        // ─── Copy Families ─────────────────────────────────────────────────
         public void CopyFamilies(List<ElementId> familyIds)
         {
             if (familyIds == null || familyIds.Count == 0) return;
@@ -318,7 +455,7 @@ namespace antiGGGravity.Commands.Transfer.Core
     {
         public DuplicateTypeAction OnDuplicateTypeNamesFound(DuplicateTypeNamesHandlerArgs args)
         {
-            return DuplicateTypeAction.UseDestinationTypes; // Usually standard for Revit transfers
+            return DuplicateTypeAction.UseDestinationTypes;
         }
     }
 }
