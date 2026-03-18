@@ -184,7 +184,10 @@
                         <GroupBox Header="Viewports In Selected Sheet" Grid.Row="2">
                             <DataGrid ItemsSource="{Binding ViewportsInSelectedSheet}" AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="Column" GridLinesVisibility="None" BorderThickness="0">
                                 <DataGrid.Columns>
-                                    <DataGridTemplateColumn Header="✓" Width="40">
+                                    <DataGridTemplateColumn Width="40">
+                                        <DataGridTemplateColumn.Header>
+                                            <CheckBox IsChecked="{Binding DataContext.SelectAllViewports, RelativeSource={RelativeSource AncestorType=Window}}" HorizontalAlignment="Center"/>
+                                        </DataGridTemplateColumn.Header>
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate><CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center"/></DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>

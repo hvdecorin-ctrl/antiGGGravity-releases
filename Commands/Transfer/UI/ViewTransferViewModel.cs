@@ -35,6 +35,7 @@ namespace antiGGGravity.Commands.Transfer.UI
         private bool? _selectAllSheets = false;
         private bool? _selectAllFamilyTypes = false;
         private bool? _selectAllFamilies = false;
+        private bool? _selectAllViewports = false;
 
         public ObservableCollection<ViewTransferItem> AvailableViews { get; set; } = new ObservableCollection<ViewTransferItem>();
         public ObservableCollection<SheetTransferItem> AvailableSheets { get; set; } = new ObservableCollection<SheetTransferItem>();
@@ -194,6 +195,21 @@ namespace antiGGGravity.Commands.Transfer.UI
                 if (value.HasValue)
                 {
                     foreach (var item in SelectedFamilyTypes)
+                        item.IsSelected = value.Value;
+                }
+                OnPropertyChanged();
+            }
+        }
+
+        public bool? SelectAllViewports
+        {
+            get => _selectAllViewports;
+            set
+            {
+                _selectAllViewports = value;
+                if (value.HasValue)
+                {
+                    foreach (var item in ViewportsInSelectedSheet)
                         item.IsSelected = value.Value;
                 }
                 OnPropertyChanged();
