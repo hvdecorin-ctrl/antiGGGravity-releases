@@ -129,16 +129,17 @@
 
                                 <Border Margin="0,0,0,8" Background="White" CornerRadius="4" BorderBrush="#DDDDDD" BorderThickness="1" Grid.Row="0">
                                     <Grid Margin="8,4">
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" VerticalAlignment="Center" Foreground="#AAAAAA" Margin="0,0,8,0"/>
-                                        <TextBox Grid.Column="1" Text="{Binding ViewSearchText, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" Background="Transparent" Style="{StaticResource PremiumTextBoxStyle}" Margin="0"/>
+                                        <TextBox Text="{Binding ViewSearchText, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" Background="Transparent" Style="{StaticResource PremiumTextBoxStyle}" Margin="0"/>
                                     </Grid>
                                 </Border>
 
                                 <GroupBox Header="Drafting &amp; Views" Grid.Row="1">
                                     <DataGrid ItemsSource="{Binding FilteredViews}" AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="Column" GridLinesVisibility="None" BorderThickness="0">
                                         <DataGrid.Columns>
-                                            <DataGridTemplateColumn Header="✓" Width="40">
+                                            <DataGridTemplateColumn Width="40">
+                                                <DataGridTemplateColumn.Header>
+                                                    <CheckBox IsChecked="{Binding DataContext.SelectAllViews, RelativeSource={RelativeSource AncestorType=Window}}" HorizontalAlignment="Center"/>
+                                                </DataGridTemplateColumn.Header>
                                                 <DataGridTemplateColumn.CellTemplate>
                                                     <DataTemplate><CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center"/></DataTemplate>
                                                 </DataGridTemplateColumn.CellTemplate>
@@ -155,15 +156,16 @@
                                 <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
                                 <Border Margin="0,0,0,8" Background="White" CornerRadius="4" BorderBrush="#DDDDDD" BorderThickness="1">
                                     <Grid Margin="8,4">
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                        <TextBlock Text="" FontFamily="Segoe MDL2 Assets" VerticalAlignment="Center" Foreground="#AAAAAA" Margin="0,0,8,0"/>
-                                        <TextBox Grid.Column="1" Text="{Binding SheetSearchText, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" Background="Transparent" Style="{StaticResource PremiumTextBoxStyle}" Margin="0"/>
+                                        <TextBox Text="{Binding SheetSearchText, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" Background="Transparent" Style="{StaticResource PremiumTextBoxStyle}" Margin="0"/>
                                     </Grid>
                                 </Border>
                                 <GroupBox Header="Sheets" Grid.Row="1">
                                     <DataGrid ItemsSource="{Binding FilteredSheets}" SelectedItem="{Binding SelectedSheet}" AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="Column" GridLinesVisibility="None" BorderThickness="0">
                                         <DataGrid.Columns>
-                                            <DataGridTemplateColumn Header="✓" Width="40">
+                                            <DataGridTemplateColumn Width="40">
+                                                <DataGridTemplateColumn.Header>
+                                                    <CheckBox IsChecked="{Binding DataContext.SelectAllSheets, RelativeSource={RelativeSource AncestorType=Window}}" HorizontalAlignment="Center"/>
+                                                </DataGridTemplateColumn.Header>
                                                 <DataGridTemplateColumn.CellTemplate>
                                                     <DataTemplate><CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center"/></DataTemplate>
                                                 </DataGridTemplateColumn.CellTemplate>
@@ -206,9 +208,7 @@
                         <!-- Family Search -->
                         <Border Margin="0,0,0,10" Background="White" CornerRadius="4" BorderBrush="#DDDDDD" BorderThickness="1">
                             <Grid Margin="12,6">
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                <TextBlock Text="" FontFamily="Segoe MDL2 Assets" VerticalAlignment="Center" Foreground="#AAAAAA" Margin="0,0,12,0" FontSize="16"/>
-                                <TextBox Grid.Column="1" Text="{Binding FamilySearchText, UpdateSourceTrigger=PropertyChanged}" 
+                                <TextBox Text="{Binding FamilySearchText, UpdateSourceTrigger=PropertyChanged}" 
                                          BorderThickness="0" Background="Transparent" VerticalAlignment="Center"
                                          Style="{StaticResource PremiumTextBoxStyle}" Margin="0"/>
                             </Grid>
@@ -222,7 +222,10 @@
                                       SelectionMode="Single"
                                       Background="Transparent" BorderThickness="0" GridLinesVisibility="None">
                                 <DataGrid.Columns>
-                                    <DataGridTemplateColumn Header="✓" Width="45">
+                                    <DataGridTemplateColumn Width="45">
+                                        <DataGridTemplateColumn.Header>
+                                            <CheckBox IsChecked="{Binding DataContext.SelectAllFamilies, RelativeSource={RelativeSource AncestorType=Window}}" HorizontalAlignment="Center"/>
+                                        </DataGridTemplateColumn.Header>
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -240,7 +243,10 @@
                         <GroupBox Header="2. Select Specific Types" Grid.Row="3">
                             <DataGrid ItemsSource="{Binding SelectedFamilyTypes}" AutoGenerateColumns="False" HeadersVisibility="Column" Background="Transparent" BorderThickness="0" GridLinesVisibility="None">
                                 <DataGrid.Columns>
-                                    <DataGridTemplateColumn Header="✓" Width="45">
+                                    <DataGridTemplateColumn Width="45">
+                                        <DataGridTemplateColumn.Header>
+                                            <CheckBox IsChecked="{Binding DataContext.SelectAllFamilyTypes, RelativeSource={RelativeSource AncestorType=Window}}" HorizontalAlignment="Center"/>
+                                        </DataGridTemplateColumn.Header>
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center"/>

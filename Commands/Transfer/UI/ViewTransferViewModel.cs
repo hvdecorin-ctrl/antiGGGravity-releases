@@ -31,6 +31,10 @@ namespace antiGGGravity.Commands.Transfer.UI
         private string _currentTab = "General";
         private SheetTransferItem _selectedSheet;
         private FamilyTransferItem _selectedFamily;
+        private bool? _selectAllViews = false;
+        private bool? _selectAllSheets = false;
+        private bool? _selectAllFamilyTypes = false;
+        private bool? _selectAllFamilies = false;
 
         public ObservableCollection<ViewTransferItem> AvailableViews { get; set; } = new ObservableCollection<ViewTransferItem>();
         public ObservableCollection<SheetTransferItem> AvailableSheets { get; set; } = new ObservableCollection<SheetTransferItem>();
@@ -134,6 +138,66 @@ namespace antiGGGravity.Commands.Transfer.UI
         {
             get => _sourceFilePath;
             set { _sourceFilePath = value; OnPropertyChanged(); }
+        }
+
+        public bool? SelectAllViews
+        {
+            get => _selectAllViews;
+            set
+            {
+                _selectAllViews = value;
+                if (value.HasValue)
+                {
+                    foreach (ViewTransferItem item in FilteredViews)
+                        item.IsSelected = value.Value;
+                }
+                OnPropertyChanged();
+            }
+        }
+
+        public bool? SelectAllSheets
+        {
+            get => _selectAllSheets;
+            set
+            {
+                _selectAllSheets = value;
+                if (value.HasValue)
+                {
+                    foreach (SheetTransferItem item in FilteredSheets)
+                        item.IsSelected = value.Value;
+                }
+                OnPropertyChanged();
+            }
+        }
+
+        public bool? SelectAllFamilies
+        {
+            get => _selectAllFamilies;
+            set
+            {
+                _selectAllFamilies = value;
+                if (value.HasValue)
+                {
+                    foreach (FamilyTransferItem item in FilteredFamilies)
+                        item.IsSelected = value.Value;
+                }
+                OnPropertyChanged();
+            }
+        }
+
+        public bool? SelectAllFamilyTypes
+        {
+            get => _selectAllFamilyTypes;
+            set
+            {
+                _selectAllFamilyTypes = value;
+                if (value.HasValue)
+                {
+                    foreach (var item in SelectedFamilyTypes)
+                        item.IsSelected = value.Value;
+                }
+                OnPropertyChanged();
+            }
         }
 
         public string StatusText
