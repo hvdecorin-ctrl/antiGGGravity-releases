@@ -120,7 +120,9 @@ namespace antiGGGravity.Commands.Transfer.UI
             { 
                 _selectedSheet = value; 
                 UpdateViewportsList();
+                _selectAllViewports = false; 
                 OnPropertyChanged(); 
+                OnPropertyChanged(nameof(SelectAllViewports));
             }
         }
 
@@ -131,7 +133,9 @@ namespace antiGGGravity.Commands.Transfer.UI
             {
                 _selectedFamily = value;
                 UpdateFamilyTypesList();
+                _selectAllFamilyTypes = false; 
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(SelectAllFamilyTypes));
             }
         }
 
@@ -304,19 +308,64 @@ namespace antiGGGravity.Commands.Transfer.UI
                 var viewItem = AvailableViews.FirstOrDefault(v => v.SourceViewId == vp.ViewId);
                 if (viewItem != null)
                 {
+                    // Ensure we listen for changes to keep SelectAllViewports in sync
+                    viewItem.PropertyChanged -= ViewItemInSheet_PropertyChanged;
+                    viewItem.PropertyChanged += ViewItemInSheet_PropertyChanged;
                     ViewportsInSelectedSheet.Add(viewItem);
                 }
             }
         }
 
+        private void ViewItemInSheet_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(ViewTransferItem.IsSelected))
+                UpdateSelectAllViewportsState();
+        }
+
+        private void UpdateSelectAllViewportsState()
+        {
+            if (ViewportsInSelectedSheet.Count == 0) { _selectAllViewports = false; }
+            else
+            {
+                bool allChecked = ViewportsInSelectedSheet.All(v => v.IsSelected);
+                bool noneChecked = ViewportsInSelectedSheet.All(v => !v.IsSelected);
+                _selectAllViewports = allChecked ? (bool?)true : (noneChecked ? (bool?)false : null);
+            }
+            OnPropertyChanged(nameof(SelectAllViewports));
+        }
+
         private void UpdateFamilyTypesList()
         {
+            // Unsubscribe from old types
+            foreach (var t in SelectedFamilyTypes) t.PropertyChanged -= FamilyTypeItem_PropertyChanged;
+            
             SelectedFamilyTypes.Clear();
             if (SelectedFamily == null) return;
             foreach (var type in SelectedFamily.Types)
             {
+                type.PropertyChanged -= FamilyTypeItem_PropertyChanged;
+                type.PropertyChanged += FamilyTypeItem_PropertyChanged;
                 SelectedFamilyTypes.Add(type);
             }
+            UpdateSelectAllFamilyTypesState();
+        }
+
+        private void FamilyTypeItem_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(FamilyTypeItem.IsSelected))
+                UpdateSelectAllFamilyTypesState();
+        }
+
+        private void UpdateSelectAllFamilyTypesState()
+        {
+            if (SelectedFamilyTypes.Count == 0) { _selectAllFamilyTypes = false; }
+            else
+            {
+                bool allChecked = SelectedFamilyTypes.All(t => t.IsSelected);
+                bool noneChecked = SelectedFamilyTypes.All(t => !t.IsSelected);
+                _selectAllFamilyTypes = allChecked ? (bool?)true : (noneChecked ? (bool?)false : null);
+            }
+            OnPropertyChanged(nameof(SelectAllFamilyTypes));
         }
 
         public void LoadSourceModel(string path)
@@ -348,6 +397,7 @@ namespace antiGGGravity.Commands.Transfer.UI
                 AvailableFamilies.Clear();
                 foreach (var f in families)
                 {
+                    f.PropertyChanged += FamilyItem_PropertyChanged;
                     AvailableFamilies.Add(f);
                 }
 
@@ -361,10 +411,34 @@ namespace antiGGGravity.Commands.Transfer.UI
             }
         }
 
+        private void FamilyItem_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(FamilyTransferItem.IsSelected))
+            {
+                UpdateSelectAllFamiliesState();
+                // If on types tab, refresh types displayed
+                UpdateFamilyTypesList();
+            }
+        }
+
+        private void UpdateSelectAllFamiliesState()
+        {
+            var list = FilteredFamilies.Cast<FamilyTransferItem>().ToList();
+            if (list.Count == 0) { _selectAllFamilies = false; }
+            else
+            {
+                bool allChecked = list.All(f => f.IsSelected);
+                bool noneChecked = list.All(f => !f.IsSelected);
+                _selectAllFamilies = allChecked ? (bool?)true : (noneChecked ? (bool?)false : null);
+            }
+            OnPropertyChanged(nameof(SelectAllFamilies));
+        }
+
         private void SheetItem_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(SheetTransferItem.IsSelected))
             {
+                UpdateSelectAllSheetsState();
                 var sheet = sender as SheetTransferItem;
                 if (sheet == null) return;
 
@@ -391,7 +465,36 @@ namespace antiGGGravity.Commands.Transfer.UI
 
         private void ViewItem_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            // Optional: link back view selection to sheet if necessary
+            if (e.PropertyName == nameof(ViewTransferItem.IsSelected))
+            {
+                UpdateSelectAllViewsState();
+            }
+        }
+
+        private void UpdateSelectAllViewsState()
+        {
+            var list = FilteredViews.Cast<ViewTransferItem>().ToList();
+            if (list.Count == 0) { _selectAllViews = false; }
+            else
+            {
+                bool allChecked = list.All(v => v.IsSelected);
+                bool noneChecked = list.All(v => !v.IsSelected);
+                _selectAllViews = allChecked ? (bool?)true : (noneChecked ? (bool?)false : null);
+            }
+            OnPropertyChanged(nameof(SelectAllViews));
+        }
+
+        private void UpdateSelectAllSheetsState()
+        {
+            var list = FilteredSheets.Cast<SheetTransferItem>().ToList();
+            if (list.Count == 0) { _selectAllSheets = false; }
+            else
+            {
+                bool allChecked = list.All(s => s.IsSelected);
+                bool noneChecked = list.All(s => !s.IsSelected);
+                _selectAllSheets = allChecked ? (bool?)true : (noneChecked ? (bool?)false : null);
+            }
+            OnPropertyChanged(nameof(SelectAllSheets));
         }
 
         public void ExecuteTransfer()
