@@ -208,14 +208,30 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
-                        <!-- Family Search -->
-                        <Border Margin="0,0,0,10" Background="White" CornerRadius="4" BorderBrush="#DDDDDD" BorderThickness="1">
-                            <Grid Margin="12,6">
-                                <TextBox Text="{Binding FamilySearchText, UpdateSourceTrigger=PropertyChanged}" 
-                                         BorderThickness="0" Background="Transparent" VerticalAlignment="Center"
-                                         Style="{StaticResource PremiumTextBoxStyle}" Margin="0"/>
-                            </Grid>
-                        </Border>
+                        <!-- Family Search & Filters -->
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,15,0">
+                                <RadioButton Content="All" Command="{Binding SetFamilyCategoryCommand}" CommandParameter="All" IsChecked="{Binding IsFamilyAllSelected, Mode=OneWay}" Style="{StaticResource PremiumTabButtonStyle}" Width="45"/>
+                                <RadioButton Content="2D" Command="{Binding SetFamilyCategoryCommand}" CommandParameter="2D" IsChecked="{Binding IsFamily2DSelected, Mode=OneWay}" Style="{StaticResource PremiumTabButtonStyle}" Width="45" Margin="8,0,0,0"/>
+                                <RadioButton Content="3D" Command="{Binding SetFamilyCategoryCommand}" CommandParameter="3D" IsChecked="{Binding IsFamily3DSelected, Mode=OneWay}" Style="{StaticResource PremiumTabButtonStyle}" Width="45" Margin="8,0,0,0"/>
+                            </StackPanel>
+
+                            <Border Grid.Column="1" Background="White" CornerRadius="4" BorderBrush="#DDDDDD" BorderThickness="1">
+                                <Grid Margin="12,6">
+                                    <TextBox Text="{Binding FamilySearchText, UpdateSourceTrigger=PropertyChanged}" 
+                                             BorderThickness="0" Background="Transparent" VerticalAlignment="Center"
+                                             Style="{StaticResource PremiumTextBoxStyle}" Margin="0"/>
+                                </Grid>
+                            </Border>
+
+                            <CheckBox Grid.Column="2" Content="Hide Existing" IsChecked="{Binding HideExistingFamilies}" VerticalAlignment="Center" Margin="15,0,0,0"/>
+                        </Grid>
 
                         <GroupBox Header="1. Select Families" Grid.Row="1" Margin="0,0,0,5">
                             <DataGrid ItemsSource="{Binding FilteredFamilies}" 

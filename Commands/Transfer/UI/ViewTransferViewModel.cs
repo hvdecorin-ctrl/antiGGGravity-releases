@@ -28,6 +28,8 @@ namespace antiGGGravity.Commands.Transfer.UI
         private string _sheetSearchText;
         private string _familySearchText;
         private string _selectedCategory = "All";
+        private string _selectedFamilyCategory = "All";
+        private bool _hideExistingFamilies = false;
         private string _currentTab = "General";
         private SheetTransferItem _selectedSheet;
         private FamilyTransferItem _selectedFamily;
@@ -75,11 +77,35 @@ namespace antiGGGravity.Commands.Transfer.UI
             get => _currentTab;
             set 
             { 
-                _currentTab = value; 
-                OnPropertyChanged(); 
-                OnPropertyChanged(nameof(IsGeneralTab));
-                OnPropertyChanged(nameof(IsFamiliesTab));
+                if (_currentTab != value)
+                {
+                    _currentTab = value;
+                    ResetFilters();
+                    OnPropertyChanged(); 
+                    OnPropertyChanged(nameof(IsGeneralTab));
+                    OnPropertyChanged(nameof(IsFamiliesTab));
+                }
             }
+        }
+
+        private void ResetFilters()
+        {
+            _viewSearchText = string.Empty;
+            _sheetSearchText = string.Empty;
+            _familySearchText = string.Empty;
+            _selectedCategory = "All";
+            _selectedFamilyCategory = "All";
+            
+            OnPropertyChanged(nameof(ViewSearchText));
+            OnPropertyChanged(nameof(SheetSearchText));
+            OnPropertyChanged(nameof(FamilySearchText));
+            OnPropertyChanged(nameof(SelectedCategory));
+            OnPropertyChanged(nameof(SelectedFamilyCategory));
+            
+            // Refresh all filtered views
+            FilteredViews?.Refresh();
+            FilteredSheets?.Refresh();
+            FilteredFamilies?.Refresh();
         }
 
         public bool IsGeneralTab => CurrentTab == "General";
@@ -93,7 +119,7 @@ namespace antiGGGravity.Commands.Transfer.UI
             set 
             { 
                 _selectedCategory = value; 
-                FilteredViews.Refresh(); 
+                FilteredViews?.Refresh(); 
                 OnPropertyChanged(); 
                 OnPropertyChanged(nameof(IsAllSelected));
                 OnPropertyChanged(nameof(IsDetailSelected));
@@ -111,7 +137,38 @@ namespace antiGGGravity.Commands.Transfer.UI
         public bool Is2DSelected => SelectedCategory == "2D";
         public bool Is3DSelected => SelectedCategory == "3D";
 
+        public string SelectedFamilyCategory
+        {
+            get => _selectedFamilyCategory;
+            set
+            {
+                _selectedFamilyCategory = value;
+                FilteredFamilies.Refresh();
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsFamilyAllSelected));
+                OnPropertyChanged(nameof(IsFamily2DSelected));
+                OnPropertyChanged(nameof(IsFamily3DSelected));
+            }
+        }
+
+        public bool HideExistingFamilies
+        {
+            get => _hideExistingFamilies;
+            set
+            {
+                _hideExistingFamilies = value;
+                FilteredFamilies.Refresh();
+                UpdateFamilyTypesList(); // Re-filter the details list too
+                OnPropertyChanged();
+            }
+        }
+
+        public bool IsFamilyAllSelected => SelectedFamilyCategory == "All";
+        public bool IsFamily2DSelected => SelectedFamilyCategory == "2D";
+        public bool IsFamily3DSelected => SelectedFamilyCategory == "3D";
+
         public ICommand SetCategoryCommand => new RelayCommand(p => SelectedCategory = p?.ToString());
+        public ICommand SetFamilyCategoryCommand => new RelayCommand(p => SelectedFamilyCategory = p?.ToString());
 
         public SheetTransferItem SelectedSheet
         {
@@ -239,6 +296,8 @@ namespace antiGGGravity.Commands.Transfer.UI
             RequestHandler = handler;
             ExEvent = exEvent;
             
+            RequestHandler.TransferCompleted += OnTransferCompleted;
+
             Options.DuplicateHandlingPrefix = true;
             Options.PrefixString = "Copied_";
 
@@ -283,8 +342,18 @@ namespace antiGGGravity.Commands.Transfer.UI
             FilteredFamilies = CollectionViewSource.GetDefaultView(AvailableFamilies);
             FilteredFamilies.Filter = (obj) =>
             {
-                if (string.IsNullOrWhiteSpace(FamilySearchText)) return true;
                 var item = obj as FamilyTransferItem;
+                if (item == null) return false;
+
+                // 2D/3D Category Filter
+                if (SelectedFamilyCategory == "2D" && !item.Is2D) return false;
+                if (SelectedFamilyCategory == "3D" && item.Is2D) return false;
+
+                // Hide Existing Filter
+                if (HideExistingFamilies && item.Types.All(t => t.IsAlreadyInTarget)) return false;
+
+                // Search Filter
+                if (string.IsNullOrWhiteSpace(FamilySearchText)) return true;
                 return item.FamilyName.IndexOf(FamilySearchText, StringComparison.OrdinalIgnoreCase) >= 0 ||
                        item.CategoryName.IndexOf(FamilySearchText, StringComparison.OrdinalIgnoreCase) >= 0;
             };
@@ -343,6 +412,8 @@ namespace antiGGGravity.Commands.Transfer.UI
             if (SelectedFamily == null) return;
             foreach (var type in SelectedFamily.Types)
             {
+                if (HideExistingFamilies && type.IsAlreadyInTarget) continue;
+                
                 type.PropertyChanged -= FamilyTypeItem_PropertyChanged;
                 type.PropertyChanged += FamilyTypeItem_PropertyChanged;
                 SelectedFamilyTypes.Add(type);
@@ -423,7 +494,7 @@ namespace antiGGGravity.Commands.Transfer.UI
 
         private void UpdateSelectAllFamiliesState()
         {
-            var list = FilteredFamilies.Cast<FamilyTransferItem>().ToList();
+            var list = FilteredFamilies.OfType<FamilyTransferItem>().ToList();
             if (list.Count == 0) { _selectAllFamilies = false; }
             else
             {
@@ -473,7 +544,7 @@ namespace antiGGGravity.Commands.Transfer.UI
 
         private void UpdateSelectAllViewsState()
         {
-            var list = FilteredViews.Cast<ViewTransferItem>().ToList();
+            var list = FilteredViews.OfType<ViewTransferItem>().ToList();
             if (list.Count == 0) { _selectAllViews = false; }
             else
             {
@@ -486,7 +557,7 @@ namespace antiGGGravity.Commands.Transfer.UI
 
         private void UpdateSelectAllSheetsState()
         {
-            var list = FilteredSheets.Cast<SheetTransferItem>().ToList();
+            var list = FilteredSheets.OfType<SheetTransferItem>().ToList();
             if (list.Count == 0) { _selectAllSheets = false; }
             else
             {
@@ -548,7 +619,39 @@ namespace antiGGGravity.Commands.Transfer.UI
 
         public void Cleanup()
         {
+            RequestHandler.TransferCompleted -= OnTransferCompleted;
             _fileManager?.Cleanup();
+        }
+
+        private void OnTransferCompleted(object sender, EventArgs e)
+        {
+            // Reset all selections
+            foreach (var v in AvailableViews) v.IsSelected = false;
+            foreach (var s in AvailableSheets) s.IsSelected = false;
+            foreach (var f in AvailableFamilies)
+            {
+                f.IsSelected = false;
+                foreach (var t in f.Types) t.IsSelected = false;
+            }
+
+            // Reset headers
+            _selectAllViews = false;
+            _selectAllSheets = false;
+            _selectAllFamilies = false;
+            _selectAllFamilyTypes = false;
+            _selectAllViewports = false;
+
+            OnPropertyChanged(nameof(SelectAllViews));
+            OnPropertyChanged(nameof(SelectAllSheets));
+            OnPropertyChanged(nameof(SelectAllFamilies));
+            OnPropertyChanged(nameof(SelectAllFamilyTypes));
+            OnPropertyChanged(nameof(SelectAllViewports));
+
+            // Refresh data (to update "Already in Target" status)
+            if (!string.IsNullOrEmpty(SourceFilePath))
+            {
+                LoadSourceModel(SourceFilePath);
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

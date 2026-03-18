@@ -39,12 +39,28 @@ namespace antiGGGravity.Commands.Transfer.Modules
             }).ToList();
         }
 
-        public List<FamilyTransferItem> GetFamilies(Document doc)
+        public List<FamilyTransferItem> GetFamilies(Document sourceDoc, Document targetDoc = null)
         {
-            var families = new FilteredElementCollector(doc)
+            var families = new FilteredElementCollector(sourceDoc)
                 .OfClass(typeof(Family))
                 .Cast<Family>()
                 .ToList();
+
+            // Pre-collect existing symbols in target to speed up lookup
+            var existingSymbols = new HashSet<string>();
+            if (targetDoc != null)
+            {
+                var targetSymbols = new FilteredElementCollector(targetDoc)
+                    .OfClass(typeof(FamilySymbol))
+                    .Cast<FamilySymbol>();
+                
+                foreach (var ts in targetSymbols)
+                {
+                    // Unique key: Category + FamilyName + SymbolName
+                    string key = $"{ts.Category?.Name}_{ts.FamilyName}_{ts.Name}";
+                    existingSymbols.Add(key);
+                }
+            }
 
             var items = new List<FamilyTransferItem>();
             foreach (var f in families)
@@ -54,19 +70,25 @@ namespace antiGGGravity.Commands.Transfer.Modules
                     SourceFamilyId = f.Id,
                     FamilyName = f.Name,
                     CategoryName = f.FamilyCategory?.Name ?? "General",
+                    Is2D = f.FamilyCategory?.CategoryType == CategoryType.Annotation || 
+                           (f.FamilyCategory != null && f.FamilyCategory.Id.Value == (long)BuiltInCategory.OST_DetailComponents),
                     IsSelected = false
                 };
 
                 var symbolIds = f.GetFamilySymbolIds();
                 foreach (var symbolId in symbolIds)
                 {
-                    var symbol = doc.GetElement(symbolId) as FamilySymbol;
+                    var symbol = sourceDoc.GetElement(symbolId) as FamilySymbol;
                     if (symbol == null) continue;
+
+                    string key = $"{symbol.Category?.Name}_{symbol.FamilyName}_{symbol.Name}";
+                    bool exists = existingSymbols.Contains(key);
 
                     familyItem.Types.Add(new FamilyTypeItem
                     {
                         SourceSymbolId = symbolId,
                         TypeName = symbol.Name,
+                        IsAlreadyInTarget = exists,
                         IsSelected = false
                     });
                 }
