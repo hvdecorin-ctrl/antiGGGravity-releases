@@ -99,4 +99,21 @@ namespace antiGGGravity.Commands.Transfer.DTO
         public bool IsAlreadyInTarget { get => _isAlreadyInTarget; set { _isAlreadyInTarget = value; OnPropertyChanged(); } }
         public bool IsSelected { get => _isSelected; set { _isSelected = value; OnPropertyChanged(); } }
     }
+
+    public class SystemFamilyTypeItem : BaseObservable
+    {
+        private ElementId _sourceTypeId;
+        private string _categoryName;
+        private string _familyName;
+        private string _typeName;
+        private bool _isAlreadyInTarget;
+        private bool _isSelected;
+
+        public ElementId SourceTypeId { get => _sourceTypeId; set { _sourceTypeId = value; OnPropertyChanged(); } }
+        public string CategoryName { get => _categoryName; set { _categoryName = value; OnPropertyChanged(); } }
+        public string FamilyName { get => _familyName; set { _familyName = value; OnPropertyChanged(); } }
+        public string TypeName { get => _typeName; set { _typeName = value; OnPropertyChanged(); } }
+        public bool IsAlreadyInTarget { get => _isAlreadyInTarget; set { _isAlreadyInTarget = value; OnPropertyChanged(); } }
+        public bool IsSelected { get => _isSelected; set { _isSelected = value; OnPropertyChanged(); } }
+    }
 }

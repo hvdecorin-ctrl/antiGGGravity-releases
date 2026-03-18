@@ -100,5 +100,103 @@ namespace antiGGGravity.Commands.Transfer.Modules
             }
             return items.OrderBy(i => i.CategoryName).ThenBy(i => i.FamilyName).ToList();
         }
+
+        /// <summary>
+        /// Collects system family types (Wall, Floor, Roof, Ceiling, Structural, Rebar Shape, etc.)
+        /// from the source document. These are ElementType objects not belonging to a loadable Family.
+        /// </summary>
+        public List<SystemFamilyTypeItem> GetSystemFamilyTypes(Document sourceDoc, Document targetDoc = null)
+        {
+            // Categories to collect system types from
+            var systemCategories = new[]
+            {
+                BuiltInCategory.OST_Walls,
+                BuiltInCategory.OST_Floors,
+                BuiltInCategory.OST_Roofs,
+                BuiltInCategory.OST_Ceilings,
+                BuiltInCategory.OST_StructuralFraming,
+                BuiltInCategory.OST_StructuralColumns,
+                BuiltInCategory.OST_StructConnections,
+                BuiltInCategory.OST_Rebar,
+                BuiltInCategory.OST_RebarShape,
+                BuiltInCategory.OST_StructuralFoundation,
+            };
+
+            // Pre-collect existing types in target for comparison
+            var existingTargetTypes = new HashSet<string>();
+            if (targetDoc != null)
+            {
+                foreach (var cat in systemCategories)
+                {
+                    try
+                    {
+                        var targetTypes = new FilteredElementCollector(targetDoc)
+                            .OfCategory(cat)
+                            .WhereElementIsElementType()
+                            .ToElements();
+
+                        foreach (var et in targetTypes)
+                        {
+                            string key = $"{et.Category?.Name}_{et.Name}";
+                            existingTargetTypes.Add(key);
+                        }
+                    }
+                    catch { }
+                }
+            }
+
+            var items = new List<SystemFamilyTypeItem>();
+
+            foreach (var cat in systemCategories)
+            {
+                try
+                {
+                    var sourceTypes = new FilteredElementCollector(sourceDoc)
+                        .OfCategory(cat)
+                        .WhereElementIsElementType()
+                        .ToElements();
+
+                    foreach (var et in sourceTypes)
+                    {
+                        if (et == null) continue;
+
+                        string catName = et.Category?.Name ?? "Unknown";
+                        string familyName = "";
+                        string typeName = et.Name ?? "";
+
+                        // Try to extract family name from the ElementType
+                        try
+                        {
+                            var familyNameParam = et.get_Parameter(BuiltInParameter.ALL_MODEL_FAMILY_NAME);
+                            if (familyNameParam != null)
+                                familyName = familyNameParam.AsString() ?? "";
+                            if (string.IsNullOrEmpty(familyName) && et is ElementType elemType)
+                                familyName = elemType.FamilyName ?? "";
+                        }
+                        catch
+                        {
+                            if (et is ElementType elemType)
+                                familyName = elemType.FamilyName ?? "";
+                        }
+
+                        string key = $"{catName}_{typeName}";
+                        bool exists = existingTargetTypes.Contains(key);
+
+                        items.Add(new SystemFamilyTypeItem
+                        {
+                            SourceTypeId = et.Id,
+                            CategoryName = catName,
+                            FamilyName = familyName,
+                            TypeName = typeName,
+                            IsAlreadyInTarget = exists,
+                            IsSelected = false
+                        });
+                    }
+                }
+                catch { }
+            }
+
+            return items.OrderBy(i => i.CategoryName).ThenBy(i => i.FamilyName).ThenBy(i => i.TypeName).ToList();
+        }
     }
 }

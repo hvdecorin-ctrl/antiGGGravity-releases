@@ -14,6 +14,7 @@ namespace antiGGGravity.Commands.Transfer.UI
         public List<ViewTransferItem> SelectedViews { get; set; }
         public List<SheetTransferItem> SelectedSheets { get; set; }
         public List<FamilyTransferItem> SelectedFamilies { get; set; }
+        public List<SystemFamilyTypeItem> SelectedSystemTypes { get; set; }
         public event EventHandler TransferCompleted;
 
         public void Execute(UIApplication app)
@@ -24,7 +25,7 @@ namespace antiGGGravity.Commands.Transfer.UI
             try
             {
                 TransferEngineWrapper engine = new TransferEngineWrapper(SourceDoc, targetDoc, Options);
-                engine.ExecuteTransfer(SelectedViews, SelectedSheets, SelectedFamilies);
+                engine.ExecuteTransfer(SelectedViews, SelectedSheets, SelectedFamilies, SelectedSystemTypes);
                 
                 TransferCompleted?.Invoke(this, EventArgs.Empty);
                 TaskDialog.Show("Transfer Complete", "Successfully transferred selected items.");

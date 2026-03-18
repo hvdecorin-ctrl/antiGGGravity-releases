@@ -449,6 +449,30 @@ namespace antiGGGravity.Commands.Transfer.Core
                 t.Commit();
             }
         }
+
+        // ─── Copy System Family Types ─────────────────────────────────────
+        /// <summary>
+        /// Copies system family types (Wall types, Floor types, Rebar Shapes, etc.)
+        /// by their ElementType IDs using ElementTransformUtils.CopyElements.
+        /// </summary>
+        public void CopySystemTypes(List<ElementId> typeIds)
+        {
+            if (typeIds == null || typeIds.Count == 0) return;
+
+            CopyPasteOptions options = new CopyPasteOptions();
+            options.SetDuplicateTypeNamesHandler(new CustomCopyHandler());
+
+            using (Transaction t = new Transaction(_targetDoc, "Transfer System Types"))
+            {
+                t.Start();
+                try
+                {
+                    ElementTransformUtils.CopyElements(_sourceDoc, typeIds, _targetDoc, null, options);
+                }
+                catch (Exception) { }
+                t.Commit();
+            }
+        }
     }
 
     public class CustomCopyHandler : IDuplicateTypeNamesHandler

@@ -25,13 +25,25 @@ namespace antiGGGravity.Commands
                 TransferRequestHandler handler = new TransferRequestHandler();
                 ExternalEvent externalEvent = ExternalEvent.Create(handler);
 
-                _window = new ViewTransferWindow(commandData.Application, handler, externalEvent);
+                FamilyManagerRequestHandler fmHandler = new FamilyManagerRequestHandler();
+                ExternalEvent fmExternalEvent = ExternalEvent.Create(fmHandler);
+
+                ReadFamilyTypesHandler typesHandler = new ReadFamilyTypesHandler();
+                ExternalEvent typesExEvent = ExternalEvent.Create(typesHandler);
+
+                _window = new ViewTransferWindow(commandData.Application, handler, externalEvent, fmHandler, fmExternalEvent, typesHandler, typesExEvent);
                 _window.Show();
 
                 return Result.Succeeded;
             }
             catch (Exception ex)
             {
+                TaskDialog td = new TaskDialog("Application Error");
+                td.MainInstruction = "Failed to load View Transfer Tool";
+                td.MainContent = ex.Message;
+                td.ExpandedContent = ex.ToString();
+                td.Show();
+                
                 message = ex.Message;
                 return Result.Failed;
             }

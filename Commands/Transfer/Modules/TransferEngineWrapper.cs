@@ -27,11 +27,12 @@ namespace antiGGGravity.Commands.Transfer.Modules
             _sheetBuilder = new SheetBuilder(sourceDoc, targetDoc, _conflictResolver);
         }
 
-        public void ExecuteTransfer(List<ViewTransferItem> viewsToCopy, List<SheetTransferItem> sheetsToCopy, List<FamilyTransferItem> familiesToCopy)
+        public void ExecuteTransfer(List<ViewTransferItem> viewsToCopy, List<SheetTransferItem> sheetsToCopy, List<FamilyTransferItem> familiesToCopy, List<SystemFamilyTypeItem> systemTypesToCopy = null)
         {
             if ((viewsToCopy == null || viewsToCopy.Count == 0) &&
                 (sheetsToCopy == null || sheetsToCopy.Count == 0) &&
-                (familiesToCopy == null || familiesToCopy.Count == 0))
+                (familiesToCopy == null || familiesToCopy.Count == 0) &&
+                (systemTypesToCopy == null || systemTypesToCopy.Count == 0))
                 return;
 
             // ── Snapshot: Record existing views before transfer ──────────
@@ -41,7 +42,18 @@ namespace antiGGGravity.Commands.Transfer.Modules
             // ── Step 1: Build Dependency Cache ───────────────────────────
             _copyEngine.BuildCache();
 
-            // ── Step 2: Copy Families First (1 transaction) ──────────────
+            // ── Step 2: Copy System Family Types (1 transaction) ─────────
+            if (systemTypesToCopy != null && systemTypesToCopy.Count > 0)
+            {
+                var sysIds = systemTypesToCopy
+                    .Where(s => s.SourceTypeId != null && s.SourceTypeId != ElementId.InvalidElementId)
+                    .Select(s => s.SourceTypeId)
+                    .Distinct()
+                    .ToList();
+                _copyEngine.CopySystemTypes(sysIds);
+            }
+
+            // ── Step 3: Copy Families (1 transaction) ─────────────────────
             if (familiesToCopy != null && familiesToCopy.Count > 0)
             {
                 var idsToCopy = familiesToCopy

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Data;
@@ -30,6 +31,11 @@ namespace antiGGGravity.Commands.Transfer.UI
         private string _selectedCategory = "All";
         private string _selectedFamilyCategory = "All";
         private bool _hideExistingFamilies = false;
+        
+        // Main Sidebar Tabs
+        private string _currentMainTab = "Standard Details";
+        
+        // Standard Details Sub-Tabs
         private string _currentTab = "General";
         private SheetTransferItem _selectedSheet;
         private FamilyTransferItem _selectedFamily;
@@ -39,20 +45,54 @@ namespace antiGGGravity.Commands.Transfer.UI
         private bool? _selectAllFamilies = false;
         private bool? _selectAllViewports = false;
 
+        // System Families
+        private string _systemTypeSearchText;
+        private string _selectedSystemCategory = "All";
+        private bool _hideExistingSystemTypes = false;
+        private bool? _selectAllSystemTypes = false;
+
+        // Standard file quick-load
+        private TransferSettings _transferSettings;
+        private string _standard1Path;
+        private string _standard2Path;
+
         public ObservableCollection<ViewTransferItem> AvailableViews { get; set; } = new ObservableCollection<ViewTransferItem>();
         public ObservableCollection<SheetTransferItem> AvailableSheets { get; set; } = new ObservableCollection<SheetTransferItem>();
         public ObservableCollection<ViewTransferItem> ViewportsInSelectedSheet { get; set; } = new ObservableCollection<ViewTransferItem>();
         public ObservableCollection<FamilyTransferItem> AvailableFamilies { get; set; } = new ObservableCollection<FamilyTransferItem>();
         public ObservableCollection<FamilyTypeItem> SelectedFamilyTypes { get; set; } = new ObservableCollection<FamilyTypeItem>();
+        public ObservableCollection<SystemFamilyTypeItem> AvailableSystemTypes { get; set; } = new ObservableCollection<SystemFamilyTypeItem>();
         
         public ICollectionView FilteredViews { get; private set; }
         public ICollectionView FilteredSheets { get; private set; }
         public ICollectionView FilteredFamilies { get; private set; }
+        public ICollectionView FilteredSystemTypes { get; private set; }
 
         public TransferOptions Options { get; set; } = new TransferOptions();
 
         public TransferRequestHandler RequestHandler { get; private set; }
         public ExternalEvent ExEvent { get; private set; }
+
+        // Family Manager
+        private string _familyManagerFolderPath;
+        private string _familyManagerSearchText;
+        private string _selectedFamilyManagerCategory = "All";
+        private bool? _selectAllManagerFamilies = false;
+
+        public ObservableCollection<FamilyManagerItem> AvailableManagerFamilies { get; set; } = new ObservableCollection<FamilyManagerItem>();
+        public ICollectionView FilteredManagerFamilies { get; private set; }
+        
+        public FamilyManagerRequestHandler FmRequestHandler { get; private set; }
+        public ExternalEvent FmExEvent { get; private set; }
+
+        private FamilyManagerItem _selectedManagerFamily;
+        private string _managerFamilyTypeSearchText;
+        private bool? _selectAllManagerFamilyTypes = false;
+
+        public ReadFamilyTypesHandler TypesRequestHandler { get; private set; }
+        public ExternalEvent TypesExEvent { get; private set; }
+
+        public ICollectionView FilteredManagerFamilyTypes { get; private set; }
 
         public string ViewSearchText
         {
@@ -72,6 +112,126 @@ namespace antiGGGravity.Commands.Transfer.UI
             set { _familySearchText = value; FilteredFamilies.Refresh(); OnPropertyChanged(); }
         }
 
+        public string CurrentMainTab
+        {
+            get => _currentMainTab;
+            set
+            {
+                if (_currentMainTab != value)
+                {
+                    _currentMainTab = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(IsStandardDetailsTab));
+                    OnPropertyChanged(nameof(IsFamilyManagerTab));
+                }
+            }
+        }
+
+        public bool IsStandardDetailsTab => CurrentMainTab == "Standard Details";
+        public bool IsFamilyManagerTab => CurrentMainTab == "Family Manager";
+
+        public ICommand SetMainTabCommand => new RelayCommand(p => CurrentMainTab = p?.ToString());
+
+        public string FamilyManagerFolderPath 
+        { 
+            get => _familyManagerFolderPath; 
+            set { _familyManagerFolderPath = value; OnPropertyChanged(); } 
+        }
+
+        public string FamilyManagerSearchText
+        {
+            get => _familyManagerSearchText;
+            set { _familyManagerSearchText = value; FilteredManagerFamilies?.Refresh(); OnPropertyChanged(); }
+        }
+
+        public string SelectedFamilyManagerCategory
+        {
+            get => _selectedFamilyManagerCategory;
+            set { _selectedFamilyManagerCategory = value; FilteredManagerFamilies?.Refresh(); OnPropertyChanged(); OnPropertyChanged(nameof(IsManagerCatAll)); OnPropertyChanged(nameof(IsManagerCat2D)); OnPropertyChanged(nameof(IsManagerCat3D)); }
+        }
+
+        public bool IsManagerCatAll => SelectedFamilyManagerCategory == "All";
+        public bool IsManagerCat2D => SelectedFamilyManagerCategory == "2D";
+        public bool IsManagerCat3D => SelectedFamilyManagerCategory == "3D";
+
+        public ICommand SetManagerCategoryCommand => new RelayCommand(p => SelectedFamilyManagerCategory = p?.ToString());
+
+        public FamilyManagerItem SelectedManagerFamily
+        {
+            get => _selectedManagerFamily;
+            set 
+            {
+                _selectedManagerFamily = value;
+                OnPropertyChanged();
+                if (_selectedManagerFamily != null)
+                {
+                    _managerFamilyTypeSearchText = string.Empty;
+                    OnPropertyChanged(nameof(ManagerFamilyTypeSearchText));
+                    
+                    if (_selectedManagerFamily.Types.Count == 0 && !string.IsNullOrEmpty(_selectedManagerFamily.FilePath))
+                    {
+                        StatusText = $"Reading types for {_selectedManagerFamily.FamilyName}...";
+                        TypesRequestHandler.TargetFamily = _selectedManagerFamily;
+                        TypesExEvent.Raise();
+                    }
+                    else
+                    {
+                        UpdateFilteredManagerFamilyTypes();
+                    }
+                }
+            }
+        }
+
+        public string ManagerFamilyTypeSearchText
+        {
+            get => _managerFamilyTypeSearchText;
+            set { _managerFamilyTypeSearchText = value; FilteredManagerFamilyTypes?.Refresh(); OnPropertyChanged(); }
+        }
+
+        private bool _isUpdatingManagerSelectAll = false;
+
+        public bool? SelectAllManagerFamilyTypes
+        {
+            get => _selectAllManagerFamilyTypes;
+            set
+            {
+                if (value == null || _isUpdatingManagerSelectAll) return;
+                
+                _isUpdatingManagerSelectAll = true;
+                _selectAllManagerFamilyTypes = value;
+                if (SelectedManagerFamily != null && FilteredManagerFamilyTypes != null)
+                {
+                    var list = FilteredManagerFamilyTypes.OfType<FamilyManagerTypeItem>().ToList();
+                    foreach (var item in list)
+                        item.IsSelected = value.Value;
+                }
+                _isUpdatingManagerSelectAll = false;
+                
+                OnPropertyChanged();
+            }
+        }
+
+        public bool? SelectAllManagerFamilies
+        {
+            get => _selectAllManagerFamilies;
+            set
+            {
+                if (value == null || _isUpdatingManagerSelectAll) return;
+                
+                _isUpdatingManagerSelectAll = true;
+                _selectAllManagerFamilies = value;
+                if (FilteredManagerFamilies != null)
+                {
+                    var list = FilteredManagerFamilies.OfType<FamilyManagerItem>().ToList();
+                    foreach (var item in list)
+                        item.IsSelected = value.Value;
+                }
+                _isUpdatingManagerSelectAll = false;
+                
+                OnPropertyChanged();
+            }
+        }
+
         public string CurrentTab
         {
             get => _currentTab;
@@ -84,6 +244,7 @@ namespace antiGGGravity.Commands.Transfer.UI
                     OnPropertyChanged(); 
                     OnPropertyChanged(nameof(IsGeneralTab));
                     OnPropertyChanged(nameof(IsFamiliesTab));
+                    OnPropertyChanged(nameof(IsSystemFamiliesTab));
                 }
             }
         }
@@ -110,6 +271,45 @@ namespace antiGGGravity.Commands.Transfer.UI
 
         public bool IsGeneralTab => CurrentTab == "General";
         public bool IsFamiliesTab => CurrentTab == "Families";
+        public bool IsSystemFamiliesTab => CurrentTab == "SystemFamilies";
+
+        // System type filter properties
+        public string SystemTypeSearchText
+        {
+            get => _systemTypeSearchText;
+            set { _systemTypeSearchText = value; FilteredSystemTypes?.Refresh(); OnPropertyChanged(); }
+        }
+
+        public string SelectedSystemCategory
+        {
+            get => _selectedSystemCategory;
+            set { _selectedSystemCategory = value; FilteredSystemTypes?.Refresh(); OnPropertyChanged(); OnPropertyChanged(nameof(IsSystemCatAll)); OnPropertyChanged(nameof(IsSystemCatStructural)); OnPropertyChanged(nameof(IsSystemCatArchitectural)); }
+        }
+
+        public bool IsSystemCatAll => SelectedSystemCategory == "All";
+        public bool IsSystemCatStructural => SelectedSystemCategory == "Structural";
+        public bool IsSystemCatArchitectural => SelectedSystemCategory == "Architectural";
+
+        public ICommand SetSystemCategoryCommand => new RelayCommand(p => SelectedSystemCategory = p?.ToString());
+
+        public bool HideExistingSystemTypes
+        {
+            get => _hideExistingSystemTypes;
+            set { _hideExistingSystemTypes = value; FilteredSystemTypes?.Refresh(); OnPropertyChanged(); }
+        }
+
+        public bool? SelectAllSystemTypes
+        {
+            get => _selectAllSystemTypes;
+            set
+            {
+                if (value == null) return;
+                _selectAllSystemTypes = value;
+                foreach (SystemFamilyTypeItem item in FilteredSystemTypes)
+                    item.IsSelected = value.Value;
+                OnPropertyChanged();
+            }
+        }
 
         public ICommand SetTabCommand => new RelayCommand(p => CurrentTab = p?.ToString());
 
@@ -199,7 +399,13 @@ namespace antiGGGravity.Commands.Transfer.UI
         public string SourceFilePath
         {
             get => _sourceFilePath;
-            set { _sourceFilePath = value; OnPropertyChanged(); }
+            set
+            {
+                _sourceFilePath = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsStandard1Loaded));
+                OnPropertyChanged(nameof(IsStandard2Loaded));
+            }
         }
 
         public bool? SelectAllViews
@@ -289,17 +495,28 @@ namespace antiGGGravity.Commands.Transfer.UI
             set { _isSourceLoaded = value; OnPropertyChanged(); }
         }
 
-        public ViewTransferViewModel(UIApplication uiApp, TransferRequestHandler handler, ExternalEvent exEvent)
+        public ViewTransferViewModel(UIApplication uiApp, TransferRequestHandler handler, ExternalEvent exEvent, FamilyManagerRequestHandler fmHandler, ExternalEvent fmExEvent, ReadFamilyTypesHandler typesHandler, ExternalEvent typesExEvent)
         {
             _uiApp = uiApp;
             _fileManager = new FileManagerModule(uiApp);
             RequestHandler = handler;
             ExEvent = exEvent;
+            FmRequestHandler = fmHandler;
+            FmExEvent = fmExEvent;
+            TypesRequestHandler = typesHandler;
+            TypesExEvent = typesExEvent;
             
             RequestHandler.TransferCompleted += OnTransferCompleted;
+            if (FmRequestHandler != null) FmRequestHandler.ProcessCompleted += OnManagerProcessCompleted;
+            if (TypesRequestHandler != null) TypesRequestHandler.TypesReadCompleted += OnTypesReadCompleted;
 
             Options.DuplicateHandlingPrefix = true;
             Options.PrefixString = "Copied_";
+
+            // Load saved standard file paths
+            _transferSettings = TransferSettings.Load();
+            _standard1Path = _transferSettings.Standard1Path;
+            _standard2Path = _transferSettings.Standard2Path;
 
             FilteredViews = CollectionViewSource.GetDefaultView(AvailableViews);
             FilteredViews.Filter = (obj) => 
@@ -356,6 +573,54 @@ namespace antiGGGravity.Commands.Transfer.UI
                 if (string.IsNullOrWhiteSpace(FamilySearchText)) return true;
                 return item.FamilyName.IndexOf(FamilySearchText, StringComparison.OrdinalIgnoreCase) >= 0 ||
                        item.CategoryName.IndexOf(FamilySearchText, StringComparison.OrdinalIgnoreCase) >= 0;
+            };
+
+            FilteredSystemTypes = CollectionViewSource.GetDefaultView(AvailableSystemTypes);
+            FilteredSystemTypes.Filter = (obj) =>
+            {
+                var item = obj as SystemFamilyTypeItem;
+                if (item == null) return false;
+
+                // Category group filter
+                if (SelectedSystemCategory == "Structural")
+                {
+                    bool isStructural = item.CategoryName.Contains("Structural") || 
+                                       item.CategoryName.Contains("Rebar") ||
+                                       item.CategoryName.Contains("Foundation");
+                    if (!isStructural) return false;
+                }
+                else if (SelectedSystemCategory == "Architectural")
+                {
+                    bool isArch = item.CategoryName.Contains("Wall") || 
+                                  item.CategoryName.Contains("Floor") ||
+                                  item.CategoryName.Contains("Roof") ||
+                                  item.CategoryName.Contains("Ceiling");
+                    if (!isArch) return false;
+                }
+
+                // Hide existing
+                if (HideExistingSystemTypes && item.IsAlreadyInTarget) return false;
+
+                // Search
+                if (string.IsNullOrWhiteSpace(SystemTypeSearchText)) return true;
+                return item.TypeName.IndexOf(SystemTypeSearchText, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                       item.FamilyName.IndexOf(SystemTypeSearchText, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                       item.CategoryName.IndexOf(SystemTypeSearchText, StringComparison.OrdinalIgnoreCase) >= 0;
+            };
+
+            FilteredManagerFamilies = CollectionViewSource.GetDefaultView(AvailableManagerFamilies);
+            FilteredManagerFamilies.Filter = (obj) =>
+            {
+                var item = obj as FamilyManagerItem;
+                if (item == null) return false;
+
+                if (SelectedFamilyManagerCategory == "2D" && !item.Is2D) return false;
+                if (SelectedFamilyManagerCategory == "3D" && item.Is2D) return false;
+
+                if (string.IsNullOrWhiteSpace(FamilyManagerSearchText)) return true;
+                return item.FamilyName.IndexOf(FamilyManagerSearchText, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                       item.CategoryName.IndexOf(FamilyManagerSearchText, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                       item.Status.IndexOf(FamilyManagerSearchText, StringComparison.OrdinalIgnoreCase) >= 0;
             };
         }
 
@@ -472,8 +737,17 @@ namespace antiGGGravity.Commands.Transfer.UI
                     AvailableFamilies.Add(f);
                 }
 
+                // System Family Types
+                var systemTypes = _viewCollector.GetSystemFamilyTypes(_fileManager.DocLoader.SourceDocument);
+                AvailableSystemTypes.Clear();
+                foreach (var st in systemTypes)
+                {
+                    st.PropertyChanged += SystemTypeItem_PropertyChanged;
+                    AvailableSystemTypes.Add(st);
+                }
+
                 IsSourceLoaded = true;
-                StatusText = $"Loaded {views.Count} Views, {sheets.Count} Sheets, {families.Count} Families.";
+                StatusText = $"Loaded {views.Count} Views, {sheets.Count} Sheets, {families.Count} Families, {systemTypes.Count} System Types.";
             }
             else
             {
@@ -503,6 +777,25 @@ namespace antiGGGravity.Commands.Transfer.UI
                 _selectAllFamilies = allChecked ? (bool?)true : (noneChecked ? (bool?)false : null);
             }
             OnPropertyChanged(nameof(SelectAllFamilies));
+        }
+
+        private void SystemTypeItem_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(SystemFamilyTypeItem.IsSelected))
+                UpdateSelectAllSystemTypesState();
+        }
+
+        private void UpdateSelectAllSystemTypesState()
+        {
+            var list = FilteredSystemTypes.OfType<SystemFamilyTypeItem>().ToList();
+            if (list.Count == 0) { _selectAllSystemTypes = false; }
+            else
+            {
+                bool allChecked = list.All(s => s.IsSelected);
+                bool noneChecked = list.All(s => !s.IsSelected);
+                _selectAllSystemTypes = allChecked ? (bool?)true : (noneChecked ? (bool?)false : null);
+            }
+            OnPropertyChanged(nameof(SelectAllSystemTypes));
         }
 
         private void SheetItem_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -598,7 +891,10 @@ namespace antiGGGravity.Commands.Transfer.UI
                 }
             }
 
-            if (selectedViews.Count == 0 && selectedSheets.Count == 0 && selectedFamilies.Count == 0)
+            // Collect selected system family types
+            var selectedSystemTypes = AvailableSystemTypes.Where(st => st.IsSelected).ToList();
+
+            if (selectedViews.Count == 0 && selectedSheets.Count == 0 && selectedFamilies.Count == 0 && selectedSystemTypes.Count == 0)
             {
                 StatusText = "Please select at least one item to transfer.";
                 return;
@@ -610,6 +906,7 @@ namespace antiGGGravity.Commands.Transfer.UI
             RequestHandler.SelectedViews = selectedViews;
             RequestHandler.SelectedSheets = selectedSheets;
             RequestHandler.SelectedFamilies = selectedFamilies;
+            RequestHandler.SelectedSystemTypes = selectedSystemTypes;
 
             StatusText = "Transferring items...";
             
@@ -617,9 +914,147 @@ namespace antiGGGravity.Commands.Transfer.UI
             ExEvent.Raise();
         }
 
+        public void ScanManagerFolder(string folderPath)
+        {
+            StatusText = "Scanning directory for families...";
+            FamilyManagerFolderPath = folderPath;
+            AvailableManagerFamilies.Clear();
+
+            var engine = new antiGGGravity.Commands.Transfer.Core.FamilyManagerEngine(_uiApp.Application);
+            var items = engine.ScanFolder(folderPath, _uiApp.ActiveUIDocument.Document);
+
+            foreach (var item in items)
+            {
+                item.PropertyChanged -= ManagerFamilyItem_PropertyChanged;
+                item.PropertyChanged += ManagerFamilyItem_PropertyChanged;
+                AvailableManagerFamilies.Add(item);
+            }
+            StatusText = $"Found {items.Count} families in folder.";
+        }
+
+        private void ManagerFamilyItem_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(FamilyManagerItem.IsSelected) && !_isUpdatingManagerSelectAll)
+                UpdateSelectAllManagerFamiliesState();
+        }
+
+        private void UpdateSelectAllManagerFamiliesState()
+        {
+            var list = FilteredManagerFamilies.OfType<FamilyManagerItem>().ToList();
+            if (list.Count == 0) { _selectAllManagerFamilies = false; }
+            else
+            {
+                bool allChecked = list.All(f => f.IsSelected);
+                bool noneChecked = list.All(f => !f.IsSelected);
+                _selectAllManagerFamilies = allChecked ? (bool?)true : (noneChecked ? (bool?)false : null);
+            }
+            OnPropertyChanged(nameof(SelectAllManagerFamilies));
+        }
+
+        private void UpdateFilteredManagerFamilyTypes()
+        {
+            if (SelectedManagerFamily == null) return;
+            FilteredManagerFamilyTypes = CollectionViewSource.GetDefaultView(SelectedManagerFamily.Types);
+            FilteredManagerFamilyTypes.Filter = (obj) =>
+            {
+                var item = obj as FamilyManagerTypeItem;
+                if (item == null) return false;
+                if (string.IsNullOrWhiteSpace(ManagerFamilyTypeSearchText)) return true;
+                return item.TypeName.IndexOf(ManagerFamilyTypeSearchText, StringComparison.OrdinalIgnoreCase) >= 0;
+            };
+            OnPropertyChanged(nameof(FilteredManagerFamilyTypes));
+        }
+
+        private void OnTypesReadCompleted(object sender, TypesReadEventArgs e)
+        {
+            if (e.Family != null)
+            {
+                e.Family.Types.Clear();
+                foreach (var tName in e.TypeNames)
+                {
+                    var newType = new FamilyManagerTypeItem { TypeName = tName, IsSelected = false };
+                    newType.PropertyChanged += ManagerFamilyTypeItem_PropertyChanged;
+                    e.Family.Types.Add(newType);
+                }
+                
+                if (SelectedManagerFamily == e.Family)
+                {
+                    UpdateFilteredManagerFamilyTypes();
+                    StatusText = $"Read {e.TypeNames.Count} types from {e.Family.FamilyName}.";
+                }
+            }
+        }
+        
+        private void ManagerFamilyTypeItem_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(FamilyManagerTypeItem.IsSelected) && !_isUpdatingManagerSelectAll)
+                UpdateSelectAllManagerFamilyTypesState();
+        }
+
+        private void UpdateSelectAllManagerFamilyTypesState()
+        {
+            if (SelectedManagerFamily == null || FilteredManagerFamilyTypes == null) return;
+            var list = FilteredManagerFamilyTypes.OfType<FamilyManagerTypeItem>().ToList();
+            if (list.Count == 0) { _selectAllManagerFamilyTypes = false; }
+            else
+            {
+                bool allChecked = list.All(f => f.IsSelected);
+                bool noneChecked = list.All(f => !f.IsSelected);
+                _selectAllManagerFamilyTypes = allChecked ? (bool?)true : (noneChecked ? (bool?)false : null);
+            }
+            OnPropertyChanged(nameof(SelectAllManagerFamilyTypes));
+        }
+
+        public ICommand BrowseManagerFolderCommand => new RelayCommand(_ =>
+        {
+            try {
+                var dialog = new Microsoft.Win32.OpenFolderDialog
+                {
+                    Title = "Select Directory containing Revit Families"
+                };
+                if (dialog.ShowDialog() == true)
+                {
+                    ScanManagerFolder(dialog.FolderName);
+                }
+            } catch {
+                StatusText = "Folder dialog not supported on this OS framework version.";
+            }
+        });
+
+        public ICommand ProcessSelectedManagerFamiliesCommand => new RelayCommand(_ =>
+        {
+            var selected = AvailableManagerFamilies.Where(f => f.IsSelected).ToList();
+            if (selected.Count == 0)
+            {
+                StatusText = "Please select at least one family to process.";
+                return;
+            }
+
+            FmRequestHandler.FamiliesToProcess = selected;
+            StatusText = $"Batch processing {selected.Count} families...";
+            FmExEvent.Raise();
+        });
+
+        private void OnManagerProcessCompleted(object sender, FamilyManagerProcessResultEventArgs e)
+        {
+            foreach (var f in AvailableManagerFamilies) f.IsSelected = false;
+            _selectAllManagerFamilies = false;
+            OnPropertyChanged(nameof(SelectAllManagerFamilies));
+
+            if (e.Errors != null && e.Errors.Count > 0)
+                StatusText = $"Loaded {e.LoadedCount}, Updated {e.UpdatedCount}. Errors: {e.Errors.Count}";
+            else
+                StatusText = $"Successfully Loaded {e.LoadedCount} and Updated {e.UpdatedCount} families.";
+
+            if (!string.IsNullOrEmpty(FamilyManagerFolderPath))
+                ScanManagerFolder(FamilyManagerFolderPath);
+        }
+
         public void Cleanup()
         {
             RequestHandler.TransferCompleted -= OnTransferCompleted;
+            if (FmRequestHandler != null) FmRequestHandler.ProcessCompleted -= OnManagerProcessCompleted;
+            if (TypesRequestHandler != null) TypesRequestHandler.TypesReadCompleted -= OnTypesReadCompleted;
             _fileManager?.Cleanup();
         }
 
@@ -633,6 +1068,7 @@ namespace antiGGGravity.Commands.Transfer.UI
                 f.IsSelected = false;
                 foreach (var t in f.Types) t.IsSelected = false;
             }
+            foreach (var st in AvailableSystemTypes) st.IsSelected = false;
 
             // Reset headers
             _selectAllViews = false;
@@ -640,12 +1076,14 @@ namespace antiGGGravity.Commands.Transfer.UI
             _selectAllFamilies = false;
             _selectAllFamilyTypes = false;
             _selectAllViewports = false;
+            _selectAllSystemTypes = false;
 
             OnPropertyChanged(nameof(SelectAllViews));
             OnPropertyChanged(nameof(SelectAllSheets));
             OnPropertyChanged(nameof(SelectAllFamilies));
             OnPropertyChanged(nameof(SelectAllFamilyTypes));
             OnPropertyChanged(nameof(SelectAllViewports));
+            OnPropertyChanged(nameof(SelectAllSystemTypes));
 
             // Refresh data (to update "Already in Target" status)
             if (!string.IsNullOrEmpty(SourceFilePath))
@@ -653,6 +1091,63 @@ namespace antiGGGravity.Commands.Transfer.UI
                 LoadSourceModel(SourceFilePath);
             }
         }
+
+        // ===== Standard 1 / Standard 2 Quick-Load =====
+
+        public string Standard1Path
+        {
+            get => _standard1Path;
+            set
+            {
+                _standard1Path = value;
+                _transferSettings.Standard1Path = value;
+                _transferSettings.Save();
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(Standard1Label));
+                OnPropertyChanged(nameof(IsStandard1Loaded));
+            }
+        }
+
+        public string Standard2Path
+        {
+            get => _standard2Path;
+            set
+            {
+                _standard2Path = value;
+                _transferSettings.Standard2Path = value;
+                _transferSettings.Save();
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(Standard2Label));
+                OnPropertyChanged(nameof(IsStandard2Loaded));
+            }
+        }
+
+        public string Standard1Label => string.IsNullOrEmpty(_standard1Path)
+            ? "⚙ Set Standard 1..."
+            : "📁 " + Path.GetFileNameWithoutExtension(_standard1Path);
+
+        public string Standard2Label => string.IsNullOrEmpty(_standard2Path)
+            ? "⚙ Set Standard 2..."
+            : "📁 " + Path.GetFileNameWithoutExtension(_standard2Path);
+
+        public bool IsStandard1Loaded => !string.IsNullOrEmpty(_standard1Path) && string.Equals(SourceFilePath, _standard1Path, StringComparison.OrdinalIgnoreCase);
+        public bool IsStandard2Loaded => !string.IsNullOrEmpty(_standard2Path) && string.Equals(SourceFilePath, _standard2Path, StringComparison.OrdinalIgnoreCase);
+
+        public ICommand LoadStandard1Command => new RelayCommand(_ =>
+        {
+            if (!string.IsNullOrEmpty(_standard1Path) && File.Exists(_standard1Path))
+                LoadSourceModel(_standard1Path);
+            else
+                StatusText = "Standard 1 not set. Right-click to set a file path.";
+        });
+
+        public ICommand LoadStandard2Command => new RelayCommand(_ =>
+        {
+            if (!string.IsNullOrEmpty(_standard2Path) && File.Exists(_standard2Path))
+                LoadSourceModel(_standard2Path);
+            else
+                StatusText = "Standard 2 not set. Right-click to set a file path.";
+        });
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)

@@ -22,7 +22,7 @@
     <!-- ============================================================ -->
     <!-- COMPANY IDENTITY — Change these to rebrand everything        -->
     <!-- ============================================================ -->
-    <sys:String x:Key="CompanyName" xmlns:sys="clr-namespace:System;assembly=System.Runtime">H&amp;V Sponsor</sys:String>
+    <sys:String x:Key="CompanyName" xmlns:sys="clr-namespace:System;assembly=System.Runtime">SullivanHall Sponsor</sys:String>
 
     <!-- Company Logo TextBlock Style (shown top-left in gradient headers) -->
     <Style x:Key="CompanyLogoStyle" TargetType="TextBlock">
@@ -118,6 +118,37 @@
         <Setter Property="Background" Value="#F8F8F8"/>
         <Setter Property="Foreground" Value="#666666"/>
         <Setter Property="BorderBrush" Value="#DEDEDE"/>
+    </Style>
+
+    <!-- Rounded Button Template (CornerRadius 6) for Standard File Buttons -->
+    <ControlTemplate x:Key="PremiumRoundedButtonTemplate" TargetType="Button">
+        <Border x:Name="border" 
+                Background="{TemplateBinding Background}" 
+                BorderBrush="{TemplateBinding BorderBrush}" 
+                BorderThickness="{TemplateBinding BorderThickness}" 
+                CornerRadius="6">
+            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+        </Border>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="border" Property="Background" Value="#EAEAEA"/>
+                <Setter TargetName="border" Property="BorderBrush" Value="#CCCCCC"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter TargetName="border" Property="Background" Value="#D5D5D5"/>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style x:Key="PremiumStandardFileButtonStyle" TargetType="Button">
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Background" Value="#F2F2F2"/>
+        <Setter Property="Foreground" Value="#666666"/>
+        <Setter Property="BorderBrush" Value="#DEDEDE"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template" Value="{StaticResource PremiumRoundedButtonTemplate}"/>
     </Style>
 
     <!-- UI Elements -->
@@ -225,12 +256,12 @@
     <Thickness x:Key="PremiumContentMargin">20,15,20,20</Thickness>
     <Thickness x:Key="PremiumSidebarMargin">15,15,15,20</Thickness>
     
-    <!-- Premium Tab Button Style (For horizontal filters) -->
+    <!-- Premium Tab Button Style (For horizontal filters - Level 3 Pills) -->
     <Style x:Key="PremiumTabButtonStyle" TargetType="RadioButton">
         <Setter Property="Height" Value="28"/>
-        <Setter Property="Background" Value="#F2F2F2"/>
-        <Setter Property="Foreground" Value="#666666"/>
-        <Setter Property="BorderBrush" Value="#DEDEDE"/>
+        <Setter Property="Background" Value="#FAFAFA"/>
+        <Setter Property="Foreground" Value="#777777"/>
+        <Setter Property="BorderBrush" Value="#E0E0E0"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Template">
@@ -238,18 +269,51 @@
                 <ControlTemplate TargetType="RadioButton">
                     <Border x:Name="border" Background="{TemplateBinding Background}" 
                             BorderBrush="{TemplateBinding BorderBrush}" 
-                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="14">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="12,0"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="#F0F0F0"/>
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <!-- Soft blue background with dark blue text for Level 3 -->
+                            <Setter TargetName="border" Property="Background" Value="#E6F0FA"/>
+                            <Setter TargetName="border" Property="BorderBrush" Value="#BBD1EA"/>
+                            <Setter Property="Foreground" Value="#2A4D6B"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Premium Light Tab Button Style (For sub-tabs like Views & Sheets - Level 2 Underline) -->
+    <Style x:Key="PremiumLightTabButtonStyle" TargetType="RadioButton">
+        <Setter Property="Height" Value="36"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="#777777"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0,0,0,3"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Border x:Name="border" Background="{TemplateBinding Background}" 
+                            BorderBrush="{TemplateBinding BorderBrush}" 
+                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="0">
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10,0"/>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="border" Property="Background" Value="#EAEAEA"/>
+                            <Setter Property="Foreground" Value="#4A759C"/>
                         </Trigger>
                         <Trigger Property="IsChecked" Value="True">
-                            <Setter TargetName="border" Property="Background" Value="#4A759C"/>
+                            <!-- Primary Blue Underline for Level 2 -->
                             <Setter TargetName="border" Property="BorderBrush" Value="#4A759C"/>
-                            <Setter Property="Foreground" Value="White"/>
-                            <Setter Property="FontWeight" Value="SemiBold"/>
+                            <Setter Property="Foreground" Value="#4A759C"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -286,5 +350,7 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+    
 
 </ResourceDictionary>

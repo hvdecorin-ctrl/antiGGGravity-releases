@@ -6,44 +6,46 @@
         mc:Ignorable="d"
         Title="View Transfer Tool" Height="700" Width="900" 
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        MinHeight="500" MinWidth="700">
 
-    <!-- Allow dragging by hooking into WindowChrome -->
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="70" ResizeBorderThickness="5"/>
+        <WindowChrome CaptionHeight="55" 
+                      ResizeBorderThickness="15" 
+                      GlassFrameThickness="0" 
+                      CornerRadius="12"/>
     </WindowChrome.WindowChrome>
 
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/antiGGGravity;component/Resources/Pre_BrandStyles.xaml"/>
+                <ResourceDictionary Source="/antiGGGravity;component/Resources/Pre_BrandStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BoolToVis"/>
         </ResourceDictionary>
     </Window.Resources>
 
-    <Border CornerRadius="12" Background="#FAFAFA" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="1">
+    <Border BorderBrush="{DynamicResource PremiumBorderBrush}" BorderThickness="1" Background="White" CornerRadius="12">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="70"/> <!-- Header -->
+                <RowDefinition Height="55"/> <!-- Header -->
                 <RowDefinition Height="*"/>  <!-- Main Content -->
-                <RowDefinition Height="70"/> <!-- Footer -->
+                <RowDefinition Height="Auto"/> <!-- Footer -->
             </Grid.RowDefinitions>
 
-            <!-- 1. HEADER (Gradient) -->
-            <Border Grid.Row="0" Background="{StaticResource BrandGradientBrush}" CornerRadius="12,12,0,0">
+            <!-- 1. HEADER -->
+            <Border Grid.Row="0" Background="{DynamicResource BrandGradientBrush}" CornerRadius="12,12,0,0">
                 <Grid Margin="25,0">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Style="{StaticResource CompanyLogoStyle}"/>
-                        <TextBlock Style="{StaticResource CompanyDividerStyle}"/>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" IsHitTestVisible="False">
+                        <TextBlock Style="{DynamicResource CompanyLogoStyle}"/>
+                        <TextBlock Style="{DynamicResource CompanyDividerStyle}"/>
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="VIEW TRANSFER" Style="{StaticResource PremiumTitleStyle}"/>
-                            <TextBlock Text="Selectively transfer views, sheets &amp; families across projects" Style="{StaticResource PremiumSubtitleStyle}"/>
+                            <TextBlock Text="View Transfer" Style="{DynamicResource PremiumTitleStyle}"/>
+                            <TextBlock Text="Selectively transfer views, sheets &amp; families across projects" Style="{DynamicResource PremiumSubtitleStyle}"/>
                         </StackPanel>
                     </StackPanel>
-                    <!-- Close button -->
                     <Button HorizontalAlignment="Right" VerticalAlignment="Center" Content="✕" 
-                            Style="{StaticResource PremiumIconButtonStyle}" Width="30" Height="30"
+                            Style="{DynamicResource PremiumIconButtonStyle}" Width="30" Height="30"
                             Click="Close_Click" WindowChrome.IsHitTestVisibleInChrome="True"/>
                 </Grid>
             </Border>
@@ -56,19 +58,19 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- SIDEBAR -->
-                <Border Grid.Column="0" Background="#F4F4F4" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,0,1,0">
-                    <StackPanel Margin="15,20">
+                <Border Grid.Column="0" Background="#F4F4F4" BorderBrush="{DynamicResource PremiumBorderBrush}" BorderThickness="0,0,1,0">
+                    <StackPanel Margin="{DynamicResource PremiumSidebarMargin}">
                         <TextBlock Text="NAVIGATION" Foreground="#999999" FontWeight="Bold" FontSize="10" Margin="12,0,0,15"/>
                         
-                        <RadioButton Content="Views &amp; Sheets" 
-                                     Command="{Binding SetTabCommand}" CommandParameter="General"
-                                     IsChecked="{Binding IsGeneralTab, Mode=OneWay}"
-                                     Style="{StaticResource PremiumSidebarButtonStyle}"/>
+                        <RadioButton Content="Standard Details" 
+                                     Command="{Binding SetMainTabCommand}" CommandParameter="Standard Details"
+                                     IsChecked="{Binding IsStandardDetailsTab, Mode=OneWay}"
+                                     Style="{DynamicResource PremiumSidebarButtonStyle}"/>
                         
-                        <RadioButton Content="Families" 
-                                     Command="{Binding SetTabCommand}" CommandParameter="Families"
-                                     IsChecked="{Binding IsFamiliesTab, Mode=OneWay}"
-                                     Style="{StaticResource PremiumSidebarButtonStyle}"/>
+                        <RadioButton Content="Family Manager" 
+                                     Command="{Binding SetMainTabCommand}" CommandParameter="Family Manager"
+                                     IsChecked="{Binding IsFamilyManagerTab, Mode=OneWay}"
+                                     Style="{DynamicResource PremiumSidebarButtonStyle}"/>
 
                         <Border Height="1" Background="#E0E0E0" Margin="5,15"/>
                         
@@ -79,214 +81,502 @@
                 </Border>
 
                 <!-- CONTENT AREA -->
-                <Grid Grid.Column="1" Margin="25,20">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/> <!-- Source Picker (Global) -->
-                        <RowDefinition Height="*"/>    <!-- Tab Content -->
-                    </Grid.RowDefinitions>
-
-                    <!-- Global Source File Picker -->
-                    <GroupBox Header="1. Source Document" Grid.Row="0" Margin="0,0,0,20">
-                        <Grid Margin="5">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBox Text="{Binding SourceFilePath, Mode=TwoWay}" VerticalAlignment="Center" Height="28" IsReadOnly="True" />
-                            <Button Grid.Column="1" Content="Browse..." Width="90" Height="28" Margin="10,0,0,0" Click="BrowseFile_Click" Style="{StaticResource PremiumPrimaryButtonStyle}"/>
-                        </Grid>
-                    </GroupBox>
-
-                    <!-- TAB: VIEWS & SHEETS -->
-                    <Grid Grid.Row="1" Visibility="{Binding IsGeneralTab, Converter={StaticResource BoolToVis}}">
+                <Grid Grid.Column="1" Margin="{DynamicResource PremiumContentMargin}">
+                    
+                    <!-- 1. STANDARD DETAILS MAIN TAB -->
+                    <Grid Visibility="{Binding IsStandardDetailsTab, Converter={StaticResource BoolToVis}}">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="180"/>
+                            <RowDefinition Height="Auto"/> <!-- Unified Source Region -->
+                            <RowDefinition Height="Auto"/> <!-- Sub-Tabs -->
+                            <RowDefinition Height="*"/>    <!-- Sub-Tab Content -->
                         </Grid.RowDefinitions>
+
+                        <!-- Unified Source & Standard Buttons Group -->
+                        <Border Grid.Row="0" Background="#FAFAFA" BorderBrush="#DDDDDD" BorderThickness="1" CornerRadius="8" Padding="15" Margin="0,0,0,15">
+                            <StackPanel>
+                                <!-- Source File Picker -->
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Text="{Binding SourceFilePath, Mode=TwoWay}" VerticalAlignment="Center" Height="28" IsReadOnly="True" />
+                                    <Button Grid.Column="1" Content="Browse..." Width="90" Height="28" Margin="10,0,0,0" Click="BrowseFile_Click" Style="{DynamicResource PremiumPrimaryButtonStyle}"/>
+                                </Grid>
+
+                                <!-- Standard Buttons (full width, half/half) -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Button Grid.Column="0" Content="{Binding Standard1Label}" 
+                                            Command="{Binding LoadStandard1Command}"
+                                            MouseRightButtonUp="SetStandard1_Click"
+                                            Padding="12,0" Margin="0,0,5,0"
+                                            ToolTip="Left-click: Load Standard 1 | Right-click: Set file path"
+                                            WindowChrome.IsHitTestVisibleInChrome="True">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource PremiumStandardFileButtonStyle}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsStandard1Loaded}" Value="True">
+                                                        <Setter Property="Background" Value="#4A759C"/>
+                                                        <Setter Property="BorderBrush" Value="#4A759C"/>
+                                                        <Setter Property="Foreground" Value="White"/>
+                                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+
+                                    <Button Grid.Column="1" Content="{Binding Standard2Label}" 
+                                            Command="{Binding LoadStandard2Command}"
+                                            MouseRightButtonUp="SetStandard2_Click"
+                                            Padding="12,0" Margin="5,0,0,0"
+                                            ToolTip="Left-click: Load Standard 2 | Right-click: Set file path"
+                                            WindowChrome.IsHitTestVisibleInChrome="True">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource PremiumStandardFileButtonStyle}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsStandard2Loaded}" Value="True">
+                                                        <Setter Property="Background" Value="#4A759C"/>
+                                                        <Setter Property="BorderBrush" Value="#4A759C"/>
+                                                        <Setter Property="Foreground" Value="White"/>
+                                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
                         
-                        <Grid Grid.Row="0">
+                        <!-- Sub-Tabs for Standard Details (33/33/33 Width) -->
+                        <Grid Grid.Row="1" Margin="0,0,0,15">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="15"/>
+                                <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
-                            <!-- Views Column -->
-                            <Grid Grid.Column="0">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
-                                
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                    <RadioButton Content="All" Command="{Binding SetCategoryCommand}" CommandParameter="All" IsChecked="{Binding IsAllSelected, Mode=OneWay}" Style="{StaticResource PremiumTabButtonStyle}" Width="45"/>
-                                    <RadioButton Content="Detail" Command="{Binding SetCategoryCommand}" CommandParameter="Detail" IsChecked="{Binding IsDetailSelected, Mode=OneWay}" Style="{StaticResource PremiumTabButtonStyle}" Width="65" Margin="8,0,0,0"/>
-                                    <RadioButton Content="Drafting" Command="{Binding SetCategoryCommand}" CommandParameter="Drafting" IsChecked="{Binding IsDraftingSelected, Mode=OneWay}" Style="{StaticResource PremiumTabButtonStyle}" Width="75" Margin="8,0,0,0"/>
-                                    <RadioButton Content="2D" Command="{Binding SetCategoryCommand}" CommandParameter="2D" IsChecked="{Binding Is2DSelected, Mode=OneWay}" Style="{StaticResource PremiumTabButtonStyle}" Width="45" Margin="8,0,0,0"/>
-                                    <RadioButton Content="3D" Command="{Binding SetCategoryCommand}" CommandParameter="3D" IsChecked="{Binding Is3DSelected, Mode=OneWay}" Style="{StaticResource PremiumTabButtonStyle}" Width="45" Margin="8,0,0,0"/>
+                            <RadioButton Grid.Column="0" Content="Views &amp; Sheets" 
+                                         Command="{Binding SetTabCommand}" CommandParameter="General"
+                                         IsChecked="{Binding IsGeneralTab, Mode=OneWay}"
+                                         Style="{DynamicResource PremiumLightTabButtonStyle}" 
+                                         HorizontalAlignment="Stretch" Margin="0,0,5,0"/>
+                            
+                            <RadioButton Grid.Column="1" Content="Families" 
+                                         Command="{Binding SetTabCommand}" CommandParameter="Families"
+                                         IsChecked="{Binding IsFamiliesTab, Mode=OneWay}"
+                                         Style="{DynamicResource PremiumLightTabButtonStyle}" 
+                                         HorizontalAlignment="Stretch" Margin="0,0,5,0"/>
+
+                            <RadioButton Grid.Column="2" Content="System Families" 
+                                         Command="{Binding SetTabCommand}" CommandParameter="SystemFamilies"
+                                         IsChecked="{Binding IsSystemFamiliesTab, Mode=OneWay}"
+                                         Style="{DynamicResource PremiumLightTabButtonStyle}" 
+                                         HorizontalAlignment="Stretch" Margin="0,0,0,0"/>
+                        </Grid>
+
+                        <!-- TAB: VIEWS & SHEETS -->
+                        <Grid Grid.Row="3" Visibility="{Binding IsGeneralTab, Converter={StaticResource BoolToVis}}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="180"/>
+                            </Grid.RowDefinitions>
+                            
+                            <Grid Grid.Row="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="15"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Views Column -->
+                                <Grid Grid.Column="0">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                        <RadioButton Content="All" Command="{Binding SetCategoryCommand}" CommandParameter="All" IsChecked="{Binding IsAllSelected, Mode=OneWay}" Style="{DynamicResource PremiumTabButtonStyle}" Width="45"/>
+                                        <RadioButton Content="Detail" Command="{Binding SetCategoryCommand}" CommandParameter="Detail" IsChecked="{Binding IsDetailSelected, Mode=OneWay}" Style="{DynamicResource PremiumTabButtonStyle}" Width="65" Margin="8,0,0,0"/>
+                                        <RadioButton Content="Drafting" Command="{Binding SetCategoryCommand}" CommandParameter="Drafting" IsChecked="{Binding IsDraftingSelected, Mode=OneWay}" Style="{DynamicResource PremiumTabButtonStyle}" Width="75" Margin="8,0,0,0"/>
+                                        <RadioButton Content="2D" Command="{Binding SetCategoryCommand}" CommandParameter="2D" IsChecked="{Binding Is2DSelected, Mode=OneWay}" Style="{DynamicResource PremiumTabButtonStyle}" Width="45" Margin="8,0,0,0"/>
+                                        <RadioButton Content="3D" Command="{Binding SetCategoryCommand}" CommandParameter="3D" IsChecked="{Binding Is3DSelected, Mode=OneWay}" Style="{DynamicResource PremiumTabButtonStyle}" Width="45" Margin="8,0,0,0"/>
+                                    </StackPanel>
+
+                                    <Border Margin="0,0,0,8" Background="White" CornerRadius="4" BorderBrush="#DDDDDD" BorderThickness="1" Grid.Row="0">
+                                        <Grid Margin="8,4">
+                                            <TextBox Text="{Binding ViewSearchText, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" Background="Transparent" Style="{DynamicResource PremiumTextBoxStyle}" Margin="0"/>
+                                        </Grid>
+                                    </Border>
+
+                                    <GroupBox Header="Drafting &amp; Views" Grid.Row="1">
+                                        <DataGrid ItemsSource="{Binding FilteredViews}" AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="Column" GridLinesVisibility="None" BorderThickness="0">
+                                            <DataGrid.Columns>
+                                                <DataGridTemplateColumn Width="40">
+                                                    <DataGridTemplateColumn.Header>
+                                                        <CheckBox IsChecked="{Binding DataContext.SelectAllViews, RelativeSource={RelativeSource AncestorType=Window}}" HorizontalAlignment="Center"/>
+                                                    </DataGridTemplateColumn.Header>
+                                                    <DataGridTemplateColumn.CellTemplate>
+                                                        <DataTemplate><CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center"/></DataTemplate>
+                                                    </DataGridTemplateColumn.CellTemplate>
+                                                </DataGridTemplateColumn>
+                                                <DataGridTextColumn Header="Type" Binding="{Binding ViewType}" Width="100" IsReadOnly="True" />
+                                                <DataGridTextColumn Header="Name" Binding="{Binding ViewName}" Width="*" IsReadOnly="True" />
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                    </GroupBox>
+                                </Grid>
+
+                                <!-- Sheets Column -->
+                                <Grid Grid.Column="2">
+                                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                    <Border Margin="0,0,0,8" Background="White" CornerRadius="4" BorderBrush="#DDDDDD" BorderThickness="1">
+                                        <Grid Margin="8,4">
+                                            <TextBox Text="{Binding SheetSearchText, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" Background="Transparent" Style="{DynamicResource PremiumTextBoxStyle}" Margin="0"/>
+                                        </Grid>
+                                    </Border>
+                                    <GroupBox Header="Sheets" Grid.Row="1">
+                                        <DataGrid ItemsSource="{Binding FilteredSheets}" SelectedItem="{Binding SelectedSheet}" AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="Column" GridLinesVisibility="None" BorderThickness="0">
+                                            <DataGrid.Columns>
+                                                <DataGridTemplateColumn Width="40">
+                                                    <DataGridTemplateColumn.Header>
+                                                        <CheckBox IsChecked="{Binding DataContext.SelectAllSheets, RelativeSource={RelativeSource AncestorType=Window}}" HorizontalAlignment="Center"/>
+                                                    </DataGridTemplateColumn.Header>
+                                                    <DataGridTemplateColumn.CellTemplate>
+                                                        <DataTemplate><CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center"/></DataTemplate>
+                                                    </DataGridTemplateColumn.CellTemplate>
+                                                </DataGridTemplateColumn>
+                                                <DataGridTextColumn Header="Number" Binding="{Binding SheetNumber}" Width="80" IsReadOnly="True" />
+                                                <DataGridTextColumn Header="Name" Binding="{Binding SheetName}" Width="*" IsReadOnly="True" />
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                    </GroupBox>
+                                </Grid>
+                            </Grid>
+
+                            <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch" Background="Transparent" Margin="0,5"/>
+
+                            <!-- Sheet Details -->
+                            <GroupBox Header="Viewports In Selected Sheet" Grid.Row="2">
+                                <DataGrid ItemsSource="{Binding ViewportsInSelectedSheet}" AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="Column" GridLinesVisibility="None" BorderThickness="0">
+                                    <DataGrid.Columns>
+                                        <DataGridTemplateColumn Width="40">
+                                            <DataGridTemplateColumn.Header>
+                                                <CheckBox IsChecked="{Binding DataContext.SelectAllViewports, RelativeSource={RelativeSource AncestorType=Window}}" HorizontalAlignment="Center"/>
+                                            </DataGridTemplateColumn.Header>
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate><CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center"/></DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTextColumn Header="Type" Binding="{Binding ViewType}" Width="100" IsReadOnly="True" />
+                                        <DataGridTextColumn Header="View Name" Binding="{Binding ViewName}" Width="*" IsReadOnly="True" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </GroupBox>
+                        </Grid>
+
+                        <!-- TAB: FAMILIES -->
+                        <Grid Grid.Row="3" Visibility="{Binding IsFamiliesTab, Converter={StaticResource BoolToVis}}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="2*"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Family Search & Filters -->
+                            <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,15,0">
+                                    <RadioButton Content="All" Command="{Binding SetFamilyCategoryCommand}" CommandParameter="All" IsChecked="{Binding IsFamilyAllSelected, Mode=OneWay}" Style="{DynamicResource PremiumTabButtonStyle}" Width="45"/>
+                                    <RadioButton Content="2D" Command="{Binding SetFamilyCategoryCommand}" CommandParameter="2D" IsChecked="{Binding IsFamily2DSelected, Mode=OneWay}" Style="{DynamicResource PremiumTabButtonStyle}" Width="45" Margin="8,0,0,0"/>
+                                    <RadioButton Content="3D" Command="{Binding SetFamilyCategoryCommand}" CommandParameter="3D" IsChecked="{Binding IsFamily3DSelected, Mode=OneWay}" Style="{DynamicResource PremiumTabButtonStyle}" Width="45" Margin="8,0,0,0"/>
                                 </StackPanel>
 
-                                <Border Margin="0,0,0,8" Background="White" CornerRadius="4" BorderBrush="#DDDDDD" BorderThickness="1" Grid.Row="0">
-                                    <Grid Margin="8,4">
-                                        <TextBox Text="{Binding ViewSearchText, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" Background="Transparent" Style="{StaticResource PremiumTextBoxStyle}" Margin="0"/>
+                                <Border Grid.Column="1" Background="White" CornerRadius="4" BorderBrush="#DDDDDD" BorderThickness="1">
+                                    <Grid Margin="12,6">
+                                        <TextBox Text="{Binding FamilySearchText, UpdateSourceTrigger=PropertyChanged}" 
+                                                 BorderThickness="0" Background="Transparent" VerticalAlignment="Center"
+                                                 Style="{DynamicResource PremiumTextBoxStyle}" Margin="0"/>
                                     </Grid>
                                 </Border>
 
-                                <GroupBox Header="Drafting &amp; Views" Grid.Row="1">
-                                    <DataGrid ItemsSource="{Binding FilteredViews}" AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="Column" GridLinesVisibility="None" BorderThickness="0">
-                                        <DataGrid.Columns>
-                                            <DataGridTemplateColumn Width="40">
-                                                <DataGridTemplateColumn.Header>
-                                                    <CheckBox IsChecked="{Binding DataContext.SelectAllViews, RelativeSource={RelativeSource AncestorType=Window}}" HorizontalAlignment="Center"/>
-                                                </DataGridTemplateColumn.Header>
-                                                <DataGridTemplateColumn.CellTemplate>
-                                                    <DataTemplate><CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center"/></DataTemplate>
-                                                </DataGridTemplateColumn.CellTemplate>
-                                            </DataGridTemplateColumn>
-                                            <DataGridTextColumn Header="Type" Binding="{Binding ViewType}" Width="100" IsReadOnly="True" />
-                                            <DataGridTextColumn Header="Name" Binding="{Binding ViewName}" Width="*" IsReadOnly="True" />
-                                        </DataGrid.Columns>
-                                    </DataGrid>
-                                </GroupBox>
+                                <CheckBox Grid.Column="2" Content="Hide Existing" IsChecked="{Binding HideExistingFamilies}" VerticalAlignment="Center" Margin="15,0,0,0"/>
                             </Grid>
 
-                            <!-- Sheets Column -->
-                            <Grid Grid.Column="2">
-                                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-                                <Border Margin="0,0,0,8" Background="White" CornerRadius="4" BorderBrush="#DDDDDD" BorderThickness="1">
-                                    <Grid Margin="8,4">
-                                        <TextBox Text="{Binding SheetSearchText, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" Background="Transparent" Style="{StaticResource PremiumTextBoxStyle}" Margin="0"/>
-                                    </Grid>
-                                </Border>
-                                <GroupBox Header="Sheets" Grid.Row="1">
-                                    <DataGrid ItemsSource="{Binding FilteredSheets}" SelectedItem="{Binding SelectedSheet}" AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="Column" GridLinesVisibility="None" BorderThickness="0">
-                                        <DataGrid.Columns>
-                                            <DataGridTemplateColumn Width="40">
-                                                <DataGridTemplateColumn.Header>
-                                                    <CheckBox IsChecked="{Binding DataContext.SelectAllSheets, RelativeSource={RelativeSource AncestorType=Window}}" HorizontalAlignment="Center"/>
-                                                </DataGridTemplateColumn.Header>
-                                                <DataGridTemplateColumn.CellTemplate>
-                                                    <DataTemplate><CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center"/></DataTemplate>
-                                                </DataGridTemplateColumn.CellTemplate>
-                                            </DataGridTemplateColumn>
-                                            <DataGridTextColumn Header="Number" Binding="{Binding SheetNumber}" Width="80" IsReadOnly="True" />
-                                            <DataGridTextColumn Header="Name" Binding="{Binding SheetName}" Width="*" IsReadOnly="True" />
-                                        </DataGrid.Columns>
-                                    </DataGrid>
-                                </GroupBox>
-                            </Grid>
+                            <GroupBox Header="1. Select Families" Grid.Row="1" Margin="0,0,0,5">
+                                <DataGrid ItemsSource="{Binding FilteredFamilies}" 
+                                          SelectedItem="{Binding SelectedFamily}"
+                                          AutoGenerateColumns="False" 
+                                          HeadersVisibility="Column" 
+                                          SelectionMode="Single"
+                                          Background="Transparent" BorderThickness="0" GridLinesVisibility="None">
+                                    <DataGrid.Columns>
+                                        <DataGridTemplateColumn Width="45">
+                                            <DataGridTemplateColumn.Header>
+                                                <CheckBox IsChecked="{Binding DataContext.SelectAllFamilies, RelativeSource={RelativeSource AncestorType=Window}}" HorizontalAlignment="Center"/>
+                                            </DataGridTemplateColumn.Header>
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTextColumn Header="Category" Binding="{Binding CategoryName}" Width="120" IsReadOnly="True" />
+                                        <DataGridTextColumn Header="Family" Binding="{Binding FamilyName}" Width="*" IsReadOnly="True" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </GroupBox>
+
+                            <GridSplitter Grid.Row="2" Height="4" HorizontalAlignment="Stretch" Background="#EEEEEE" Margin="0,5"/>
+
+                            <GroupBox Header="2. Select Specific Types" Grid.Row="3">
+                                <DataGrid ItemsSource="{Binding SelectedFamilyTypes}" AutoGenerateColumns="False" HeadersVisibility="Column" Background="Transparent" BorderThickness="0" GridLinesVisibility="None">
+                                    <DataGrid.Columns>
+                                        <DataGridTemplateColumn Width="45">
+                                            <DataGridTemplateColumn.Header>
+                                                <CheckBox IsChecked="{Binding DataContext.SelectAllFamilyTypes, RelativeSource={RelativeSource AncestorType=Window}}" HorizontalAlignment="Center"/>
+                                            </DataGridTemplateColumn.Header>
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTextColumn Header="Type Name" Binding="{Binding TypeName}" Width="*" IsReadOnly="True" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </GroupBox>
                         </Grid>
 
-                        <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch" Background="Transparent" Margin="0,5"/>
+                        <!-- TAB: SYSTEM FAMILIES -->
+                        <Grid Grid.Row="3" Visibility="{Binding IsSystemFamiliesTab, Converter={StaticResource BoolToVis}}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
 
-                        <!-- Sheet Details -->
-                        <GroupBox Header="Viewports In Selected Sheet" Grid.Row="2">
-                            <DataGrid ItemsSource="{Binding ViewportsInSelectedSheet}" AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="Column" GridLinesVisibility="None" BorderThickness="0">
-                                <DataGrid.Columns>
-                                    <DataGridTemplateColumn Width="40">
-                                        <DataGridTemplateColumn.Header>
-                                            <CheckBox IsChecked="{Binding DataContext.SelectAllViewports, RelativeSource={RelativeSource AncestorType=Window}}" HorizontalAlignment="Center"/>
-                                        </DataGridTemplateColumn.Header>
-                                        <DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate><CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center"/></DataTemplate>
-                                        </DataGridTemplateColumn.CellTemplate>
-                                    </DataGridTemplateColumn>
-                                    <DataGridTextColumn Header="Type" Binding="{Binding ViewType}" Width="100" IsReadOnly="True" />
-                                    <DataGridTextColumn Header="View Name" Binding="{Binding ViewName}" Width="*" IsReadOnly="True" />
-                                </DataGrid.Columns>
-                            </DataGrid>
-                        </GroupBox>
+                            <Grid Grid.Row="0" Margin="0,0,0,15">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Orientation="Horizontal" Grid.Column="0">
+                                    <RadioButton Content="All" IsChecked="{Binding IsSystemCatAll, Mode=OneWay}" Command="{Binding SetSystemCategoryCommand}" CommandParameter="All" Style="{DynamicResource PremiumTabButtonStyle}" Width="60" Margin="0,0,5,0"/>
+                                    <RadioButton Content="Structural" IsChecked="{Binding IsSystemCatStructural, Mode=OneWay}" Command="{Binding SetSystemCategoryCommand}" CommandParameter="Structural" Style="{DynamicResource PremiumTabButtonStyle}" Width="90" Margin="0,0,5,0"/>
+                                    <RadioButton Content="Architectural" IsChecked="{Binding IsSystemCatArchitectural, Mode=OneWay}" Command="{Binding SetSystemCategoryCommand}" CommandParameter="Architectural" Style="{DynamicResource PremiumTabButtonStyle}" Width="110"/>
+                                </StackPanel>
+
+                                <Border Grid.Column="1" Background="White" CornerRadius="4" BorderBrush="#DDDDDD" BorderThickness="1" Margin="15,0,0,0">
+                                    <Grid Margin="12,6">
+                                        <TextBox Text="{Binding SystemTypeSearchText, UpdateSourceTrigger=PropertyChanged}" 
+                                                 BorderThickness="0" Background="Transparent" VerticalAlignment="Center"
+                                                 Style="{DynamicResource PremiumTextBoxStyle}" Margin="0"/>
+                                    </Grid>
+                                </Border>
+
+                                <CheckBox Grid.Column="2" Content="Hide Existing" IsChecked="{Binding HideExistingSystemTypes}" VerticalAlignment="Center" Margin="15,0,0,0"/>
+                            </Grid>
+
+                            <GroupBox Header="1. Select System Family Types" Grid.Row="1">
+                                <DataGrid ItemsSource="{Binding FilteredSystemTypes}" 
+                                          AutoGenerateColumns="False" 
+                                          HeadersVisibility="Column" 
+                                          SelectionMode="Single"
+                                          Background="Transparent" BorderThickness="0" GridLinesVisibility="None">
+                                    <DataGrid.Columns>
+                                        <DataGridTemplateColumn Width="45">
+                                            <DataGridTemplateColumn.Header>
+                                                <CheckBox IsChecked="{Binding DataContext.SelectAllSystemTypes, RelativeSource={RelativeSource AncestorType=Window}}" HorizontalAlignment="Center"/>
+                                            </DataGridTemplateColumn.Header>
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTextColumn Header="Category" Binding="{Binding CategoryName}" Width="120" IsReadOnly="True" />
+                                        <DataGridTextColumn Header="Family" Binding="{Binding FamilyName}" Width="150" IsReadOnly="True" />
+                                        <DataGridTextColumn Header="Type Name" Binding="{Binding TypeName}" Width="*" IsReadOnly="True" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </GroupBox>
+                        </Grid>
                     </Grid>
 
-                    <!-- TAB: FAMILIES -->
-                    <Grid Grid.Row="1" Visibility="{Binding IsFamiliesTab, Converter={StaticResource BoolToVis}}">
+                    <!-- 2. FAMILY MANAGER MAIN TAB -->
+                    <Grid Visibility="{Binding IsFamilyManagerTab, Converter={StaticResource BoolToVis}}">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="2*"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/> <!-- Folder Picker -->
+                            <RowDefinition Height="Auto"/> <!-- Filters -->
+                            <RowDefinition Height="*"/>    <!-- DataGrid -->
                         </Grid.RowDefinitions>
 
-                        <!-- Family Search & Filters -->
-                        <Grid Margin="0,0,0,10">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
+                        <!-- Source Folder Region -->
+                        <Border Grid.Row="0" Background="#FAFAFA" BorderBrush="#DDDDDD" BorderThickness="1" CornerRadius="8" Padding="15" Margin="0,0,0,15">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox Grid.Column="0" Text="{Binding FamilyManagerFolderPath, Mode=OneWay}" IsReadOnly="True" Style="{DynamicResource PremiumTextBoxStyle}" Margin="0,0,10,0" Padding="12,8" VerticalContentAlignment="Center"/>
+                                <Button Grid.Column="1" Content="Browse Folder..." Command="{Binding BrowseManagerFolderCommand}" Style="{DynamicResource PremiumSecondaryButtonStyle}" Width="130"/>
+                            </Grid>
+                        </Border>
 
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,15,0">
-                                <RadioButton Content="All" Command="{Binding SetFamilyCategoryCommand}" CommandParameter="All" IsChecked="{Binding IsFamilyAllSelected, Mode=OneWay}" Style="{StaticResource PremiumTabButtonStyle}" Width="45"/>
-                                <RadioButton Content="2D" Command="{Binding SetFamilyCategoryCommand}" CommandParameter="2D" IsChecked="{Binding IsFamily2DSelected, Mode=OneWay}" Style="{StaticResource PremiumTabButtonStyle}" Width="45" Margin="8,0,0,0"/>
-                                <RadioButton Content="3D" Command="{Binding SetFamilyCategoryCommand}" CommandParameter="3D" IsChecked="{Binding IsFamily3DSelected, Mode=OneWay}" Style="{StaticResource PremiumTabButtonStyle}" Width="45" Margin="8,0,0,0"/>
+                        <!-- Search & Categories -->
+                        <Grid Grid.Row="1" Margin="0,0,0,10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            
+                            <!-- Row 0: Filter Pills -->
+                            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+                                <RadioButton Content="All" IsChecked="{Binding IsManagerCatAll, Mode=OneWay}" Command="{Binding SetManagerCategoryCommand}" CommandParameter="All" Style="{DynamicResource PremiumTabButtonStyle}" Width="60" Margin="0,0,5,0"/>
+                                <RadioButton Content="2D Families" IsChecked="{Binding IsManagerCat2D, Mode=OneWay}" Command="{Binding SetManagerCategoryCommand}" CommandParameter="2D" Style="{DynamicResource PremiumTabButtonStyle}" Width="110" Margin="0,0,5,0"/>
+                                <RadioButton Content="3D Families" IsChecked="{Binding IsManagerCat3D, Mode=OneWay}" Command="{Binding SetManagerCategoryCommand}" CommandParameter="3D" Style="{DynamicResource PremiumTabButtonStyle}" Width="110"/>
                             </StackPanel>
 
-                            <Border Grid.Column="1" Background="White" CornerRadius="4" BorderBrush="#DDDDDD" BorderThickness="1">
-                                <Grid Margin="12,6">
-                                    <TextBox Text="{Binding FamilySearchText, UpdateSourceTrigger=PropertyChanged}" 
-                                             BorderThickness="0" Background="Transparent" VerticalAlignment="Center"
-                                             Style="{StaticResource PremiumTextBoxStyle}" Margin="0"/>
-                                </Grid>
-                            </Border>
+                            <!-- Row 1: Search Boxes aligned with the DataGrids -->
+                            <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="6*"/>
+                                    <ColumnDefinition Width="4*"/>
+                                </Grid.ColumnDefinitions>
 
-                            <CheckBox Grid.Column="2" Content="Hide Existing" IsChecked="{Binding HideExistingFamilies}" VerticalAlignment="Center" Margin="15,0,0,0"/>
+                                <!-- Family Search Box (Left Column) -->
+                                <Border Grid.Column="0" Background="White" CornerRadius="4" BorderBrush="#DDDDDD" BorderThickness="1" Margin="0,0,10,0">
+                                    <Grid Margin="12,4">
+                                        <TextBox Text="{Binding FamilyManagerSearchText, UpdateSourceTrigger=PropertyChanged}" 
+                                                 BorderThickness="0" Background="Transparent" VerticalAlignment="Center"
+                                                 Style="{DynamicResource PremiumTextBoxStyle}" Margin="0"/>
+                                    </Grid>
+                                </Border>
+
+                                <!-- Type Search Box (Right Column) -->
+                                <Border Grid.Column="1" Background="White" CornerRadius="4" BorderBrush="#DDDDDD" BorderThickness="1">
+                                    <Grid Margin="12,4">
+                                        <TextBox Text="{Binding ManagerFamilyTypeSearchText, UpdateSourceTrigger=PropertyChanged}" 
+                                                 BorderThickness="0" Background="Transparent" VerticalAlignment="Center"
+                                                 Style="{DynamicResource PremiumTextBoxStyle}" Margin="0"/>
+                                    </Grid>
+                                </Border>
+                            </Grid>
                         </Grid>
 
-                        <GroupBox Header="1. Select Families" Grid.Row="1" Margin="0,0,0,5">
-                            <DataGrid ItemsSource="{Binding FilteredFamilies}" 
-                                      SelectedItem="{Binding SelectedFamily}"
-                                      AutoGenerateColumns="False" 
-                                      HeadersVisibility="Column" 
-                                      SelectionMode="Single"
-                                      Background="Transparent" BorderThickness="0" GridLinesVisibility="None">
-                                <DataGrid.Columns>
-                                    <DataGridTemplateColumn Width="45">
-                                        <DataGridTemplateColumn.Header>
-                                            <CheckBox IsChecked="{Binding DataContext.SelectAllFamilies, RelativeSource={RelativeSource AncestorType=Window}}" HorizontalAlignment="Center"/>
-                                        </DataGridTemplateColumn.Header>
-                                        <DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellTemplate>
-                                    </DataGridTemplateColumn>
-                                    <DataGridTextColumn Header="Category" Binding="{Binding CategoryName}" Width="120" IsReadOnly="True" />
-                                    <DataGridTextColumn Header="Family" Binding="{Binding FamilyName}" Width="*" IsReadOnly="True" />
-                                </DataGrid.Columns>
-                            </DataGrid>
-                        </GroupBox>
+                        <!-- DataGrid -->
+                        <Grid Grid.Row="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="6*"/>
+                                <ColumnDefinition Width="4*"/>
+                            </Grid.ColumnDefinitions>
 
-                        <GridSplitter Grid.Row="2" Height="4" HorizontalAlignment="Stretch" Background="#EEEEEE" Margin="0,5"/>
+                            <GroupBox Header="1. Select Families" Grid.Column="0" Margin="0,0,10,0">
+                                <DataGrid ItemsSource="{Binding FilteredManagerFamilies}" 
+                                          SelectedItem="{Binding SelectedManagerFamily, Mode=TwoWay}"
+                                          AutoGenerateColumns="False" 
+                                          HeadersVisibility="Column" 
+                                          SelectionMode="Single"
+                                          Background="Transparent" BorderThickness="0" GridLinesVisibility="None">
+                                    <DataGrid.Columns>
+                                        <DataGridTemplateColumn Width="45">
+                                            <DataGridTemplateColumn.Header>
+                                                <CheckBox IsChecked="{Binding DataContext.SelectAllManagerFamilies, RelativeSource={RelativeSource AncestorType=Window}}" HorizontalAlignment="Center"/>
+                                            </DataGridTemplateColumn.Header>
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTextColumn Header="Family Name" Binding="{Binding FamilyName}" Width="*" IsReadOnly="True" />
+                                        <DataGridTextColumn Header="Category" Binding="{Binding CategoryName}" Width="150" IsReadOnly="True" />
+                                        
+                                        <DataGridTemplateColumn Header="Status" Width="90">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Status}" VerticalAlignment="Center" FontWeight="SemiBold">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Foreground" Value="#777777"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Status}" Value="Missing">
+                                                                        <Setter Property="Foreground" Value="#E74C3C"/> <!-- Red -->
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Status}" Value="Loaded">
+                                                                        <Setter Property="Foreground" Value="#2ECC71"/> <!-- Green -->
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </GroupBox>
 
-                        <GroupBox Header="2. Select Specific Types" Grid.Row="3">
-                            <DataGrid ItemsSource="{Binding SelectedFamilyTypes}" AutoGenerateColumns="False" HeadersVisibility="Column" Background="Transparent" BorderThickness="0" GridLinesVisibility="None">
-                                <DataGrid.Columns>
-                                    <DataGridTemplateColumn Width="45">
-                                        <DataGridTemplateColumn.Header>
-                                            <CheckBox IsChecked="{Binding DataContext.SelectAllFamilyTypes, RelativeSource={RelativeSource AncestorType=Window}}" HorizontalAlignment="Center"/>
-                                        </DataGridTemplateColumn.Header>
-                                        <DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellTemplate>
-                                    </DataGridTemplateColumn>
-                                    <DataGridTextColumn Header="Type Name" Binding="{Binding TypeName}" Width="*" IsReadOnly="True" />
-                                </DataGrid.Columns>
-                            </DataGrid>
-                        </GroupBox>
+                            <!-- Sub-Types Selection -->
+                            <GroupBox Header="2. Select Sub-Types (Optional)" Grid.Column="1">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    
+                                    <DataGrid Grid.Row="0" ItemsSource="{Binding FilteredManagerFamilyTypes}" 
+                                              AutoGenerateColumns="False" 
+                                              HeadersVisibility="Column" 
+                                              SelectionMode="Single"
+                                              Background="Transparent" BorderThickness="0" GridLinesVisibility="None">
+                                        <DataGrid.Columns>
+                                            <DataGridTemplateColumn Width="45">
+                                                <DataGridTemplateColumn.Header>
+                                                    <CheckBox IsChecked="{Binding DataContext.SelectAllManagerFamilyTypes, RelativeSource={RelativeSource AncestorType=Window}}" HorizontalAlignment="Center"/>
+                                                </DataGridTemplateColumn.Header>
+                                                <DataGridTemplateColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </DataTemplate>
+                                                </DataGridTemplateColumn.CellTemplate>
+                                            </DataGridTemplateColumn>
+                                            <DataGridTextColumn Header="Type Profile" Binding="{Binding TypeName}" Width="*" IsReadOnly="True" />
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                </Grid>
+                            </GroupBox>
+                        </Grid>
                     </Grid>
+
                 </Grid>
             </Grid>
 
             <!-- 3. FOOTER -->
-            <Border Grid.Row="2" Padding="25,15" Background="#FAFAFA" CornerRadius="0,0,12,12" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,1,0,0">
+            <Border Grid.Row="2" Padding="20,15" Background="#FAFAFA" CornerRadius="0,0,12,12" BorderBrush="{DynamicResource PremiumBorderBrush}" BorderThickness="0,1,0,0">
                 <Grid>
                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                     <TextBlock Text="{Binding StatusText}" VerticalAlignment="Center" Foreground="#999999" FontSize="12"/>
-                    <Button Grid.Column="1" Content="Cancel" Style="{StaticResource PremiumPrimaryButtonStyle}" Width="90" Margin="0,0,12,0" Click="Close_Click"/>
-                    <Button Grid.Column="2" Content="Transfer Selected" Style="{StaticResource PremiumActionButtonStyle}" Width="140" Click="Transfer_Click" IsEnabled="{Binding IsSourceLoaded}"/>
+                    <Button Grid.Column="1" Content="Cancel" Style="{DynamicResource PremiumPrimaryButtonStyle}" Width="90" Margin="0,0,12,0" Click="Close_Click"/>
+                    <Grid Grid.Column="2">
+                        <Button Content="Transfer Selected" Style="{DynamicResource PremiumActionButtonStyle}" Width="140" Click="Transfer_Click" IsEnabled="{Binding IsSourceLoaded}" Visibility="{Binding IsStandardDetailsTab, Converter={StaticResource BoolToVis}}"/>
+                        <Button Content="Load / Update Selected" Style="{DynamicResource PremiumActionButtonStyle}" Width="170" Command="{Binding ProcessSelectedManagerFamiliesCommand}" Visibility="{Binding IsFamilyManagerTab, Converter={StaticResource BoolToVis}}"/>
+                    </Grid>
                 </Grid>
             </Border>
         </Grid>
