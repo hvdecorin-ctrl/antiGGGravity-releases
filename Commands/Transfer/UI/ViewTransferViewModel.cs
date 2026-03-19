@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
@@ -10,6 +11,7 @@ using antiGGGravity.Commands.Transfer.DTO;
 using antiGGGravity.Commands.Transfer.Modules;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
+using antiGGGravity.Utilities;
 using View = Autodesk.Revit.DB.View;
 using Viewport = Autodesk.Revit.DB.Viewport;
 
@@ -96,6 +98,12 @@ namespace antiGGGravity.Commands.Transfer.UI
 
         public ICollectionView FilteredManagerFamilyTypes { get; private set; }
 
+        // Duplicator
+        public DuplicatorRequestHandler DupRequestHandler { get; private set; }
+        public ExternalEvent DupExEvent { get; private set; }
+        public ObservableCollection<DuplicatorRow> DuplicatorRows { get; set; } = new ObservableCollection<DuplicatorRow>();
+        public ObservableCollection<FamilyManagerItem> LoadedProjectFamilies { get; set; } = new ObservableCollection<FamilyManagerItem>();
+
         public string ViewSearchText
         {
             get => _viewSearchText;
@@ -125,12 +133,16 @@ namespace antiGGGravity.Commands.Transfer.UI
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(IsStandardDetailsTab));
                     OnPropertyChanged(nameof(IsFamilyManagerTab));
+                    OnPropertyChanged(nameof(IsDuplicatorTab));
                 }
             }
         }
 
         public bool IsStandardDetailsTab => CurrentMainTab == "Standard Details";
         public bool IsFamilyManagerTab => CurrentMainTab == "Family Manager";
+        public bool IsDuplicatorTab => CurrentMainTab == "Duplicator";
+
+        public bool IsLibraryFolderLinked => !string.IsNullOrEmpty(Folder1Path) || AvailableManagerFamilies?.Any() == true;
 
         public ICommand SetMainTabCommand => new RelayCommand(p => CurrentMainTab = p?.ToString());
 
@@ -492,7 +504,7 @@ namespace antiGGGravity.Commands.Transfer.UI
             set { _isSourceLoaded = value; OnPropertyChanged(); }
         }
 
-        public ViewTransferViewModel(UIApplication uiApp, TransferRequestHandler handler, ExternalEvent exEvent, FamilyManagerRequestHandler fmHandler, ExternalEvent fmExEvent, ReadFamilyTypesHandler typesHandler, ExternalEvent typesExEvent)
+        public ViewTransferViewModel(UIApplication uiApp, TransferRequestHandler handler, ExternalEvent exEvent, FamilyManagerRequestHandler fmHandler, ExternalEvent fmExEvent, ReadFamilyTypesHandler typesHandler, ExternalEvent typesExEvent, DuplicatorRequestHandler dupHandler = null, ExternalEvent dupExEvent = null)
         {
             _uiApp = uiApp;
             _fileManager = new FileManagerModule(uiApp);
@@ -502,10 +514,64 @@ namespace antiGGGravity.Commands.Transfer.UI
             FmExEvent = fmExEvent;
             TypesRequestHandler = typesHandler;
             TypesExEvent = typesExEvent;
+            DupRequestHandler = dupHandler;
+            DupExEvent = dupExEvent;
             
             RequestHandler.TransferCompleted += OnTransferCompleted;
             if (FmRequestHandler != null) FmRequestHandler.ProcessCompleted += OnManagerProcessCompleted;
             if (TypesRequestHandler != null) TypesRequestHandler.TypesReadCompleted += OnTypesReadCompleted;
+
+            if (_uiApp?.ActiveUIDocument?.Document != null)
+            {
+                var doc = _uiApp.ActiveUIDocument.Document;
+
+                // Restrict local project cache to purely Structural Categories (Phase 9)
+                var allowedCategories = new long[]
+                {
+                    (long)BuiltInCategory.OST_StructuralFraming,
+                    (long)BuiltInCategory.OST_StructuralColumns,
+                    (long)BuiltInCategory.OST_StructuralFoundation,
+                    (long)BuiltInCategory.OST_Walls,
+                    (long)BuiltInCategory.OST_Floors
+                };
+
+                var symbols = new FilteredElementCollector(doc)
+                    .OfClass(typeof(FamilySymbol))
+                    .Cast<FamilySymbol>()
+                    .Where(s => s.Category != null && allowedCategories.Contains(s.Category.Id.GetIdValue()))
+                    .GroupBy(s => s.FamilyName)
+                    .ToList();
+
+                foreach (var group in symbols)
+                {
+                    var firstSymbol = group.First();
+                    var categoryName = firstSymbol.Category?.Name ?? "";
+
+                    var familyItem = new FamilyManagerItem 
+                    { 
+                        FamilyName = group.Key, 
+                        CategoryName = categoryName,
+                        FilePath = "Current Project" 
+                    };
+                    familyItem.Types = new ObservableCollection<FamilyManagerTypeItem>(
+                        group.Select(s => new FamilyManagerTypeItem { TypeName = s.Name })
+                    );
+                    LoadedProjectFamilies.Add(familyItem);
+                }
+            }
+
+            // Wire up new DataGrid rows added directly via WPF UI interacting with ObservableCollection (Phase 7 Fix)
+            DuplicatorRows.CollectionChanged += (s, e) =>
+            {
+                if (e.NewItems != null)
+                {
+                    foreach (DuplicatorRow item in e.NewItems)
+                    {
+                        item.PropertyChanged -= DuplicatorRow_PropertyChanged; // Prevent double subscription
+                        item.PropertyChanged += DuplicatorRow_PropertyChanged;
+                    }
+                }
+            };
 
             Options.DuplicateHandlingPrefix = true;
             Options.PrefixString = "Copied_";
@@ -618,6 +684,14 @@ namespace antiGGGravity.Commands.Transfer.UI
                        item.CategoryName.IndexOf(FamilyManagerSearchText, StringComparison.OrdinalIgnoreCase) >= 0 ||
                        item.Status.IndexOf(FamilyManagerSearchText, StringComparison.OrdinalIgnoreCase) >= 0;
             };
+
+            // Load last used Family Manager folder
+            _familyManagerFolderPath = _transferSettings.LastManagerFolderPath;
+            if (!string.IsNullOrEmpty(_familyManagerFolderPath) && Directory.Exists(_familyManagerFolderPath))
+            {
+                // Run index load asynchronously or just load it fast
+                ScanManagerFolder(_familyManagerFolderPath, useCache: true);
+            }
         }
 
         private void UpdateViewportsList()
@@ -910,14 +984,41 @@ namespace antiGGGravity.Commands.Transfer.UI
             ExEvent.Raise();
         }
 
-        public void ScanManagerFolder(string folderPath)
+        public void ScanManagerFolder(string folderPath, bool useCache = true)
         {
-            StatusText = "Scanning directory for families...";
+            if (string.IsNullOrEmpty(folderPath) || !Directory.Exists(folderPath)) return;
+            
+            StatusText = useCache ? "Loading indexed families..." : "Scanning directory and building index...";
+            
+            // Save last used folder settings
             FamilyManagerFolderPath = folderPath;
+            if (_transferSettings != null)
+            {
+                _transferSettings.LastManagerFolderPath = folderPath;
+                _transferSettings.Save();
+            }
+
             AvailableManagerFamilies.Clear();
 
-            var engine = new antiGGGravity.Commands.Transfer.Core.FamilyManagerEngine(_uiApp.Application);
-            var items = engine.ScanFolder(folderPath, _uiApp.ActiveUIDocument.Document);
+            System.Collections.Generic.List<FamilyManagerItem> items;
+            
+            if (useCache)
+            {
+                var cachedItems = antiGGGravity.Commands.Transfer.Core.LibraryIndexer.LoadIndex(folderPath);
+                if (cachedItems != null)
+                {
+                    items = cachedItems;
+                }
+                else
+                {
+                    StatusText = "Index not found. Scanning directory...";
+                    items = antiGGGravity.Commands.Transfer.Core.LibraryIndexer.BuildIndex(_uiApp.Application, _uiApp.ActiveUIDocument.Document, folderPath);
+                }
+            }
+            else
+            {
+                items = antiGGGravity.Commands.Transfer.Core.LibraryIndexer.BuildIndex(_uiApp.Application, _uiApp.ActiveUIDocument.Document, folderPath);
+            }
 
             foreach (var item in items)
             {
@@ -925,7 +1026,10 @@ namespace antiGGGravity.Commands.Transfer.UI
                 item.PropertyChanged += ManagerFamilyItem_PropertyChanged;
                 AvailableManagerFamilies.Add(item);
             }
-            StatusText = $"Found {items.Count} families in folder.";
+            
+            RefreshFamilyStatuses(); // Set real-time Loaded/Missing status for current project
+            StatusText = $"Loaded {items.Count} families.";
+            OnPropertyChanged(nameof(IsLibraryFolderLinked));
         }
 
         private void ManagerFamilyItem_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -1035,10 +1139,22 @@ namespace antiGGGravity.Commands.Transfer.UI
                 };
                 if (dialog.ShowDialog() == true)
                 {
-                    ScanManagerFolder(dialog.FolderName);
+                    ScanManagerFolder(dialog.FolderName, useCache: true);
                 }
             } catch {
                 StatusText = "Folder dialog not supported on this OS framework version.";
+            }
+        });
+
+        public ICommand RebuildManagerIndexCommand => new RelayCommand(_ =>
+        {
+            if (!string.IsNullOrEmpty(FamilyManagerFolderPath) && Directory.Exists(FamilyManagerFolderPath))
+            {
+                ScanManagerFolder(FamilyManagerFolderPath, useCache: false);
+            }
+            else
+            {
+                StatusText = "Select a valid folder first before rebuilding index.";
             }
         });
 
@@ -1259,6 +1375,7 @@ namespace antiGGGravity.Commands.Transfer.UI
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(Folder1Label));
                 OnPropertyChanged(nameof(IsFolder1Active));
+                OnPropertyChanged(nameof(IsLibraryFolderLinked));
             }
         }
 
@@ -1291,7 +1408,7 @@ namespace antiGGGravity.Commands.Transfer.UI
         {
             if (!string.IsNullOrEmpty(_folder1Path) && Directory.Exists(_folder1Path))
             {
-                ScanManagerFolder(_folder1Path);
+                ScanManagerFolder(_folder1Path, useCache: true);
                 OnPropertyChanged(nameof(IsFolder1Active));
                 OnPropertyChanged(nameof(IsFolder2Active));
             }
@@ -1303,13 +1420,148 @@ namespace antiGGGravity.Commands.Transfer.UI
         {
             if (!string.IsNullOrEmpty(_folder2Path) && Directory.Exists(_folder2Path))
             {
-                ScanManagerFolder(_folder2Path);
+                ScanManagerFolder(_folder2Path, useCache: true);
                 OnPropertyChanged(nameof(IsFolder1Active));
                 OnPropertyChanged(nameof(IsFolder2Active));
             }
             else
                 StatusText = "Folder 2 not set. Right-click to set a folder path.";
         });
+
+        // ============================================================
+        // DUPLICATOR — Auto-match + commands
+        // ============================================================
+
+        /// <summary>
+        /// Searches the indexed Family Manager families for a type name that matches the input.
+        /// Uses exact match first, then case-insensitive, then partial/contains.
+        /// </summary>
+        public void AutoMatchDuplicatorRow(DuplicatorRow row)
+        {
+            if (string.IsNullOrWhiteSpace(row.TypeComment))
+            {
+                row.BaseFamily = null;
+                row.BaseFamilyPath = null;
+                row.BaseTypeName = null;
+                row.Status = null;
+                return;
+            }
+
+            string keyword = row.TypeComment.Trim();
+
+            // Search through loaded project families FIRST, then indexed library families
+            var allMatches = new List<AvailableMatchItem>();
+            var collectionsToSearch = new[] { LoadedProjectFamilies, AvailableManagerFamilies };
+
+            foreach (var collection in collectionsToSearch)
+            {
+                if (collection == null || !collection.Any()) continue;
+
+                var allowedCategoryNames = new[] { "Structural Framing", "Structural Columns", "Structural Foundations", "Walls", "Floors" };
+                var structuralFamilies = collection.Where(f => f.CategoryName != null && allowedCategoryNames.Any(c => f.CategoryName.IndexOf(c, StringComparison.OrdinalIgnoreCase) >= 0)).ToList();
+                if (structuralFamilies.Count == 0) continue;
+
+                // Pass 1: Exact match on TypeName
+                foreach (var family in structuralFamilies)
+                {
+                    foreach (var type in family.Types)
+                    {
+                        if (string.Equals(type.TypeName, keyword, StringComparison.OrdinalIgnoreCase))
+                        {
+                            allMatches.Add(new AvailableMatchItem { FamilyName = family.FamilyName, FilePath = family.FilePath, TypeName = type.TypeName });
+                        }
+                    }
+                }
+
+                // Pass 2: Partial match — keyword contained in TypeName
+                foreach (var family in structuralFamilies)
+                {
+                    foreach (var type in family.Types)
+                    {
+                        if (type.TypeName != null && type.TypeName.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0)
+                        {
+                            allMatches.Add(new AvailableMatchItem { FamilyName = family.FamilyName, FilePath = family.FilePath, TypeName = type.TypeName });
+                        }
+                    }
+                }
+
+                // Pass 3: Inverse Partial match — TypeName contained in keyword (Phase 5)
+                foreach (var family in structuralFamilies)
+                {
+                    foreach (var type in family.Types)
+                    {
+                        if (!string.IsNullOrEmpty(type.TypeName) && keyword.IndexOf(type.TypeName, StringComparison.OrdinalIgnoreCase) >= 0)
+                        {
+                            allMatches.Add(new AvailableMatchItem { FamilyName = family.FamilyName, FilePath = family.FilePath, TypeName = type.TypeName });
+                        }
+                    }
+                }
+
+                // Pass 4: Keyword contained in FamilyName (e.g. user types "UB")
+                foreach (var family in structuralFamilies)
+                {
+                    if (family.FamilyName != null && family.FamilyName.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        allMatches.Add(new AvailableMatchItem { FamilyName = family.FamilyName, FilePath = family.FilePath, TypeName = null });
+                    }
+                }
+            }
+
+            // Deduplicate matches so we don't show the exact same Family+Type combination multiple times
+            var uniqueMatches = allMatches.GroupBy(m => m.DisplayString).Select(g => g.First()).ToList();
+
+            // Needs to avoid firing property changed loop issues if we assign same match
+            row.AvailableMatches = new ObservableCollection<AvailableMatchItem>(uniqueMatches);
+            
+            if (uniqueMatches.Any())
+            {
+                row.SelectedMatch = uniqueMatches.First();
+            }
+            else
+            {
+                row.SelectedMatch = null;
+            }
+        }
+
+        public ICommand AddDuplicatorRowCommand => new RelayCommand(_ =>
+        {
+            var row = new DuplicatorRow();
+            row.PropertyChanged += DuplicatorRow_PropertyChanged;
+            DuplicatorRows.Add(row);
+        });
+
+        public ICommand ClearDuplicatorRowsCommand => new RelayCommand(_ =>
+        {
+            DuplicatorRows.Clear();
+        });
+
+        public ICommand GenerateDuplicatorCommand => new RelayCommand(_ =>
+        {
+            var validRows = DuplicatorRows.Where(r =>
+                !string.IsNullOrEmpty(r.PreviewName) &&
+                !string.IsNullOrEmpty(r.BaseFamilyPath)).ToList();
+
+            if (!validRows.Any())
+            {
+                StatusText = "No valid rows to generate. Ensure Type Mark and Type Comment are filled.";
+                return;
+            }
+
+            DupRequestHandler.RowsToProcess = validRows;
+            DupRequestHandler.StatusCallback = msg =>
+                System.Windows.Application.Current?.Dispatcher?.Invoke(() => StatusText = msg);
+            DupExEvent.Raise();
+            StatusText = "Generating types...";
+        });
+
+        private void DuplicatorRow_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(DuplicatorRow.TypeComment))
+            {
+                var row = sender as DuplicatorRow;
+                if (row != null) AutoMatchDuplicatorRow(row);
+            }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)

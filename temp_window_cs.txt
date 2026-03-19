@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Windows;
 using Microsoft.Win32;
 using System.Windows.Interop;
@@ -11,10 +11,10 @@ namespace antiGGGravity.Commands.Transfer.UI
     {
         private ViewTransferViewModel _viewModel;
 
-        public ViewTransferWindow(UIApplication uiApp, TransferRequestHandler handler, ExternalEvent exEvent, FamilyManagerRequestHandler fmHandler, ExternalEvent fmExEvent, ReadFamilyTypesHandler typesHandler, ExternalEvent typesExEvent, DuplicatorRequestHandler dupHandler = null, ExternalEvent dupExEvent = null)
+        public ViewTransferWindow(UIApplication uiApp, TransferRequestHandler handler, ExternalEvent exEvent, FamilyManagerRequestHandler fmHandler, ExternalEvent fmExEvent, ReadFamilyTypesHandler typesHandler, ExternalEvent typesExEvent)
         {
             InitializeComponent();
-            _viewModel = new ViewTransferViewModel(uiApp, handler, exEvent, fmHandler, fmExEvent, typesHandler, typesExEvent, dupHandler, dupExEvent);
+            _viewModel = new ViewTransferViewModel(uiApp, handler, exEvent, fmHandler, fmExEvent, typesHandler, typesExEvent);
             this.DataContext = _viewModel;
 
             // Set Revit as owner to prevent crashes with Style=None and Transparency=True
@@ -89,16 +89,6 @@ namespace antiGGGravity.Commands.Transfer.UI
                 _viewModel.ScanManagerFolder(path);
             }
             e.Handled = true;
-        }
-
-        private void SetDuplicatorFolder_Click(object sender, RoutedEventArgs e)
-        {
-            var path = BrowseForFolderPath("Set Base Library Folder");
-            if (path != null)
-            {
-                _viewModel.Folder1Path = path;
-                _viewModel.ScanManagerFolder(path);
-            }
         }
 
         private string BrowseForFolderPath(string title)

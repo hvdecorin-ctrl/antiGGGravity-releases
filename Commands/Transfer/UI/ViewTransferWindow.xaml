@@ -72,6 +72,11 @@
                                      IsChecked="{Binding IsFamilyManagerTab, Mode=OneWay}"
                                      Style="{DynamicResource PremiumSidebarButtonStyle}"/>
 
+                        <RadioButton Content="Duplicator" 
+                                     Command="{Binding SetMainTabCommand}" CommandParameter="Duplicator"
+                                     IsChecked="{Binding IsDuplicatorTab, Mode=OneWay}"
+                                     Style="{DynamicResource PremiumSidebarButtonStyle}"/>
+
                         <Border Height="1" Background="#E0E0E0" Margin="5,15"/>
                         
                         <TextBlock Text="SETTINGS" Foreground="#999999" FontWeight="Bold" FontSize="10" Margin="12,0,0,10"/>
@@ -449,7 +454,10 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBox Text="{Binding FamilyManagerFolderPath, Mode=OneWay}" IsReadOnly="True" Style="{DynamicResource PremiumTextBoxStyle}" Margin="0" Height="28"/>
-                                    <Button Grid.Column="1" Content="Browse Folder..." Command="{Binding BrowseManagerFolderCommand}" Style="{DynamicResource PremiumPrimaryButtonStyle}" Width="130" Height="28" Margin="10,0,0,0"/>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="10,0,0,0">
+                                        <Button Content="Refresh Index" Command="{Binding RebuildManagerIndexCommand}" Style="{DynamicResource PremiumPrimaryButtonStyle}" Width="100" Height="28" Margin="0,0,5,0" />
+                                        <Button Content="Browse Folder..." Command="{Binding BrowseManagerFolderCommand}" Style="{DynamicResource PremiumPrimaryButtonStyle}" Width="130" Height="28"/>
+                                    </StackPanel>
                                 </Grid>
 
                                 <!-- Folder Favorites -->
@@ -548,6 +556,7 @@
                                     <DataGrid Grid.Row="1" ItemsSource="{Binding FilteredManagerFamilies}" 
                                               SelectedItem="{Binding SelectedManagerFamily, Mode=TwoWay}"
                                               AutoGenerateColumns="False" 
+                                              CanUserAddRows="False"
                                               HeadersVisibility="Column" 
                                               SelectionMode="Single"
                                               Background="Transparent" BorderThickness="0" GridLinesVisibility="None">
@@ -601,6 +610,7 @@
                                     <TextBlock Text="2. Sub-Types" FontWeight="Bold" Foreground="#333" Margin="10,5,10,10"/>
                                     <DataGrid Grid.Row="1" ItemsSource="{Binding FilteredManagerFamilyTypes}" 
                                               AutoGenerateColumns="False" 
+                                              CanUserAddRows="False"
                                               HeadersVisibility="Column" 
                                               SelectionMode="Single"
                                               Background="Transparent" BorderThickness="0" GridLinesVisibility="None">
@@ -623,6 +633,91 @@
                         </Grid>
                     </Grid>
 
+                    <!-- 3. DUPLICATOR MAIN TAB -->
+                    <Grid Visibility="{Binding IsDuplicatorTab, Converter={StaticResource BoolToVis}}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Instructions -->
+                        <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                            <TextBlock Text="Enter Type Mark and Type Comment — the system auto-detects the base family from your indexed library." 
+                                       Foreground="#666666" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="+ Add Row" Command="{Binding AddDuplicatorRowCommand}" 
+                                        Style="{DynamicResource PremiumPrimaryButtonStyle}" Width="90" Height="28" Margin="0,0,8,0"/>
+                                <Button Content="Clear All" Command="{Binding ClearDuplicatorRowsCommand}" 
+                                        Style="{DynamicResource PremiumPrimaryButtonStyle}" Width="90" Height="28" Margin="0,0,8,0"/>
+                                <Button Click="SetDuplicatorFolder_Click" Height="28" Padding="15,0"
+                                        ToolTip="Select the network folder where your base Revit families are stored.">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource PremiumSecondaryButtonStyle}">
+                                            <Setter Property="Content" Value="🔗 Set Library Folder" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsLibraryFolderLinked}" Value="True">
+                                                    <Setter Property="Background" Value="#E8F8F5" />
+                                                    <Setter Property="BorderBrush" Value="#2ECC71" />
+                                                    <Setter Property="Foreground" Value="#27AE60" />
+                                                    <Setter Property="Content" Value="✅ Library Linked" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- DataGrid -->
+                        <Border Grid.Row="1" Background="White" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="8" Padding="5">
+                            <DataGrid ItemsSource="{Binding DuplicatorRows}" AutoGenerateColumns="False" CanUserAddRows="True" 
+                                      Background="White" BorderThickness="0" RowHeight="32" AlternatingRowBackground="#FAFAFA"
+                                      GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#F0F0F0" Margin="1"
+                                      SelectionUnit="CellOrRowHeader" RowHeaderWidth="30">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Type Mark" Binding="{Binding TypeMark, UpdateSourceTrigger=PropertyChanged}" Width="120"/>
+                                    <DataGridTextColumn Header="Type Comment" Binding="{Binding TypeComment, UpdateSourceTrigger=PropertyChanged}" Width="150"/>
+                                    <DataGridTextColumn Header="Description" Binding="{Binding Description, UpdateSourceTrigger=PropertyChanged}" Width="200"/>
+                                    <DataGridTemplateColumn Header="Base Family (Dropdown)" Width="250">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <ComboBox ItemsSource="{Binding AvailableMatches}" 
+                                                          SelectedItem="{Binding SelectedMatch, UpdateSourceTrigger=PropertyChanged}"
+                                                          DisplayMemberPath="DisplayString"
+                                                          IsEditable="False" 
+                                                          Margin="2"
+                                                          BorderThickness="0"
+                                                          Background="Transparent" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTextColumn Header="Preview Name" Binding="{Binding PreviewName}" Width="150" IsReadOnly="True"/>
+                                    <DataGridTemplateColumn Header="Status" Width="100">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Status}" VerticalAlignment="Center" FontWeight="SemiBold">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Foreground" Value="#777777"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Status}" Value="✅ Match">
+                                                                    <Setter Property="Foreground" Value="#2ECC71"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Status}" Value="⚠ No match">
+                                                                    <Setter Property="Foreground" Value="#E67E22"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Border>
+                    </Grid>
+
                 </Grid>
             </Grid>
 
@@ -635,6 +730,7 @@
                     <Grid Grid.Column="2">
                         <Button Content="Transfer Selected" Style="{DynamicResource PremiumActionButtonStyle}" Width="140" Click="Transfer_Click" IsEnabled="{Binding IsSourceLoaded}" Visibility="{Binding IsStandardDetailsTab, Converter={StaticResource BoolToVis}}"/>
                         <Button Content="Load / Update Selected" Style="{DynamicResource PremiumActionButtonStyle}" Width="170" Command="{Binding ProcessSelectedManagerFamiliesCommand}" Visibility="{Binding IsFamilyManagerTab, Converter={StaticResource BoolToVis}}"/>
+                        <Button Content="Generate Types" Style="{DynamicResource PremiumActionButtonStyle}" Width="140" Command="{Binding GenerateDuplicatorCommand}" Visibility="{Binding IsDuplicatorTab, Converter={StaticResource BoolToVis}}"/>
                     </Grid>
                 </Grid>
             </Border>

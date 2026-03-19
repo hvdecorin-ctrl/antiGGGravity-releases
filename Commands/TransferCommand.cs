@@ -31,7 +31,10 @@ namespace antiGGGravity.Commands
                 ReadFamilyTypesHandler typesHandler = new ReadFamilyTypesHandler();
                 ExternalEvent typesExEvent = ExternalEvent.Create(typesHandler);
 
-                _window = new ViewTransferWindow(commandData.Application, handler, externalEvent, fmHandler, fmExternalEvent, typesHandler, typesExEvent);
+                DuplicatorRequestHandler dupHandler = new DuplicatorRequestHandler();
+                ExternalEvent dupExEvent = ExternalEvent.Create(dupHandler);
+
+                _window = new ViewTransferWindow(commandData.Application, handler, externalEvent, fmHandler, fmExternalEvent, typesHandler, typesExEvent, dupHandler, dupExEvent);
                 _window.Show();
 
                 return Result.Succeeded;
