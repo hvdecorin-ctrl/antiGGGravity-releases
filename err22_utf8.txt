@@ -1,7 +1,0 @@
-﻿C:\Program Files\dotnet\sdk\10.0.103\Sdks\Microsoft.NET.Sdk.WindowsDesktop\targets\Microsoft.WinFX.targets(211,9): error MC1000: Unknown build error, 'Could not find type 'System.Resources.NeutralResourcesLanguageAttribute' in assembly 'C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\Facades\System.Runtime.dll'.'  [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
-
-Build FAILED.
-    4 Warning(s)
-    1 Error(s)
-
-Time Elapsed 00:00:00.95
