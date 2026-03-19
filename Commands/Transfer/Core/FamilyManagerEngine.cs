@@ -39,17 +39,23 @@ namespace antiGGGravity.Commands.Transfer.Core
                 bool isLoaded = loadedFamilies.ContainsKey(familyName);
 
                 string categoryName = "Generic Models";
-                bool is2D = false;
 
-                // Try to extract metadata without opening the document
-                ExtractCategoryAndDimensionality(file, out categoryName, out is2D);
+                // Try to extract category
+                if (loadedFamilies.TryGetValue(familyName, out Family family))
+                {
+                    categoryName = family.FamilyCategory?.Name ?? "Generic Models";
+                }
+                else
+                {
+                    // Fallback: Guess from parent folder name
+                    categoryName = GuessCategoryFromFolder(file);
+                }
 
                 results.Add(new FamilyManagerItem
                 {
                     FilePath = file,
                     FamilyName = familyName,
                     CategoryName = categoryName,
-                    Is2D = is2D,
                     Status = isLoaded ? "Loaded" : "Missing",
                     IsSelected = false
                 });
@@ -58,63 +64,37 @@ namespace antiGGGravity.Commands.Transfer.Core
             return results.OrderBy(r => r.CategoryName).ThenBy(r => r.FamilyName).ToList();
         }
 
-        private void ExtractCategoryAndDimensionality(string rfaPath, out string categoryName, out bool is2D)
+        private string GuessCategoryFromFolder(string rfaPath)
         {
-            categoryName = "Generic Models";
-            is2D = false;
-            string tempXml = null;
-
             try
             {
-                // Prevent "Upgrading..." UI flash for older families
-                BasicFileInfo info = BasicFileInfo.Extract(rfaPath);
-                if (!info.Format.Contains(_app.VersionNumber))
+                string parentFolder = new DirectoryInfo(Path.GetDirectoryName(rfaPath)).Name;
+
+                // Strip numeric prefixes like "34-11.2 " → "Framing"
+                string folderClean = parentFolder;
+                if (folderClean.Contains(" "))
                 {
-                    throw new Exception("Older version - skip PartAtom extraction to avoid UI flash.");
+                    int spaceIndex = folderClean.IndexOf(' ');
+                    string firstPart = folderClean.Substring(0, spaceIndex);
+                    if (firstPart.Any(char.IsDigit) && firstPart.Any(c => c == '-' || c == '.'))
+                        folderClean = folderClean.Substring(spaceIndex + 1);
                 }
 
-                tempXml = Path.GetTempFileName();
-                _app.ExtractPartAtomFromFamilyFile(rfaPath, tempXml);
-
-                XDocument xdoc = XDocument.Load(tempXml);
-                XNamespace atom = "http://www.w3.org/2005/Atom";
-
-                var categoryNode = xdoc.Descendants(atom + "category").FirstOrDefault();
-                if (categoryNode != null)
-                {
-                    string term = categoryNode.Attribute("term")?.Value ?? "";
-                    categoryName = term.Replace("OST_", "").Replace("Tags", " Tags").Replace("Components", " Components");
-
-                    // Basic Check for 2D vs 3D categories
-                    is2D = term.Contains("Annotation") || 
-                           term.Contains("Detail") || 
-                           term.Contains("Profile") || 
-                           term.Contains("Tags") || 
-                           term.Contains("TitleBlocks") ||
-                           term.Contains("Symb");
-                }
+                if (folderClean.IndexOf("Framing", StringComparison.OrdinalIgnoreCase) >= 0) return "Structural Framing";
+                if (folderClean.IndexOf("Column", StringComparison.OrdinalIgnoreCase) >= 0) return "Structural Columns";
+                if (folderClean.IndexOf("Connection", StringComparison.OrdinalIgnoreCase) >= 0) return "Structural Connections";
+                if (folderClean.IndexOf("Foundation", StringComparison.OrdinalIgnoreCase) >= 0) return "Structural Foundations";
+                if (folderClean.IndexOf("Rebar", StringComparison.OrdinalIgnoreCase) >= 0) return "Structural Rebar";
+                if (folderClean.IndexOf("Steel", StringComparison.OrdinalIgnoreCase) >= 0) return "Structural Framing";
+                if (folderClean.IndexOf("Detail", StringComparison.OrdinalIgnoreCase) >= 0) return "Detail Items";
+                if (folderClean.IndexOf("Profile", StringComparison.OrdinalIgnoreCase) >= 0) return "Profiles";
+                if (folderClean.IndexOf("Annotation", StringComparison.OrdinalIgnoreCase) >= 0) return "Generic Annotations";
+                
+                return folderClean; // Use raw folder name as last resort
             }
-            catch
-            {
-                // Fallback: Guess from parent folder name
-                try
-                {
-                    string parentFolder = new DirectoryInfo(Path.GetDirectoryName(rfaPath)).Name;
-                    categoryName = parentFolder;
-                    is2D = parentFolder.IndexOf("Detail", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                           parentFolder.IndexOf("Annotation", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                           parentFolder.IndexOf("2D", StringComparison.OrdinalIgnoreCase) >= 0;
-                }
-                catch { }
-            }
-            finally
-            {
-                if (tempXml != null && File.Exists(tempXml))
-                {
-                    try { File.Delete(tempXml); } catch { }
-                }
-            }
+            catch { return "Generic Models"; }
         }
+
 
         public void ProcessFamilies(Document targetDoc, List<FamilyManagerItem> selectedItems, out int loadedCount, out int updatedCount, out List<string> errors)
         {
@@ -122,38 +102,77 @@ namespace antiGGGravity.Commands.Transfer.Core
             updatedCount = 0;
             errors = new List<string>();
 
+            // Get authoritative list of loaded families to check category conflicts
+            var loadedFamilies = new FilteredElementCollector(targetDoc)
+                .OfClass(typeof(Family))
+                .Cast<Family>()
+                .ToDictionary(f => f.Name, f => f, StringComparer.OrdinalIgnoreCase);
+
             IFamilyLoadOptions loadOptions = new FamilyLoadOptionsOverwrite();
 
             foreach (var item in selectedItems)
             {
                 try
                 {
+                    // Revit Restriction: Cannot load a family if another family with same name 
+                    // but different category already exists in the document.
+                    if (loadedFamilies.TryGetValue(item.FamilyName, out Family existingFamily))
+                    {
+                        string projectCat = existingFamily.FamilyCategory?.Name;
+                        if (!string.Equals(projectCat, item.CategoryName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            errors.Add($"CONFLICT: Family '{item.FamilyName}' exists in project as '{projectCat}', but the file on disk is category '{item.CategoryName}'. Revit forbids same-name cross-category families. Rename the existing family first.");
+                            continue;
+                        }
+                    }
+
                     bool wasLoadedAlready = item.Status == "Loaded";
-                    
-                    // If Types were fetched, and not all are selected, we load selectively
                     var selectedTypes = item.Types.Where(t => t.IsSelected).ToList();
                     bool loadAll = item.Types.Count == 0 || selectedTypes.Count == item.Types.Count;
 
                     if (loadAll)
                     {
                         Family loadedFamily;
-                        bool loaded = targetDoc.LoadFamily(item.FilePath, loadOptions, out loadedFamily);
-                        if (wasLoadedAlready) updatedCount++; else loadedCount++;
+                        if (targetDoc.LoadFamily(item.FilePath, loadOptions, out loadedFamily))
+                        {
+                            if (wasLoadedAlready) updatedCount++; else loadedCount++;
+                            item.Status = "Loaded";
+                            foreach (var t in item.Types) { t.IsAlreadyInTarget = true; t.IsSelected = false; }
+                        }
+                        else
+                        {
+                            errors.Add($"FAILED: Revit could not load family '{item.FamilyName}'. It may be corrupted or blocked by another internal conflict.");
+                        }
                     }
                     else
                     {
                         // Selective Sub-Type loading
+                        bool anySuccess = false;
                         foreach (var st in selectedTypes)
                         {
                             FamilySymbol symbol;
-                            bool loaded = targetDoc.LoadFamilySymbol(item.FilePath, st.TypeName, out symbol);
+                            if (targetDoc.LoadFamilySymbol(item.FilePath, st.TypeName, out symbol))
+                            {
+                                st.IsAlreadyInTarget = true;
+                                st.IsSelected = false;
+                                anySuccess = true;
+                            }
+                            else
+                            {
+                                errors.Add($"FAILED: Could not load type '{st.TypeName}' from '{item.FamilyName}'. Check if this type exists in the .rfa file.");
+                            }
                         }
-                        if (wasLoadedAlready) updatedCount++; else loadedCount++;
+                        
+                        if (anySuccess)
+                        {
+                            if (wasLoadedAlready) updatedCount++; else loadedCount++;
+                            item.Status = "Loaded";
+                        }
                     }
                 }
                 catch (Exception ex)
                 {
-                    errors.Add($"Failed to process {item.FamilyName}: {ex.Message}");
+                    errors.Add($"ERROR processing {item.FamilyName}: {ex.Message}");
                 }
             }
         }

@@ -25,7 +25,7 @@
         </ResourceDictionary>
     </Window.Resources>
 
-    <Border BorderBrush="{DynamicResource PremiumBorderBrush}" BorderThickness="1" Background="White" CornerRadius="12">
+    <Border BorderBrush="{DynamicResource PremiumBorderBrush}" BorderThickness="1" Background="#F9F9F9" CornerRadius="12">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="55"/> <!-- Header -->
@@ -58,7 +58,7 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- SIDEBAR -->
-                <Border Grid.Column="0" Background="#F4F4F4" BorderBrush="{DynamicResource PremiumBorderBrush}" BorderThickness="0,0,1,0">
+                <Border Grid.Column="0" Background="#F2F2F2" BorderBrush="{DynamicResource PremiumBorderBrush}" BorderThickness="0,0,1,0">
                     <StackPanel Margin="{DynamicResource PremiumSidebarMargin}">
                         <TextBlock Text="NAVIGATION" Foreground="#999999" FontWeight="Bold" FontSize="10" Margin="12,0,0,15"/>
                         
@@ -92,7 +92,7 @@
                         </Grid.RowDefinitions>
 
                         <!-- Unified Source & Standard Buttons Group -->
-                        <Border Grid.Row="0" Background="#FAFAFA" BorderBrush="#DDDDDD" BorderThickness="1" CornerRadius="8" Padding="15" Margin="0,0,0,15">
+                        <Border Grid.Row="0" Background="#F2F2F2" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="8" Padding="15" Margin="0,0,0,15">
                             <StackPanel>
                                 <!-- Source File Picker -->
                                 <Grid Margin="0,0,0,10">
@@ -217,22 +217,29 @@
                                         </Grid>
                                     </Border>
 
-                                    <GroupBox Header="Drafting &amp; Views" Grid.Row="1">
-                                        <DataGrid ItemsSource="{Binding FilteredViews}" AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="Column" GridLinesVisibility="None" BorderThickness="0">
-                                            <DataGrid.Columns>
-                                                <DataGridTemplateColumn Width="40">
-                                                    <DataGridTemplateColumn.Header>
-                                                        <CheckBox IsChecked="{Binding DataContext.SelectAllViews, RelativeSource={RelativeSource AncestorType=Window}}" HorizontalAlignment="Center"/>
-                                                    </DataGridTemplateColumn.Header>
-                                                    <DataGridTemplateColumn.CellTemplate>
-                                                        <DataTemplate><CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center"/></DataTemplate>
-                                                    </DataGridTemplateColumn.CellTemplate>
-                                                </DataGridTemplateColumn>
-                                                <DataGridTextColumn Header="Type" Binding="{Binding ViewType}" Width="100" IsReadOnly="True" />
-                                                <DataGridTextColumn Header="Name" Binding="{Binding ViewName}" Width="*" IsReadOnly="True" />
-                                            </DataGrid.Columns>
-                                        </DataGrid>
-                                    </GroupBox>
+                                    <Border Grid.Row="1" Background="White" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="8" Padding="5">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="*"/>
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Text="Drafting &amp; Views" FontWeight="Bold" Foreground="#333" Margin="10,5,10,10"/>
+                                            <DataGrid Grid.Row="1" ItemsSource="{Binding FilteredViews}" AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="Column" GridLinesVisibility="None" BorderThickness="0" Background="Transparent">
+                                                <DataGrid.Columns>
+                                                    <DataGridTemplateColumn Width="40">
+                                                        <DataGridTemplateColumn.Header>
+                                                            <CheckBox IsChecked="{Binding DataContext.SelectAllViews, RelativeSource={RelativeSource AncestorType=Window}}" HorizontalAlignment="Center"/>
+                                                        </DataGridTemplateColumn.Header>
+                                                        <DataGridTemplateColumn.CellTemplate>
+                                                            <DataTemplate><CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center"/></DataTemplate>
+                                                        </DataGridTemplateColumn.CellTemplate>
+                                                    </DataGridTemplateColumn>
+                                                    <DataGridTextColumn Header="Type" Binding="{Binding ViewType}" Width="100" IsReadOnly="True" />
+                                                    <DataGridTextColumn Header="Name" Binding="{Binding ViewName}" Width="*" IsReadOnly="True" />
+                                                </DataGrid.Columns>
+                                            </DataGrid>
+                                        </Grid>
+                                    </Border>
                                 </Grid>
 
                                 <!-- Sheets Column -->
@@ -242,23 +249,29 @@
                                         <Grid Margin="8,4">
                                             <TextBox Text="{Binding SheetSearchText, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" Background="Transparent" Style="{DynamicResource PremiumTextBoxStyle}" Margin="0"/>
                                         </Grid>
+                                    </Border>                                    <Border Grid.Row="1" Background="White" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="8" Padding="5">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="*"/>
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Text="Sheets" FontWeight="Bold" Foreground="#333" Margin="10,5,10,10"/>
+                                            <DataGrid Grid.Row="1" ItemsSource="{Binding FilteredSheets}" SelectedItem="{Binding SelectedSheet}" AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="Column" GridLinesVisibility="None" BorderThickness="0" Background="Transparent">
+                                                <DataGrid.Columns>
+                                                    <DataGridTemplateColumn Width="40">
+                                                        <DataGridTemplateColumn.Header>
+                                                            <CheckBox IsChecked="{Binding DataContext.SelectAllSheets, RelativeSource={RelativeSource AncestorType=Window}}" HorizontalAlignment="Center"/>
+                                                        </DataGridTemplateColumn.Header>
+                                                        <DataGridTemplateColumn.CellTemplate>
+                                                            <DataTemplate><CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center"/></DataTemplate>
+                                                        </DataGridTemplateColumn.CellTemplate>
+                                                    </DataGridTemplateColumn>
+                                                    <DataGridTextColumn Header="Number" Binding="{Binding SheetNumber}" Width="Auto" IsReadOnly="True" />
+                                                    <DataGridTextColumn Header="Name" Binding="{Binding SheetName}" Width="*" IsReadOnly="True" />
+                                                </DataGrid.Columns>
+                                            </DataGrid>
+                                        </Grid>
                                     </Border>
-                                    <GroupBox Header="Sheets" Grid.Row="1">
-                                        <DataGrid ItemsSource="{Binding FilteredSheets}" SelectedItem="{Binding SelectedSheet}" AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="Column" GridLinesVisibility="None" BorderThickness="0">
-                                            <DataGrid.Columns>
-                                                <DataGridTemplateColumn Width="40">
-                                                    <DataGridTemplateColumn.Header>
-                                                        <CheckBox IsChecked="{Binding DataContext.SelectAllSheets, RelativeSource={RelativeSource AncestorType=Window}}" HorizontalAlignment="Center"/>
-                                                    </DataGridTemplateColumn.Header>
-                                                    <DataGridTemplateColumn.CellTemplate>
-                                                        <DataTemplate><CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center"/></DataTemplate>
-                                                    </DataGridTemplateColumn.CellTemplate>
-                                                </DataGridTemplateColumn>
-                                                <DataGridTextColumn Header="Number" Binding="{Binding SheetNumber}" Width="80" IsReadOnly="True" />
-                                                <DataGridTextColumn Header="Name" Binding="{Binding SheetName}" Width="*" IsReadOnly="True" />
-                                            </DataGrid.Columns>
-                                        </DataGrid>
-                                    </GroupBox>
                                 </Grid>
                             </Grid>
 
@@ -428,33 +441,71 @@
                         </Grid.RowDefinitions>
 
                         <!-- Source Folder Region -->
-                        <Border Grid.Row="0" Background="#FAFAFA" BorderBrush="#DDDDDD" BorderThickness="1" CornerRadius="8" Padding="15" Margin="0,0,0,15">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBox Grid.Column="0" Text="{Binding FamilyManagerFolderPath, Mode=OneWay}" IsReadOnly="True" Style="{DynamicResource PremiumTextBoxStyle}" Margin="0,0,10,0" Padding="12,8" VerticalContentAlignment="Center"/>
-                                <Button Grid.Column="1" Content="Browse Folder..." Command="{Binding BrowseManagerFolderCommand}" Style="{DynamicResource PremiumSecondaryButtonStyle}" Width="130"/>
-                            </Grid>
+                        <Border Grid.Row="0" Background="#FAFAFA" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="8" Padding="15" Margin="0,0,0,15">
+                            <StackPanel>
+                                <Grid Margin="0,0,0,12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Text="{Binding FamilyManagerFolderPath, Mode=OneWay}" IsReadOnly="True" Style="{DynamicResource PremiumTextBoxStyle}" Margin="0" Height="28"/>
+                                    <Button Grid.Column="1" Content="Browse Folder..." Command="{Binding BrowseManagerFolderCommand}" Style="{DynamicResource PremiumPrimaryButtonStyle}" Width="130" Height="28" Margin="10,0,0,0"/>
+                                </Grid>
+
+                                <!-- Folder Favorites -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Button Grid.Column="0" Content="{Binding Folder1Label}" 
+                                            Command="{Binding LoadFolder1Command}"
+                                            MouseRightButtonUp="SetFolder1_Click"
+                                            Padding="12,0" Margin="0,0,5,0"
+                                            ToolTip="Left-click: Load Favorite 1 | Right-click: Set folder path"
+                                            WindowChrome.IsHitTestVisibleInChrome="True">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource PremiumStandardFileButtonStyle}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsFolder1Active}" Value="True">
+                                                        <Setter Property="Background" Value="#4A759C"/>
+                                                        <Setter Property="BorderBrush" Value="#4A759C"/>
+                                                        <Setter Property="Foreground" Value="White"/>
+                                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+
+                                    <Button Grid.Column="1" Content="{Binding Folder2Label}" 
+                                            Command="{Binding LoadFolder2Command}"
+                                            MouseRightButtonUp="SetFolder2_Click"
+                                            Padding="12,0" Margin="5,0,0,0"
+                                            ToolTip="Left-click: Load Favorite 2 | Right-click: Set folder path"
+                                            WindowChrome.IsHitTestVisibleInChrome="True">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource PremiumStandardFileButtonStyle}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsFolder2Active}" Value="True">
+                                                        <Setter Property="Background" Value="#4A759C"/>
+                                                        <Setter Property="BorderBrush" Value="#4A759C"/>
+                                                        <Setter Property="Foreground" Value="White"/>
+                                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                </Grid>
+                            </StackPanel>
                         </Border>
 
-                        <!-- Search & Categories -->
+                        <!-- Search Regions -->
                         <Grid Grid.Row="1" Margin="0,0,0,10">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            
-                            <!-- Row 0: Filter Pills -->
-                            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
-                                <RadioButton Content="All" IsChecked="{Binding IsManagerCatAll, Mode=OneWay}" Command="{Binding SetManagerCategoryCommand}" CommandParameter="All" Style="{DynamicResource PremiumTabButtonStyle}" Width="60" Margin="0,0,5,0"/>
-                                <RadioButton Content="2D Families" IsChecked="{Binding IsManagerCat2D, Mode=OneWay}" Command="{Binding SetManagerCategoryCommand}" CommandParameter="2D" Style="{DynamicResource PremiumTabButtonStyle}" Width="110" Margin="0,0,5,0"/>
-                                <RadioButton Content="3D Families" IsChecked="{Binding IsManagerCat3D, Mode=OneWay}" Command="{Binding SetManagerCategoryCommand}" CommandParameter="3D" Style="{DynamicResource PremiumTabButtonStyle}" Width="110"/>
-                            </StackPanel>
-
-                            <!-- Row 1: Search Boxes aligned with the DataGrids -->
-                            <Grid Grid.Row="1">
+                            <!-- Family & Type Search Boxes aligned with DataGrids -->
+                            <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="6*"/>
                                     <ColumnDefinition Width="4*"/>
@@ -483,64 +534,72 @@
                         <!-- DataGrid -->
                         <Grid Grid.Row="2">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="6*"/>
-                                <ColumnDefinition Width="4*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="250"/>
                             </Grid.ColumnDefinitions>
 
-                            <GroupBox Header="1. Select Families" Grid.Column="0" Margin="0,0,10,0">
-                                <DataGrid ItemsSource="{Binding FilteredManagerFamilies}" 
-                                          SelectedItem="{Binding SelectedManagerFamily, Mode=TwoWay}"
-                                          AutoGenerateColumns="False" 
-                                          HeadersVisibility="Column" 
-                                          SelectionMode="Single"
-                                          Background="Transparent" BorderThickness="0" GridLinesVisibility="None">
-                                    <DataGrid.Columns>
-                                        <DataGridTemplateColumn Width="45">
-                                            <DataGridTemplateColumn.Header>
-                                                <CheckBox IsChecked="{Binding DataContext.SelectAllManagerFamilies, RelativeSource={RelativeSource AncestorType=Window}}" HorizontalAlignment="Center"/>
-                                            </DataGridTemplateColumn.Header>
-                                            <DataGridTemplateColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                </DataTemplate>
-                                            </DataGridTemplateColumn.CellTemplate>
-                                        </DataGridTemplateColumn>
-                                        <DataGridTextColumn Header="Family Name" Binding="{Binding FamilyName}" Width="*" IsReadOnly="True" />
-                                        <DataGridTextColumn Header="Category" Binding="{Binding CategoryName}" Width="150" IsReadOnly="True" />
-                                        
-                                        <DataGridTemplateColumn Header="Status" Width="90">
-                                            <DataGridTemplateColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <TextBlock Text="{Binding Status}" VerticalAlignment="Center" FontWeight="SemiBold">
-                                                        <TextBlock.Style>
-                                                            <Style TargetType="TextBlock">
-                                                                <Setter Property="Foreground" Value="#777777"/>
-                                                                <Style.Triggers>
-                                                                    <DataTrigger Binding="{Binding Status}" Value="Missing">
-                                                                        <Setter Property="Foreground" Value="#E74C3C"/> <!-- Red -->
-                                                                    </DataTrigger>
-                                                                    <DataTrigger Binding="{Binding Status}" Value="Loaded">
-                                                                        <Setter Property="Foreground" Value="#2ECC71"/> <!-- Green -->
-                                                                    </DataTrigger>
-                                                                </Style.Triggers>
-                                                            </Style>
-                                                        </TextBlock.Style>
-                                                    </TextBlock>
-                                                </DataTemplate>
-                                            </DataGridTemplateColumn.CellTemplate>
-                                        </DataGridTemplateColumn>
-                                    </DataGrid.Columns>
-                                </DataGrid>
-                            </GroupBox>
-
-                            <!-- Sub-Types Selection -->
-                            <GroupBox Header="2. Select Sub-Types (Optional)" Grid.Column="1">
+                            <Border Grid.Column="0" Background="White" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="8" Padding="5" Margin="0,0,10,0">
                                 <Grid>
                                     <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="*"/>
                                     </Grid.RowDefinitions>
-                                    
-                                    <DataGrid Grid.Row="0" ItemsSource="{Binding FilteredManagerFamilyTypes}" 
+                                    <TextBlock Text="1. Select Families" FontWeight="Bold" Foreground="#333" Margin="10,5,10,10"/>
+                                    <DataGrid Grid.Row="1" ItemsSource="{Binding FilteredManagerFamilies}" 
+                                              SelectedItem="{Binding SelectedManagerFamily, Mode=TwoWay}"
+                                              AutoGenerateColumns="False" 
+                                              HeadersVisibility="Column" 
+                                              SelectionMode="Single"
+                                              Background="Transparent" BorderThickness="0" GridLinesVisibility="None">
+                                        <DataGrid.Columns>
+                                            <DataGridTemplateColumn Width="45">
+                                                <DataGridTemplateColumn.Header>
+                                                    <CheckBox IsChecked="{Binding DataContext.SelectAllManagerFamilies, RelativeSource={RelativeSource AncestorType=Window}}" HorizontalAlignment="Center"/>
+                                                </DataGridTemplateColumn.Header>
+                                                <DataGridTemplateColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </DataTemplate>
+                                                </DataGridTemplateColumn.CellTemplate>
+                                            </DataGridTemplateColumn>
+                                            <DataGridTextColumn Header="Family Name" Binding="{Binding FamilyName}" Width="*" IsReadOnly="True" />
+                                            <DataGridTextColumn Header="Category" Binding="{Binding CategoryName}" Width="150" IsReadOnly="True" />
+                                            
+                                            <DataGridTemplateColumn Header="Status" Width="90">
+                                                <DataGridTemplateColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding Status}" VerticalAlignment="Center" FontWeight="SemiBold">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Foreground" Value="#777777"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding Status}" Value="Missing">
+                                                                            <Setter Property="Foreground" Value="#E74C3C"/> <!-- Red -->
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding Status}" Value="Loaded">
+                                                                            <Setter Property="Foreground" Value="#2ECC71"/> <!-- Green -->
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </DataTemplate>
+                                                </DataGridTemplateColumn.CellTemplate>
+                                            </DataGridTemplateColumn>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                </Grid>
+                            </Border>
+
+                            <!-- Sub-Types Selection -->
+                            <Border Grid.Column="1" Background="White" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="8" Padding="5">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Text="2. Sub-Types" FontWeight="Bold" Foreground="#333" Margin="10,5,10,10"/>
+                                    <DataGrid Grid.Row="1" ItemsSource="{Binding FilteredManagerFamilyTypes}" 
                                               AutoGenerateColumns="False" 
                                               HeadersVisibility="Column" 
                                               SelectionMode="Single"
@@ -560,7 +619,7 @@
                                         </DataGrid.Columns>
                                     </DataGrid>
                                 </Grid>
-                            </GroupBox>
+                            </Border>
                         </Grid>
                     </Grid>
 

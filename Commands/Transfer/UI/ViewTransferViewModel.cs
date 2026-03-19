@@ -55,6 +55,8 @@ namespace antiGGGravity.Commands.Transfer.UI
         private TransferSettings _transferSettings;
         private string _standard1Path;
         private string _standard2Path;
+        private string _folder1Path;
+        private string _folder2Path;
 
         public ObservableCollection<ViewTransferItem> AvailableViews { get; set; } = new ObservableCollection<ViewTransferItem>();
         public ObservableCollection<SheetTransferItem> AvailableSheets { get; set; } = new ObservableCollection<SheetTransferItem>();
@@ -76,7 +78,7 @@ namespace antiGGGravity.Commands.Transfer.UI
         // Family Manager
         private string _familyManagerFolderPath;
         private string _familyManagerSearchText;
-        private string _selectedFamilyManagerCategory = "All";
+
         private bool? _selectAllManagerFamilies = false;
 
         public ObservableCollection<FamilyManagerItem> AvailableManagerFamilies { get; set; } = new ObservableCollection<FamilyManagerItem>();
@@ -135,7 +137,13 @@ namespace antiGGGravity.Commands.Transfer.UI
         public string FamilyManagerFolderPath 
         { 
             get => _familyManagerFolderPath; 
-            set { _familyManagerFolderPath = value; OnPropertyChanged(); } 
+            set 
+            { 
+                _familyManagerFolderPath = value; 
+                OnPropertyChanged(); 
+                OnPropertyChanged(nameof(IsFolder1Active)); 
+                OnPropertyChanged(nameof(IsFolder2Active)); 
+            } 
         }
 
         public string FamilyManagerSearchText
@@ -144,17 +152,6 @@ namespace antiGGGravity.Commands.Transfer.UI
             set { _familyManagerSearchText = value; FilteredManagerFamilies?.Refresh(); OnPropertyChanged(); }
         }
 
-        public string SelectedFamilyManagerCategory
-        {
-            get => _selectedFamilyManagerCategory;
-            set { _selectedFamilyManagerCategory = value; FilteredManagerFamilies?.Refresh(); OnPropertyChanged(); OnPropertyChanged(nameof(IsManagerCatAll)); OnPropertyChanged(nameof(IsManagerCat2D)); OnPropertyChanged(nameof(IsManagerCat3D)); }
-        }
-
-        public bool IsManagerCatAll => SelectedFamilyManagerCategory == "All";
-        public bool IsManagerCat2D => SelectedFamilyManagerCategory == "2D";
-        public bool IsManagerCat3D => SelectedFamilyManagerCategory == "3D";
-
-        public ICommand SetManagerCategoryCommand => new RelayCommand(p => SelectedFamilyManagerCategory = p?.ToString());
 
         public FamilyManagerItem SelectedManagerFamily
         {
@@ -177,6 +174,7 @@ namespace antiGGGravity.Commands.Transfer.UI
                     else
                     {
                         UpdateFilteredManagerFamilyTypes();
+                        UpdateSelectAllManagerFamilyTypesState();
                     }
                 }
             }
@@ -199,11 +197,13 @@ namespace antiGGGravity.Commands.Transfer.UI
                 
                 _isUpdatingManagerSelectAll = true;
                 _selectAllManagerFamilyTypes = value;
-                if (SelectedManagerFamily != null && FilteredManagerFamilyTypes != null)
+                if (SelectedManagerFamily != null)
                 {
-                    var list = FilteredManagerFamilyTypes.OfType<FamilyManagerTypeItem>().ToList();
-                    foreach (var item in list)
-                        item.IsSelected = value.Value;
+                    foreach (var item in SelectedManagerFamily.Types)
+                    {
+                        if (PassesManagerTypeFilter(item))
+                            item.IsSelected = value.Value;
+                    }
                 }
                 _isUpdatingManagerSelectAll = false;
                 
@@ -220,10 +220,9 @@ namespace antiGGGravity.Commands.Transfer.UI
                 
                 _isUpdatingManagerSelectAll = true;
                 _selectAllManagerFamilies = value;
-                if (FilteredManagerFamilies != null)
+                foreach (var item in AvailableManagerFamilies)
                 {
-                    var list = FilteredManagerFamilies.OfType<FamilyManagerItem>().ToList();
-                    foreach (var item in list)
+                    if (PassesManagerFamilyFilter(item))
                         item.IsSelected = value.Value;
                 }
                 _isUpdatingManagerSelectAll = false;
@@ -262,8 +261,6 @@ namespace antiGGGravity.Commands.Transfer.UI
             OnPropertyChanged(nameof(FamilySearchText));
             OnPropertyChanged(nameof(SelectedCategory));
             OnPropertyChanged(nameof(SelectedFamilyCategory));
-            
-            // Refresh all filtered views
             FilteredViews?.Refresh();
             FilteredSheets?.Refresh();
             FilteredFamilies?.Refresh();
@@ -513,10 +510,12 @@ namespace antiGGGravity.Commands.Transfer.UI
             Options.DuplicateHandlingPrefix = true;
             Options.PrefixString = "Copied_";
 
-            // Load saved standard file paths
+            // Load saved standard file and folder paths
             _transferSettings = TransferSettings.Load();
             _standard1Path = _transferSettings.Standard1Path;
             _standard2Path = _transferSettings.Standard2Path;
+            _folder1Path = _transferSettings.Folder1Path;
+            _folder2Path = _transferSettings.Folder2Path;
 
             FilteredViews = CollectionViewSource.GetDefaultView(AvailableViews);
             FilteredViews.Filter = (obj) => 
@@ -613,9 +612,6 @@ namespace antiGGGravity.Commands.Transfer.UI
             {
                 var item = obj as FamilyManagerItem;
                 if (item == null) return false;
-
-                if (SelectedFamilyManagerCategory == "2D" && !item.Is2D) return false;
-                if (SelectedFamilyManagerCategory == "3D" && item.Is2D) return false;
 
                 if (string.IsNullOrWhiteSpace(FamilyManagerSearchText)) return true;
                 return item.FamilyName.IndexOf(FamilyManagerSearchText, StringComparison.OrdinalIgnoreCase) >= 0 ||
@@ -959,6 +955,10 @@ namespace antiGGGravity.Commands.Transfer.UI
             {
                 var item = obj as FamilyManagerTypeItem;
                 if (item == null) return false;
+                
+                // Hide Loaded Types (as per user request)
+                if (item.IsAlreadyInTarget) return false;
+
                 if (string.IsNullOrWhiteSpace(ManagerFamilyTypeSearchText)) return true;
                 return item.TypeName.IndexOf(ManagerFamilyTypeSearchText, StringComparison.OrdinalIgnoreCase) >= 0;
             };
@@ -970,17 +970,17 @@ namespace antiGGGravity.Commands.Transfer.UI
             if (e.Family != null)
             {
                 e.Family.Types.Clear();
-                foreach (var tName in e.TypeNames)
+                foreach (var stItem in e.ExtractedTypes)
                 {
-                    var newType = new FamilyManagerTypeItem { TypeName = tName, IsSelected = false };
-                    newType.PropertyChanged += ManagerFamilyTypeItem_PropertyChanged;
-                    e.Family.Types.Add(newType);
+                    stItem.PropertyChanged += ManagerFamilyTypeItem_PropertyChanged;
+                    e.Family.Types.Add(stItem);
                 }
                 
                 if (SelectedManagerFamily == e.Family)
                 {
                     UpdateFilteredManagerFamilyTypes();
-                    StatusText = $"Read {e.TypeNames.Count} types from {e.Family.FamilyName}.";
+                    UpdateSelectAllManagerFamilyTypesState();
+                    StatusText = $"Read {e.ExtractedTypes.Count} types from {e.Family.FamilyName}.";
                 }
             }
         }
@@ -991,10 +991,11 @@ namespace antiGGGravity.Commands.Transfer.UI
                 UpdateSelectAllManagerFamilyTypesState();
         }
 
-        private void UpdateSelectAllManagerFamilyTypesState()
+        public void UpdateSelectAllManagerFamilyTypesState()
         {
-            if (SelectedManagerFamily == null || FilteredManagerFamilyTypes == null) return;
-            var list = FilteredManagerFamilyTypes.OfType<FamilyManagerTypeItem>().ToList();
+            if (SelectedManagerFamily == null) { _selectAllManagerFamilyTypes = false; OnPropertyChanged(nameof(SelectAllManagerFamilyTypes)); return; }
+            
+            var list = SelectedManagerFamily.Types.Where(PassesManagerTypeFilter).ToList();
             if (list.Count == 0) { _selectAllManagerFamilyTypes = false; }
             else
             {
@@ -1003,6 +1004,26 @@ namespace antiGGGravity.Commands.Transfer.UI
                 _selectAllManagerFamilyTypes = allChecked ? (bool?)true : (noneChecked ? (bool?)false : null);
             }
             OnPropertyChanged(nameof(SelectAllManagerFamilyTypes));
+        }
+
+        private bool PassesManagerTypeFilter(FamilyManagerTypeItem item)
+        {
+            if (item == null) return false;
+            // Hide Loaded Types (as per user request)
+            if (item.IsAlreadyInTarget) return false;
+
+            if (string.IsNullOrWhiteSpace(ManagerFamilyTypeSearchText)) return true;
+            return item.TypeName.IndexOf(ManagerFamilyTypeSearchText, StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private bool PassesManagerFamilyFilter(FamilyManagerItem item)
+        {
+            if (item == null) return false;
+
+            // Search Filter
+            if (string.IsNullOrWhiteSpace(FamilyManagerSearchText)) return true;
+            return item.FamilyName.IndexOf(FamilyManagerSearchText, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   item.CategoryName.IndexOf(FamilyManagerSearchText, StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         public ICommand BrowseManagerFolderCommand => new RelayCommand(_ =>
@@ -1023,7 +1044,18 @@ namespace antiGGGravity.Commands.Transfer.UI
 
         public ICommand ProcessSelectedManagerFamiliesCommand => new RelayCommand(_ =>
         {
+            // Collect selected via checkboxes
             var selected = AvailableManagerFamilies.Where(f => f.IsSelected).ToList();
+            
+            // UX Improvement: If current highlighted family has checked types, include it even if parent is not checked
+            if (SelectedManagerFamily != null && !SelectedManagerFamily.IsSelected)
+            {
+                if (SelectedManagerFamily.Types.Any(t => t.IsSelected))
+                {
+                    selected.Add(SelectedManagerFamily);
+                }
+            }
+
             if (selected.Count == 0)
             {
                 StatusText = "Please select at least one family to process.";
@@ -1037,17 +1069,79 @@ namespace antiGGGravity.Commands.Transfer.UI
 
         private void OnManagerProcessCompleted(object sender, FamilyManagerProcessResultEventArgs e)
         {
-            foreach (var f in AvailableManagerFamilies) f.IsSelected = false;
+            foreach (var f in AvailableManagerFamilies) 
+            {
+                f.IsSelected = false;
+                // Update SelectAll state for sub-types
+                foreach (var t in f.Types) t.IsSelected = false;
+            }
             _selectAllManagerFamilies = false;
+            _selectAllManagerFamilyTypes = false;
             OnPropertyChanged(nameof(SelectAllManagerFamilies));
+            OnPropertyChanged(nameof(SelectAllManagerFamilyTypes));
 
             if (e.Errors != null && e.Errors.Count > 0)
                 StatusText = $"Loaded {e.LoadedCount}, Updated {e.UpdatedCount}. Errors: {e.Errors.Count}";
             else
                 StatusText = $"Successfully Loaded {e.LoadedCount} and Updated {e.UpdatedCount} families.";
 
-            if (!string.IsNullOrEmpty(FamilyManagerFolderPath))
-                ScanManagerFolder(FamilyManagerFolderPath);
+            // Re-check statuses in the main document
+            RefreshFamilyStatuses();
+
+            // Trigger filter refresh for the current view
+            UpdateFilteredManagerFamilyTypes();
+            FilteredManagerFamilies?.Refresh();
+        }
+
+        public void RefreshFamilyStatuses()
+        {
+            if (_uiApp?.ActiveUIDocument?.Document == null) return;
+            var doc = _uiApp.ActiveUIDocument.Document;
+
+            // 1. Get all loaded families in the project
+            var loadedFamilies = new FilteredElementCollector(doc)
+                .OfClass(typeof(Family))
+                .Cast<Family>()
+                .Select(f => f.Name)
+                .ToList();
+
+            // 2. Get all loaded symbols for all families (to check types)
+            var loadedSymbols = new FilteredElementCollector(doc)
+                .OfClass(typeof(FamilySymbol))
+                .Cast<FamilySymbol>()
+                .GroupBy(s => s.FamilyName)
+                .ToDictionary(g => g.Key, g => g.Select(s => s.Name).ToList(), StringComparer.OrdinalIgnoreCase);
+
+            foreach (var family in AvailableManagerFamilies)
+            {
+                bool isLoaded = loadedFamilies.Contains(family.FamilyName, StringComparer.OrdinalIgnoreCase);
+                family.Status = isLoaded ? "Loaded" : "Missing";
+
+                if (family.Types != null && family.Types.Count > 0)
+                {
+                    if (loadedSymbols.TryGetValue(family.FamilyName, out var symbols))
+                    {
+                        foreach (var type in family.Types)
+                        {
+                            bool exists = symbols.Contains(type.TypeName, StringComparer.OrdinalIgnoreCase);
+                            type.IsAlreadyInTarget = exists;
+                            type.Status = exists ? "Loaded" : "Missing";
+                        }
+                    }
+                    else
+                    {
+                         foreach (var type in family.Types)
+                         {
+                             type.IsAlreadyInTarget = false;
+                             type.Status = "Missing";
+                         }
+                    }
+                }
+            }
+            
+            // Refresh views
+            FilteredManagerFamilies?.Refresh();
+            FilteredManagerFamilyTypes?.Refresh();
         }
 
         public void Cleanup()
@@ -1090,6 +1184,9 @@ namespace antiGGGravity.Commands.Transfer.UI
             {
                 LoadSourceModel(SourceFilePath);
             }
+            
+            RefreshFamilyStatuses();
+            StatusText = "Transfer completed successfully.";
         }
 
         // ===== Standard 1 / Standard 2 Quick-Load =====
@@ -1147,6 +1244,71 @@ namespace antiGGGravity.Commands.Transfer.UI
                 LoadSourceModel(_standard2Path);
             else
                 StatusText = "Standard 2 not set. Right-click to set a file path.";
+        });
+
+        // ===== Family Folder Favorites =====
+
+        public string Folder1Path
+        {
+            get => _folder1Path;
+            set
+            {
+                _folder1Path = value;
+                _transferSettings.Folder1Path = value;
+                _transferSettings.Save();
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(Folder1Label));
+                OnPropertyChanged(nameof(IsFolder1Active));
+            }
+        }
+
+        public string Folder2Path
+        {
+            get => _folder2Path;
+            set
+            {
+                _folder2Path = value;
+                _transferSettings.Folder2Path = value;
+                _transferSettings.Save();
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(Folder2Label));
+                OnPropertyChanged(nameof(IsFolder2Active));
+            }
+        }
+
+        public string Folder1Label => string.IsNullOrEmpty(_folder1Path)
+            ? "⚙ Set Folder 1..."
+            : "📁 " + new DirectoryInfo(_folder1Path).Name;
+
+        public string Folder2Label => string.IsNullOrEmpty(_folder2Path)
+            ? "⚙ Set Folder 2..."
+            : "📁 " + new DirectoryInfo(_folder2Path).Name;
+
+        public bool IsFolder1Active => !string.IsNullOrEmpty(_folder1Path) && string.Equals(FamilyManagerFolderPath, _folder1Path, StringComparison.OrdinalIgnoreCase);
+        public bool IsFolder2Active => !string.IsNullOrEmpty(_folder2Path) && string.Equals(FamilyManagerFolderPath, _folder2Path, StringComparison.OrdinalIgnoreCase);
+
+        public ICommand LoadFolder1Command => new RelayCommand(_ =>
+        {
+            if (!string.IsNullOrEmpty(_folder1Path) && Directory.Exists(_folder1Path))
+            {
+                ScanManagerFolder(_folder1Path);
+                OnPropertyChanged(nameof(IsFolder1Active));
+                OnPropertyChanged(nameof(IsFolder2Active));
+            }
+            else
+                StatusText = "Folder 1 not set. Right-click to set a folder path.";
+        });
+
+        public ICommand LoadFolder2Command => new RelayCommand(_ =>
+        {
+            if (!string.IsNullOrEmpty(_folder2Path) && Directory.Exists(_folder2Path))
+            {
+                ScanManagerFolder(_folder2Path);
+                OnPropertyChanged(nameof(IsFolder1Active));
+                OnPropertyChanged(nameof(IsFolder2Active));
+            }
+            else
+                StatusText = "Folder 2 not set. Right-click to set a folder path.";
         });
 
         public event PropertyChangedEventHandler PropertyChanged;

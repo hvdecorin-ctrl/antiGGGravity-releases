@@ -17,12 +17,23 @@ namespace antiGGGravity.Commands.Transfer.UI
         {
             if (TargetFamily == null || string.IsNullOrEmpty(TargetFamily.FilePath)) return;
 
-            var extractedTypes = new List<string>();
+            var extractedTypes = new List<FamilyManagerTypeItem>();
             string rfaPath = TargetFamily.FilePath;
             string txtPath = Path.ChangeExtension(rfaPath, ".txt");
+            string familyName = TargetFamily.FamilyName;
+
+            // Get loaded symbols for this family to check existence
+            var loadedSymbols = new FilteredElementCollector(app.ActiveUIDocument.Document)
+                .OfClass(typeof(FamilySymbol))
+                .Cast<FamilySymbol>()
+                .Where(s => s.FamilyName.Equals(familyName, StringComparison.OrdinalIgnoreCase))
+                .Select(s => s.Name)
+                .ToList();
 
             try
             {
+                var typeNamesList = new List<string>();
+
                 // Priority 1: Fast Type Catalog Read (.txt)
                 if (File.Exists(txtPath))
                 {
@@ -36,14 +47,14 @@ namespace antiGGGravity.Commands.Transfer.UI
                             if (parts.Length > 0 && !string.IsNullOrWhiteSpace(parts[0]))
                             {
                                 string typeName = parts[0].Trim('"');
-                                extractedTypes.Add(typeName);
+                                typeNamesList.Add(typeName);
                             }
                         }
                     }
                 }
                 
                 // Priority 2: Safe Document Open (Requires Revit UI Thread)
-                if (extractedTypes.Count == 0)
+                if (typeNamesList.Count == 0)
                 {
                     OpenOptions openOptions = new OpenOptions();
                     openOptions.DetachFromCentralOption = DetachFromCentralOption.DetachAndPreserveWorksets;
@@ -58,7 +69,7 @@ namespace antiGGGravity.Commands.Transfer.UI
                             var familyManager = rfaDoc.FamilyManager;
                             foreach (FamilyType ft in familyManager.Types)
                             {
-                                extractedTypes.Add(ft.Name);
+                                typeNamesList.Add(ft.Name);
                             }
                         }
                     }
@@ -70,6 +81,17 @@ namespace antiGGGravity.Commands.Transfer.UI
                         }
                     }
                 }
+
+                foreach (var name in typeNamesList)
+                {
+                    bool exists = loadedSymbols.Contains(name, StringComparer.OrdinalIgnoreCase);
+                    extractedTypes.Add(new FamilyManagerTypeItem 
+                    { 
+                        TypeName = name, 
+                        IsAlreadyInTarget = exists,
+                        Status = exists ? "Loaded" : "Missing"
+                    });
+                }
             }
             catch (Exception)
             {
@@ -79,7 +101,7 @@ namespace antiGGGravity.Commands.Transfer.UI
             TypesReadCompleted?.Invoke(this, new TypesReadEventArgs
             {
                 Family = TargetFamily,
-                TypeNames = extractedTypes
+                ExtractedTypes = extractedTypes
             });
         }
 
@@ -89,6 +111,6 @@ namespace antiGGGravity.Commands.Transfer.UI
     public class TypesReadEventArgs : EventArgs
     {
         public FamilyManagerItem Family { get; set; }
-        public List<string> TypeNames { get; set; }
+        public List<FamilyManagerTypeItem> ExtractedTypes { get; set; }
     }
 }

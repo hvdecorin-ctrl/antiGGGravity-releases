@@ -8,6 +8,8 @@ namespace antiGGGravity.Commands.Transfer
     {
         public string Standard1Path { get; set; } = "";
         public string Standard2Path { get; set; } = "";
+        public string Folder1Path { get; set; } = "";
+        public string Folder2Path { get; set; } = "";
 
         private static readonly string SettingsDir = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),

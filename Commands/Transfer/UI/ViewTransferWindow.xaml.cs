@@ -69,6 +69,53 @@ namespace antiGGGravity.Commands.Transfer.UI
             e.Handled = true;
         }
 
+        private void SetFolder1_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            var path = BrowseForFolderPath("Set Favorite Folder 1");
+            if (path != null)
+            {
+                _viewModel.Folder1Path = path;
+                _viewModel.ScanManagerFolder(path);
+            }
+            e.Handled = true;
+        }
+
+        private void SetFolder2_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            var path = BrowseForFolderPath("Set Favorite Folder 2");
+            if (path != null)
+            {
+                _viewModel.Folder2Path = path;
+                _viewModel.ScanManagerFolder(path);
+            }
+            e.Handled = true;
+        }
+
+        private string BrowseForFolderPath(string title)
+        {
+#if REVIT2025_OR_GREATER
+            var dialog = new Microsoft.Win32.OpenFolderDialog
+            {
+                Title = title
+            };
+            return dialog.ShowDialog() == true ? dialog.FolderName : null;
+#else
+            // Fallback for .NET 4.8 (R22-R24) - Using OpenFileDialog hack since we can't use WinForms
+            var dialog = new OpenFileDialog
+            {
+                Title = title + " (Select any file in the folder)",
+                CheckFileExists = false,
+                FileName = "Select Folder",
+                Filter = "Folders|*.none"
+            };
+            if (dialog.ShowDialog() == true)
+            {
+                return System.IO.Path.GetDirectoryName(dialog.FileName);
+            }
+            return null;
+#endif
+        }
+
         private string BrowseForRvtFile(string title)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog
