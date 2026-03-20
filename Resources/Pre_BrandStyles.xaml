@@ -150,6 +150,29 @@
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Template" Value="{StaticResource PremiumRoundedButtonTemplate}"/>
     </Style>
+    
+    <!-- Link-style Button (Text only, Blue hover) -->
+    <Style x:Key="PremiumLinkButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="#0078D7"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <TextBlock x:Name="text" Text="{TemplateBinding Content}" TextDecorations="None"/>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="text" Property="Foreground" Value="#005A9E"/>
+                            <Setter TargetName="text" Property="TextDecorations" Value="Underline"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
     <!-- UI Elements -->
     <Style x:Key="PremiumTextBoxStyle" TargetType="TextBox">
@@ -248,7 +271,7 @@
                   CaptionHeight="55" 
                   CornerRadius="12" 
                   GlassFrameThickness="0" 
-                  ResizeBorderThickness="15"/>
+                  ResizeBorderThickness="10"/>
 
     <GridLength x:Key="PremiumHeaderHeight">55</GridLength>
 

@@ -135,7 +135,7 @@ A complete parametric bracing system for steel structures:
 | **K-Brace** | Creates chevron (inverted-V) bracing with a configurable apex point. The tool calculates member angles, lengths, and connection geometry automatically—critical for seismic and wind-resistant design. |
 | **H-Frame** | Produces horizontal multi-brace configurations (girts, struts) between columns at specified elevations. Ideal for industrial steel structures, portal frames, and equipment platforms. |
 
-> 💡 **Why it matters**: Manual bracing placement requires calculating angles, trimming members, and adjusting connections for every single brace. The Model Panel eliminates this entirely—select your bays, choose a pattern, and the complete bracing assembly is generated with structural accuracy.
+> 💡 **Why it matters**: Manual bracing placement requires calculating angles, reference plan, trimming members, and adjusting connections for every single brace. The Model Panel eliminates this entirely—select your bays, choose a pattern, and the complete bracing assembly is generated with structural accuracy.
 
 ---
 

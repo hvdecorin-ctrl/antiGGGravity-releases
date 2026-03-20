@@ -1,0 +1,148 @@
+<Window x:Class="antiGGGravity.Views.Overrides.TextLeaderAlignView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Text Leader Align" Height="680" Width="420"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        WindowStartupLocation="CenterScreen" ShowInTaskbar="False"
+        MinHeight="650" MinWidth="400" Topmost="True">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/antiGGGravity;component/Resources/Pre_BrandStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            
+            <Style x:Key="AlignmentCheckBoxStyle" TargetType="CheckBox" BasedOn="{StaticResource {x:Type CheckBox}}">
+                <Setter Property="Margin" Value="0,0,0,12"/>
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
+            </Style>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="55" CornerRadius="12" GlassFrameThickness="0" ResizeBorderThickness="10"/>
+    </WindowChrome.WindowChrome>
+    
+    <Border BorderBrush="{DynamicResource PremiumBorderBrush}" BorderThickness="1" Background="White" CornerRadius="12">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="55"/> <!-- Header -->
+                <RowDefinition Height="*"/>    <!-- Content -->
+                <RowDefinition Height="Auto"/> <!-- Footer -->
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Border Grid.Row="0" Background="{DynamicResource BrandGradientBrush}" CornerRadius="12,12,0,0">
+                <Grid Margin="25,0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" IsHitTestVisible="False">
+                        <TextBlock Style="{DynamicResource CompanyLogoStyle}"/>
+                        <TextBlock Style="{DynamicResource CompanyDividerStyle}"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Text Leader Align" Style="{DynamicResource PremiumTitleStyle}"/>
+                            <TextBlock Text="Batch align text notes and leaders" Style="{DynamicResource PremiumSubtitleStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <Button HorizontalAlignment="Right" VerticalAlignment="Center" 
+                            Style="{DynamicResource PremiumIconButtonStyle}" Width="30" Height="30" Content="✕" 
+                            Click="Close_Click" WindowChrome.IsHitTestVisibleInChrome="True"/>
+                </Grid>
+            </Border>
+
+            <!-- Content Area -->
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/> <!-- Tabs -->
+                    <RowDefinition Height="*"/>    <!-- Main Content -->
+                </Grid.RowDefinitions>
+
+                <!-- Tab Header -->
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="25,10,25,0">
+                    <RadioButton x:Name="TabAlign" Content="Text Align" 
+                                 Style="{StaticResource PremiumLightTabButtonStyle}" 
+                                 IsChecked="True" Checked="Tab_Checked"
+                                 Cursor="Hand"/>
+                    <RadioButton x:Name="TabConvert" Content="Text Convert" 
+                                 Style="{StaticResource PremiumLightTabButtonStyle}" 
+                                 Margin="15,0,0,0" Checked="Tab_Checked"
+                                 Cursor="Hand"/>
+                </StackPanel>
+
+                <!-- Main Content -->
+                <Grid Grid.Row="1" Margin="25,15">
+                    <!-- Tab 1: Text Align -->
+                    <StackPanel x:Name="PanelAlign" Visibility="Visible">
+                        <!-- Scope Section -->
+                        <TextBlock Text="Application Scope" Style="{DynamicResource PremiumSectionLabelStyle}" Margin="0,0,0,10"/>
+                        <StackPanel x:Name="ScopePanel" Margin="5,0,0,15">
+                            <RadioButton x:Name="RadActiveView" Content="Active View" IsChecked="True" GroupName="Scope" Margin="0,0,0,8"/>
+                            <RadioButton x:Name="RadSelection" Content="Current Selection" GroupName="Scope" Margin="0,0,0,8"/>
+                            <RadioButton x:Name="RadEntireProject" Content="Entire Project" GroupName="Scope"/>
+                        </StackPanel>
+
+                        <!-- Text Size Filter Section -->
+                        <TextBlock Text="Filter By Size (mm)" Style="{DynamicResource PremiumSectionLabelStyle}" Margin="0,0,0,10"/>
+                        <ComboBox x:Name="ComboTextStyle" Margin="5,0,0,15" Height="32" VerticalContentAlignment="Center">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+
+                        <!-- Modifications Section with Master Toggle -->
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                            <CheckBox x:Name="ChkToggleAll" IsChecked="True" VerticalAlignment="Center" 
+                                      Checked="ChkToggleAll_Changed" Unchecked="ChkToggleAll_Changed"/>
+                            <TextBlock Text="Select Modifications" Style="{DynamicResource PremiumSectionLabelStyle}" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        
+                        <StackPanel x:Name="ModPanel" Margin="25,0,0,0">
+                            <CheckBox x:Name="ChkAlignLeft" Content="Align Text Left" IsChecked="True" Style="{StaticResource AlignmentCheckBoxStyle}"/>
+                            <CheckBox x:Name="ChkLeaderTopLeft" Content="Leader at Top Left" IsChecked="True" Style="{StaticResource AlignmentCheckBoxStyle}"/>
+                            <CheckBox x:Name="ChkLeaderTopRight" Content="Leader at Top Right" IsChecked="True" Style="{StaticResource AlignmentCheckBoxStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Tab 2: Text Convert -->
+                    <StackPanel x:Name="PanelConvert" Visibility="Collapsed">
+                        <TextBlock Text="Style Cleanup" Style="{DynamicResource PremiumSectionLabelStyle}" Margin="0,0,0,10"/>
+                        
+                        <TextBlock Text="From Styles (Multi-Select)" FontSize="12" Foreground="#666666" Margin="5,0,0,5"/>
+                        <ListBox x:Name="ListConvertFrom" SelectionMode="Multiple" Height="300" Margin="5,0,0,15"
+                                 Style="{StaticResource PremiumListBoxStyle}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}"/>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+
+                        <TextBlock Text="To Style" FontSize="12" Foreground="#666666" Margin="5,0,0,5"/>
+                        <ComboBox x:Name="ComboConvertTo" Margin="5,0,0,15" Height="32" VerticalContentAlignment="Center">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+
+                        <CheckBox x:Name="ChkDeleteSources" Content="Delete Source Styles After Conversion" Margin="5,0,0,20"/>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+
+            <!-- Footer -->
+            <Border Grid.Row="2" Padding="25,20" Background="#FAFAFA" CornerRadius="0,0,12,12" BorderBrush="{DynamicResource PremiumBorderBrush}" BorderThickness="0,1,0,0">
+                <Grid>
+                    <TextBlock x:Name="UI_Status" VerticalAlignment="Center" Foreground="#999999" Text="Ready to apply modifications."/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Apply" Click="Apply_Click" Style="{DynamicResource PremiumActionButtonStyle}" Width="90" Height="35" IsDefault="True"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

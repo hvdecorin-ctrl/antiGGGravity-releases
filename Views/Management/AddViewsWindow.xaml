@@ -3,10 +3,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Add Views" Height="600" Width="400"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
-        WindowStartupLocation="CenterScreen" Topmost="True">
+        WindowStartupLocation="CenterScreen" ShowInTaskbar="False"
+        MinHeight="450" MinWidth="350" Topmost="True">
 
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="55" CornerRadius="12" GlassFrameThickness="0"/>
+        <WindowChrome CaptionHeight="55" CornerRadius="12" GlassFrameThickness="0" ResizeBorderThickness="10"/>
     </WindowChrome.WindowChrome>
 
     <Window.Resources>
@@ -15,20 +16,48 @@
                 <ResourceDictionary Source="/antiGGGravity;component/Resources/Pre_BrandStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
-            <Style x:Key="ViewItemListBoxStyle" TargetType="ListBox" BasedOn="{StaticResource PremiumListBoxStyle}">
-                <Setter Property="BorderThickness" Value="1"/>
-                <Setter Property="BorderBrush" Value="{StaticResource PremiumBorderBrush}"/>
-                <Setter Property="Background" Value="White"/>
+            <DataTemplate x:Key="ViewItemTemplate">
+                <Grid Margin="0,4" Background="Transparent">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="95"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Border Background="#E1F5FE" CornerRadius="4" Padding="6,2" HorizontalAlignment="Left" MinWidth="85">
+                        <TextBlock Text="{Binding ViewTypeString}" 
+                                 FontSize="10"
+                                 FontWeight="ExtraBold" 
+                                 Foreground="#0288D1" 
+                                 VerticalAlignment="Center"
+                                 HorizontalAlignment="Center"/>
+                    </Border>
+                    
+                    <TextBlock Grid.Column="1" Text="{Binding Name}" 
+                             FontSize="13"
+                             Margin="12,0,0,0" 
+                             VerticalAlignment="Center"/>
+                </Grid>
+            </DataTemplate>
+
+            <Style x:Key="ViewItemContainerStyle" TargetType="ListBoxItem">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Padding" Value="12,2"/>
+                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                <Style.Triggers>
+                    <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="Background" Value="#E6F2FA"/>
+                    </Trigger>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="#F5F5F5"/>
+                    </Trigger>
+                </Style.Triggers>
             </Style>
 
-            <Style x:Key="SearchTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource PremiumTextBoxStyle}">
-                <Setter Property="Height" Value="35"/>
-                <Setter Property="Margin" Value="0,0,0,12"/>
-            </Style>
         </ResourceDictionary>
     </Window.Resources>
 
-    <Border Style="{StaticResource PremiumBorderStyle}">
+    <Border BorderBrush="{DynamicResource PremiumBorderBrush}" BorderThickness="1" Background="White" CornerRadius="12">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="55"/>
@@ -36,69 +65,81 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- HEADER -->
-            <Border Grid.Row="0" Background="{StaticResource BrandGradientBrush}" CornerRadius="12,12,0,0">
+            <!-- Header -->
+            <Border Grid.Row="0" Background="{DynamicResource BrandGradientBrush}" CornerRadius="12,12,0,0">
                 <Grid Margin="25,0">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Style="{StaticResource CompanyLogoStyle}"/>
-                        <TextBlock Style="{StaticResource CompanyDividerStyle}"/>
+                        <TextBlock Style="{DynamicResource CompanyLogoStyle}"/>
+                        <TextBlock Style="{DynamicResource CompanyDividerStyle}"/>
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="Add Views" Style="{StaticResource PremiumTitleStyle}"/>
-                            <TextBlock Text="Batch place unsheeted views" Style="{StaticResource PremiumSubtitleStyle}"/>
+                            <TextBlock Text="Add Views" Style="{DynamicResource PremiumTitleStyle}"/>
+                            <TextBlock Text="Batch Place Unsheeted Views" Style="{DynamicResource PremiumSubtitleStyle}"/>
                         </StackPanel>
                     </StackPanel>
                     <Button HorizontalAlignment="Right" VerticalAlignment="Center" Content="✕" 
-                            Style="{StaticResource PremiumIconButtonStyle}" Width="30" Height="30"
+                            Style="{DynamicResource PremiumIconButtonStyle}" Width="30" Height="30"
                             Click="CancelButton_Click" WindowChrome.IsHitTestVisibleInChrome="True"/>
                 </Grid>
             </Border>
 
-            <!-- CONTENT -->
+            <!-- Content -->
             <Grid Grid.Row="1" Margin="25">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <StackPanel>
-                    <TextBlock Text="Search Views" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,0,0,8"/>
-                    <TextBox x:Name="SearchBox" Style="{StaticResource SearchTextBoxStyle}" 
-                             TextChanged="SearchBox_TextChanged" Tag="Type to filter..."/>
+                <StackPanel Margin="0,0,0,15">
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <CheckBox x:Name="ChkToggleAll" IsChecked="False" VerticalAlignment="Center" 
+                                  Checked="ChkToggleAll_Changed" Unchecked="ChkToggleAll_Changed"/>
+                        <TextBlock Text="Search Views" Style="{DynamicResource PremiumSectionLabelStyle}" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <Border BorderBrush="{DynamicResource PremiumBorderBrush}" BorderThickness="1" CornerRadius="4" Background="White">
+                        <Grid>
+                            <TextBlock Text="Type To Filter Views..." Foreground="#A0A0A0" Margin="10,0" VerticalAlignment="Center" IsHitTestVisible="False">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Text, ElementName=SearchBox}" Value="">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Text, ElementName=SearchBox}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <TextBox x:Name="SearchBox" Padding="8" BorderThickness="0" Background="Transparent" 
+                                     VerticalContentAlignment="Center" TextChanged="SearchBox_TextChanged"/>
+                        </Grid>
+                    </Border>
                 </StackPanel>
 
-                <Border Grid.Row="1" BorderThickness="1" BorderBrush="{StaticResource PremiumBorderBrush}" CornerRadius="6">
-                    <ListBox x:Name="ViewsListBox" Style="{StaticResource ViewItemListBoxStyle}" 
-                             SelectionMode="Extended" MouseDoubleClick="ViewsListBox_MouseDoubleClick" BorderThickness="0">
-                        <ListBox.ItemContainerStyle>
-                            <Style TargetType="ListBoxItem" BasedOn="{StaticResource PremiumListBoxItemStyle}">
-                                <Setter Property="Padding" Value="12,2"/>
-                            </Style>
-                        </ListBox.ItemContainerStyle>
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Margin="0,1">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="80"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="{Binding ViewTypeString}" FontWeight="SemiBold" Foreground="{StaticResource BrandPrimaryBrush}" VerticalAlignment="Center"/>
-                                    <TextBlock Grid.Column="1" Text="{Binding Name}" Margin="5,0,0,0" VerticalAlignment="Center"/>
-                                </Grid>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
+                <Border Grid.Row="1" BorderThickness="1" BorderBrush="{DynamicResource PremiumBorderBrush}" CornerRadius="6">
+                    <ListBox x:Name="ViewsListBox" 
+                             BorderThickness="0"
+                             Background="Transparent"
+                             SelectionMode="Extended" 
+                             MouseDoubleClick="ViewsListBox_MouseDoubleClick"
+                             SelectionChanged="ListBox_SelectionChanged"
+                             ItemTemplate="{StaticResource ViewItemTemplate}"
+                             ItemContainerStyle="{StaticResource ViewItemContainerStyle}"/>
                 </Border>
             </Grid>
 
-            <!-- FOOTER -->
-            <Border Grid.Row="2" Background="#FAFAFA" Padding="25,20" CornerRadius="0,0,12,12" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,1,0,0">
+            <!-- Footer -->
+            <Border Grid.Row="2" Background="#FAFAFA" Padding="25,20" CornerRadius="0,0,12,12" BorderBrush="{DynamicResource PremiumBorderBrush}" BorderThickness="0,1,0,0">
                 <Grid>
-                    <TextBlock x:Name="UI_Status" VerticalAlignment="Center" Foreground="#999999" Text="Select one or more views"/>
+                    <TextBlock x:Name="UI_Status" VerticalAlignment="Center" Foreground="#999999" Text="Select One Or More Views"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button x:Name="AddButton" Content="Add Selected" Width="130" Style="{StaticResource PremiumPrimaryButtonStyle}" Click="AddButton_Click" IsDefault="True"/>
+                        <Button x:Name="AddButton" Content="Add Selected" Width="130" Style="{DynamicResource PremiumPrimaryButtonStyle}" Click="AddButton_Click" IsDefault="True"/>
                     </StackPanel>
                 </Grid>
             </Border>
         </Grid>
     </Border>
 </Window>
+

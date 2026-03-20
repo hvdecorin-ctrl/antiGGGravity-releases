@@ -23,9 +23,9 @@ namespace antiGGGravity.Views.Management
         {
             InitializeComponent();
             
+            // Sort by ElementId descending to show newest views first (latest creation order)
             _allWrappers = unsheetedViews
-                .OrderBy(v => v.ViewType.ToString())
-                .ThenBy(v => v.Name)
+                .OrderByDescending(w => w.Id)
                 .Select(v => new ViewWrapper { View = v })
                 .ToList();
 
@@ -64,6 +64,16 @@ namespace antiGGGravity.Views.Management
             int count = ViewsListBox.SelectedItems.Count;
             int total = ViewsListBox.Items.Count;
             UI_Status.Text = count > 0 ? $"{count} selected" : $"Total {total} views found";
+        }
+
+        private void ChkToggleAll_Changed(object sender, RoutedEventArgs e)
+        {
+            if (ViewsListBox == null || ChkToggleAll == null) return;
+            bool select = ChkToggleAll.IsChecked == true;
+            if (select)
+                ViewsListBox.SelectAll();
+            else
+                ViewsListBox.UnselectAll();
         }
 
         private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
