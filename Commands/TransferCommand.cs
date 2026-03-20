@@ -42,7 +42,7 @@ namespace antiGGGravity.Commands
             catch (Exception ex)
             {
                 TaskDialog td = new TaskDialog("Application Error");
-                td.MainInstruction = "Failed to load View Transfer Tool";
+                td.MainInstruction = "Failed to load Transfer Tool";
                 td.MainContent = ex.Message;
                 td.ExpandedContent = ex.ToString();
                 td.Show();

@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="View Transfer Tool" Height="700" Width="900" 
+        Title="Transfer Tool" Height="700" Width="900" 
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         WindowStartupLocation="CenterScreen"
         MinHeight="500" MinWidth="700">
@@ -40,7 +40,7 @@
                         <TextBlock Style="{DynamicResource CompanyLogoStyle}"/>
                         <TextBlock Style="{DynamicResource CompanyDividerStyle}"/>
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="View Transfer" Style="{DynamicResource PremiumTitleStyle}"/>
+                            <TextBlock Text="Transfer" Style="{DynamicResource PremiumTitleStyle}"/>
                             <TextBlock Text="Selectively transfer views, sheets &amp; families across projects" Style="{DynamicResource PremiumSubtitleStyle}"/>
                         </StackPanel>
                     </StackPanel>
@@ -649,6 +649,9 @@
                                         Style="{DynamicResource PremiumPrimaryButtonStyle}" Width="90" Height="28" Margin="0,0,8,0"/>
                                 <Button Content="Clear All" Command="{Binding ClearDuplicatorRowsCommand}" 
                                         Style="{DynamicResource PremiumPrimaryButtonStyle}" Width="90" Height="28" Margin="0,0,8,0"/>
+                                <Button Content="↻ Refresh Projects" Command="{Binding RefreshProjectFamiliesCommand}" 
+                                        Style="{DynamicResource PremiumPrimaryButtonStyle}" Width="130" Height="28" Margin="0,0,8,0"
+                                        ToolTip="Refresh internal memory to pickup any newly created walls/floors while window is open"/>
                                 <Button Click="SetDuplicatorFolder_Click" Height="28" Padding="15,0"
                                         ToolTip="Select the network folder where your base Revit families are stored.">
                                     <Button.Style>

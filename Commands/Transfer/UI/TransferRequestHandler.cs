@@ -38,7 +38,7 @@ namespace antiGGGravity.Commands.Transfer.UI
 
         public string GetName()
         {
-            return "View Transfer Engine Event Handler";
+            return "Transfer Engine Event Handler";
         }
     }
 }

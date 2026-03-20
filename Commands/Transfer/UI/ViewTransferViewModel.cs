@@ -523,42 +523,9 @@ namespace antiGGGravity.Commands.Transfer.UI
 
             if (_uiApp?.ActiveUIDocument?.Document != null)
             {
-                var doc = _uiApp.ActiveUIDocument.Document;
-
-                // Restrict local project cache to purely Structural Categories (Phase 9)
-                var allowedCategories = new long[]
-                {
-                    (long)BuiltInCategory.OST_StructuralFraming,
-                    (long)BuiltInCategory.OST_StructuralColumns,
-                    (long)BuiltInCategory.OST_StructuralFoundation,
-                    (long)BuiltInCategory.OST_Walls,
-                    (long)BuiltInCategory.OST_Floors
-                };
-
-                var symbols = new FilteredElementCollector(doc)
-                    .OfClass(typeof(FamilySymbol))
-                    .Cast<FamilySymbol>()
-                    .Where(s => s.Category != null && allowedCategories.Contains(s.Category.Id.GetIdValue()))
-                    .GroupBy(s => s.FamilyName)
-                    .ToList();
-
-                foreach (var group in symbols)
-                {
-                    var firstSymbol = group.First();
-                    var categoryName = firstSymbol.Category?.Name ?? "";
-
-                    var familyItem = new FamilyManagerItem 
-                    { 
-                        FamilyName = group.Key, 
-                        CategoryName = categoryName,
-                        FilePath = "Current Project" 
-                    };
-                    familyItem.Types = new ObservableCollection<FamilyManagerTypeItem>(
-                        group.Select(s => new FamilyManagerTypeItem { TypeName = s.Name })
-                    );
-                    LoadedProjectFamilies.Add(familyItem);
-                }
+                LoadProjectFamiliesFromDocument(_uiApp.ActiveUIDocument.Document);
             }
+
 
             // Wire up new DataGrid rows added directly via WPF UI interacting with ObservableCollection (Phase 7 Fix)
             DuplicatorRows.CollectionChanged += (s, e) =>
@@ -691,6 +658,45 @@ namespace antiGGGravity.Commands.Transfer.UI
             {
                 // Run index load asynchronously or just load it fast
                 ScanManagerFolder(_familyManagerFolderPath, useCache: true);
+            }
+        }
+
+        private void LoadProjectFamiliesFromDocument(Document doc)
+        {
+            LoadedProjectFamilies.Clear();
+
+            // Restrict local project cache to purely Structural Categories (Phase 9)
+            var allowedCategories = new long[]
+            {
+                (long)BuiltInCategory.OST_StructuralFraming,
+                (long)BuiltInCategory.OST_StructuralColumns,
+                (long)BuiltInCategory.OST_StructuralFoundation,
+                (long)BuiltInCategory.OST_Walls,
+                (long)BuiltInCategory.OST_Floors
+            };
+
+            var symbols = new FilteredElementCollector(doc)
+                .WhereElementIsElementType()
+                .Where(s => s.Category != null && allowedCategories.Contains(s.Category.Id.GetIdValue()))
+                .Cast<ElementType>()
+                .GroupBy(s => s.FamilyName)
+                .ToList();
+
+            foreach (var group in symbols)
+            {
+                var firstSymbol = group.First();
+                var categoryName = firstSymbol.Category?.Name ?? "";
+
+                var familyItem = new FamilyManagerItem 
+                { 
+                    FamilyName = group.Key, 
+                    CategoryName = categoryName,
+                    FilePath = "Current Project" 
+                };
+                familyItem.Types = new ObservableCollection<FamilyManagerTypeItem>(
+                    group.Select(s => new FamilyManagerTypeItem { TypeName = s.Name })
+                );
+                LoadedProjectFamilies.Add(familyItem);
             }
         }
 
@@ -1432,6 +1438,74 @@ namespace antiGGGravity.Commands.Transfer.UI
         // DUPLICATOR — Auto-match + commands
         // ============================================================
 
+        private List<string> GetTypesFromCatalog(string rfaPath)
+        {
+            var typeNames = new List<string>();
+            if (string.IsNullOrEmpty(rfaPath) || rfaPath == "Current Project") return typeNames;
+            
+            try
+            {
+                string txtPath = Path.ChangeExtension(rfaPath, ".txt");
+                if (File.Exists(txtPath))
+                {
+                    var lines = File.ReadAllLines(txtPath);
+                    if (lines.Length > 1)
+                    {
+                        foreach (var line in lines.Skip(1))
+                        {
+                            if (string.IsNullOrWhiteSpace(line)) continue;
+                            var parts = line.Split(',');
+                            if (parts.Length > 0 && !string.IsNullOrWhiteSpace(parts[0]))
+                                typeNames.Add(parts[0].Trim('"'));
+                        }
+                    }
+                }
+            } 
+            catch { }
+            return typeNames;
+        }
+
+        private void AddMatchesForMatchedFamily(string keywordFuzzy, FamilyManagerItem family, List<AvailableMatchItem> allMatches)
+        {
+            var typesToCheck = new List<string>();
+
+            // 1. If types are already loaded in memory (Current Project), use them!
+            if (family.Types != null && family.Types.Count > 0)
+            {
+                typesToCheck.AddRange(family.Types.Select(t => t.TypeName).Where(t => t != null));
+            }
+            // 2. Otherwise, attempt to fast-read from the Type Catalog on disk (Unloaded Libraries)
+            else
+            {
+                typesToCheck.AddRange(GetTypesFromCatalog(family.FilePath));
+            }
+
+            var keywordTokens = keywordFuzzy.Split(new[] { ' ', 'x', 'X', '-', '*', '/' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+
+            bool typeMatched = false;
+            foreach (var typeName in typesToCheck)
+            {
+                string typeFuzzy = typeName.Replace(" ", "").Replace("-", "").Replace(".0", "").ToLowerInvariant();
+                var typeTokens = typeName.Split(new[] { ' ', 'x', 'X', '-', '*', '/' }, StringSplitOptions.RemoveEmptyEntries)
+                                         .Select(t => t.ToLowerInvariant()).ToList();
+                
+                bool matchTypeInKeyword = typeTokens.Count > 0 && typeTokens.All(t => keywordFuzzy.Contains(t));
+                bool matchKeywordInType = keywordTokens.Count > 0 && keywordTokens.All(t => typeFuzzy.Contains(t));
+
+                // If fuzzy string matches OR token intersection matches OR if the user just successfully matched the Family Name (meaning they want all types in that family)
+                if (string.IsNullOrEmpty(keywordFuzzy) || typeFuzzy.Contains(keywordFuzzy) || matchTypeInKeyword || matchKeywordInType || (family.FamilyName != null && family.FamilyName.Replace(" ", "").ToLowerInvariant().Contains(keywordFuzzy)))
+                {
+                    allMatches.Add(new AvailableMatchItem { FamilyName = family.FamilyName, FilePath = family.FilePath, TypeName = typeName });
+                    typeMatched = true;
+                }
+            }
+
+            if (!typeMatched)
+            {
+                allMatches.Add(new AvailableMatchItem { FamilyName = family.FamilyName, FilePath = family.FilePath, TypeName = null });
+            }
+        }
+
         /// <summary>
         /// Searches the indexed Family Manager families for a type name that matches the input.
         /// Uses exact match first, then case-insensitive, then partial/contains.
@@ -1448,6 +1522,7 @@ namespace antiGGGravity.Commands.Transfer.UI
             }
 
             string keyword = row.TypeComment.Trim();
+            string keywordFuzzy = keyword.Replace(" ", "").Replace("-", "").Replace(".0", "").ToLowerInvariant();
 
             // Search through loaded project families FIRST, then indexed library families
             var allMatches = new List<AvailableMatchItem>();
@@ -1485,6 +1560,47 @@ namespace antiGGGravity.Commands.Transfer.UI
                     }
                 }
 
+                // Pass 2.5: Fuzzy match on TypeName
+                foreach (var family in structuralFamilies)
+                {
+                    foreach (var type in family.Types)
+                    {
+                        if (type.TypeName != null)
+                        {
+                            string typeFuzzy = type.TypeName.Replace(" ", "").Replace("-", "").Replace(".0", "").ToLowerInvariant();
+                            if (typeFuzzy.Contains(keywordFuzzy))
+                            {
+                                allMatches.Add(new AvailableMatchItem { FamilyName = family.FamilyName, FilePath = family.FilePath, TypeName = type.TypeName });
+                            }
+                        }
+                    }
+                }
+
+                // Pass 2.75: Advanced Token Intersection Match (Solves "90 THK LBW" vs "90 LBW" token mismatch)
+                var keywordTokens = keyword.Split(new[] { ' ', 'x', 'X', '-', '*', '/' }, StringSplitOptions.RemoveEmptyEntries)
+                                           .Select(t => t.ToLowerInvariant()).ToList();
+
+                foreach (var family in structuralFamilies)
+                {
+                    foreach (var type in family.Types)
+                    {
+                        if (type.TypeName != null)
+                        {
+                            var typeTokens = type.TypeName.Split(new[] { ' ', 'x', 'X', '-', '*', '/' }, StringSplitOptions.RemoveEmptyEntries)
+                                                          .Select(t => t.ToLowerInvariant()).ToList();
+                            string typeFuzzy = type.TypeName.Replace(" ", "").Replace("-", "").Replace(".0", "").ToLowerInvariant();
+
+                            bool matchTypeInKeyword = typeTokens.Count > 0 && typeTokens.All(t => keywordFuzzy.Contains(t));
+                            bool matchKeywordInType = keywordTokens.Count > 0 && keywordTokens.All(t => typeFuzzy.Contains(t));
+
+                            if (matchTypeInKeyword || matchKeywordInType)
+                            {
+                                allMatches.Add(new AvailableMatchItem { FamilyName = family.FamilyName, FilePath = family.FilePath, TypeName = type.TypeName });
+                            }
+                        }
+                    }
+                }
+
                 // Pass 3: Inverse Partial match — TypeName contained in keyword (Phase 5)
                 foreach (var family in structuralFamilies)
                 {
@@ -1502,7 +1618,24 @@ namespace antiGGGravity.Commands.Transfer.UI
                 {
                     if (family.FamilyName != null && family.FamilyName.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0)
                     {
-                        allMatches.Add(new AvailableMatchItem { FamilyName = family.FamilyName, FilePath = family.FilePath, TypeName = null });
+                        AddMatchesForMatchedFamily(keywordFuzzy, family, allMatches);
+                    }
+                }
+
+                // Pass 5: Smart Prefix Match (for unloaded library families)
+                var tokens = keyword.Split(new[] { ' ', 'x', 'X', '-', '*', '/' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var token in tokens)
+                {
+                    string lettersOnly = new string(token.Where(char.IsLetter).ToArray());
+                    if (lettersOnly.Length >= 2)
+                    {
+                        foreach (var family in structuralFamilies)
+                        {
+                            if (family.FamilyName != null && family.FamilyName.IndexOf(lettersOnly, StringComparison.OrdinalIgnoreCase) >= 0)
+                            {
+                                AddMatchesForMatchedFamily(keywordFuzzy, family, allMatches);
+                            }
+                        }
                     }
                 }
             }
@@ -1533,6 +1666,18 @@ namespace antiGGGravity.Commands.Transfer.UI
         public ICommand ClearDuplicatorRowsCommand => new RelayCommand(_ =>
         {
             DuplicatorRows.Clear();
+        });
+
+        public ICommand RefreshProjectFamiliesCommand => new RelayCommand(_ =>
+        {
+            if (_uiApp?.ActiveUIDocument?.Document != null)
+            {
+                LoadProjectFamiliesFromDocument(_uiApp.ActiveUIDocument.Document);
+                foreach (var row in DuplicatorRows)
+                {
+                    AutoMatchDuplicatorRow(row);
+                }
+            }
         });
 
         public ICommand GenerateDuplicatorCommand => new RelayCommand(_ =>

@@ -4,7 +4,7 @@ panels:
   # ============================================================
   - name: Management
     items:
-      - name: View Transfer
+      - name: Transfer
         command: ViewTransferCommand
         icon: ViewTransfer
         tooltip: Transfer live views, drafting views, and sheets between Revit documents.

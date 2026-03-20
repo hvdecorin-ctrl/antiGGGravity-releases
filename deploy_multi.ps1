@@ -35,8 +35,8 @@ foreach ($v in $VersionsToBuild) {
     <FullClassName>antiGGGravity.App</FullClassName>
     <Assembly>antiGGGravity\$v\antiGGGravity.dll</Assembly>
     <AddInId>35A1E7B9-940B-4D95-8E39-9C17FD430693</AddInId>
-    <VendorId>HVDE</VendorId>
-    <VendorDescription>HVDee, Revit Developer</VendorDescription>
+    <VendorId>antiGGGravity</VendorId>
+    <VendorDescription>antiGGGravity</VendorDescription>
   </AddIn>
 </RevitAddIns>
 "@

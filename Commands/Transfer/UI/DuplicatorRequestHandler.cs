@@ -39,17 +39,19 @@ namespace antiGGGravity.Commands.Transfer.UI
                         }
 
                         // Step 1: Ensure the base family type is loaded in the project
-                        FamilySymbol baseSymbol = null;
+                        ElementType baseSymbol = null;
                         if (row.BaseFamilyPath == "Current Project")
                         {
                             baseSymbol = new FilteredElementCollector(doc)
-                                .OfClass(typeof(FamilySymbol))
-                                .Cast<FamilySymbol>()
+                                .WhereElementIsElementType()
+                                .Cast<ElementType>()
                                 .FirstOrDefault(fs => fs.FamilyName == row.BaseFamily && fs.Name == row.BaseTypeName);
                         }
                         else if (!string.IsNullOrEmpty(row.BaseTypeName))
                         {
-                            doc.LoadFamilySymbol(row.BaseFamilyPath, row.BaseTypeName, new FamilyLoadOptionsOverwrite(), out baseSymbol);
+                            FamilySymbol loadedSymbol;
+                            doc.LoadFamilySymbol(row.BaseFamilyPath, row.BaseTypeName, new FamilyLoadOptionsOverwrite(), out loadedSymbol);
+                            baseSymbol = loadedSymbol;
                         }
                         else
                         {
@@ -70,19 +72,19 @@ namespace antiGGGravity.Commands.Transfer.UI
                             continue;
                         }
 
-                        // Ensure the symbol is active in the document before duplicating
-                        if (!baseSymbol.IsActive)
+                        // Ensure the symbol is active in the document before duplicating (only for FamilySymbols)
+                        if (baseSymbol is FamilySymbol fs && !fs.IsActive)
                         {
-                            baseSymbol.Activate();
+                            fs.Activate();
                             doc.Regenerate(); // Sometimes required after activation
                         }
 
                         // Step 2: Check if type with this name already exists
                         string newName = row.PreviewName;
                         var existing = new FilteredElementCollector(doc)
-                            .OfClass(typeof(FamilySymbol))
-                            .Cast<FamilySymbol>()
-                            .FirstOrDefault(fs => fs.Name == newName && fs.Family.Id == baseSymbol.Family.Id);
+                            .WhereElementIsElementType()
+                            .Cast<ElementType>()
+                            .FirstOrDefault(f => f.Name == newName && f.FamilyName == baseSymbol.FamilyName);
 
                         if (existing != null)
                         {

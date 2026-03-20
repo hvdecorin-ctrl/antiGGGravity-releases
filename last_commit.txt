@@ -1,0 +1,1447 @@
+﻿commit d9b8cf01438800c20484ec06febf0615a4664722
+Author: Kenzo0185 <info.vdt@gmail.com>
+Date:   Thu Mar 19 22:41:10 2026 +1300
+
+    chore: remove all leftover .txt logs
+
+diff --git a/ErrorLog.txt b/ErrorLog.txt
+deleted file mode 100644
+index e7fbb27..0000000
+Binary files a/ErrorLog.txt and /dev/null differ
+diff --git a/build_dup.txt b/build_dup.txt
+deleted file mode 100644
+index 6de4ae1..0000000
+--- a/build_dup.txt
++++ /dev/null
+@@ -1,394 +0,0 @@
+-∩╗┐  Determining projects to restore...
+-C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj : warning NU1903: Package 'System.Text.Json' 8.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-8g4q-xg66-9fp4
+-C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj : warning NU1903: Package 'System.Text.Json' 8.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-hh2w-p6rv-4g7w
+-  All projects are up-to-date for restore.
+-C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj : warning NU1903: Package 'System.Text.Json' 8.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-8g4q-xg66-9fp4
+-C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj : warning NU1903: Package 'System.Text.Json' 8.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-hh2w-p6rv-4g7w
+-C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj : warning NU1903: Package 'System.Text.Json' 8.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-8g4q-xg66-9fp4
+-C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj : warning NU1903: Package 'System.Text.Json' 8.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-hh2w-p6rv-4g7w
+-C:\Users\DELL\source\repos\antiGGGravity\Utilities\RevitCompatibility.cs(83,41): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Utilities\RevitCompatibility.cs(83,75): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Utilities\RevitCompatibility.cs(108,50): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Utilities\RevitCompatibility.cs(108,84): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Utilities\RevitCompatibility.cs(129,79): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\DTO\RebarDefinition.cs(49,16): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\DTO\RebarDefinition.cs(50,16): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\StripFootingLayoutGenerator.cs(81,38): warning CS8632: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Utilities\SharedResources.cs(31,30): warning CS0168: The variable 'ex' is declared but never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Views\VisibilityGraphic\QuickVgView.xaml.cs(72,37): warning CS0168: The variable 'ex' is declared but never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Views\Management\DuplicateSheetsView.xaml.cs(80,38): warning CS0168: The variable 'ex' is declared but never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(47,13): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(50,43): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(50,72): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(51,41): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(51,70): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(55,43): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(55,69): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(56,41): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(56,67): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(117,13): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(120,43): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(120,69): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(121,41): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(121,67): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(125,43): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(125,72): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(126,41): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(126,70): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Calculators\DesignCodeCalculator.cs(71,20): warning CS0219: The variable 'endZoneFactor' is assigned but its value is never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Creation\CircularRebarService.cs(84,154): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Creation\CircularRebarService.cs(84,179): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Creation\CircularRebarService.cs(180,160): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Creation\CircularRebarService.cs(180,185): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\StripFootingLayoutGenerator.cs(74,41): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\StripFootingLayoutGenerator.cs(75,39): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\StripFootingLayoutGenerator.cs(111,13): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\StripFootingLayoutGenerator.cs(115,27): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\StripFootingLayoutGenerator.cs(120,27): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Commands\Rebar\RebarSplitCommand.cs(197,13): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Commands\Rebar\RebarSplitCommand.cs(197,49): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Commands\Rebar\RebarSplitCommand.cs(209,28): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Commands\Rebar\RebarSplitCommand.cs(210,28): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ParallelLayoutGenerator.cs(93,13): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ParallelLayoutGenerator.cs(94,20): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ParallelLayoutGenerator.cs(95,20): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\PadShapeLayoutGenerator.cs(151,43): warning CS0618: 'Curve.Intersect(Curve, out IntersectionResultArray)' is obsolete: 'This method is deprecated in Revit 2026 and may be removed in a later version of Revit. Use the new Curve.Intersect method with CurveIntersectResultOption.Detailed. Note also that the updated method has improved handling of certain edge cases.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\DTO\RebarDefinition.cs(49,75): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\DTO\RebarDefinition.cs(50,73): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\FootingPadLayoutGenerator.cs(129,41): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\FootingPadLayoutGenerator.cs(130,39): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\FootingPadLayoutGenerator.cs(183,41): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\FootingPadLayoutGenerator.cs(184,39): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ColumnLayoutGenerator.cs(67,41): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ColumnLayoutGenerator.cs(68,39): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ColumnLayoutGenerator.cs(132,45): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ColumnLayoutGenerator.cs(133,43): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ColumnLayoutGenerator.cs(204,60): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ColumnLayoutGenerator.cs(204,86): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ColumnLayoutGenerator.cs(205,56): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ColumnLayoutGenerator.cs(205,82): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Views\ProjectAudit\FamilyDuplicatorView.xaml.cs(657,20): warning CS8073: The result of the expression is always 'true' since a value of type 'DataGridCellInfo' is never equal to 'null' of type 'DataGridCellInfo?' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Geometry\PadShapeGeometryModule.cs(80,23): warning CS8632: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Geometry\BeamSpanResolver.cs(332,28): warning CS0219: The variable 'tolZ' is assigned but its value is never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\UI\Panels\FootingPadRebarPanel.xaml.cs(228,20): warning CS0219: The variable 'marginTB' is assigned but its value is never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Commands\Rebar\RebarCrankCommand.cs(259,13): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Commands\Rebar\RebarCrankCommand.cs(259,50): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Commands\Rebar\RebarCrankCommand.cs(275,28): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Commands\Rebar\RebarCrankCommand.cs(276,28): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\ColumnEngine.cs(733,45): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\ColumnEngine.cs(734,43): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(354,48): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(355,46): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(422,56): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(423,54): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(478,56): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(479,54): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(562,49): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(563,47): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(631,57): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(632,55): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(691,57): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(692,55): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(902,49): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(903,47): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(975,49): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(976,47): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Views\Overrides\ColorSplasherView.xaml.cs(21,31): warning CS0169: The field 'ColorSplasherView._resetEvent' is never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Views\Overrides\ColorSplasherView.xaml.cs(22,31): warning CS0169: The field 'ColorSplasherView._legendEvent' is never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Views\Management\DuplicateSheetsView.xaml.cs(190,50): warning CS0067: The event 'DuplicateSheetItem.PropertyChanged' is never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Views\Overrides\ColorSplasherView.xaml.cs(23,31): warning CS0169: The field 'ColorSplasherView._filtersEvent' is never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Utilities\RibbonBuilder.cs(16,33): warning CS0169: The field 'RibbonBuilder._currentPulldownName' is never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Utilities\RibbonBuilder.cs(15,33): warning CS0169: The field 'RibbonBuilder._currentPanelName' is never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Utilities\RevitCompatibility.cs(83,41): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Utilities\RevitCompatibility.cs(83,75): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Utilities\RevitCompatibility.cs(108,50): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Utilities\RevitCompatibility.cs(108,84): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Utilities\RevitCompatibility.cs(129,79): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\DTO\RebarDefinition.cs(49,16): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\DTO\RebarDefinition.cs(50,16): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\StripFootingLayoutGenerator.cs(81,38): warning CS8632: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Utilities\SharedResources.cs(31,30): warning CS0168: The variable 'ex' is declared but never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Views\VisibilityGraphic\QuickVgView.xaml.cs(72,37): warning CS0168: The variable 'ex' is declared but never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Views\Management\DuplicateSheetsView.xaml.cs(80,38): warning CS0168: The variable 'ex' is declared but never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\DTO\RebarDefinition.cs(49,75): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\DTO\RebarDefinition.cs(50,73): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(47,13): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(50,43): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(50,72): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(51,41): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(51,70): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(55,43): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(55,69): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(56,41): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(56,67): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(117,13): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(120,43): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(120,69): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(121,41): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(121,67): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(125,43): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(125,72): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(126,41): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(126,70): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Commands\Rebar\RebarSplitCommand.cs(197,13): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Commands\Rebar\RebarSplitCommand.cs(197,49): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Commands\Rebar\RebarSplitCommand.cs(209,28): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Commands\Rebar\RebarSplitCommand.cs(210,28): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Views\ProjectAudit\FamilyDuplicatorView.xaml.cs(657,20): warning CS8073: The result of the expression is always 'true' since a value of type 'DataGridCellInfo' is never equal to 'null' of type 'DataGridCellInfo?' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\StripFootingLayoutGenerator.cs(74,41): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\StripFootingLayoutGenerator.cs(75,39): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\StripFootingLayoutGenerator.cs(111,13): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\StripFootingLayoutGenerator.cs(115,27): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\StripFootingLayoutGenerator.cs(120,27): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ParallelLayoutGenerator.cs(93,13): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ParallelLayoutGenerator.cs(94,20): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ParallelLayoutGenerator.cs(95,20): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\PadShapeLayoutGenerator.cs(151,43): warning CS0618: 'Curve.Intersect(Curve, out IntersectionResultArray)' is obsolete: 'This method is deprecated in Revit 2026 and may be removed in a later version of Revit. Use the new Curve.Intersect method with CurveIntersectResultOption.Detailed. Note also that the updated method has improved handling of certain edge cases.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\FootingPadLayoutGenerator.cs(129,41): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\FootingPadLayoutGenerator.cs(130,39): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\FootingPadLayoutGenerator.cs(183,41): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\FootingPadLayoutGenerator.cs(184,39): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ColumnLayoutGenerator.cs(67,41): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ColumnLayoutGenerator.cs(68,39): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ColumnLayoutGenerator.cs(132,45): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ColumnLayoutGenerator.cs(133,43): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ColumnLayoutGenerator.cs(204,60): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ColumnLayoutGenerator.cs(204,86): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ColumnLayoutGenerator.cs(205,56): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ColumnLayoutGenerator.cs(205,82): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Calculators\DesignCodeCalculator.cs(71,20): warning CS0219: The variable 'endZoneFactor' is assigned but its value is never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Commands\Rebar\RebarCrankCommand.cs(259,13): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Commands\Rebar\RebarCrankCommand.cs(259,50): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Commands\Rebar\RebarCrankCommand.cs(275,28): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Commands\Rebar\RebarCrankCommand.cs(276,28): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Geometry\PadShapeGeometryModule.cs(80,23): warning CS8632: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Creation\CircularRebarService.cs(84,154): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Creation\CircularRebarService.cs(84,179): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Creation\CircularRebarService.cs(180,160): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Creation\CircularRebarService.cs(180,185): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Geometry\BeamSpanResolver.cs(332,28): warning CS0219: The variable 'tolZ' is assigned but its value is never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\UI\Panels\FootingPadRebarPanel.xaml.cs(228,20): warning CS0219: The variable 'marginTB' is assigned but its value is never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\ColumnEngine.cs(733,45): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\ColumnEngine.cs(734,43): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(354,48): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(355,46): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(422,56): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(423,54): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(478,56): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(479,54): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(562,49): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(563,47): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(631,57): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(632,55): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(691,57): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(692,55): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(902,49): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(903,47): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(975,49): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(976,47): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Views\Management\DuplicateSheetsView.xaml.cs(190,50): warning CS0067: The event 'DuplicateSheetItem.PropertyChanged' is never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Utilities\RibbonBuilder.cs(16,33): warning CS0169: The field 'RibbonBuilder._currentPulldownName' is never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Views\Overrides\ColorSplasherView.xaml.cs(23,31): warning CS0169: The field 'ColorSplasherView._filtersEvent' is never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Views\Overrides\ColorSplasherView.xaml.cs(22,31): warning CS0169: The field 'ColorSplasherView._legendEvent' is never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Views\Overrides\ColorSplasherView.xaml.cs(21,31): warning CS0169: The field 'ColorSplasherView._resetEvent' is never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Utilities\RibbonBuilder.cs(15,33): warning CS0169: The field 'RibbonBuilder._currentPanelName' is never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-  antiGGGravity -> C:\Users\DELL\source\repos\antiGGGravity\bin\R26\net8.0-windows\antiGGGravity.dll
+-
+-Build succeeded.
+-
+-C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj : warning NU1903: Package 'System.Text.Json' 8.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-8g4q-xg66-9fp4
+-C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj : warning NU1903: Package 'System.Text.Json' 8.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-hh2w-p6rv-4g7w
+-C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj : warning NU1903: Package 'System.Text.Json' 8.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-8g4q-xg66-9fp4
+-C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj : warning NU1903: Package 'System.Text.Json' 8.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-hh2w-p6rv-4g7w
+-C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj : warning NU1903: Package 'System.Text.Json' 8.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-8g4q-xg66-9fp4
+-C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj : warning NU1903: Package 'System.Text.Json' 8.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-hh2w-p6rv-4g7w
+-C:\Users\DELL\source\repos\antiGGGravity\Utilities\RevitCompatibility.cs(83,41): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Utilities\RevitCompatibility.cs(83,75): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Utilities\RevitCompatibility.cs(108,50): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Utilities\RevitCompatibility.cs(108,84): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Utilities\RevitCompatibility.cs(129,79): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\DTO\RebarDefinition.cs(49,16): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\DTO\RebarDefinition.cs(50,16): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\StripFootingLayoutGenerator.cs(81,38): warning CS8632: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Utilities\SharedResources.cs(31,30): warning CS0168: The variable 'ex' is declared but never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Views\VisibilityGraphic\QuickVgView.xaml.cs(72,37): warning CS0168: The variable 'ex' is declared but never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Views\Management\DuplicateSheetsView.xaml.cs(80,38): warning CS0168: The variable 'ex' is declared but never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(47,13): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(50,43): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(50,72): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(51,41): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(51,70): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(55,43): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(55,69): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(56,41): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(56,67): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(117,13): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(120,43): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(120,69): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(121,41): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(121,67): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(125,43): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(125,72): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(126,41): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(126,70): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Calculators\DesignCodeCalculator.cs(71,20): warning CS0219: The variable 'endZoneFactor' is assigned but its value is never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Creation\CircularRebarService.cs(84,154): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Creation\CircularRebarService.cs(84,179): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Creation\CircularRebarService.cs(180,160): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Creation\CircularRebarService.cs(180,185): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\StripFootingLayoutGenerator.cs(74,41): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\StripFootingLayoutGenerator.cs(75,39): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\StripFootingLayoutGenerator.cs(111,13): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\StripFootingLayoutGenerator.cs(115,27): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\StripFootingLayoutGenerator.cs(120,27): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Commands\Rebar\RebarSplitCommand.cs(197,13): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Commands\Rebar\RebarSplitCommand.cs(197,49): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Commands\Rebar\RebarSplitCommand.cs(209,28): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Commands\Rebar\RebarSplitCommand.cs(210,28): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ParallelLayoutGenerator.cs(93,13): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ParallelLayoutGenerator.cs(94,20): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ParallelLayoutGenerator.cs(95,20): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\PadShapeLayoutGenerator.cs(151,43): warning CS0618: 'Curve.Intersect(Curve, out IntersectionResultArray)' is obsolete: 'This method is deprecated in Revit 2026 and may be removed in a later version of Revit. Use the new Curve.Intersect method with CurveIntersectResultOption.Detailed. Note also that the updated method has improved handling of certain edge cases.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\DTO\RebarDefinition.cs(49,75): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\DTO\RebarDefinition.cs(50,73): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\FootingPadLayoutGenerator.cs(129,41): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\FootingPadLayoutGenerator.cs(130,39): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\FootingPadLayoutGenerator.cs(183,41): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\FootingPadLayoutGenerator.cs(184,39): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ColumnLayoutGenerator.cs(67,41): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ColumnLayoutGenerator.cs(68,39): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ColumnLayoutGenerator.cs(132,45): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ColumnLayoutGenerator.cs(133,43): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ColumnLayoutGenerator.cs(204,60): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ColumnLayoutGenerator.cs(204,86): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ColumnLayoutGenerator.cs(205,56): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ColumnLayoutGenerator.cs(205,82): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Views\ProjectAudit\FamilyDuplicatorView.xaml.cs(657,20): warning CS8073: The result of the expression is always 'true' since a value of type 'DataGridCellInfo' is never equal to 'null' of type 'DataGridCellInfo?' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Geometry\PadShapeGeometryModule.cs(80,23): warning CS8632: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Geometry\BeamSpanResolver.cs(332,28): warning CS0219: The variable 'tolZ' is assigned but its value is never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\UI\Panels\FootingPadRebarPanel.xaml.cs(228,20): warning CS0219: The variable 'marginTB' is assigned but its value is never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Commands\Rebar\RebarCrankCommand.cs(259,13): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Commands\Rebar\RebarCrankCommand.cs(259,50): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Commands\Rebar\RebarCrankCommand.cs(275,28): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Commands\Rebar\RebarCrankCommand.cs(276,28): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\ColumnEngine.cs(733,45): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\ColumnEngine.cs(734,43): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(354,48): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(355,46): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(422,56): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(423,54): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(478,56): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(479,54): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(562,49): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(563,47): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(631,57): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(632,55): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(691,57): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(692,55): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(902,49): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(903,47): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(975,49): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(976,47): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Views\Overrides\ColorSplasherView.xaml.cs(21,31): warning CS0169: The field 'ColorSplasherView._resetEvent' is never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Views\Overrides\ColorSplasherView.xaml.cs(22,31): warning CS0169: The field 'ColorSplasherView._legendEvent' is never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Views\Management\DuplicateSheetsView.xaml.cs(190,50): warning CS0067: The event 'DuplicateSheetItem.PropertyChanged' is never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Views\Overrides\ColorSplasherView.xaml.cs(23,31): warning CS0169: The field 'ColorSplasherView._filtersEvent' is never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Utilities\RibbonBuilder.cs(16,33): warning CS0169: The field 'RibbonBuilder._currentPulldownName' is never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Utilities\RibbonBuilder.cs(15,33): warning CS0169: The field 'RibbonBuilder._currentPanelName' is never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity_poyeefue_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Utilities\RevitCompatibility.cs(83,41): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Utilities\RevitCompatibility.cs(83,75): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Utilities\RevitCompatibility.cs(108,50): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Utilities\RevitCompatibility.cs(108,84): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Utilities\RevitCompatibility.cs(129,79): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\DTO\RebarDefinition.cs(49,16): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\DTO\RebarDefinition.cs(50,16): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\StripFootingLayoutGenerator.cs(81,38): warning CS8632: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Utilities\SharedResources.cs(31,30): warning CS0168: The variable 'ex' is declared but never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Views\VisibilityGraphic\QuickVgView.xaml.cs(72,37): warning CS0168: The variable 'ex' is declared but never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Views\Management\DuplicateSheetsView.xaml.cs(80,38): warning CS0168: The variable 'ex' is declared but never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\DTO\RebarDefinition.cs(49,75): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\DTO\RebarDefinition.cs(50,73): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(47,13): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(50,43): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(50,72): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(51,41): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(51,70): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(55,43): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(55,69): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(56,41): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(56,67): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(117,13): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(120,43): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(120,69): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(121,41): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(121,67): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(125,43): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(125,72): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(126,41): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\WallLayoutGenerator.cs(126,70): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Commands\Rebar\RebarSplitCommand.cs(197,13): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Commands\Rebar\RebarSplitCommand.cs(197,49): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Commands\Rebar\RebarSplitCommand.cs(209,28): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Commands\Rebar\RebarSplitCommand.cs(210,28): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Views\ProjectAudit\FamilyDuplicatorView.xaml.cs(657,20): warning CS8073: The result of the expression is always 'true' since a value of type 'DataGridCellInfo' is never equal to 'null' of type 'DataGridCellInfo?' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\StripFootingLayoutGenerator.cs(74,41): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\StripFootingLayoutGenerator.cs(75,39): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\StripFootingLayoutGenerator.cs(111,13): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\StripFootingLayoutGenerator.cs(115,27): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\StripFootingLayoutGenerator.cs(120,27): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ParallelLayoutGenerator.cs(93,13): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ParallelLayoutGenerator.cs(94,20): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ParallelLayoutGenerator.cs(95,20): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\PadShapeLayoutGenerator.cs(151,43): warning CS0618: 'Curve.Intersect(Curve, out IntersectionResultArray)' is obsolete: 'This method is deprecated in Revit 2026 and may be removed in a later version of Revit. Use the new Curve.Intersect method with CurveIntersectResultOption.Detailed. Note also that the updated method has improved handling of certain edge cases.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\FootingPadLayoutGenerator.cs(129,41): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\FootingPadLayoutGenerator.cs(130,39): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\FootingPadLayoutGenerator.cs(183,41): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\FootingPadLayoutGenerator.cs(184,39): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ColumnLayoutGenerator.cs(67,41): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ColumnLayoutGenerator.cs(68,39): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ColumnLayoutGenerator.cs(132,45): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ColumnLayoutGenerator.cs(133,43): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ColumnLayoutGenerator.cs(204,60): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ColumnLayoutGenerator.cs(204,86): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ColumnLayoutGenerator.cs(205,56): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Layout\ColumnLayoutGenerator.cs(205,82): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Calculators\DesignCodeCalculator.cs(71,20): warning CS0219: The variable 'endZoneFactor' is assigned but its value is never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Commands\Rebar\RebarCrankCommand.cs(259,13): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Commands\Rebar\RebarCrankCommand.cs(259,50): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Commands\Rebar\RebarCrankCommand.cs(275,28): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Commands\Rebar\RebarCrankCommand.cs(276,28): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Geometry\PadShapeGeometryModule.cs(80,23): warning CS8632: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context. [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Creation\CircularRebarService.cs(84,154): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Creation\CircularRebarService.cs(84,179): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Creation\CircularRebarService.cs(180,160): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Creation\CircularRebarService.cs(180,185): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Geometry\BeamSpanResolver.cs(332,28): warning CS0219: The variable 'tolZ' is assigned but its value is never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\UI\Panels\FootingPadRebarPanel.xaml.cs(228,20): warning CS0219: The variable 'marginTB' is assigned but its value is never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\ColumnEngine.cs(733,45): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\ColumnEngine.cs(734,43): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(354,48): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(355,46): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(422,56): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(423,54): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(478,56): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(479,54): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(562,49): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(563,47): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(631,57): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(632,55): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(691,57): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(692,55): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(902,49): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(903,47): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(975,49): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\StructuralRebar\Core\Engine\BeamEngine.cs(976,47): warning CS0618: 'RebarHookOrientation' is obsolete: 'This enumeration is deprecated in Revit 2026 and may be removed in a later version of Revit. You can use RebarTerminationOrientation enumeration instead.' [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Views\Management\DuplicateSheetsView.xaml.cs(190,50): warning CS0067: The event 'DuplicateSheetItem.PropertyChanged' is never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Utilities\RibbonBuilder.cs(16,33): warning CS0169: The field 'RibbonBuilder._currentPulldownName' is never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Views\Overrides\ColorSplasherView.xaml.cs(23,31): warning CS0169: The field 'ColorSplasherView._filtersEvent' is never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Views\Overrides\ColorSplasherView.xaml.cs(22,31): warning CS0169: The field 'ColorSplasherView._legendEvent' is never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Views\Overrides\ColorSplasherView.xaml.cs(21,31): warning CS0169: The field 'ColorSplasherView._resetEvent' is never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Utilities\RibbonBuilder.cs(15,33): warning CS0169: The field 'RibbonBuilder._currentPanelName' is never used [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-    192 Warning(s)
+-    0 Error(s)
+-
+-Time Elapsed 00:00:05.98
+diff --git a/build_error.txt b/build_error.txt
+deleted file mode 100644
+index 205a947..0000000
+Binary files a/build_error.txt and /dev/null differ
+diff --git a/build_error_utf8.txt b/build_error_utf8.txt
+deleted file mode 100644
+index 0d98b5d..0000000
+--- a/build_error_utf8.txt
++++ /dev/null
+@@ -1,18 +0,0 @@
+-∩╗┐  Determining projects to restore...
+-C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj : warning NU1903: Package 'System.Text.Json' 8.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-8g4q-xg66-9fp4
+-C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj : warning NU1903: Package 'System.Text.Json' 8.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-hh2w-p6rv-4g7w
+-  All projects are up-to-date for restore.
+-C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj : warning NU1903: Package 'System.Text.Json' 8.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-8g4q-xg66-9fp4
+-C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj : warning NU1903: Package 'System.Text.Json' 8.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-hh2w-p6rv-4g7w
+-  antiGGGravity -> C:\Users\DELL\source\repos\antiGGGravity\bin\R26\net8.0-windows\antiGGGravity.dll
+-
+-Build succeeded.
+-
+-C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj : warning NU1903: Package 'System.Text.Json' 8.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-8g4q-xg66-9fp4
+-C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj : warning NU1903: Package 'System.Text.Json' 8.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-hh2w-p6rv-4g7w
+-C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj : warning NU1903: Package 'System.Text.Json' 8.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-8g4q-xg66-9fp4
+-C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj : warning NU1903: Package 'System.Text.Json' 8.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-hh2w-p6rv-4g7w
+-    4 Warning(s)
+-    0 Error(s)
+-
+-Time Elapsed 00:00:00.97
+diff --git a/build_full.txt b/build_full.txt
+deleted file mode 100644
+index 336a843..0000000
+Binary files a/build_full.txt and /dev/null differ
+diff --git a/build_out.txt b/build_out.txt
+deleted file mode 100644
+index 205a947..0000000
+Binary files a/build_out.txt and /dev/null differ
+diff --git a/build_output_2.txt b/build_output_2.txt
+deleted file mode 100644
+index 4c92e0b..0000000
+Binary files a/build_output_2.txt and /dev/null differ
+diff --git a/build_output_3.txt b/build_output_3.txt
+deleted file mode 100644
+index 2b94362..0000000
+Binary files a/build_output_3.txt and /dev/null differ
+diff --git a/build_output_4.txt b/build_output_4.txt
+deleted file mode 100644
+index 21ee92d..0000000
+Binary files a/build_output_4.txt and /dev/null differ
+diff --git a/build_output_5.txt b/build_output_5.txt
+deleted file mode 100644
+index 5e6e019..0000000
+Binary files a/build_output_5.txt and /dev/null differ
+diff --git a/build_output_6.txt b/build_output_6.txt
+deleted file mode 100644
+index 0509c8c..0000000
+Binary files a/build_output_6.txt and /dev/null differ
+diff --git a/deploy_output.txt b/deploy_output.txt
+deleted file mode 100644
+index 9299890..0000000
+Binary files a/deploy_output.txt and /dev/null differ
+diff --git a/err22_utf8.txt b/err22_utf8.txt
+deleted file mode 100644
+index 37d639a..0000000
+--- a/err22_utf8.txt
++++ /dev/null
+@@ -1,7 +0,0 @@
+-∩╗┐C:\Program Files\dotnet\sdk\10.0.103\Sdks\Microsoft.NET.Sdk.WindowsDesktop\targets\Microsoft.WinFX.targets(211,9): error MC1000: Unknown build error, 'Could not find type 'System.Resources.NeutralResourcesLanguageAttribute' in assembly 'C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\Facades\System.Runtime.dll'.'  [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-
+-Build FAILED.
+-    4 Warning(s)
+-    1 Error(s)
+-
+-Time Elapsed 00:00:00.95
+diff --git a/error.txt b/error.txt
+deleted file mode 100644
+index a528b08..0000000
+Binary files a/error.txt and /dev/null differ
+diff --git a/error_utf8.txt b/error_utf8.txt
+deleted file mode 100644
+index cfd5612..0000000
+--- a/error_utf8.txt
++++ /dev/null
+@@ -1,19 +0,0 @@
+-∩╗┐  Determining projects to restore...
+-C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj : warning NU1903: Package 'System.Text.Json' 8.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-8g4q-xg66-9fp4
+-C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj : warning NU1903: Package 'System.Text.Json' 8.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-hh2w-p6rv-4g7w
+-  All projects are up-to-date for restore.
+-C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj : warning NU1903: Package 'System.Text.Json' 8.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-8g4q-xg66-9fp4
+-C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj : warning NU1903: Package 'System.Text.Json' 8.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-hh2w-p6rv-4g7w
+-C:\Program Files\dotnet\sdk\10.0.103\Sdks\Microsoft.NET.Sdk.WindowsDesktop\targets\Microsoft.WinFX.targets(211,9): error MC1000: Unknown build error, 'Could not find type 'System.Resources.NeutralResourcesLanguageAttribute' in assembly 'C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\Facades\System.Runtime.dll'.'  [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-
+-Build FAILED.
+-
+-C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj : warning NU1903: Package 'System.Text.Json' 8.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-8g4q-xg66-9fp4
+-C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj : warning NU1903: Package 'System.Text.Json' 8.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-hh2w-p6rv-4g7w
+-C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj : warning NU1903: Package 'System.Text.Json' 8.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-8g4q-xg66-9fp4
+-C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj : warning NU1903: Package 'System.Text.Json' 8.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-hh2w-p6rv-4g7w
+-C:\Program Files\dotnet\sdk\10.0.103\Sdks\Microsoft.NET.Sdk.WindowsDesktop\targets\Microsoft.WinFX.targets(211,9): error MC1000: Unknown build error, 'Could not find type 'System.Resources.NeutralResourcesLanguageAttribute' in assembly 'C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\Facades\System.Runtime.dll'.'  [C:\Users\DELL\source\repos\antiGGGravity\antiGGGravity.csproj]
+-    4 Warning(s)
+-    1 Error(s)
+-
+-Time Elapsed 00:00:00.90
+diff --git a/errors.txt b/errors.txt
+deleted file mode 100644
+index 1b3e156..0000000
+Binary files a/errors.txt and /dev/null differ
+diff --git a/full_build_log.txt b/full_build_log.txt
+deleted file mode 100644
+index afc7ea6..0000000
+Binary files a/full_build_log.txt and /dev/null differ
+diff --git a/full_build_output.txt b/full_build_output.txt
+deleted file mode 100644
+index ec07c65..0000000
+Binary files a/full_build_output.txt and /dev/null differ
+diff --git a/last_build_output.txt b/last_build_output.txt
+deleted file mode 100644
+index 9a35642..0000000
+Binary files a/last_build_output.txt and /dev/null differ
+diff --git a/temp_dup_view.txt b/temp_dup_view.txt
+deleted file mode 100644
+index c9d3677..0000000
+--- a/temp_dup_view.txt
++++ /dev/null
+@@ -1,662 +0,0 @@
+-∩╗┐using System;
+-using System.Collections.Generic;
+-using System.Collections.ObjectModel;
+-using System.IO;
+-using System.Linq;
+-using System.Windows;
+-using System.Windows.Controls;
+-using System.Windows.Input;
+-using Autodesk.Revit.DB;
+-using Autodesk.Revit.UI;
+-
+-namespace antiGGGravity.Views.ProjectAudit
+-{
+-    public partial class FamilyDuplicatorView : Window
+-    {
+-        private readonly Document _doc;
+-        private readonly ExternalEvent _dupEvent;
+-        private readonly FamilyDuplicationHandler _handler;
+-        // Family Loading events injected from Command
+-        private readonly ExternalEvent _loadEvent;
+-        private readonly Commands.ProjectAudit.LoadFamilyTypesHandler _loadHandler;
+-        private readonly ExternalEvent _symbolsEvent;
+-        private readonly Commands.ProjectAudit.GetSymbolsHandler _symbolsHandler;
+-
+-        // Modeless reference for FamilyLoadingView
+-        private static FamilyLoadingView _loadingView;
+-
+-        public ObservableCollection<DuplicationRow> Rows { get; set; } = new ObservableCollection<DuplicationRow>();
+-
+-        // ============================================================
+-        // TYPE CACHING ΓÇö matches Python's category_types_cache
+-        // ============================================================
+-        private static readonly Dictionary<string, BuiltInCategory> SupportedCategories = new Dictionary<string, BuiltInCategory>
+-        {
+-            { "Foundations", BuiltInCategory.OST_StructuralFoundation },
+-            { "Walls", BuiltInCategory.OST_Walls },
+-            { "Floors", BuiltInCategory.OST_Floors },
+-            { "Columns", BuiltInCategory.OST_StructuralColumns },
+-            { "Framings", BuiltInCategory.OST_StructuralFraming }
+-        };
+-
+-        private Dictionary<string, List<TypeInfo>> _categoryTypesCache = new Dictionary<string, List<TypeInfo>>();
+-        private List<TypeInfo> _allTypeInfos = new List<TypeInfo>();
+-        private List<string> _allBaseTypes = new List<string>();
+-
+-        public FamilyDuplicatorView(Document doc, ExternalEvent dupEvent, FamilyDuplicationHandler handler,
+-            ExternalEvent loadEvent, Commands.ProjectAudit.LoadFamilyTypesHandler loadHandler,
+-            ExternalEvent symbolsEvent, Commands.ProjectAudit.GetSymbolsHandler symbolsHandler)
+-        {
+-            InitializeComponent();
+-            _doc = doc;
+-            _dupEvent = dupEvent;
+-            _handler = handler;
+-
+-            _loadEvent = loadEvent;
+-            _loadHandler = loadHandler;
+-            _symbolsEvent = symbolsEvent;
+-            _symbolsHandler = symbolsHandler;
+-
+-            PreloadCategories();
+-            UI_Grid.ItemsSource = Rows;
+-
+-            // Keyboard shortcuts
+-            UI_Grid.PreviewKeyDown += UI_Grid_PreviewKeyDown;
+-        }
+-
+-        // ============================================================
+-        // TYPE LOADING & CACHING
+-        // ============================================================
+-        private void PreloadCategories()
+-        {
+-            _categoryTypesCache.Clear();
+-            foreach (var kvp in SupportedCategories)
+-            {
+-                _categoryTypesCache[kvp.Key] = GetTypeInfosForCategory(kvp.Value);
+-            }
+-            RefreshAllBaseTypes();
+-        }
+-
+-        private List<TypeInfo> GetTypeInfosForCategory(BuiltInCategory cat)
+-        {
+-            var types = new List<TypeInfo>();
+-            try
+-            {
+-                var collector = new FilteredElementCollector(_doc)
+-                    .OfCategory(cat)
+-                    .WhereElementIsElementType();
+-
+-                foreach (Element el in collector)
+-                {
+-                    string name = el.Name;
+-                    string familyName = "";
+-                    if (el is FamilySymbol fs)
+-                        familyName = fs.Family?.Name ?? "";
+-
+-                    string fullName = string.IsNullOrEmpty(familyName) ? name : $"{familyName}:{name}";
+-
+-                    // Read the Type Comments parameter to enable filtering
+-                    string typeComment = "";
+-                    var tcParam = el.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_COMMENTS);
+-                    if (tcParam != null) typeComment = tcParam.AsString() ?? "";
+-
+-                    types.Add(new TypeInfo { FullName = fullName, TypeComment = typeComment });
+-                }
+-            }
+-            catch { }
+-            return types.GroupBy(t => t.FullName).Select(g => g.First()).OrderBy(t => t.FullName).ToList();
+-        }
+-
+-        private void RefreshAllBaseTypes()
+-        {
+-            _allTypeInfos = _categoryTypesCache.Values
+-                .SelectMany(t => t)
+-                .GroupBy(t => t.FullName)
+-                .Select(g => g.First())
+-                .OrderBy(t => t.FullName)
+-                .ToList();
+-
+-            _allBaseTypes = _allTypeInfos.Select(t => t.FullName).ToList();
+-
+-            // Refresh all existing rows' filters
+-            foreach (var row in Rows) row.UpdateFilteredTypes(_allTypeInfos);
+-        }
+-
+-        /// <summary>
+-        /// Infer which category a BaseType belongs to (matches Python's category inference).
+-        /// </summary>
+-        private string InferCategory(string baseType)
+-        {
+-            foreach (var kvp in _categoryTypesCache)
+-            {
+-                if (kvp.Value.Any(t => t.FullName == baseType))
+-                    return kvp.Key;
+-            }
+-            return null;
+-        }
+-
+-        // ============================================================
+-        // KEYBOARD SHORTCUTS
+-        // ============================================================
+-        private void UI_Grid_PreviewKeyDown(object sender, KeyEventArgs e)
+-        {
+-            // If the user is actively typing in a cell (TextBox or ComboBox), 
+-            // allow standard text entry and standard copy/paste to work.
+-            if (e.OriginalSource is System.Windows.Controls.TextBox || e.OriginalSource is System.Windows.Controls.ComboBox)
+-            {
+-                // But still intercept Enter to commit and move down
+-                if (e.Key == Key.Enter)
+-                {
+-                    UI_Grid.CommitEdit(DataGridEditingUnit.Row, true);
+-                }
+-                return;
+-            }
+-
+-            if (e.Key == Key.V && (Keyboard.Modifiers & ModifierKeys.Control) != 0)
+-            {
+-                PasteFromClipboard();
+-                e.Handled = true;
+-            }
+-            else if (e.Key == Key.C && (Keyboard.Modifiers & ModifierKeys.Control) != 0)
+-            {
+-                CopySelectedCells();
+-                e.Handled = true;
+-            }
+-            else if (e.Key == Key.Delete && UI_Grid.SelectedItems.Count > 0 && !UI_Grid.IsEditing())
+-            {
+-                DeleteSelectedRows();
+-                e.Handled = true;
+-            }
+-        }
+-
+-        // ============================================================
+-        // CLIPBOARD ΓÇö PASTE with fuzzy BaseType matching (matches Python)
+-        // ============================================================
+-        private void PasteFromClipboard()
+-        {
+-            try
+-            {
+-                string text = Clipboard.GetText();
+-                if (string.IsNullOrEmpty(text)) return;
+-
+-                string[] lines = text.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+-                
+-                // Get the starting index. If nothing selected, start at the end.
+-                int startIndex = UI_Grid.SelectedIndex;
+-                if (startIndex < 0) startIndex = Rows.Count;
+-
+-                for (int i = 0; i < lines.Length; i++)
+-                {
+-                    string line = lines[i];
+-                    if (string.IsNullOrWhiteSpace(line)) continue;
+-                    
+-                    string[] parts = line.Split('\t');
+-                    int targetIndex = startIndex + i;
+-                    
+-                    DuplicationRow row;
+-                    if (targetIndex < Rows.Count)
+-                    {
+-                        // Overwrite existing row
+-                        row = Rows[targetIndex];
+-                    }
+-                    else
+-                    {
+-                        // Add new row at the bottom
+-                        row = new DuplicationRow();
+-                        row.UpdateFilteredTypes(_allTypeInfos);
+-                        Rows.Add(row);
+-                    }
+-
+-                    if (parts.Length > 0) row.TypeMark = parts[0].Trim();
+-                    if (parts.Length > 1) row.TypeComment = parts[1].Trim();
+-                    if (parts.Length > 2) row.Description = parts[2].Trim();
+-                    if (parts.Length > 3)
+-                    {
+-                        string val = parts[3].Trim();
+-                        row.BaseType = FuzzyMatchBaseType(val);
+-                    }
+-                }
+-                UI_Status.Text = $"Pasted {lines.Length} rows.";
+-            }
+-            catch (Exception ex)
+-            {
+-                UI_Status.Text = $"Paste error: {ex.Message}";
+-            }
+-        }
+-
+-        /// <summary>
+-        /// Fuzzy matching for BaseType paste ΓÇö exact, case-insensitive, then partial.
+-        /// Matches Python's paste logic.
+-        /// </summary>
+-        private string FuzzyMatchBaseType(string value)
+-        {
+-            if (string.IsNullOrEmpty(value)) return null;
+-
+-            // Exact match
+-            if (_allBaseTypes.Contains(value)) return value;
+-
+-            // Case-insensitive match
+-            var match = _allBaseTypes.FirstOrDefault(t => string.Equals(t, value, StringComparison.OrdinalIgnoreCase));
+-            if (match != null) return match;
+-
+-            // Partial match (value contained in type name)
+-            match = _allBaseTypes.FirstOrDefault(t => t.IndexOf(value, StringComparison.OrdinalIgnoreCase) >= 0);
+-            return match; // may be null
+-        }
+-
+-        private void CopySelectedCells()
+-        {
+-            var selectedItems = UI_Grid.SelectedItems.Cast<DuplicationRow>().ToList();
+-            if (!selectedItems.Any()) return;
+-
+-            var lines = selectedItems.Select(r => $"{r.TypeMark}\t{r.TypeComment}\t{r.Description}\t{r.BaseType}");
+-            Clipboard.SetText(string.Join(Environment.NewLine, lines));
+-        }
+-
+-        // ============================================================
+-        // CELL EDIT EVENTS ΓÇö auto-copy TypeCommentΓåÆDescription, filter combo
+-        // ============================================================
+-        private void UI_Grid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+-        {
+-            if (e.EditAction == DataGridEditAction.Cancel) return;
+-
+-            // Column index 1 = TypeComment
+-            if (e.Column == UI_Grid.Columns[1])
+-            {
+-                var row = e.Row.Item as DuplicationRow;
+-                if (row != null)
+-                {
+-                    var textBox = e.EditingElement as System.Windows.Controls.TextBox;
+-                    string newValue = textBox?.Text?.Trim() ?? "";
+-
+-                    // Commit the new TypeComment value early so filtering uses it
+-                    // (CellEditEnding fires before the binding commits)
+-                    row.TypeComment = newValue;
+-
+-                    // Auto-copy to Description if Description is empty (matches Python)
+-                    if (string.IsNullOrEmpty(row.Description))
+-                    {
+-                        row.Description = newValue;
+-                    }
+-
+-                    // Pre-filter the Base Types list for this row
+-                    row.UpdateFilteredTypes(_allTypeInfos);
+-                }
+-            }
+-        }
+-
+-        private void UI_BaseTypeCombo_Loaded(object sender, RoutedEventArgs e)
+-        {
+-            var combo = sender as System.Windows.Controls.ComboBox;
+-            if (combo == null) return;
+-            
+-            // Auto-focus and open dropdown for better UX
+-            combo.Focus();
+-            combo.IsDropDownOpen = true;
+-        }
+-
+-        /// <summary>
+-        /// Logic moved to DuplicationRow.UpdateFilteredTypes for better performance.
+-        /// </summary>
+-        private void UI_Grid_PreparingCellForEdit(object sender, DataGridPreparingCellForEditEventArgs e)
+-        {
+-            // Redundant with new TemplateColumn binding approach
+-        }
+-
+-        // ============================================================
+-        // BUTTON HANDLERS
+-        // ============================================================
+-        private void UI_Btn_AddRow_Click(object sender, RoutedEventArgs e)
+-        {
+-            var row = new DuplicationRow();
+-            row.UpdateFilteredTypes(_allTypeInfos);
+-            Rows.Add(row);
+-        }
+-
+-        private void UI_Btn_DeleteRow_Click(object sender, RoutedEventArgs e)
+-        {
+-            DeleteSelectedRows();
+-        }
+-
+-        private void DeleteSelectedRows()
+-        {
+-            var selected = UI_Grid.SelectedItems.Cast<DuplicationRow>().ToList();
+-            if (selected.Any())
+-            {
+-                foreach (var item in selected) Rows.Remove(item);
+-            }
+-            else if (UI_Grid.CurrentItem is DuplicationRow current)
+-            {
+-                Rows.Remove(current);
+-            }
+-        }
+-
+-        private void UI_Btn_Clear_Click(object sender, RoutedEventArgs e)
+-        {
+-            Rows.Clear();
+-        }
+-
+-        /// <summary>
+-        /// Opens the FamilyLoadingView so the user can selectively load specific types from .rfa files.
+-        /// </summary>
+-        private void UI_Btn_Load_Click(object sender, RoutedEventArgs e)
+-        {
+-            try
+-            {
+-                // Modeless implementation: bring to front if already open
+-                if (_loadingView != null && _loadingView.IsVisible)
+-                {
+-                    _loadingView.Focus();
+-                    return;
+-                }
+-
+-                // Create and show modeless form using injected events
+-                _loadingView = new FamilyLoadingView(_loadEvent, _loadHandler, _symbolsEvent, _symbolsHandler);
+-                _loadingView.Owner = this;
+-
+-                // Populate folder dropdown with saved paths
+-                _loadingView.PopulateFolderDropdown();
+-
+-                _loadingView.Show();
+-                
+-                UI_Status.Text = "Family Loading tools opened. 'Refresh' when finished loading.";
+-            }
+-            catch (Exception ex)
+-            {
+-                MessageBox.Show($"Failed to open Family Loading tool: {ex.Message}", "Error");
+-            }
+-        }
+-
+-        private void UI_Btn_Refresh_Click(object sender, RoutedEventArgs e)
+-        {
+-            PreloadCategories();
+-            UI_Status.Text = "Base type list refreshed.";
+-        }
+-
+-        private void UI_Btn_Create_Click(object sender, RoutedEventArgs e)
+-        {
+-            var validRows = Rows.Where(r => !string.IsNullOrEmpty(r.TypeMark) && !string.IsNullOrEmpty(r.BaseType)).ToList();
+-            if (!validRows.Any())
+-            {
+-                UI_Status.Text = "No valid rows (Type Mark and Base Type are required).";
+-                return;
+-            }
+-
+-            _handler.RowsToProcess = validRows;
+-            _handler.CategoryTypesCache = _categoryTypesCache;
+-            _handler.StatusCallback = msg => Dispatcher.Invoke(() => UI_Status.Text = msg);
+-            _dupEvent.Raise();
+-            UI_Status.Text = "Duplication started...";
+-        }
+-
+-        private void UI_Btn_Close_Click(object sender, RoutedEventArgs e)
+-        {
+-            Close();
+-        }
+-
+-        // ============================================================
+-        // CONTEXT MENU HANDLERS
+-        // ============================================================
+-        private void UI_Menu_Copy_Click(object sender, RoutedEventArgs e)
+-        {
+-            CopySelectedCells();
+-        }
+-
+-        private void UI_Menu_Paste_Click(object sender, RoutedEventArgs e)
+-        {
+-            PasteFromClipboard();
+-        }
+-
+-        private void UI_Menu_DeleteRow_Click(object sender, RoutedEventArgs e)
+-        {
+-            DeleteSelectedRows();
+-        }
+-    }
+-
+-    // ================================================================
+-    // DATA MODEL
+-    // ================================================================
+-    /// <summary>
+-    /// Stores a family type name alongside its Type Comments parameter value for filtering.
+-    /// </summary>
+-    public class TypeInfo
+-    {
+-        public string FullName { get; set; }
+-        public string TypeComment { get; set; } = "";
+-    }
+-
+-    public class DuplicationRow : System.ComponentModel.INotifyPropertyChanged
+-    {
+-        private string _typeMark;
+-        private string _typeComment;
+-        private string _description;
+-        private string _baseType;
+-        private List<string> _filteredBaseTypes = new List<string>();
+-
+-        public string TypeMark
+-        {
+-            get => _typeMark;
+-            set { _typeMark = value; OnPropertyChanged(nameof(TypeMark)); }
+-        }
+-        public string TypeComment
+-        {
+-            get => _typeComment;
+-            set { _typeComment = value; OnPropertyChanged(nameof(TypeComment)); }
+-        }
+-        public string Description
+-        {
+-            get => _description;
+-            set { _description = value; OnPropertyChanged(nameof(Description)); }
+-        }
+-        public string BaseType
+-        {
+-            get => _baseType;
+-            set { _baseType = value; OnPropertyChanged(nameof(BaseType)); }
+-        }
+-
+-        public List<string> FilteredBaseTypes
+-        {
+-            get => _filteredBaseTypes;
+-            set { _filteredBaseTypes = value; OnPropertyChanged(nameof(FilteredBaseTypes)); }
+-        }
+-
+-        public void UpdateFilteredTypes(IEnumerable<TypeInfo> allTypeInfos)
+-        {
+-            var allList = allTypeInfos.ToList();
+-            string filter = (TypeComment ?? "").Trim().ToLower();
+-            if (string.IsNullOrEmpty(filter))
+-            {
+-                FilteredBaseTypes = allList.Select(t => t.FullName).ToList();
+-                return;
+-            }
+-
+-            // Normalize ∩┐╜ (multiplication sign) and x for comparison
+-            string normalizedFilter = filter.Replace("∩┐╜", "x");
+-
+-            // Primary filter: match on the type NAME (Family:TypeName)
+-            var filtered = allList
+-                .Where(t => NormalizeName(t.FullName).Contains(normalizedFilter))
+-                .Select(t => t.FullName)
+-                .ToList();
+-
+-            // Secondary filter: match on the Type Comments parameter value
+-            if (!filtered.Any())
+-            {
+-                filtered = allList
+-                    .Where(t => NormalizeName(t.TypeComment).Contains(normalizedFilter))
+-                    .Select(t => t.FullName)
+-                    .ToList();
+-            }
+-
+-            // Fallback: any word (3+ chars) from the filter matches name or comment
+-            if (!filtered.Any())
+-            {
+-                var words = normalizedFilter.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+-                filtered = allList
+-                    .Where(t => words.Any(w => w.Length >= 3 && 
+-                        (NormalizeName(t.FullName).Contains(w) || NormalizeName(t.TypeComment).Contains(w))))
+-                    .Select(t => t.FullName)
+-                    .ToList();
+-            }
+-
+-            // Safety: if still empty, show ALL types so the dropdown is never blank
+-            if (!filtered.Any())
+-            {
+-                filtered = allList.Select(t => t.FullName).ToList();
+-            }
+-
+-            // Union with current selection to ensure it's always in the list
+-            if (!string.IsNullOrEmpty(BaseType) && !filtered.Contains(BaseType))
+-            {
+-                filtered.Add(BaseType);
+-            }
+-
+-            FilteredBaseTypes = filtered.OrderBy(t => t).ToList();
+-
+-            // Auto-select if empty and we have a strong candidate
+-            if (string.IsNullOrEmpty(BaseType) && filtered.Any())
+-            {
+-                if (filtered.Count == 1) BaseType = filtered.First();
+-            }
+-        }
+-
+-        /// <summary>
+-        /// Normalize a name for comparison: lowercase and replace ∩┐╜ with x.
+-        /// </summary>
+-        private static string NormalizeName(string name)
+-        {
+-            return (name ?? "").ToLower().Replace("∩┐╜", "x");
+-        }
+-
+-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+-        private void OnPropertyChanged(string name) =>
+-            PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(name));
+-    }
+-
+-    // ================================================================
+-    // DUPLICATION HANDLER ΓÇö with duplicate check (matches Python)
+-    // ================================================================
+-    public class FamilyDuplicationHandler : IExternalEventHandler
+-    {
+-        public List<DuplicationRow> RowsToProcess { get; set; } = new List<DuplicationRow>();
+-        public Dictionary<string, List<TypeInfo>> CategoryTypesCache { get; set; }
+-        public Action<string> StatusCallback { get; set; }
+-
+-        private static readonly Dictionary<string, BuiltInCategory> Categories = new Dictionary<string, BuiltInCategory>
+-        {
+-            { "Foundations", BuiltInCategory.OST_StructuralFoundation },
+-            { "Walls", BuiltInCategory.OST_Walls },
+-            { "Floors", BuiltInCategory.OST_Floors },
+-            { "Columns", BuiltInCategory.OST_StructuralColumns },
+-            { "Framings", BuiltInCategory.OST_StructuralFraming }
+-        };
+-
+-        public void Execute(UIApplication app)
+-        {
+-            Document doc = app.ActiveUIDocument.Document;
+-            int success = 0;
+-            int failed = 0;
+-            int skipped = 0;
+-
+-            // Build a lookup map of existing types per category (matches Python's get_types_map)
+-            var existingTypeMap = new Dictionary<string, ElementType>();
+-            foreach (var kvp in Categories)
+-            {
+-                var collector = new FilteredElementCollector(doc)
+-                    .OfCategory(kvp.Value)
+-                    .WhereElementIsElementType();
+-
+-                foreach (Element el in collector)
+-                {
+-                    string name = el.Name;
+-                    string familyName = "";
+-                    if (el is FamilySymbol fs) familyName = fs.Family?.Name ?? "";
+-                    string fullName = string.IsNullOrEmpty(familyName) ? name : $"{familyName}:{name}";
+-
+-                    existingTypeMap[fullName] = el as ElementType;
+-                    if (!existingTypeMap.ContainsKey(name))
+-                        existingTypeMap[name] = el as ElementType;
+-                }
+-            }
+-
+-            using (Transaction t = new Transaction(doc, "Duplicate Families"))
+-            {
+-                t.Start();
+-                foreach (var row in RowsToProcess)
+-                {
+-                    try
+-                    {
+-                        // Find base type
+-                        if (!existingTypeMap.TryGetValue(row.BaseType, out ElementType baseType) || baseType == null)
+-                        { failed++; continue; }
+-
+-                        // Generate new name: TypeMark-TypeComment (matches Python naming rule)
+-                        string newName;
+-                        if (!string.IsNullOrEmpty(row.TypeComment))
+-                            newName = !string.IsNullOrEmpty(row.TypeMark) ? $"{row.TypeMark}-{row.TypeComment}" : row.TypeComment;
+-                        else
+-                            newName = row.TypeMark;
+-
+-                        // Check if type already exists (matches Python duplicate check)
+-                        if (existingTypeMap.ContainsKey(newName))
+-                        {
+-                            skipped++;
+-                            continue;
+-                        }
+-
+-                        // Duplicate
+-                        ElementType newType = baseType.Duplicate(newName) as ElementType;
+-                        if (newType == null) { failed++; continue; }
+-
+-                        // Set parameters
+-                        var tmParam = newType.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_MARK);
+-                        if (tmParam != null && !tmParam.IsReadOnly) tmParam.Set(row.TypeMark ?? "");
+-
+-                        var descParam = newType.get_Parameter(BuiltInParameter.ALL_MODEL_DESCRIPTION);
+-                        if (descParam != null && !descParam.IsReadOnly)
+-                            descParam.Set(row.Description ?? "");
+-                        else
+-                        {
+-                            descParam = newType.LookupParameter("Description");
+-                            if (descParam != null && !descParam.IsReadOnly)
+-                                descParam.Set(row.Description ?? "");
+-                        }
+-
+-                        var tcParam = newType.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_COMMENTS);
+-                        if (tcParam != null && !tcParam.IsReadOnly) tcParam.Set(row.TypeComment ?? "");
+-
+-                        // Add to map so next rows see it
+-                        existingTypeMap[newName] = newType;
+-                        success++;
+-                    }
+-                    catch { failed++; }
+-                }
+-                t.Commit();
+-            }
+-
+-            string msg = $"? Created {success} types.";
+-            if (skipped > 0) msg += $" Skipped {skipped} (already exist).";
+-            if (failed > 0) msg += $" Failed: {failed}.";
+-            StatusCallback?.Invoke(msg);
+-        }
+-
+-        public string GetName() => "Family Duplication Event Handler";
+-    }
+-
+-    // ================================================================
+-    // HELPER EXTENSION
+-    // ================================================================
+-    internal static class DataGridExtensions
+-    {
+-        /// <summary>
+-        /// Check if a DataGrid is currently in editing mode.
+-        /// </summary>
+-        public static bool IsEditing(this DataGrid grid)
+-        {
+-            // Non-destructive check for editing mode
+-            return grid.CurrentCell != null && grid.CurrentCell.Column != null && 
+-                   grid.CurrentCell.Item != null && 
+-                   System.Windows.Input.Keyboard.FocusedElement is System.Windows.Controls.TextBox;
+-        }
+-    }
+-}
+diff --git a/temp_window_cs.txt b/temp_window_cs.txt
+deleted file mode 100644
+index ce81c3e..0000000
+--- a/temp_window_cs.txt
++++ /dev/null
+@@ -1,135 +0,0 @@
+-∩╗┐using System;
+-using System.Windows;
+-using Microsoft.Win32;
+-using System.Windows.Interop;
+-using Autodesk.Revit.UI;
+-using System.Diagnostics;
+-
+-namespace antiGGGravity.Commands.Transfer.UI
+-{
+-    public partial class ViewTransferWindow : Window
+-    {
+-        private ViewTransferViewModel _viewModel;
+-
+-        public ViewTransferWindow(UIApplication uiApp, TransferRequestHandler handler, ExternalEvent exEvent, FamilyManagerRequestHandler fmHandler, ExternalEvent fmExEvent, ReadFamilyTypesHandler typesHandler, ExternalEvent typesExEvent)
+-        {
+-            InitializeComponent();
+-            _viewModel = new ViewTransferViewModel(uiApp, handler, exEvent, fmHandler, fmExEvent, typesHandler, typesExEvent);
+-            this.DataContext = _viewModel;
+-
+-            // Set Revit as owner to prevent crashes with Style=None and Transparency=True
+-            WindowInteropHelper helper = new WindowInteropHelper(this);
+-            helper.Owner = Process.GetCurrentProcess().MainWindowHandle;
+-        }
+-
+-        private void Close_Click(object sender, RoutedEventArgs e)
+-        {
+-            _viewModel?.Cleanup();
+-            this.Close();
+-        }
+-
+-        private void BrowseFile_Click(object sender, RoutedEventArgs e)
+-        {
+-            OpenFileDialog openFileDialog = new OpenFileDialog
+-            {
+-                Filter = "Revit Files (*.rvt)|*.rvt",
+-                Title = "Select Source Revit Document to Transfer From"
+-            };
+-
+-            if (openFileDialog.ShowDialog() == true)
+-            {
+-                _viewModel.LoadSourceModel(openFileDialog.FileName);
+-            }
+-        }
+-
+-        private void Transfer_Click(object sender, RoutedEventArgs e)
+-        {
+-            _viewModel.ExecuteTransfer();
+-        }
+-
+-        private void SetStandard1_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+-        {
+-            var path = BrowseForRvtFile("Set Standard 1 Source File");
+-            if (path != null)
+-            {
+-                _viewModel.Standard1Path = path;
+-                _viewModel.LoadSourceModel(path);
+-            }
+-            e.Handled = true;
+-        }
+-
+-        private void SetStandard2_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+-        {
+-            var path = BrowseForRvtFile("Set Standard 2 Source File");
+-            if (path != null)
+-            {
+-                _viewModel.Standard2Path = path;
+-                _viewModel.LoadSourceModel(path);
+-            }
+-            e.Handled = true;
+-        }
+-
+-        private void SetFolder1_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+-        {
+-            var path = BrowseForFolderPath("Set Favorite Folder 1");
+-            if (path != null)
+-            {
+-                _viewModel.Folder1Path = path;
+-                _viewModel.ScanManagerFolder(path);
+-            }
+-            e.Handled = true;
+-        }
+-
+-        private void SetFolder2_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+-        {
+-            var path = BrowseForFolderPath("Set Favorite Folder 2");
+-            if (path != null)
+-            {
+-                _viewModel.Folder2Path = path;
+-                _viewModel.ScanManagerFolder(path);
+-            }
+-            e.Handled = true;
+-        }
+-
+-        private string BrowseForFolderPath(string title)
+-        {
+-#if REVIT2025_OR_GREATER
+-            var dialog = new Microsoft.Win32.OpenFolderDialog
+-            {
+-                Title = title
+-            };
+-            return dialog.ShowDialog() == true ? dialog.FolderName : null;
+-#else
+-            // Fallback for .NET 4.8 (R22-R24) - Using OpenFileDialog hack since we can't use WinForms
+-            var dialog = new OpenFileDialog
+-            {
+-                Title = title + " (Select any file in the folder)",
+-                CheckFileExists = false,
+-                FileName = "Select Folder",
+-                Filter = "Folders|*.none"
+-            };
+-            if (dialog.ShowDialog() == true)
+-            {
+-                return System.IO.Path.GetDirectoryName(dialog.FileName);
+-            }
+-            return null;
+-#endif
+-        }
+-
+-        private string BrowseForRvtFile(string title)
+-        {
+-            OpenFileDialog openFileDialog = new OpenFileDialog
+-            {
+-                Filter = "Revit Files (*.rvt)|*.rvt",
+-                Title = title
+-            };
+-            return openFileDialog.ShowDialog() == true ? openFileDialog.FileName : null;
+-        }
+-
+-        protected override void OnClosed(EventArgs e)
+-        {
+-            _viewModel?.Cleanup();
+-            base.OnClosed(e);
+-        }
+-    }
+-}
+diff --git a/top_errors.txt b/top_errors.txt
+deleted file mode 100644
+index a5c3e77..0000000
+--- a/top_errors.txt
++++ /dev/null
+@@ -1,104 +0,0 @@
+-
+-C:\Users\DELL\source\repos\antiGGGravity\Structur
+-alRebar\Core\Creation\RebarCreationService.cs(198
+-,21): error CS1524: Expected catch or finally [C:
+-\Users\DELL\source\repos\antiGGGravity\antiGGGrav
+-ity_qdgrk4bl_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Structur
+-alRebar\Core\Creation\RebarCreationService.cs(199
+-,18): error CS1513: } expected [C:\Users\DELL\sou
+-rce\repos\antiGGGravity\antiGGGravity_qdgrk4bl_wp
+-ftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Structur
+-alRebar\Core\Creation\RebarCreationService.cs(200
+-,34): error CS1026: ) expected [C:\Users\DELL\sou
+-rce\repos\antiGGGravity\antiGGGravity_qdgrk4bl_wp
+-ftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Structur
+-alRebar\Core\Creation\RebarCreationService.cs(200
+-,34): error CS1002: ; expected [C:\Users\DELL\sou
+-rce\repos\antiGGGravity\antiGGGravity_qdgrk4bl_wp
+-ftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Structur
+-alRebar\Core\Creation\RebarCreationService.cs(200
+-,36): error CS1002: ; expected [C:\Users\DELL\sou
+-rce\repos\antiGGGravity\antiGGGravity_qdgrk4bl_wp
+-ftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Structur
+-alRebar\Core\Creation\RebarCreationService.cs(200
+-,36): error CS1513: } expected [C:\Users\DELL\sou
+-rce\repos\antiGGGravity\antiGGGravity_qdgrk4bl_wp
+-ftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Structur
+-alRebar\Core\Creation\RebarCreationService.cs(207
+-,13): error CS1519: Invalid token 'foreach' in a 
+-member declaration [C:\Users\DELL\source\repos\an
+-tiGGGravity\antiGGGravity_qdgrk4bl_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Structur
+-alRebar\Core\Creation\RebarCreationService.cs(207
+-,34): error CS8124: Tuple must contain at least 
+-two elements. [C:\Users\DELL\source\repos\antiGGG
+-ravity\antiGGGravity_qdgrk4bl_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Structur
+-alRebar\Core\Creation\RebarCreationService.cs(207
+-,34): error CS1026: ) expected [C:\Users\DELL\sou
+-rce\repos\antiGGGravity\antiGGGravity_qdgrk4bl_wp
+-ftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Structur
+-alRebar\Core\Creation\RebarCreationService.cs(207
+-,34): error CS1519: Invalid token 'in' in a 
+-member declaration [C:\Users\DELL\source\repos\an
+-tiGGGravity\antiGGGravity_qdgrk4bl_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Structur
+-alRebar\Core\Creation\RebarCreationService.cs(207
+-,60): error CS1519: Invalid token ')' in a 
+-member declaration [C:\Users\DELL\source\repos\an
+-tiGGGravity\antiGGGravity_qdgrk4bl_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Structur
+-alRebar\Core\Creation\RebarCreationService.cs(209
+-,29): error CS8124: Tuple must contain at least 
+-two elements. [C:\Users\DELL\source\repos\antiGGG
+-ravity\antiGGGravity_qdgrk4bl_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Structur
+-alRebar\Core\Creation\RebarCreationService.cs(209
+-,29): error CS1026: ) expected [C:\Users\DELL\sou
+-rce\repos\antiGGGravity\antiGGGravity_qdgrk4bl_wp
+-ftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Structur
+-alRebar\Core\Creation\RebarCreationService.cs(209
+-,29): error CS1519: Invalid token '==' in a 
+-member declaration [C:\Users\DELL\source\repos\an
+-tiGGGravity\antiGGGravity_qdgrk4bl_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Structur
+-alRebar\Core\Creation\RebarCreationService.cs(209
+-,48): error CS1519: Invalid token '==' in a 
+-member declaration [C:\Users\DELL\source\repos\an
+-tiGGGravity\antiGGGravity_qdgrk4bl_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Structur
+-alRebar\Core\Creation\RebarCreationService.cs(209
+-,77): error CS1519: Invalid token ')' in a 
+-member declaration [C:\Users\DELL\source\repos\an
+-tiGGGravity\antiGGGravity_qdgrk4bl_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Structur
+-alRebar\Core\Creation\RebarCreationService.cs(213
+-,32): error CS1519: Invalid token '(' in a 
+-member declaration [C:\Users\DELL\source\repos\an
+-tiGGGravity\antiGGGravity_qdgrk4bl_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Structur
+-alRebar\Core\Creation\RebarCreationService.cs(213
+-,40): error CS8124: Tuple must contain at least 
+-two elements. [C:\Users\DELL\source\repos\antiGGG
+-ravity\antiGGGravity_qdgrk4bl_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Structur
+-alRebar\Core\Creation\RebarCreationService.cs(213
+-,41): error CS1519: Invalid token ';' in a 
+-member declaration [C:\Users\DELL\source\repos\an
+-tiGGGravity\antiGGGravity_qdgrk4bl_wpftmp.csproj]
+-C:\Users\DELL\source\repos\antiGGGravity\Structur
+-alRebar\Core\Creation\RebarCreationService.cs(215
+-,17): error CS1022: Type or namespace 
+-definition, or end-of-file expected [C:\Users\DEL
+-L\source\repos\antiGGGravity\antiGGGravity_qdgrk4
+-bl_wpftmp.csproj]
+-
+-

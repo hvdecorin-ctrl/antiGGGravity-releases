@@ -22,7 +22,7 @@
     <!-- ============================================================ -->
     <!-- COMPANY IDENTITY — Change these to rebrand everything        -->
     <!-- ============================================================ -->
-    <sys:String x:Key="CompanyName" xmlns:sys="clr-namespace:System;assembly=System.Runtime">SullivanHall Sponsor</sys:String>
+    <sys:String x:Key="CompanyName" xmlns:sys="clr-namespace:System;assembly=System.Runtime">antiGGGravity</sys:String>
 
     <!-- Company Logo TextBlock Style (shown top-left in gradient headers) -->
     <Style x:Key="CompanyLogoStyle" TargetType="TextBlock">
