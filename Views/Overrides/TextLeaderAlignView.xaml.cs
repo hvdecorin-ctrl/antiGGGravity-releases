@@ -113,10 +113,8 @@ namespace antiGGGravity.Views.Overrides
             // 1. Set Scope (Universal)
             if (RadEntireProject.IsChecked == true)
                 _handler.Scope = ApplicationScope.EntireProject;
-            else if (RadActiveView.IsChecked == true)
-                _handler.Scope = ApplicationScope.ActiveView;
             else
-                _handler.Scope = ApplicationScope.Selection;
+                _handler.Scope = ApplicationScope.ActiveView;
 
             // 2. Set Mode and Parameters
             if (TabConvert.IsChecked == true)
