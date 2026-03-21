@@ -6,7 +6,9 @@
         mc:Ignorable="d"
         Title="Dimension Override" Height="500" Width="450"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
-        WindowStartupLocation="CenterScreen" Topmost="True" ResizeMode="NoResize">
+        WindowStartupLocation="CenterScreen" Topmost="True" ResizeMode="NoResize"
+        Loaded="Window_Loaded"
+        FocusManager.FocusedElement="{Binding ElementName=UI_Value}">
     
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="55" CornerRadius="12" GlassFrameThickness="0"/>
@@ -112,10 +114,9 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock x:Name="UI_Status" VerticalAlignment="Center" Foreground="#999999" Text="Select dims then Apply, or Apply to Pick"/>
+                    <TextBlock x:Name="UI_Status" VerticalAlignment="Center" Foreground="#999999" Text="Enter to Apply and Close"/>
 
-                    <Button Grid.Column="1" Content="Close" Width="80" Style="{StaticResource PremiumPrimaryButtonStyle}" Margin="0,0,12,0" Click="UI_Btn_Close_Click"/>
-                    <Button Grid.Column="2" Content="Apply" Width="100" Style="{StaticResource PremiumActionButtonStyle}" Click="UI_Btn_Apply_Click"/>
+                    <Button Grid.Column="2" Content="Apply" Width="120" IsDefault="True" Style="{StaticResource PremiumActionButtonStyle}" Click="UI_Btn_Apply_Click"/>
                 </Grid>
             </Border>
         </Grid>

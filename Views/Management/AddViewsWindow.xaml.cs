@@ -33,6 +33,11 @@ namespace antiGGGravity.Views.Management
             UpdateStatus();
         }
 
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            SearchBox.Focus();
+        }
+
         private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             string filter = SearchBox.Text.ToLower();

@@ -4,7 +4,9 @@
         Title="Add Views" Height="600" Width="400"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         WindowStartupLocation="CenterScreen" ShowInTaskbar="False"
-        MinHeight="450" MinWidth="350" Topmost="True">
+        MinHeight="450" MinWidth="350" Topmost="True"
+        Loaded="Window_Loaded"
+        FocusManager.FocusedElement="{Binding ElementName=SearchBox}">
 
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="55" CornerRadius="12" GlassFrameThickness="0" ResizeBorderThickness="10"/>

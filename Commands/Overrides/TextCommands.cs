@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
+using Autodesk.Revit.UI.Selection;
 using antiGGGravity.Views.Overrides;
 
 namespace antiGGGravity.Commands.Overrides
@@ -14,11 +15,48 @@ namespace antiGGGravity.Commands.Overrides
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            // Open the DimFake modeless window
+            var uidoc = commandData.Application.ActiveUIDocument;
+            var doc = uidoc.Document;
+
             try
             {
-                DimFakeView view = new DimFakeView(commandData);
-                view.Show();
+                // 1. Get targets
+                var selectedIds = uidoc.Selection.GetElementIds();
+                List<Dimension> targets = new List<Dimension>();
+
+                if (selectedIds.Count > 0)
+                {
+                    targets = selectedIds.Select(id => doc.GetElement(id)).OfType<Dimension>().ToList();
+                }
+
+                if (targets.Count == 0)
+                {
+                    try
+                    {
+                        var refs = uidoc.Selection.PickObjects(ObjectType.Element, new DimFilter(), "Select Dimensions");
+                        targets = refs.Select(r => doc.GetElement(r)).OfType<Dimension>().ToList();
+                    }
+                    catch (Autodesk.Revit.Exceptions.OperationCanceledException)
+                    {
+                        return Result.Cancelled;
+                    }
+                }
+
+                if (targets.Count == 0) return Result.Succeeded;
+
+                // 2. Show Modal Dialog
+                DimFakeView view = new DimFakeView(doc, targets);
+                
+                // Set owner to Revit
+                try
+                {
+                    var process = System.Diagnostics.Process.GetCurrentProcess();
+                    var wrapper = new System.Windows.Interop.WindowInteropHelper(view);
+                    wrapper.Owner = process.MainWindowHandle;
+                }
+                catch { }
+
+                view.ShowDialog();
                 return Result.Succeeded;
             }
             catch (Exception ex)
@@ -26,6 +64,12 @@ namespace antiGGGravity.Commands.Overrides
                 message = ex.Message;
                 return Result.Failed;
             }
+        }
+
+        private class DimFilter : Autodesk.Revit.UI.Selection.ISelectionFilter
+        {
+            public bool AllowElement(Element elem) => elem is Dimension;
+            public bool AllowReference(Reference reference, XYZ position) => false;
         }
     }
 
