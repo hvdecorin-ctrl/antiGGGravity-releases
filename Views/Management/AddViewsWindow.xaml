@@ -19,7 +19,7 @@
             </ResourceDictionary.MergedDictionaries>
 
             <DataTemplate x:Key="ViewItemTemplate">
-                <Grid Margin="0,4" Background="Transparent">
+                <Grid Margin="0,2" Background="Transparent">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="95"/>
                         <ColumnDefinition Width="*"/>
@@ -27,7 +27,7 @@
                     
                     <Border Background="Transparent" BorderThickness="0" Padding="6,2" HorizontalAlignment="Left" MinWidth="85">
                         <TextBlock Text="{Binding ViewTypeString}" 
-                                 FontSize="10"
+                                 FontSize="{StaticResource FontSizeExtraSmall}"
                                  FontWeight="ExtraBold" 
                                  Foreground="#666666" 
                                  VerticalAlignment="Center"
@@ -35,7 +35,7 @@
                     </Border>
                     
                     <TextBlock Grid.Column="1" Text="{Binding Name}" 
-                             FontSize="13"
+                             FontSize="{StaticResource FontSizeSmall}"
                              Margin="12,0,0,0" 
                              VerticalAlignment="Center"/>
                 </Grid>

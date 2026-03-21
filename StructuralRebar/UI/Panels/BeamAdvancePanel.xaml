@@ -14,14 +14,22 @@
         </Grid.RowDefinitions>
 
         <Border Grid.Row="0" Background="#F0F8FF" BorderBrush="#87CEFA" BorderThickness="1" CornerRadius="4" Padding="15" Margin="0,0,0,15">
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                <TextBlock FontSize="20" Margin="0,0,15,0">🔍</TextBlock>
-                <StackPanel>
-                    <TextBlock Text="Analyze Continuous Beam" FontWeight="SemiBold" FontSize="14" Foreground="#333" Margin="0,0,0,4"/>
-                    <TextBlock Text="Click the button below and select a continuous beam structure in Revit to extract its physical spans and supports." 
-                               Foreground="#666" TextWrapping="Wrap" MaxWidth="500"/>
+            <Grid VerticalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <TextBlock FontSize="20" Margin="0,0,15,0">🔍</TextBlock>
+                    <StackPanel>
+                        <TextBlock Text="Analyze Continuous Beam" FontWeight="SemiBold" FontSize="14" Foreground="#333" Margin="0,0,0,4"/>
+                        <TextBlock Text="Click the button below and select a continuous beam structure in Revit to extract its physical spans and supports." 
+                                   Foreground="#666" TextWrapping="Wrap" MaxWidth="500"/>
+                    </StackPanel>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="20,0,0,0">
+                
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
                     <Button x:Name="UI_Button_Analyze" Content="Select Beam" Width="100" Height="36"
                             Background="White" BorderBrush="#ABADB3" BorderThickness="1" Cursor="Hand"
                             Click="UI_Button_Analyze_Click"/>
@@ -30,7 +38,7 @@
                             Click="UI_Button_AddSupport_Click" IsEnabled="False"
                             ToolTip="Manually pick an intersecting beam to force it as a support."/>
                 </StackPanel>
-            </StackPanel>
+            </Grid>
         </Border>
 
         <TextBlock x:Name="UI_Text_Status" Grid.Row="1" Text="No beam selected. Awaiting analysis." Foreground="#888" Margin="0,0,0,10" FontStyle="Italic"/>

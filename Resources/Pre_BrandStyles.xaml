@@ -18,6 +18,13 @@
     <SolidColorBrush x:Key="PremiumBorderBrush" Color="#E5E5E5"/>
     <SolidColorBrush x:Key="BrandPrimaryBrush" Color="#4A708B"/>
     <SolidColorBrush x:Key="BrandSecondaryBrush" Color="#5A8A8A"/>
+ 
+    <!-- Standardized Typography Sizes -->
+    <sys:Double x:Key="FontSizeXLarge" xmlns:sys="clr-namespace:System;assembly=mscorlib">18</sys:Double>
+    <sys:Double x:Key="FontSizeLarge" xmlns:sys="clr-namespace:System;assembly=mscorlib">14</sys:Double>
+    <sys:Double x:Key="FontSizeMedium" xmlns:sys="clr-namespace:System;assembly=mscorlib">12</sys:Double>
+    <sys:Double x:Key="FontSizeSmall" xmlns:sys="clr-namespace:System;assembly=mscorlib">11</sys:Double>
+    <sys:Double x:Key="FontSizeExtraSmall" xmlns:sys="clr-namespace:System;assembly=mscorlib">9</sys:Double>
 
     <!-- ============================================================ -->
     <!-- COMPANY IDENTITY — Change these to rebrand everything        -->
@@ -27,7 +34,7 @@
     <!-- Company Logo TextBlock Style (shown top-left in gradient headers) -->
     <Style x:Key="CompanyLogoStyle" TargetType="TextBlock">
         <Setter Property="Text" Value="{StaticResource CompanyName}"/>
-        <Setter Property="FontSize" Value="18"/>    <!-- Company name: Anchor size -->
+        <Setter Property="FontSize" Value="{StaticResource FontSizeXLarge}"/>    <!-- Company name: Anchor size -->
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground" Value="#FFF8E8"/>  <!-- Warm white: bridges blue-to-gold gradient -->
         <Setter Property="VerticalAlignment" Value="Center"/>
@@ -37,7 +44,7 @@
     <!-- Company Pipe Divider (between logo and tool name) -->
     <Style x:Key="CompanyDividerStyle" TargetType="TextBlock">
         <Setter Property="Text" Value="|"/>
-        <Setter Property="FontSize" Value="18"/>
+        <Setter Property="FontSize" Value="{StaticResource FontSizeXLarge}"/>
         <Setter Property="Foreground" Value="#80FFFFFF"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="Margin" Value="12,0"/>
@@ -55,18 +62,18 @@
 
     <!-- Typography (Tool title — smaller than company name) -->
     <Style x:Key="PremiumTitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="14"/>    <!-- 14/18 = 0.78 hierarchy ratio vs company name -->
+        <Setter Property="FontSize" Value="{StaticResource FontSizeLarge}"/>    <!-- 14/18 = 0.78 hierarchy ratio vs company name -->
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Foreground" Value="#E0EFFF"/>  <!-- Cool blue-white: contrasts with warm company name -->
     </Style>
 
     <Style x:Key="PremiumSubtitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontSize" Value="{StaticResource FontSizeMedium}"/>
         <Setter Property="Foreground" Value="#E0E0E0"/>
     </Style>
 
     <Style x:Key="PremiumSectionLabelStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontSize" Value="{StaticResource FontSizeLarge}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Margin" Value="0,0,0,10"/>
     </Style>
@@ -104,7 +111,7 @@
         <Setter Property="BorderBrush" Value="#ABADB3"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="FontWeight" Value="Normal"/>
-        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontSize" Value="{StaticResource FontSizeMedium}"/>
         <Setter Property="Padding" Value="15,0"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Template" Value="{StaticResource PremiumButtonTemplate}"/>
