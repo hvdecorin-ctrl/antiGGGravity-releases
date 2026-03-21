@@ -1,10 +1,13 @@
 # Critical System Rules
 
+## Session Lifecycle
+1. **STARTUP**: Every new AI session **MUST** start by running the `session_startup.md` workflow. This ensures all project rules, skills, and current context are fully scanned before any code is modified.
+2. **CLOSURE**: Every session **MUST** conclude with the `end_of_session.md` workflow to ensure code quality and safe repository synchronization.
+
 ## Git & GitHub Policy
-1. **NEVER** automatically commit (`git commit`) or push (`git push`) to GitHub during a working session, even if you successfully fixed a bug or completed a task.
-2. **ONLY** commit and push when the user explicitly declares the end of the session, or explicitly asks you to "push to github".
-3. The standard development loop is: Edit Code -> Build -> Deploy locally. Do not add Git steps to this loop.
-4. When the user is ready to finish the session, use the `.agent/workflows/end_of_session.md` workflow to safely commit and push all cumulative changes.
+1. **NEVER** automatically commit (`git commit`) or push (`git push`) to GitHub during a working session.
+2. **ONLY** commit and push when the user explicitly asks to "push to github" or confirms the end of the session.
+3. The standard development loop is: **Edit Code -> Build -> Deploy locally**. Git steps are strictly excluded from this loop.
 
 ## Build & Debug Policy
 1. **DEFAULT**: Build the project using `dotnet build` WITHOUT the `DeployToRevit=true` property. This allows the user to debug using the Revit Add-In Manager.
