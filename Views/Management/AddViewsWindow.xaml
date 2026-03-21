@@ -29,7 +29,7 @@
                         <TextBlock Text="{Binding ViewTypeString}" 
                                  FontSize="10"
                                  FontWeight="ExtraBold" 
-                                 Foreground="#0288D1" 
+                                 Foreground="#666666" 
                                  VerticalAlignment="Center"
                                  HorizontalAlignment="Center"/>
                     </Border>
@@ -92,11 +92,7 @@
                 </Grid.RowDefinitions>
 
                 <StackPanel Margin="0,0,0,15">
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                        <CheckBox x:Name="ChkToggleAll" IsChecked="False" VerticalAlignment="Center" 
-                                  Checked="ChkToggleAll_Changed" Unchecked="ChkToggleAll_Changed"/>
-                        <TextBlock Text="Search Views" Style="{DynamicResource PremiumSectionLabelStyle}" Margin="8,0,0,0" VerticalAlignment="Center"/>
-                    </StackPanel>
+                    <TextBlock Text="Search Views" Style="{DynamicResource PremiumSectionLabelStyle}" Margin="0,0,0,8" VerticalAlignment="Center"/>
                     <Border BorderBrush="{DynamicResource PremiumBorderBrush}" BorderThickness="1" CornerRadius="4" Background="White">
                         <Grid>
                             <TextBlock Text="Type To Filter Views..." Foreground="#A0A0A0" Margin="10,0" VerticalAlignment="Center" IsHitTestVisible="False">

@@ -71,16 +71,6 @@ namespace antiGGGravity.Views.Management
             UI_Status.Text = count > 0 ? $"{count} selected" : $"Total {total} views found";
         }
 
-        private void ChkToggleAll_Changed(object sender, RoutedEventArgs e)
-        {
-            if (ViewsListBox == null || ChkToggleAll == null) return;
-            bool select = ChkToggleAll.IsChecked == true;
-            if (select)
-                ViewsListBox.SelectAll();
-            else
-                ViewsListBox.UnselectAll();
-        }
-
         private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             UpdateStatus();
