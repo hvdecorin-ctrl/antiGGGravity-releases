@@ -46,7 +46,7 @@ bld/
 
 # AppData / Temporary
 .gemini/
-.agent/
+#! .agent/ (Unignored to allow session protocols and skills)
 *.user
 *.bak
 
