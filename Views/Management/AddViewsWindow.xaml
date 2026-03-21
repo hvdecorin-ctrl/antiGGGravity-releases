@@ -25,7 +25,7 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     
-                    <Border Background="#E1F5FE" CornerRadius="4" Padding="6,2" HorizontalAlignment="Left" MinWidth="85">
+                    <Border Background="Transparent" BorderThickness="0" Padding="6,2" HorizontalAlignment="Left" MinWidth="85">
                         <TextBlock Text="{Binding ViewTypeString}" 
                                  FontSize="10"
                                  FontWeight="ExtraBold" 
@@ -120,7 +120,7 @@
                     </Border>
                 </StackPanel>
 
-                <Border Grid.Row="1" BorderThickness="1" BorderBrush="{DynamicResource PremiumBorderBrush}" CornerRadius="6">
+                <Border Grid.Row="1" BorderThickness="0" CornerRadius="6">
                     <ListBox x:Name="ViewsListBox" 
                              BorderThickness="0"
                              Background="Transparent"

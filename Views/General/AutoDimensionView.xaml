@@ -46,7 +46,7 @@
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="20,15,20,0">
                 <StackPanel>
                     <!-- Categories Section -->
-                    <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="1" Padding="15" Margin="0,0,0,12">
+                    <Border Background="#FAFAFA" CornerRadius="8" BorderThickness="0" Padding="15" Margin="0,0,0,12">
                         <StackPanel>
                             <TextBlock Text="Categories" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,0,0,8"/>
                             <Grid>
@@ -67,7 +67,7 @@
                     </Border>
 
                     <!-- Offsets Section -->
-                    <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="1" Padding="15" Margin="0,0,0,12">
+                    <Border Background="#FAFAFA" CornerRadius="8" BorderThickness="0" Padding="15" Margin="0,0,0,12">
                         <StackPanel>
                             <TextBlock Text="Dimension Offsets (mm)" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,0,0,8"/>
 
@@ -77,59 +77,59 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Text="Dim Offset Row 1" VerticalAlignment="Center" FontSize="12"/>
-                                <TextBox x:Name="UI_Txt_Offset1" Grid.Column="1" Text="1000" Height="28" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" BorderBrush="#E0E0E0"/>
+                                <TextBox x:Name="UI_Txt_Offset1" Grid.Column="1" Text="1000" Height="32" Style="{StaticResource PremiumTextBoxStyle}" HorizontalContentAlignment="Center"/>
                             </Grid>
-
+ 
                             <Grid Margin="0,0,0,6">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="160"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Text="Dim Offset Row 2" VerticalAlignment="Center" FontSize="12"/>
-                                <TextBox x:Name="UI_Txt_Offset2" Grid.Column="1" Text="800" Height="28" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" BorderBrush="#E0E0E0"/>
+                                <TextBox x:Name="UI_Txt_Offset2" Grid.Column="1" Text="800" Height="32" Style="{StaticResource PremiumTextBoxStyle}" HorizontalContentAlignment="Center"/>
                             </Grid>
-
+ 
                             <Grid Margin="0,0,0,6">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="160"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Text="Grid Chain Offset" VerticalAlignment="Center" FontSize="12"/>
-                                <TextBox x:Name="UI_Txt_ChainOffset" Grid.Column="1" Text="500" Height="28" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" BorderBrush="#E0E0E0"/>
+                                <TextBox x:Name="UI_Txt_ChainOffset" Grid.Column="1" Text="500" Height="32" Style="{StaticResource PremiumTextBoxStyle}" HorizontalContentAlignment="Center"/>
                             </Grid>
-
+ 
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="160"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Text="Grid Chain Gap" VerticalAlignment="Center" FontSize="12"/>
-                                <TextBox x:Name="UI_Txt_ChainGap" Grid.Column="1" Text="800" Height="28" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" BorderBrush="#E0E0E0"/>
+                                <TextBox x:Name="UI_Txt_ChainGap" Grid.Column="1" Text="800" Height="32" Style="{StaticResource PremiumTextBoxStyle}" HorizontalContentAlignment="Center"/>
                             </Grid>
                         </StackPanel>
                     </Border>
-
+ 
                     <!-- Tolerances Section -->
-                    <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="1" Padding="15" Margin="0,0,0,8">
+                    <Border Background="#FAFAFA" CornerRadius="8" BorderThickness="0" Padding="15" Margin="0,0,0,8">
                         <StackPanel>
                             <TextBlock Text="Tolerances (mm)" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,0,0,8"/>
-
+ 
                             <Grid Margin="0,0,0,6">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="160"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Text="Edge on Grid" VerticalAlignment="Center" FontSize="12"/>
-                                <TextBox x:Name="UI_Txt_ZeroTol" Grid.Column="1" Text="5" Height="28" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" BorderBrush="#E0E0E0"/>
+                                <TextBox x:Name="UI_Txt_ZeroTol" Grid.Column="1" Text="5" Height="32" Style="{StaticResource PremiumTextBoxStyle}" HorizontalContentAlignment="Center"/>
                             </Grid>
-
+ 
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="160"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Text="Intersection" VerticalAlignment="Center" FontSize="12"/>
-                                <TextBox x:Name="UI_Txt_IntersectTol" Grid.Column="1" Text="50" Height="28" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" BorderBrush="#E0E0E0"/>
+                                <TextBox x:Name="UI_Txt_IntersectTol" Grid.Column="1" Text="50" Height="32" Style="{StaticResource PremiumTextBoxStyle}" HorizontalContentAlignment="Center"/>
                             </Grid>
                         </StackPanel>
                     </Border>
