@@ -38,6 +38,16 @@ namespace antiGGGravity.Views.Management
             SearchBox.Focus();
         }
 
+        private void SelectAll_Changed(object sender, RoutedEventArgs e)
+        {
+            if (ViewsListBox == null || SelectAllCheckBox == null) return;
+            
+            if (SelectAllCheckBox.IsChecked == true)
+                ViewsListBox.SelectAll();
+            else
+                ViewsListBox.UnselectAll();
+        }
+
         private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             string filter = SearchBox.Text.ToLower();

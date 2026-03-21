@@ -96,11 +96,15 @@
                         </ComboBox>
 
                         <!-- Modifications Section with Master Toggle -->
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                        <Grid Margin="25,0,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
                             <CheckBox x:Name="ChkToggleAll" IsChecked="True" VerticalAlignment="Center" 
                                       Checked="ChkToggleAll_Changed" Unchecked="ChkToggleAll_Changed"/>
-                            <TextBlock Text="Select Modifications" Style="{DynamicResource PremiumSectionLabelStyle}" Margin="8,0,0,0" VerticalAlignment="Center"/>
-                        </StackPanel>
+                            <TextBlock Grid.Column="1" Text="Select" Style="{DynamicResource PremiumSectionLabelStyle}" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                        </Grid>
                         
                         <StackPanel x:Name="ModPanel" Margin="25,0,0,0">
                             <CheckBox x:Name="ChkAlignLeft" Content="Align Text Left" IsChecked="True" Style="{StaticResource AlignmentCheckBoxStyle}"/>

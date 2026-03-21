@@ -35,7 +35,7 @@
                     </Border>
                     
                     <TextBlock Grid.Column="1" Text="{Binding Name}" 
-                             FontSize="{StaticResource FontSizeSmall}"
+                             FontSize="{StaticResource FontSizeMedium}"
                              Margin="12,0,0,0" 
                              VerticalAlignment="Center"/>
                 </Grid>
@@ -115,8 +115,18 @@
                         </Grid>
                     </Border>
                 </StackPanel>
+                
+                <Grid Grid.Row="1" Margin="12,0,0,10" VerticalAlignment="Top">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <CheckBox x:Name="SelectAllCheckBox" VerticalAlignment="Center" 
+                              Checked="SelectAll_Changed" Unchecked="SelectAll_Changed"/>
+                    <TextBlock Grid.Column="1" Text="Select" FontSize="13" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                </Grid>
 
-                <Border Grid.Row="1" BorderThickness="0" CornerRadius="6">
+                <Border Grid.Row="1" BorderThickness="0" CornerRadius="6" Margin="0,30,0,0">
                     <ListBox x:Name="ViewsListBox" 
                              BorderThickness="0"
                              Background="Transparent"

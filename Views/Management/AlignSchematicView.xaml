@@ -78,10 +78,15 @@
                         <Border Grid.Row="0" Background="#F8F9FA" Padding="15,10" CornerRadius="8,8,0,0" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,0,0,1">
                             <TextBlock Text="2. Select Target Sheets" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0"/>
                         </Border>
-                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="15,10,15,5" HorizontalAlignment="Right">
-                            <Button Content="All" Width="50" Height="24" Style="{StaticResource PremiumPrimaryButtonStyle}" Padding="5,0" FontSize="11" Click="UI_Btn_All_Click"/>
-                            <Button Content="None" Width="50" Height="24" Style="{StaticResource PremiumPrimaryButtonStyle}" Margin="8,0,0,0" Padding="5,0" FontSize="11" Click="UI_Btn_None_Click"/>
-                        </StackPanel>
+                        <Grid Grid.Row="1" Margin="20,10,15,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <CheckBox x:Name="UI_Check_SelectAll" VerticalAlignment="Center" 
+                                      Checked="UI_Check_SelectAll_Changed" Unchecked="UI_Check_SelectAll_Changed"/>
+                            <TextBlock Grid.Column="1" Text="Select" FontSize="13" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                        </Grid>
                         <ListBox x:Name="UI_List_Others" Grid.Row="2" Margin="15,5,15,15" SelectionMode="Extended" BorderThickness="1" BorderBrush="#E0E0E0">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>

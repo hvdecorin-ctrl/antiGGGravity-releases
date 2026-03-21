@@ -2,7 +2,12 @@
 
 Every AI session MUST start with this mandatory scan to ensure full alignment with project rules and technical procedures.
 
-## 🔎 Step 1: Mandatory Scans
+## 🔎 Step 1: Context-Aware Verification (FAST SYNC)
+1. **Check History**: Look back at the conversation. **If you see that a previous agent has already performed a successful "Session Startup Scan"** in this specific chat history, you may skip reading the full files. 
+2. **Quick Verify**: Simply run `list_dir` on the folders below to ensure no new files were added since the last scan.
+3. **ONLY FULL SCAN IF**: This is a direct cold start (no previous history of a scan) or if you see significant file changes in the repository.
+
+## 🔎 Step 2: Mandatory Scans (COLD START)
 Before carrying out any task, the agent MUST read the following files:
 
 1. **[.cursorrules](file:///c:/Users/DELL/source/repos/antiGGGravity/.cursorrules)**: Critical project-wide rules and deployment policies.

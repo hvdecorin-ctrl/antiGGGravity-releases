@@ -59,21 +59,16 @@ namespace antiGGGravity.Views.Management
             UpdateStatus();
         }
 
-        private void UI_Btn_All_Click(object sender, RoutedEventArgs e)
+        private void UI_Check_SelectAll_Changed(object sender, RoutedEventArgs e)
         {
+            if (UI_List_Others == null || UI_Check_SelectAll == null || _allSheets == null) return;
+            
+            bool isChecked = UI_Check_SelectAll.IsChecked == true;
             var main = UI_List_Main.SelectedItem as AlignSheetItem;
-            foreach (var item in UI_List_Others.Items.Cast<AlignSheetItem>())
+            
+            foreach (var item in _allSheets)
             {
-                if (item != main) item.IsSelected = true;
-            }
-            UpdateStatus();
-        }
-
-        private void UI_Btn_None_Click(object sender, RoutedEventArgs e)
-        {
-            foreach (var item in UI_List_Others.Items.Cast<AlignSheetItem>())
-            {
-                item.IsSelected = false;
+                if (item != main) item.IsSelected = isChecked;
             }
             UpdateStatus();
         }

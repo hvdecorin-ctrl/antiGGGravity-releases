@@ -23,7 +23,7 @@ All UI work for antiGGGravity must strictly follow these branding and usability 
 - **Corner Safety**: Maintain at least **15px margin** for interactive elements near the bottom-right corner to allow the OS to capture the resize point.
 
 ## 3. Interaction Mechanics
-- **Master Toggles**: When providing a "Toggle All" feature for a section, place the checkbox to the **left** of the section header text. Remove the "Toggle All" text label as the checkbox should be self-explanatory.
+- **Master Toggles**: When providing a "Toggle All" feature for a list, place the checkbox in its own row directly **above** the list. The checkbox and its label must be perfectly **aligned** with the items in the list below. Use "**Select**" as the text label.
 - **Action Buttons**: Place primary action buttons (e.g., "Apply") in the bottom-right of the footer using `PremiumActionButtonStyle`.
 
 ## 4. Verification Step
