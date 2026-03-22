@@ -124,6 +124,12 @@ namespace antiGGGravity.StructuralRebar.Core
             var request = _window.BeamPanel.BuildRequest(_window.RemoveExisting);
             request.EnableLapSplice = _window.EnableLapSplice;
             request.DesignCode = _window.DesignCode;
+            if (_window is BeamRebarWindow bw)
+            {
+                request.TopSpliceZoneDivisor = bw.TopSpliceZoneDivisor;
+                request.BottomSpliceZoneDivisor = bw.BottomSpliceZoneDivisor;
+                request.ExtendB2ToCantilever = bw.ExtendB2ToCantilever;
+            }
             var engine = new BeamEngine(doc);
 
             if (request.MultiSpan)
@@ -159,6 +165,12 @@ namespace antiGGGravity.StructuralRebar.Core
             var request = _window.GetOrCreateBeamPanel().BuildRequest(_window.RemoveExisting);
             request.EnableLapSplice = _window.EnableLapSplice;
             request.DesignCode = _window.DesignCode;
+            if (_window is BeamRebarWindow bw2)
+            {
+                request.TopSpliceZoneDivisor = bw2.TopSpliceZoneDivisor;
+                request.BottomSpliceZoneDivisor = bw2.BottomSpliceZoneDivisor;
+                request.ExtendB2ToCantilever = bw2.ExtendB2ToCantilever;
+            }
             
             // Force MultiSpan to true, as beam advance operates on the whole continuous line
             request.MultiSpan = true;

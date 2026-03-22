@@ -12,7 +12,8 @@ namespace antiGGGravity.Views.Overrides
         Apply,
         Reset,
         CreateLegend,
-        CreateFilters
+        CreateFilters,
+        Isolate
     }
 
     public class ColorSplashHandler : IExternalEventHandler
@@ -46,6 +47,9 @@ namespace antiGGGravity.Views.Overrides
                         break;
                     case ColorSplashAction.CreateFilters:
                         CreateFilters(doc, activeView);
+                        break;
+                    case ColorSplashAction.Isolate:
+                        IsolateElements(doc, activeView);
                         break;
                 }
             }
@@ -276,6 +280,86 @@ namespace antiGGGravity.Views.Overrides
                  return t; 
             }
             return null; // Should handle creation if null
+        }
+
+        private void IsolateElements(Document doc, View view)
+        {
+            if (!(_view.UI_Combo_Category.SelectedItem is CategoryItem catItem) ||
+                !(_view.UI_List_Parameters.SelectedItem is ParameterItem paramItem))
+            {
+                TaskDialog.Show("Isolate", "Select category and parameter first.");
+                return;
+            }
+
+            // Get selected values from the DataGrid
+            var selectedValues = new HashSet<string>();
+            foreach (var item in _view.UI_Grid_Values.SelectedItems)
+            {
+                if (item is ValueItem valItem)
+                    selectedValues.Add(valItem.Value);
+            }
+
+            if (selectedValues.Count == 0)
+            {
+                TaskDialog.Show("Isolate", "Select one or more values in the grid to isolate.");
+                return;
+            }
+
+            using (Transaction t = new Transaction(doc, "Isolate by Value"))
+            {
+                t.Start();
+
+                // Reset any existing temporary isolation first so the collector sees ALL elements
+                try { view.DisableTemporaryViewMode(TemporaryViewMode.TemporaryHideIsolate); } catch { }
+
+                // Collect matching element IDs (now from the full, un-isolated view)
+                var collector = new FilteredElementCollector(doc, view.Id)
+                    .OfCategoryId(catItem.Category.Id);
+
+                var idsToIsolate = new List<ElementId>();
+
+                foreach (Element e in collector)
+                {
+                    Parameter p = null;
+
+                    if (paramItem.IsTypeParameter)
+                    {
+                        Element typeElem = doc.GetElement(e.GetTypeId());
+                        if (typeElem != null) p = typeElem.LookupParameter(paramItem.Name);
+                    }
+                    else
+                    {
+                        p = e.LookupParameter(paramItem.Name);
+                    }
+
+                    if (p == null) continue;
+
+                    string val = p.AsValueString() ?? p.AsString();
+                    if (val == null)
+                    {
+                        if (p.StorageType == StorageType.Double) val = p.AsDouble().ToString("F2");
+                        else if (p.StorageType == StorageType.Integer) val = p.AsInteger().ToString();
+                        else if (p.StorageType == StorageType.ElementId) val = p.AsElementId().ToString();
+                        else val = "<null>";
+                    }
+                    if (string.IsNullOrEmpty(val)) val = "<empty>";
+
+                    if (selectedValues.Contains(val))
+                    {
+                        idsToIsolate.Add(e.Id);
+                    }
+                }
+
+                if (idsToIsolate.Count == 0)
+                {
+                    t.RollBack();
+                    TaskDialog.Show("Isolate", "No elements found matching the selected value(s).");
+                    return;
+                }
+
+                view.IsolateElementsTemporary(idsToIsolate);
+                t.Commit();
+            }
         }
 
         private void CreateFilters(Document doc, View view)

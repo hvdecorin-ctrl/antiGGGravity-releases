@@ -418,6 +418,16 @@
                                 </StackPanel>
                             </Border>
 
+                            <!-- ADDITIONAL BAR PLACEMENT DIAGRAM -->
+                            <TextBlock Text="ADDITIONAL BAR PLACEMENT (T2 / B2)" FontSize="14" FontWeight="Bold" Foreground="#333" Margin="0,0,0,5"/>
+                            <TextBlock Text="Standard detailing for hogging (top additional) and sagging (bottom additional) bars on a 2-span continuous beam" 
+                                       FontSize="12" Foreground="#888" Margin="0,0,0,15"/>
+
+                            <Border Background="White" CornerRadius="8" BorderBrush="#E0E0E0" BorderThickness="1" Padding="15" Margin="0,0,0,15">
+                                <Canvas x:Name="UI_AdditionalBarCanvas" Height="340" Loaded="AdditionalBarDiagram_Loaded"
+                                        ClipToBounds="True"/>
+                            </Border>
+
                             <!-- Design Code Cross-Reference -->
                             <Border Background="White" CornerRadius="8" BorderBrush="#E0E0E0" BorderThickness="1" Padding="15">
                                 <StackPanel>

@@ -119,9 +119,8 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
         /// <summary>
         /// Splits a beam bar using code-based preferred cut positions.
         /// Zone compliance is COMPULSORY — splices MUST fall INSIDE the correct zone.
-        /// Top bars: splice INSIDE the middle L/3 zone (red zone).
-        /// Bottom bars: splice INSIDE the L/5 zone from each support (green zone).
-        /// (L/5 is stricter than the code-minimum L/4, providing extra safety margin)
+        /// Top bars: splice INSIDE the middle L/N zone (N = topZoneDivisor, default 3).
+        /// Bottom bars: splice INSIDE the L/N zone from each support (N = bottomZoneDivisor, default 5).
         /// 
         /// Stagger rule: odd-numbered layers offset the splice further into the zone
         /// to ensure no more than 50% of bars are spliced at the same cross-section.
@@ -131,11 +130,13 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
         public static List<(double Start, double End)> SplitBeamBarForLap(
             double totalLength, double barDia, DesignCodeStandard code,
             bool isTopBar, int layerIndex = 0, double maxStockLength = 0, double crankRun = 0,
-            double customLapLen = 0)
+            double customLapLen = 0, int topZoneDivisor = 3, int bottomZoneDivisor = 5)
         {
             BarPosition position = isTopBar ? BarPosition.Top : BarPosition.Bottom;
             if (maxStockLength <= 0) maxStockLength = MaxStockLengthFt;
             if (crankRun <= 0) crankRun = GetCrankRun(barDia);
+            if (topZoneDivisor < 2) topZoneDivisor = 3;
+            if (bottomZoneDivisor < 2) bottomZoneDivisor = 5;
 
             var segments = new List<(double Start, double End)>();
 
@@ -158,23 +159,24 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
             // Calculate cut positions so the LAP ZONE falls INSIDE the correct zone.
             // The splice/lap region = (cutPoint - totalOverlap) to cutPoint.
             double cut1, cut2;
+            double topFrac = 1.0 / topZoneDivisor;
+            double botFrac = 1.0 / bottomZoneDivisor;
 
             if (isTopBar)
             {
-                // TOP BARS: splice must be INSIDE the middle L/3 zone [L/3 .. 2L/3]
-                // Layer 0: splice starts at L/3 boundary
+                // TOP BARS: splice must be INSIDE the middle L/N zone [L/N .. (N-1)L/N]
+                // Layer 0: splice starts at L/N boundary
                 // Layer 1: splice shifts further toward mid-span (stagger)
-                cut1 = totalLength / 3.0 + totalOverlap + staggerOffset;
-                cut2 = totalLength * 2.0 / 3.0 - staggerOffset;
+                cut1 = totalLength * topFrac + totalOverlap + staggerOffset;
+                cut2 = totalLength * (1.0 - topFrac) - staggerOffset;
             }
             else
             {
-                // BOTTOM BARS: splice must be INSIDE the L/5 zone from each support [0..L/5] and [4L/5..L]
-                // (L/5 is stricter than code-minimum L/4 for extra safety)
-                // Layer 0: splice ends at L/5 boundary
+                // BOTTOM BARS: splice must be INSIDE the L/N zone from each support [0..L/N] and [(N-1)L/N..L]
+                // Layer 0: splice ends at L/N boundary
                 // Layer 1: splice shifts closer to support (stagger)
-                cut1 = totalLength / 5.0 - staggerOffset;
-                cut2 = totalLength * 4.0 / 5.0 + totalOverlap + staggerOffset;
+                cut1 = totalLength * botFrac - staggerOffset;
+                cut2 = totalLength * (1.0 - botFrac) + totalOverlap + staggerOffset;
             }
 
             // Safety: ensure cut positions stay valid
@@ -218,17 +220,20 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
 
         /// <summary>
         /// Splits a continuous bar (multi-span or single long span) according to actual defined clear spans.
-        /// Top bars: splice INSIDE the middle L/3 zone of any span.
-        /// Bottom bars: splice INSIDE the support zones [L/5 of previous span ... L/5 of next span].
+        /// Top bars: splice INSIDE the middle L/N zone of any span (N = topZoneDivisor).
+        /// Bottom bars: splice INSIDE the support zones [L/N of previous span ... L/N of next span] (N = bottomZoneDivisor).
         /// </summary>
         public static List<(double Start, double End)> SplitContinuousBarForLap(
             double totalLength, double barDia, DesignCodeStandard code,
             bool isTopBar, int layerIndex, List<(double Start, double End)> clearSpans,
-            double maxStockLength = 0, double crankRun = 0)
+            double maxStockLength = 0, double crankRun = 0,
+            int topZoneDivisor = 3, int bottomZoneDivisor = 5)
         {
             BarPosition position = isTopBar ? BarPosition.Top : BarPosition.Bottom;
             if (maxStockLength <= 0) maxStockLength = MaxStockLengthFt;
             if (crankRun <= 0) crankRun = GetCrankRun(barDia);
+            if (topZoneDivisor < 2) topZoneDivisor = 3;
+            if (bottomZoneDivisor < 2) bottomZoneDivisor = 5;
 
             var segments = new List<(double Start, double End)>();
 
@@ -242,6 +247,9 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
             double totalOverlap = lapLen + crankRun;
             double staggerOffset = (layerIndex % 2 == 1) ? 1.3 * lapLen + UnitConversion.MmToFeet(200) : 0.0;
 
+            double topFrac = 1.0 / topZoneDivisor;
+            double botFrac = 1.0 / bottomZoneDivisor;
+
             // Define all valid zones along the absolute bar length (0 to totalLength)
             var validZones = new List<(double ZStart, double ZEnd)>();
 
@@ -251,7 +259,7 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
                 {
                     double L = span.End - span.Start;
                     if (L <= 0) continue;
-                    validZones.Add((span.Start + L / 3.0, span.End - L / 3.0));
+                    validZones.Add((span.Start + L * topFrac, span.End - L * topFrac));
                 }
             }
             else
@@ -263,8 +271,8 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
                     bool isStartCantileverSpan = clearSpans[0].Start < 0.1;
                     if (!isStartCantileverSpan)
                     {
-                        // Standard end span: lap inside the L/5 near the first column
-                        validZones.Add((0.0, clearSpans[0].Start + firstL / 5.0));
+                        // Standard end span: lap inside the L/N near the first column
+                        validZones.Add((0.0, clearSpans[0].Start + firstL * botFrac));
                     }
 
                     for (int i = 1; i < clearSpans.Count; i++)
@@ -274,8 +282,8 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
                         double Lprev = prevSpan.End - prevSpan.Start;
                         double L = span.End - span.Start;
 
-                        validZones.Add((prevSpan.End - Lprev / 5.0, prevSpan.End));
-                        validZones.Add((span.Start, span.Start + L / 5.0));
+                        validZones.Add((prevSpan.End - Lprev * botFrac, prevSpan.End));
+                        validZones.Add((span.Start, span.Start + L * botFrac));
                     }
 
                     var lastSpan = clearSpans[clearSpans.Count - 1];
@@ -283,8 +291,8 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
                     bool isEndCantileverSpan = (totalLength - lastSpan.End) < 0.1;
                     if (!isEndCantileverSpan)
                     {
-                        // Standard end span: lap inside the L/5 near the far end column
-                        validZones.Add((lastSpan.End - lastL / 5.0, totalLength));
+                        // Standard end span: lap inside the L/N near the far end column
+                        validZones.Add((lastSpan.End - lastL * botFrac, totalLength));
                     }
                 }
                 else

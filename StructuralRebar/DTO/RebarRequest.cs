@@ -208,5 +208,15 @@ namespace antiGGGravity.StructuralRebar.DTO
 
         /// <summary>Vertical clear gap between multiple rebar layers (T1/T2, B1/B2) (feet).</summary>
         public double LayerGap { get; set; }
+
+        // === SPLICE ZONE FRACTIONS ===
+        /// <summary>Top bar splice zone divisor: splice in middle L/N zone (default 3 = L/3).</summary>
+        public int TopSpliceZoneDivisor { get; set; } = 3;
+
+        /// <summary>Bottom bar splice zone divisor: splice in L/N zone from supports (default 5 = L/5).</summary>
+        public int BottomSpliceZoneDivisor { get; set; } = 5;
+
+        /// <summary>Whether B2 bottom additional bars extend into cantilever zones. Default true.</summary>
+        public bool ExtendB2ToCantilever { get; set; } = true;
     }
 }

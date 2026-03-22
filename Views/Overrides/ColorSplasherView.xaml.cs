@@ -335,6 +335,12 @@ namespace antiGGGravity.Views.Overrides
             _applyEvent.Raise();
         }
 
+        private void UI_Btn_Isolate_Click(object sender, RoutedEventArgs e)
+        {
+            _handler.CurrentAction = ColorSplashAction.Isolate;
+            _applyEvent.Raise();
+        }
+
         private void UI_Btn_Close_Click(object sender, RoutedEventArgs e)
         {
             Close();

@@ -4,6 +4,8 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Media;
+using System.Windows.Shapes;
 using antiGGGravity.StructuralRebar.Constants;
 using antiGGGravity.StructuralRebar.Core.Calculators;
 
@@ -235,6 +237,195 @@ namespace antiGGGravity.StructuralRebar.UI
             public string Name { get; set; }
             public string Value { get; set; }
             public CalcRow(string category, string name, string value) { Category = category; Name = name; Value = value; }
+        }
+
+        // ── Additional Bar Diagram ──
+        private void AdditionalBarDiagram_Loaded(object sender, RoutedEventArgs e)
+        {
+            var c = UI_AdditionalBarCanvas;
+            if (c == null) return;
+            c.Children.Clear();
+
+            double W = c.ActualWidth > 10 ? c.ActualWidth : 780;
+            double H = c.ActualHeight > 10 ? c.ActualHeight : 340;
+
+            // Layout constants
+            double margin = 50;
+            double colW = 20;        // column width
+            double beamH = 40;       // beam depth visual
+            double beamTop = 110;    // Y of beam top face
+            double beamBot = beamTop + beamH;
+
+            // 3 columns at left, center, right
+            double xLeft = margin;
+            double xMid = W / 2.0;
+            double xRight = W - margin;
+            double spanL1 = xMid - xLeft;   // Span 1 length
+            double spanL2 = xRight - xMid;  // Span 2 length
+
+            // Colors
+            var beamFill = new SolidColorBrush(Color.FromRgb(230, 235, 240));
+            var beamStroke = new SolidColorBrush(Color.FromRgb(100, 120, 140));
+            var colFill = new SolidColorBrush(Color.FromRgb(180, 190, 200));
+            var t1Color = new SolidColorBrush(Color.FromRgb(44, 95, 138));    // dark blue
+            var t2Color = new SolidColorBrush(Color.FromRgb(196, 50, 50));    // red
+            var b1Color = new SolidColorBrush(Color.FromRgb(34, 139, 34));    // green
+            var b2Color = new SolidColorBrush(Color.FromRgb(200, 120, 20));   // orange
+            var dimColor = new SolidColorBrush(Color.FromRgb(120, 120, 120));
+            var zoneColor = new SolidColorBrush(Color.FromArgb(30, 196, 50, 50));
+            var zoneBotColor = new SolidColorBrush(Color.FromArgb(30, 200, 120, 20));
+
+            // ── DRAW COLUMNS (supports) ──
+            double colTop = beamTop - 25;
+            double colBot = beamBot + 50;
+            DrawRect(c, xLeft - colW / 2, colTop, colW, colBot - colTop, colFill, beamStroke, 1);
+            DrawRect(c, xMid - colW / 2, colTop, colW, colBot - colTop, colFill, beamStroke, 1);
+            DrawRect(c, xRight - colW / 2, colTop, colW, colBot - colTop, colFill, beamStroke, 1);
+
+            // ── DRAW BEAM OUTLINE ──
+            DrawRect(c, xLeft - colW / 2, beamTop, xRight - xLeft + colW, beamH, beamFill, beamStroke, 1.5);
+
+            // ── ZONE SHADING ──
+            // T2 hogging zones (L/3 each side of middle support)
+            double t2ZoneLeft = xMid - spanL1 / 3.0;
+            double t2ZoneRight = xMid + spanL2 / 3.0;
+            DrawRect(c, t2ZoneLeft, beamTop - 2, t2ZoneRight - t2ZoneLeft, beamH / 2 + 2, zoneColor, null, 0);
+
+            // B2 sagging zones (0.1L offset from supports)
+            double b2S1Left = xLeft + spanL1 * 0.1;
+            double b2S1Right = xMid - spanL1 * 0.1;
+            double b2S2Left = xMid + spanL2 * 0.1;
+            double b2S2Right = xRight - spanL2 * 0.1;
+            DrawRect(c, b2S1Left, beamBot - beamH / 2, b2S1Right - b2S1Left, beamH / 2 + 2, zoneBotColor, null, 0);
+            DrawRect(c, b2S2Left, beamBot - beamH / 2, b2S2Right - b2S2Left, beamH / 2 + 2, zoneBotColor, null, 0);
+
+            // ── REBAR BARS ──
+            double barThick = 3.0;
+            double topY1 = beamTop + 8;    // T1
+            double topY2 = beamTop + 16;   // T2
+            double botY1 = beamBot - 8;    // B1
+            double botY2 = beamBot - 16;   // B2
+
+            // T1 — continuous top bar (full length)
+            DrawBar(c, xLeft, topY1, xRight, topY1, t1Color, barThick);
+
+            // T2 — hogging bars over supports
+            // Over left support: extends from beam start to L/3 into span 1
+            double t2End1 = xLeft + spanL1 / 3.0;
+            DrawBar(c, xLeft, topY2, t2End1, topY2, t2Color, barThick);
+            // Over middle support: extends L/3 from each adjacent span
+            double t2Start2 = xMid - spanL1 / 3.0;
+            double t2End2 = xMid + spanL2 / 3.0;
+            DrawBar(c, t2Start2, topY2, t2End2, topY2, t2Color, barThick);
+            // Over right support: extends L/3 into span 2 to beam end
+            double t2Start3 = xRight - spanL2 / 3.0;
+            DrawBar(c, t2Start3, topY2, xRight, topY2, t2Color, barThick);
+
+            // B1 — continuous bottom bar (full length)
+            DrawBar(c, xLeft, botY1, xRight, botY1, b1Color, barThick);
+
+            // B2 — sagging bars in each span (0.1L offset)
+            DrawBar(c, b2S1Left, botY2, b2S1Right, botY2, b2Color, barThick);
+            DrawBar(c, b2S2Left, botY2, b2S2Right, botY2, b2Color, barThick);
+
+            // ── DIMENSION LINES ──
+            double dimTopY = beamTop - 40;
+            double dimBotY = beamBot + 30;
+
+            // Span labels
+            DrawDimension(c, xLeft, xMid, dimTopY - 20, "Span 1 (L₁)", dimColor, 12, true);
+            DrawDimension(c, xMid, xRight, dimTopY - 20, "Span 2 (L₂)", dimColor, 12, true);
+
+            // T2 dimension: L/3
+            DrawDimension(c, t2Start2, xMid, dimTopY, "L₁/3", t2Color, 10, false);
+            DrawDimension(c, xMid, t2End2, dimTopY, "L₂/3", t2Color, 10, false);
+
+            // B2 dimension: 0.1L
+            DrawDimension(c, xLeft, b2S1Left, dimBotY, "0.1L₁", b2Color, 10, false);
+            DrawDimension(c, b2S1Right, xMid, dimBotY, "0.1L₁", b2Color, 10, false);
+            DrawDimension(c, xMid, b2S2Left, dimBotY + 18, "0.1L₂", b2Color, 10, false);
+            DrawDimension(c, b2S2Right, xRight, dimBotY + 18, "0.1L₂", b2Color, 10, false);
+
+            // ── LEGEND ──
+            double legX = margin;
+            double legY = H - 55;
+            DrawLegendItem(c, legX, legY, "T1 — Continuous Top", t1Color);
+            DrawLegendItem(c, legX + 170, legY, "T2 — Hogging (over supports, L/3)", t2Color);
+            DrawLegendItem(c, legX, legY + 22, "B1 — Continuous Bottom", b1Color);
+            DrawLegendItem(c, legX + 170, legY + 22, "B2 — Sagging (mid-span, 0.1L offset)", b2Color);
+
+            // Column labels
+            DrawLabel(c, xLeft, colBot + 4, "Col", dimColor, 9, true);
+            DrawLabel(c, xMid, colBot + 4, "Col", dimColor, 9, true);
+            DrawLabel(c, xRight, colBot + 4, "Col", dimColor, 9, true);
+        }
+
+        // ── Drawing helpers ──
+
+        private void DrawRect(Canvas c, double x, double y, double w, double h, Brush fill, Brush stroke, double strokeW)
+        {
+            var r = new Rectangle { Width = w, Height = h, Fill = fill };
+            if (stroke != null) { r.Stroke = stroke; r.StrokeThickness = strokeW; }
+            Canvas.SetLeft(r, x);
+            Canvas.SetTop(r, y);
+            c.Children.Add(r);
+        }
+
+        private void DrawBar(Canvas c, double x1, double y1, double x2, double y2, Brush color, double thickness)
+        {
+            var line = new Line
+            {
+                X1 = x1, Y1 = y1, X2 = x2, Y2 = y2,
+                Stroke = color, StrokeThickness = thickness,
+                StrokeStartLineCap = PenLineCap.Round,
+                StrokeEndLineCap = PenLineCap.Round
+            };
+            c.Children.Add(line);
+        }
+
+        private void DrawDimension(Canvas c, double x1, double x2, double y, string text, Brush color, double fontSize, bool bold)
+        {
+            // Horizontal line with end ticks
+            DrawBar(c, x1, y, x2, y, color, 1);
+            DrawBar(c, x1, y - 4, x1, y + 4, color, 1);
+            DrawBar(c, x2, y - 4, x2, y + 4, color, 1);
+
+            var tb = new TextBlock
+            {
+                Text = text, FontSize = fontSize, Foreground = color,
+                FontWeight = bold ? FontWeights.Bold : FontWeights.Normal
+            };
+            tb.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+            double tw = tb.DesiredSize.Width;
+            Canvas.SetLeft(tb, (x1 + x2) / 2 - tw / 2);
+            Canvas.SetTop(tb, y - fontSize - 4);
+            c.Children.Add(tb);
+        }
+
+        private void DrawLegendItem(Canvas c, double x, double y, string text, Brush color)
+        {
+            // Color swatch
+            DrawBar(c, x, y + 6, x + 20, y + 6, color, 3);
+            var tb = new TextBlock { Text = text, FontSize = 11, Foreground = new SolidColorBrush(Color.FromRgb(80, 80, 80)) };
+            Canvas.SetLeft(tb, x + 25);
+            Canvas.SetTop(tb, y - 1);
+            c.Children.Add(tb);
+        }
+
+        private void DrawLabel(Canvas c, double x, double y, string text, Brush color, double fontSize, bool center)
+        {
+            var tb = new TextBlock { Text = text, FontSize = fontSize, Foreground = color, FontWeight = FontWeights.SemiBold };
+            if (center)
+            {
+                tb.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                Canvas.SetLeft(tb, x - tb.DesiredSize.Width / 2);
+            }
+            else
+            {
+                Canvas.SetLeft(tb, x);
+            }
+            Canvas.SetTop(tb, y);
+            c.Children.Add(tb);
         }
     }
 }

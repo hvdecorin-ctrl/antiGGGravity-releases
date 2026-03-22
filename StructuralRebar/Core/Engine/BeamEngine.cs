@@ -300,7 +300,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                 if (layer.IsContinuous)
                 {
                     segments = request.EnableLapSplice
-                        ? LapSpliceCalculator.SplitContinuousBarForLap(barLen, barDia, request.DesignCode, true, topLayerIdx, shiftedSpans)
+                        ? LapSpliceCalculator.SplitContinuousBarForLap(barLen, barDia, request.DesignCode, true, topLayerIdx, shiftedSpans, topZoneDivisor: request.TopSpliceZoneDivisor, bottomZoneDivisor: request.BottomSpliceZoneDivisor)
                         : new List<(double Start, double End)> { (0.0, barLen) };
                 }
                 else
@@ -507,12 +507,12 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                 if (layer.IsContinuous)
                 {
                     segments = request.EnableLapSplice
-                        ? LapSpliceCalculator.SplitContinuousBarForLap(barLen, barDia, request.DesignCode, false, botLayerIdx, shiftedSpans)
+                        ? LapSpliceCalculator.SplitContinuousBarForLap(barLen, barDia, request.DesignCode, false, botLayerIdx, shiftedSpans, topZoneDivisor: request.TopSpliceZoneDivisor, bottomZoneDivisor: request.BottomSpliceZoneDivisor)
                         : new List<(double Start, double End)> { (0.0, barLen) };
                 }
                 else
                 {
-                    bool isB2Standard = (botLayerIdx == 1);
+                    bool isB2Standard = (botLayerIdx == 1) && request.ExtendB2ToCantilever;
                     segments = antiGGGravity.StructuralRebar.Core.Calculators.AdditionalBarCalculator.CalculateBottomAdditionalSegments(shiftedSpans, isStartCantilever, isEndCantilever, isB2Standard);
                 }
 
@@ -607,7 +607,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                             if (count <= 0 || string.IsNullOrEmpty(barType)) continue;
 
                             int targetSpanIdx = isStartCantilever ? i + 1 : i;
-                            var segOpt = antiGGGravity.StructuralRebar.Core.Calculators.AdditionalBarCalculator.GetBottomSegmentForSpan(targetSpanIdx, shiftedSpans, isStartCantilever, isEndCantilever, true);
+                            var segOpt = antiGGGravity.StructuralRebar.Core.Calculators.AdditionalBarCalculator.GetBottomSegmentForSpan(targetSpanIdx, shiftedSpans, isStartCantilever, isEndCantilever, request.ExtendB2ToCantilever);
                             if (!segOpt.HasValue) continue;
 
                             var seg = segOpt.Value;
@@ -853,7 +853,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                 double z = topZ - barDia / 2.0;
                 double barLen = barTotalLen - 2 * host.CoverOther;
                 var segments = request.EnableLapSplice 
-                    ? LapSpliceCalculator.SplitBeamBarForLap(barLen, barDia, request.DesignCode, isTopBar: true, layerIndex: topLayerIdx, customLapLen: GetLapSpliceLength(barDia, request, BarPosition.Top))
+                    ? LapSpliceCalculator.SplitBeamBarForLap(barLen, barDia, request.DesignCode, isTopBar: true, layerIndex: topLayerIdx, customLapLen: GetLapSpliceLength(barDia, request, BarPosition.Top), topZoneDivisor: request.TopSpliceZoneDivisor, bottomZoneDivisor: request.BottomSpliceZoneDivisor)
                     : new List<(double Start, double End)> { (0.0, barLen) };
 
                 for (int si = 0; si < segments.Count; si++)
@@ -926,7 +926,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                 double z = botZ + barDia / 2.0;
                 double barLen = barTotalLen - 2 * host.CoverOther;
                 var segments = request.EnableLapSplice 
-                    ? LapSpliceCalculator.SplitBeamBarForLap(barLen, barDia, request.DesignCode, isTopBar: false, layerIndex: botLayerIdx, customLapLen: GetLapSpliceLength(barDia, request, BarPosition.Bottom))
+                    ? LapSpliceCalculator.SplitBeamBarForLap(barLen, barDia, request.DesignCode, isTopBar: false, layerIndex: botLayerIdx, customLapLen: GetLapSpliceLength(barDia, request, BarPosition.Bottom), topZoneDivisor: request.TopSpliceZoneDivisor, bottomZoneDivisor: request.BottomSpliceZoneDivisor)
                     : new List<(double Start, double End)> { (0.0, barLen) };
 
                 for (int si = 0; si < segments.Count; si++)

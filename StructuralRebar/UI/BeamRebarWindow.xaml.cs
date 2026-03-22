@@ -119,6 +119,40 @@ namespace antiGGGravity.StructuralRebar.UI
         public bool EnableLapSplice => UI_Check_CutRebar.IsChecked == true;
         public bool IsCircularColumn => false;
 
+        public int TopSpliceZoneDivisor
+        {
+            get
+            {
+                if (UI_Combo_TopZone.SelectedItem is ComboBoxItem item)
+                {
+                    string c = item.Content.ToString();
+                    if (c == "L/4") return 4;
+                }
+                return 3; // default L/3
+            }
+        }
+
+        public int BottomSpliceZoneDivisor
+        {
+            get
+            {
+                if (UI_Combo_BotZone.SelectedItem is ComboBoxItem item)
+                {
+                    string c = item.Content.ToString();
+                    if (c == "L/4") return 4;
+                }
+                return 5; // default L/5
+            }
+        }
+
+        public bool ExtendB2ToCantilever => UI_Check_B2Cantilever.IsChecked == true;
+
+        private void CutRebar_Changed(object sender, RoutedEventArgs e)
+        {
+            if (UI_SpliceZonePanel != null)
+                UI_SpliceZonePanel.Visibility = (UI_Check_CutRebar.IsChecked == true) ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+        }
+
         public DesignCodeStandard DesignCode
         {
             get

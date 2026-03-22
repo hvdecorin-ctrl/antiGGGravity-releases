@@ -63,7 +63,29 @@
 
                         <TextBlock Text="Options" FontSize="11" FontWeight="SemiBold" Foreground="#888888" Margin="8,0,0,10"/>
                         <CheckBox x:Name="UI_Check_RemoveExisting" Content="Remove Existing" FontSize="13" Foreground="#555" Margin="8,0,0,8" IsChecked="True"/>
-                        <CheckBox x:Name="UI_Check_CutRebar" Content="Cut Rebar (>12m)" FontSize="13" Foreground="#555" Margin="8,0,0,15" IsChecked="True"/>
+                        <CheckBox x:Name="UI_Check_CutRebar" Content="Cut Rebar (>12m)" FontSize="13" Foreground="#555" Margin="8,0,0,8" IsChecked="True"
+                                  Checked="CutRebar_Changed" Unchecked="CutRebar_Changed"/>
+
+                        <!-- Splice Zone Settings (visible when Cut Rebar is checked) -->
+                        <StackPanel x:Name="UI_SpliceZonePanel" Margin="20,0,8,8">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                <TextBlock Text="Top Zone" FontSize="11" Foreground="#888" Width="72" VerticalAlignment="Center"/>
+                                <ComboBox x:Name="UI_Combo_TopZone" Height="24" Width="65" FontSize="11">
+                                    <ComboBoxItem Content="L/3" IsSelected="True"/>
+                                    <ComboBoxItem Content="L/4"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Bottom Zone" FontSize="11" Foreground="#888" Width="72" VerticalAlignment="Center"/>
+                                <ComboBox x:Name="UI_Combo_BotZone" Height="24" Width="65" FontSize="11">
+                                    <ComboBoxItem Content="L/4"/>
+                                    <ComboBoxItem Content="L/5" IsSelected="True"/>
+                                </ComboBox>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <CheckBox x:Name="UI_Check_B2Cantilever" Content="B2 → Cantilever" FontSize="13" Foreground="#555" Margin="8,0,0,8" IsChecked="True"
+                                  ToolTip="Extend B2 bottom bars into cantilever zones"/>
 
                         <Separator Margin="5,0,5,10" Background="#E0E0E0"/>
                         
