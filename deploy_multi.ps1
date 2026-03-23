@@ -7,6 +7,17 @@ $distRoot = "Distribute"
 
 foreach ($v in $VersionsToBuild) {
     Write-Host "Building for $v..." -ForegroundColor Cyan
+
+    if ($v -in @("R22", "R23", "R24")) {
+        Write-Host "  -> Pinning to stable .NET 6 SDK to bypass WPF compiler bugs..." -ForegroundColor Yellow
+        Set-Content -Path "global.json" -Value '{ "sdk": { "version": "6.0.0", "rollForward": "latestMinor" } }' -Encoding utf8
+    } else {
+        if (Test-Path "global.json") { 
+            Write-Host "  -> Unpinning SDK to use latest .NET 8..." -ForegroundColor Gray
+            Remove-Item "global.json" -Force 
+        }
+    }
+
     dotnet build antiGGGravity.csproj -c $v
     
     $folderName = "R20" + $v.Substring(1)

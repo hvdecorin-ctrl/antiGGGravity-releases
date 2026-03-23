@@ -1,4 +1,5 @@
 using System;
+using antiGGGravity.Utilities;
 
 namespace antiGGGravity.Commands.General.AutoDimension
 {

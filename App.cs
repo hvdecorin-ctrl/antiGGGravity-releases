@@ -13,7 +13,7 @@ namespace antiGGGravity
             try
             {
                 // Pre-load global UI resources for all windows to prevent latency
-                SharedResources.Load();
+                antiGGGravity.Utilities.SharedResources.Load();
 
                 // Load ribbon configuration from embedded YAML
                 var config = RibbonConfigLoader.Load();

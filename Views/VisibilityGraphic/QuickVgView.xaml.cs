@@ -8,6 +8,7 @@ using System.Linq;
 using System.Windows.Data;
 using System.Collections.ObjectModel;
 using antiGGGravity.Commands.VisibilityGraphic;
+using antiGGGravity.Utilities;
 
 namespace antiGGGravity.Views.VisibilityGraphic
 {

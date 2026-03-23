@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Autodesk.Revit.DB;
 using static antiGGGravity.Commands.General.AutoDimension.AutoDimUnits;
+using antiGGGravity.Utilities;
 
 namespace antiGGGravity.Commands.General.AutoDimension
 {

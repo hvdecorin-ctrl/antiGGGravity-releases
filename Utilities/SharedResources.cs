@@ -1,5 +1,6 @@
 using System;
 using System.Windows;
+using antiGGGravity.Utilities;
 
 namespace antiGGGravity.Utilities
 {
@@ -26,7 +27,7 @@ namespace antiGGGravity.Utilities
             try
             {
                 var uri = new Uri("/antiGGGravity;component/Resources/Pre_BrandStyles.xaml", UriKind.RelativeOrAbsolute);
-                _globalResources = Application.LoadComponent(uri) as ResourceDictionary;
+                _globalResources = System.Windows.Application.LoadComponent(uri) as ResourceDictionary;
             }
             catch (Exception ex)
             {

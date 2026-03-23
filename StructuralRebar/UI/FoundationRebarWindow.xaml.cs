@@ -4,6 +4,7 @@ using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using antiGGGravity.StructuralRebar.Constants;
 using antiGGGravity.StructuralRebar.UI.Panels;
+using antiGGGravity.Utilities;
 
 namespace antiGGGravity.StructuralRebar.UI
 {

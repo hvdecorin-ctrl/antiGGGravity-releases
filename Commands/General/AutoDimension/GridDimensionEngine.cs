@@ -5,6 +5,7 @@ using Autodesk.Revit.DB;
 using static antiGGGravity.Commands.General.AutoDimension.AutoDimUnits;
 using static antiGGGravity.Commands.General.AutoDimension.AutoDimCore;
 using static antiGGGravity.Commands.General.AutoDimension.AutoDimReferences;
+using antiGGGravity.Utilities;
 
 namespace antiGGGravity.Commands.General.AutoDimension
 {

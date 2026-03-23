@@ -11,24 +11,22 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-echo [1/3] Removing add-in files ...
-if exist "C:\antiGGGravity" rmdir /S /Q "C:\antiGGGravity"
+set "BASE_INSTALL=C:\ProgramData\antiGGGravity"
+echo [1/2] Removing program binaries ...
+if exist "%BASE_INSTALL%" rmdir /S /Q "%BASE_INSTALL%"
 echo       Done.
 
-echo [2/3] Unregistering from Revit 2025 ...
-if exist "C:\ProgramData\Autodesk\Revit\Addins\2025\antiGGGravity.addin" (
-    del "C:\ProgramData\Autodesk\Revit\Addins\2025\antiGGGravity.addin"
-    echo       Done.
-) else (
-    echo       Skipped - not found.
-)
-
-echo [3/3] Unregistering from Revit 2026 ...
-if exist "C:\ProgramData\Autodesk\Revit\Addins\2026\antiGGGravity.addin" (
-    del "C:\ProgramData\Autodesk\Revit\Addins\2026\antiGGGravity.addin"
-    echo       Done.
-) else (
-    echo       Skipped - not found.
+echo [2/2] Unregistering from all Revit versions ...
+set "VERSIONS=2022 2023 2024 2025 2026"
+setlocal enabledelayedexpansion
+for %%V in (%VERSIONS%) do (
+    set "ADDIN_PATH=C:\ProgramData\Autodesk\Revit\Addins\%%V\antiGGGravity.addin"
+    if exist "!ADDIN_PATH!" (
+        del /Q "!ADDIN_PATH!"
+        echo       Removed from Revit %%V.
+    ) else (
+        echo       Skipped Revit %%V ^(Not found^).
+    )
 )
 
 echo.

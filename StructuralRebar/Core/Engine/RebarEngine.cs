@@ -9,6 +9,7 @@ using antiGGGravity.StructuralRebar.DTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using antiGGGravity.Utilities;
 
 namespace antiGGGravity.StructuralRebar.Core.Engine
 {

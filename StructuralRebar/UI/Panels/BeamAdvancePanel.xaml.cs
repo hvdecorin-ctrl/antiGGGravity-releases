@@ -12,6 +12,7 @@ using System.Windows.Shapes;
 using antiGGGravity.StructuralRebar.DTO;
 using antiGGGravity.StructuralRebar.Core.Geometry;
 using antiGGGravity.StructuralRebar.Constants;
+using antiGGGravity.Utilities;
 
 namespace antiGGGravity.StructuralRebar.UI.Panels
 {

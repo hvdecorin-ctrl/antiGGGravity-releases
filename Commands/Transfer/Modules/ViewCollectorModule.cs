@@ -3,6 +3,7 @@ using System.Linq;
 using antiGGGravity.Commands.Transfer.Core;
 using antiGGGravity.Commands.Transfer.DTO;
 using Autodesk.Revit.DB;
+using antiGGGravity.Utilities;
 
 namespace antiGGGravity.Commands.Transfer.Modules
 {
@@ -71,7 +72,7 @@ namespace antiGGGravity.Commands.Transfer.Modules
                     FamilyName = f.Name,
                     CategoryName = f.FamilyCategory?.Name ?? "General",
                     Is2D = f.FamilyCategory?.CategoryType == CategoryType.Annotation || 
-                           (f.FamilyCategory != null && f.FamilyCategory.Id.Value == (long)BuiltInCategory.OST_DetailComponents),
+                           (f.FamilyCategory != null && f.FamilyCategory.Id.GetIdValue() == (long)BuiltInCategory.OST_DetailComponents),
                     IsSelected = false
                 };
 
@@ -200,3 +201,4 @@ namespace antiGGGravity.Commands.Transfer.Modules
         }
     }
 }
+

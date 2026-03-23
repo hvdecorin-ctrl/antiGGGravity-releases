@@ -7,6 +7,7 @@ using Autodesk.Revit.DB.Structure;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
 using antiGGGravity.Views.Model;
+using antiGGGravity.Utilities;
 
 namespace antiGGGravity.Commands.Model
 {
@@ -407,3 +408,4 @@ namespace antiGGGravity.Commands.Model
         }
     }
 }
+

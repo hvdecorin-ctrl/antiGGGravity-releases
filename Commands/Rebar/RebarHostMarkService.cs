@@ -4,6 +4,7 @@ using System.Linq;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.DB.Structure;
+using antiGGGravity.Utilities;
 
 namespace antiGGGravity.Commands.Rebar
 {

@@ -1139,6 +1139,7 @@ namespace antiGGGravity.Commands.Transfer.UI
         public ICommand BrowseManagerFolderCommand => new RelayCommand(_ =>
         {
             try {
+#if REVIT2025_OR_GREATER
                 var dialog = new Microsoft.Win32.OpenFolderDialog
                 {
                     Title = "Select Directory containing Revit Families"
@@ -1147,8 +1148,19 @@ namespace antiGGGravity.Commands.Transfer.UI
                 {
                     ScanManagerFolder(dialog.FolderName, useCache: true);
                 }
-            } catch {
-                StatusText = "Folder dialog not supported on this OS framework version.";
+#else
+                using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
+                {
+                    dialog.Description = "Select Directory containing Revit Families";
+                    dialog.ShowNewFolderButton = true;
+                    if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                    {
+                        ScanManagerFolder(dialog.SelectedPath, useCache: true);
+                    }
+                }
+#endif
+            } catch (Exception ex) {
+                StatusText = $"Error selecting folder: {ex.Message}";
             }
         });
 
