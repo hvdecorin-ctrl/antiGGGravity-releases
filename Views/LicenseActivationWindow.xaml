@@ -1,0 +1,108 @@
+<Window x:Class="antiGGGravity.Views.LicenseActivationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="License &amp; Activation" Height="500" Width="480"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        WindowStartupLocation="CenterScreen" Topmost="True">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="55" CornerRadius="12" GlassFrameThickness="0"/>
+    </WindowChrome.WindowChrome>
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/antiGGGravity;component/Resources/Pre_BrandStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Border Style="{StaticResource PremiumBorderStyle}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="55"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Border Grid.Row="0" Background="{StaticResource BrandGradientBrush}" CornerRadius="12,12,0,0">
+                <Grid Margin="25,0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource CompanyLogoStyle}"/>
+                        <TextBlock Style="{StaticResource CompanyDividerStyle}"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="License Manager" Style="{StaticResource PremiumTitleStyle}"/>
+                            <TextBlock Text="Manage your antiGGGravity license" Style="{StaticResource PremiumSubtitleStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <Button HorizontalAlignment="Right" VerticalAlignment="Center" Content="✕" 
+                            Style="{StaticResource PremiumIconButtonStyle}" Width="30" Height="30"
+                            Click="UI_Btn_Close_Click" WindowChrome.IsHitTestVisibleInChrome="True"/>
+                </Grid>
+            </Border>
+
+            <!-- Content -->
+            <Grid Grid.Row="1" Margin="25,20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Status Panel -->
+                <Border Grid.Row="0" x:Name="UI_Border_Status" Background="#F0F8FF" CornerRadius="8" Padding="15" Margin="0,0,0,25" BorderBrush="#B6D4FE" BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock x:Name="UI_Txt_StatusTitle" Text="Checking License..." FontWeight="SemiBold" FontSize="14" Foreground="#084298" Margin="0,0,0,5"/>
+                        <TextBlock x:Name="UI_Txt_StatusMessage" Text="Please wait while we verify your license status." TextWrapping="Wrap" Foreground="#052C65" FontSize="12"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Hardware ID Section -->
+                <StackPanel Grid.Row="1" Margin="0,0,0,25">
+                    <TextBlock Text="Your Hardware ID" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,0,0,8"/>
+                    <TextBlock Text="Send this ID to activate or renew your license." Foreground="#666" FontSize="11" Margin="0,0,0,8" TextWrapping="Wrap"/>
+                    
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox x:Name="UI_Txt_HWID" Grid.Column="0" Height="36" IsReadOnly="True" 
+                                 Style="{StaticResource PremiumTextBoxStyle}" Foreground="#333" Background="#F9F9F9"
+                                 VerticalContentAlignment="Center" Padding="10,0"/>
+                        <Button Grid.Column="1" Content="Copy ID" Width="100" Height="36" Margin="10,0,0,0"
+                                Style="{StaticResource PremiumPrimaryButtonStyle}" Click="UI_Btn_CopyHwid_Click"/>
+                    </Grid>
+                </StackPanel>
+
+                <!-- Activation Section -->
+                <StackPanel Grid.Row="2">
+                    <TextBlock Text="Activation Key" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,0,0,8"/>
+                    <TextBlock Text="Paste your new activation key here to unlock the toolkit." Foreground="#666" FontSize="11" Margin="0,0,0,8"/>
+                    <TextBox x:Name="UI_Txt_Key" Height="36" Style="{StaticResource PremiumTextBoxStyle}" 
+                             VerticalContentAlignment="Center" Padding="10,0" Margin="0,0,0,10"
+                             Tag="XXXXX-XXXXX-XXXXX-XXXXX-..." TextChanged="UI_Txt_Key_TextChanged"/>
+                </StackPanel>
+
+            </Grid>
+
+            <!-- Footer -->
+            <Border Grid.Row="2" Background="#FAFAFA" Padding="25,15" CornerRadius="0,0,12,12" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,1,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="1" x:Name="UI_Btn_Activate" Content="Activate License" Width="140" Height="36"
+                            Style="{StaticResource PremiumActionButtonStyle}" Click="UI_Btn_Activate_Click"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

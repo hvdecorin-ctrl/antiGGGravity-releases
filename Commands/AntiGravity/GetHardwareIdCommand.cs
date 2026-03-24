@@ -16,25 +16,22 @@ namespace antiGGGravity.Commands.AntiGravity
     [Regeneration(RegenerationOption.Manual)]
     public class GetHardwareIdCommand : BaseCommand
     {
+        // This command must always be free so users can retrieve their HWID / activate
         protected override bool RequiresLicense => false;
 
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            var hwId = HardwareIdGenerator.GetHardwareId();
+            // Open the new WPF Activation Window
+            var activationWindow = new antiGGGravity.Views.LicenseActivationWindow();
             
-            // Copy to clipboard
-            Clipboard.SetText(hwId);
+            // Set Revit as the parent window using WindowInteropHelper
+            var uiApp = commandData.Application;
+            var revitWindowHandle = System.Diagnostics.Process.GetCurrentProcess().MainWindowHandle;
             
-            // Show dialog with the hardware ID
-            var dialog = new TaskDialog("Hardware ID")
-            {
-                MainInstruction = "Your Hardware ID",
-                MainContent = hwId + "\n\n✓ Copied to clipboard!\n\nSend this ID to the administrator to activate your license.",
-                CommonButtons = TaskDialogCommonButtons.Ok,
-                MainIcon = TaskDialogIcon.TaskDialogIconInformation
-            };
-            
-            dialog.Show();
+            var helper = new System.Windows.Interop.WindowInteropHelper(activationWindow);
+            helper.Owner = revitWindowHandle;
+
+            activationWindow.ShowDialog();
             
             return Result.Succeeded;
         }

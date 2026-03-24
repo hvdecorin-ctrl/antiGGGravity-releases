@@ -6,32 +6,125 @@ param (
 $distRoot = "Distribute"
 
 foreach ($v in $VersionsToBuild) {
-    Write-Host "Building for $v..." -ForegroundColor Cyan
+    Write-Host "`n==================================================" -ForegroundColor Yellow
+    Write-Host " Building and Obfuscating for $v..." -ForegroundColor Yellow
+    Write-Host "==================================================`n" -ForegroundColor Yellow
 
-    dotnet build antiGGGravity.csproj -c $v
+    # 1. SDK VERSION HANDLING
+    $isNet8 = ($v -eq "R26" -or $v -eq "R25")
+    $globalJsonPath = "$PSScriptRoot\global.json"
+    $globalJsonBak = "$PSScriptRoot\global.json.bak"
 
+    if ($isNet8) {
+        # Hide global.json so it uses the latest SDK (8.0/10.0) for .NET 8 build
+        if (Test-Path $globalJsonPath) { Rename-Item $globalJsonPath "global.json.bak" -Force }
+    } else {
+        # Ensure global.json is active for .NET 4.8 to avoid MC1000 bug
+        if (Test-Path $globalJsonBak) { Rename-Item $globalJsonBak "global.json" -Force }
+    }
+
+    # 1. CLEAN & BUILD
+    if ($isNet8) {
+        # NET 8+ uses dotnet build perfectly
+        dotnet build antiGGGravity.csproj -c $v --no-incremental
+    } else {
+        # NET 4.8 WPF builds have MC1000 bugs in 'dotnet build'. 
+        # We use Full MSBuild.exe from Visual Studio 2022 to fix this.
+        $msbuildPath = "C:\Program Files\Microsoft Visual Studio\18\Community\MSBuild\Current\Bin\MSBuild.exe"
+        & $msbuildPath antiGGGravity.csproj /p:Configuration=$v /p:DeployToRevit=false /t:Clean,Build /nodeReuse:false
+    }
+    
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Build failed for $v. Stopping script." -ForegroundColor Red
+        # Restore global.json if we were hiding it
+        if (Test-Path $globalJsonBak) { Rename-Item $globalJsonBak "global.json" -Force }
         exit 1
     }
+
+    # Restore global.json if we were hiding it
+    if (Test-Path $globalJsonBak) { Rename-Item $globalJsonBak "global.json" -Force }
     
+    # 2. RESOLVE PATHS
     $folderName = "R20" + $v.Substring(1)
     $targetDir = Join-Path $distRoot $folderName
+    $addonSubDir = Join-Path $targetDir "antiGGGravity" # Keep dlls in a subfolder
     
-    if (!(Test-Path $targetDir)) { New-Item -ItemType Directory -Path $targetDir }
+    if (!(Test-Path $addonSubDir)) { New-Item -ItemType Directory -Path $addonSubDir -Force }
     
-    # Assembly folder
-    $binFolder = "bin\$v"
-    if ($v -eq "R26" -or $v -eq "R25") {
-        $binFolder = Join-Path $binFolder "net8.0-windows"
+    $inDir = "bin\$v"
+    $isNet8 = ($v -eq "R26" -or $v -eq "R25")
+    if ($isNet8) {
+        $inDir = Join-Path $inDir "net8.0-windows"
     } else {
-        $binFolder = Join-Path $binFolder "net48"
+        $inDir = Join-Path $inDir "net48"
+    }
+    $inDir = Resolve-Path $inDir
+
+    # 3. DYNAMIC OBFUSCATION
+    $obfXmlPath = "$PSScriptRoot\obfuscar_temp_$v.xml"
+    $obfOutDir = "$PSScriptRoot\bin\Obfuscated_$v"
+    if (Test-Path $obfOutDir) { Remove-Item $obfOutDir -Recurse -Force }
+    New-Item -ItemType Directory -Path $obfOutDir
+
+    # Get Revit Paths for searching RevitAPI.dll
+    $revitYear = "20" + $v.Substring(1)
+    $localRevitPath = "C:\Program Files\Autodesk\Revit $revitYear"
+    $nugetPackagesPath = "$env:USERPROFILE\.nuget\packages"
+    
+    # NEW: Recursively find the exact leaf folder for this version's RevitAPI.dll in NuGet
+    $sdkRefsSearchPath = Join-Path $nugetPackagesPath "Autodesk.Revit.SDK.Refs.$revitYear"
+    $resolvedSdkPath = Get-ChildItem -Path $sdkRefsSearchPath -Recurse -Filter "RevitAPI.dll" | Select-Object -First 1 -ExpandProperty DirectoryName
+
+    $xmlContent = @"
+<?xml version="1.0"?>
+<Obfuscator>
+  <Var name="InPath" value="$inDir" />
+  <Var name="OutPath" value="$obfOutDir" />
+  <Var name="HideStrings" value="true" />
+  <Var name="RenameProperties" value="true" />
+  <Var name="RenameEvents" value="true" />
+  <Var name="RenameFields" value="true" />
+  <Var name="KeepPublicApi" value="false" />
+  
+  <AssemblySearchPath path="$localRevitPath" />
+  <AssemblySearchPath path="$resolvedSdkPath" />
+  <AssemblySearchPath path="$nugetPackagesPath" />
+  <AssemblySearchPath path="C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App\8.0.24" />
+  <AssemblySearchPath path="C:\Program Files\dotnet\shared\Microsoft.NETCore.App\8.0.24" />
+  <AssemblySearchPath path="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8" />
+  <AssemblySearchPath path="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\Facades" />
+  
+  <Module file="`$(InPath)\antiGGGravity.dll">
+    <SkipType name="antiGGGravity.App" />
+    <SkipType name="antiGGGravity.Commands.*.*$" rx="true" />
+    <SkipType name="antiGGGravity.StructuralRebar.*Command$" rx="true" />
+    <SkipType name="antiGGGravity.Utilities.LicenseResult" skipMethods="true" skipProperties="false" />
+    <SkipType name="antiGGGravity.Utilities.LicenseKeyResult" skipMethods="true" skipProperties="false" />
+  </Module>
+</Obfuscator>
+"@
+    $xmlContent | Set-Content $obfXmlPath
+    
+    Write-Host "Running Obfuscar for $v..." -ForegroundColor Blue
+    obfuscar.console $obfXmlPath
+    
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "Obfuscation failed for $v! Check search paths." -ForegroundColor Red
+        # Clean up temp file but stop
+        Remove-Item $obfXmlPath -ErrorAction SilentlyContinue
+        exit 1
     }
 
-    Write-Host "Copying from $binFolder to $targetDir..."
-    Copy-Item -Path "$binFolder\*" -Destination $targetDir -Recurse -Force
+    # 4. PACKAGE INTO DISTRIBUTE
+    Write-Host "Copying encrypted assemblies to $addonSubDir..." -ForegroundColor Green
     
-    # Create .addin manifest for this version
+    # Copy main DLL from obfuscated output
+    Copy-Item -Path "$obfOutDir\antiGGGravity.dll" -Destination $addonSubDir -Force
+    
+    # Copy dependencies (not obfuscated) from bin
+    Get-ChildItem -Path $inDir -Exclude "antiGGGravity.dll", "antiGGGravity.pdb" | Copy-Item -Destination $addonSubDir -Force -Recurse
+
+    # 5. GENERATE MANIFEST (.addin)
     $manifestPath = Join-Path $targetDir "antiGGGravity.addin"
     $manifestContent = @"
 <?xml version="1.0" encoding="utf-8"?>
@@ -39,14 +132,28 @@ foreach ($v in $VersionsToBuild) {
   <AddIn Type="Application">
     <Name>antiGGGravity</Name>
     <FullClassName>antiGGGravity.App</FullClassName>
-    <Assembly>antiGGGravity\$v\antiGGGravity.dll</Assembly>
+    <Assembly>antiGGGravity\antiGGGravity.dll</Assembly>
     <AddInId>35A1E7B9-940B-4D95-8E39-9C17FD430693</AddInId>
     <VendorId>antiGGGravity</VendorId>
     <VendorDescription>antiGGGravity</VendorDescription>
   </AddIn>
 </RevitAddIns>
 "@
-    $manifestContent | Set-Content -Path $manifestPath
+    $manifestContent | Set-Content -Path $manifestPath -Encoding utf8
+
+    # CLEANUP TEMP
+    Remove-Item $obfXmlPath -ErrorAction SilentlyContinue
 }
 
-Write-Host "Multi-version build complete. Check the Distribute folder." -ForegroundColor Green
+# 6. COPY SUPPORTING FILES (INSTALL/UNINSTALL/INSTRUCUTIONS)
+Write-Host "`nCopying supporting files into Distribute..." -ForegroundColor Yellow
+$supportingFiles = @("install.bat", "uninstall.bat", "instructions.txt")
+foreach ($file in $supportingFiles) {
+    if (Test-Path "$PSScriptRoot\$file") {
+        Copy-Item -Path "$PSScriptRoot\$file" -Destination $distRoot -Force
+    }
+}
+
+Write-Host "`nALL VERSIONS BUILT AND ENCRYPTED SUCCESSFULLY! 🚀" -ForegroundColor Green
+Write-Host "Artifacts are ready in the 'Distribute' folder." -ForegroundColor Green
+

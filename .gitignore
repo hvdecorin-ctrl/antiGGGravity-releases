@@ -54,6 +54,10 @@ bld/
 *.addin
 !antiGGGravity.addin
 
+# Private KeyGen Apps (NEVER distribute)
+KeyGen/
+KeyGenUI/
+
 # Project Build Logs
 build_errors.log
 build_errors.txt

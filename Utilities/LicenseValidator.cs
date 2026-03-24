@@ -1,128 +1,187 @@
 using System;
-using System.Net.Http;
-using System.Threading.Tasks;
-using antiGGGravity.Utilities;
 
 namespace antiGGGravity.Utilities
 {
     /// <summary>
-    /// Validates licenses against a GitHub Gist containing license entries.
+    /// Validates licenses using offline HMAC-signed keys.
+    /// Supports a 7-day free trial period from first install.
+    /// Results are cached per Revit session for performance.
     /// </summary>
     public static class LicenseValidator
     {
-        // TODO: Replace with your actual Gist raw URL after creating it
-        private const string LicenseUrl = "https://gist.githubusercontent.com/YOUR_USERNAME/GIST_ID/raw/licenses.txt";
-        
-        private static readonly HttpClient _httpClient = new HttpClient
-        {
-            Timeout = TimeSpan.FromSeconds(10)
-        };
-        
         /// <summary>
-        /// Validates the current machine's license asynchronously.
+        /// Number of free trial days from first install.
         /// </summary>
-        public static async Task<LicenseResult> ValidateLicenseAsync()
-        {
-            var hardwareId = HardwareIdGenerator.GetHardwareId();
-            
-            try
-            {
-                // Use ConfigureAwait(false) to prevent deadlocks in UI thread
-                var content = await _httpClient.GetStringAsync(LicenseUrl).ConfigureAwait(false);
-                return ParseLicenseContent(content, hardwareId);
-            }
-            catch (HttpRequestException)
-            {
-                return LicenseResult.Error("Unable to connect to license server. Check your internet connection.");
-            }
-            catch (TaskCanceledException)
-            {
-                return LicenseResult.Error("License server request timed out.");
-            }
-            catch (Exception ex)
-            {
-                return LicenseResult.Error($"Validation error: {ex.Message}");
-            }
-        }
-        
+        public const int TrialDays = 7;
+
         /// <summary>
-        /// Synchronous license validation for use in Revit commands.
-        /// Safely waits for the task to complete without deadlocking.
+        /// Tolerance in hours before flagging clock tampering.
+        /// </summary>
+        private const int ClockToleranceHours = 1;
+
+        // Session-level cache — avoids re-reading files on every command
+        private static LicenseResult _cachedResult;
+        private static DateTime _cacheTime = DateTime.MinValue;
+        private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(5);
+
+        /// <summary>
+        /// Validates the current machine's license.
+        /// Uses cached result within the cache window for performance.
         /// </summary>
         public static LicenseResult ValidateLicense()
         {
-            try
-            {
-                // Run on thread pool with a 15-second total timeout
-                var task = Task.Run(() => ValidateLicenseAsync());
-                if (task.Wait(TimeSpan.FromSeconds(15)))
-                {
-                    return task.Result;
-                }
-                return LicenseResult.Error("License validation timed out (15s). Please check your internet.");
-            }
-            catch (Exception ex)
-            {
-                return LicenseResult.Error($"License system error: {ex.Message}");
-            }
+            // Return cached result if still fresh
+            if (_cachedResult != null && (DateTime.UtcNow - _cacheTime) < CacheDuration)
+                return _cachedResult;
+
+            var result = PerformValidation();
+            _cachedResult = result;
+            _cacheTime = DateTime.UtcNow;
+            return result;
         }
-        
-        private static LicenseResult ParseLicenseContent(string content, string hardwareId)
+
+        /// <summary>
+        /// Clears the cached result. Call after activating a new key.
+        /// </summary>
+        public static void InvalidateCache()
         {
-            var lines = content.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
-            
-            foreach (var line in lines)
+            _cachedResult = null;
+            _cacheTime = DateTime.MinValue;
+        }
+
+        /// <summary>
+        /// Gets the current license status without cache (for UI display).
+        /// </summary>
+        public static LicenseResult GetCurrentStatus()
+        {
+            return PerformValidation();
+        }
+
+        private static LicenseResult PerformValidation()
+        {
+            // 1. Record install date for trial tracking
+            LicenseStorage.EnsureInstallDateRecorded();
+
+            // 2. Anti-clock tampering check
+            if (IsClockTampered())
             {
-                var parts = line.Trim().Split('|');
-                if (parts.Length >= 2 && 
-                    string.Equals(parts[0].Trim(), hardwareId, StringComparison.OrdinalIgnoreCase))
+                return LicenseResult.Error(
+                    "System clock tampering detected. Please set your system time correctly and restart Revit.");
+            }
+
+            // 3. Update the last-seen timestamp
+            LicenseStorage.SaveLastSeenDate(DateTime.UtcNow);
+
+            // 4. Try to validate stored activation key
+            var storedKey = LicenseStorage.LoadLicenseKey();
+            if (!string.IsNullOrEmpty(storedKey))
+            {
+                var hwid = HardwareIdGenerator.GetHardwareId();
+                var keyResult = LicenseCrypto.ValidateActivationKey(storedKey, hwid);
+
+                if (keyResult.IsValid)
                 {
-                    if (DateTime.TryParse(parts[1].Trim(), out var expiry))
-                    {
-                        if (expiry.Date >= DateTime.Today)
-                        {
-                            return LicenseResult.Valid(expiry);
-                        }
-                        return LicenseResult.Expired(expiry);
-                    }
+                    return LicenseResult.Valid(keyResult.ExpiryDate.Value);
+                }
+                else if (keyResult.IsExpired)
+                {
+                    return LicenseResult.Expired(keyResult.ExpiryDate.Value);
+                }
+                else
+                {
+                    // Key is invalid (wrong HWID, corrupt, etc.)
+                    return LicenseResult.Error(
+                        $"License key invalid: {keyResult.Message}\n\nPlease contact support or re-enter your activation key.");
                 }
             }
-            
-            return LicenseResult.NotFound();
+
+            // 5. No activation key — check free trial
+            return CheckTrialPeriod();
+        }
+
+        private static LicenseResult CheckTrialPeriod()
+        {
+            var installDate = LicenseStorage.GetInstallDate();
+
+            if (installDate == null)
+            {
+                // Should not happen (EnsureInstallDateRecorded was called above),
+                // but treat as expired trial for safety
+                return LicenseResult.TrialExpired();
+            }
+
+            var daysSinceInstall = (DateTime.UtcNow - installDate.Value).TotalDays;
+
+            if (daysSinceInstall <= TrialDays)
+            {
+                int daysRemaining = Math.Max(1, (int)Math.Ceiling(TrialDays - daysSinceInstall));
+                return LicenseResult.Trial(daysRemaining);
+            }
+
+            return LicenseResult.TrialExpired();
+        }
+
+        private static bool IsClockTampered()
+        {
+            var lastSeen = LicenseStorage.LoadLastSeenDate();
+            if (lastSeen == null) return false; // First run, no tampering possible
+
+            // If current time is more than 1 hour BEFORE the last-seen time,
+            // the user likely set the clock back
+            return DateTime.UtcNow < lastSeen.Value.AddHours(-ClockToleranceHours);
         }
     }
-    
+
     /// <summary>
     /// Represents the result of a license validation check.
     /// </summary>
     public class LicenseResult
     {
         public bool IsValid { get; private set; }
+        public bool IsTrial { get; private set; }
+        public int TrialDaysRemaining { get; private set; }
         public DateTime? ExpiryDate { get; private set; }
         public string Message { get; private set; }
-        
+
         private LicenseResult() { }
-        
+
         public static LicenseResult Valid(DateTime expiry) => new LicenseResult
         {
             IsValid = true,
+            IsTrial = false,
             ExpiryDate = expiry,
             Message = $"License valid until {expiry:yyyy-MM-dd}"
         };
-        
+
+        public static LicenseResult Trial(int daysRemaining) => new LicenseResult
+        {
+            IsValid = true,
+            IsTrial = true,
+            TrialDaysRemaining = daysRemaining,
+            Message = $"Free trial: {daysRemaining} day{(daysRemaining != 1 ? "s" : "")} remaining"
+        };
+
+        public static LicenseResult TrialExpired() => new LicenseResult
+        {
+            IsValid = false,
+            IsTrial = true,
+            TrialDaysRemaining = 0,
+            Message = "Your 7-day free trial has expired.\nPlease activate a license to continue using antiGGGravity."
+        };
+
         public static LicenseResult Expired(DateTime expiry) => new LicenseResult
         {
             IsValid = false,
             ExpiryDate = expiry,
-            Message = $"License expired on {expiry:yyyy-MM-dd}. Please contact support for renewal."
+            Message = $"License expired on {expiry:yyyy-MM-dd}.\nPlease contact support for renewal."
         };
-        
+
         public static LicenseResult NotFound() => new LicenseResult
         {
             IsValid = false,
-            Message = "License not found. Please contact support with your Hardware ID."
+            Message = "License not found. Please activate with your Hardware ID."
         };
-        
+
         public static LicenseResult Error(string error) => new LicenseResult
         {
             IsValid = false,

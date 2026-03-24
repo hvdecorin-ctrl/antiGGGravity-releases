@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <RevitAddIns>
   <AddIn Type="Application">
     <Name>antiGGGravity</Name>
     <FullClassName>antiGGGravity.App</FullClassName>
-    <Assembly>antiGGGravity\R23\antiGGGravity.dll</Assembly>
+    <Assembly>antiGGGravity\antiGGGravity.dll</Assembly>
     <AddInId>35A1E7B9-940B-4D95-8E39-9C17FD430693</AddInId>
     <VendorId>antiGGGravity</VendorId>
     <VendorDescription>antiGGGravity</VendorDescription>

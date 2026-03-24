@@ -20,19 +20,34 @@ namespace antiGGGravity.Commands
         {
             try
             {
-                // 1. License Check (DISABLED for Conversion Phase)
-                /*
+                // 1. License Check
                 if (RequiresLicense)
                 {
                     var license = LicenseValidator.ValidateLicense();
                     if (!license.IsValid)
                     {
-                        TaskDialog.Show("antiGGGravity License", 
-                            $"Validation Failed:\n{license.Message}\n\nPlease check your internet or contact support.");
+                        var dialog = new TaskDialog("antiGGGravity License")
+                        {
+                            MainIcon = TaskDialogIcon.TaskDialogIconWarning,
+                            MainInstruction = "License Required",
+                            MainContent = license.Message + "\n\nWould you like to open the License Manager to activate a key?",
+                            CommonButtons = TaskDialogCommonButtons.Close
+                        };
+                        dialog.AddCommandLink(TaskDialogCommandLinkId.CommandLink1, "Open License Manager");
+
+                        var result = dialog.Show();
+                        
+                        if (result == TaskDialogResult.CommandLink1)
+                        {
+                            // Route them to the activation dialog
+                            var cmd = new antiGGGravity.Commands.AntiGravity.GetHardwareIdCommand();
+                            string dummyMsg = "";
+                            cmd.Execute(commandData, ref dummyMsg, elements);
+                        }
+
                         return Result.Cancelled;
                     }
                 }
-                */
 
                 // 2. Safe Execution
                 return ExecuteSafe(commandData, ref message, elements);
