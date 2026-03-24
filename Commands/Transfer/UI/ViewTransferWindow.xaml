@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Transfer Tool" Height="700" Width="900" 
+        Title="Transfer Tool" Height="800" Width="900" 
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         WindowStartupLocation="CenterScreen"
         MinHeight="500" MinWidth="700">
@@ -40,7 +40,7 @@
                         <TextBlock Style="{DynamicResource CompanyLogoStyle}"/>
                         <TextBlock Style="{DynamicResource CompanyDividerStyle}"/>
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="Transfer" Style="{DynamicResource PremiumTitleStyle}"/>
+                            <TextBlock Text="Transfer &amp; Family" Style="{DynamicResource PremiumTitleStyle}"/>
                             <TextBlock Text="Selectively transfer views, sheets &amp; families across projects" Style="{DynamicResource PremiumSubtitleStyle}"/>
                         </StackPanel>
                     </StackPanel>

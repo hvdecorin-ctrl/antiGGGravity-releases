@@ -19,12 +19,13 @@
 
     <!-- Prevent MSBuild from scanning the project directory for assemblies (avoids picking up .NET 8 DLLs from Distribute/) -->
     <AssemblySearchPaths Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
+      {CandidateAssemblyFiles};
       {HintPathFromItem};
       {TargetFrameworkDirectory};
-      {Registry:Software\Microsoft\.NETFramework,$(TargetFrameworkVersion),AssemblyFoldersEx};
+      {RegistryPreferredFilePaths};
+      {AssemblyFolders};
       {GAC};
       {RawFileName};
-      $(OutDir)
     </AssemblySearchPaths>
   </PropertyGroup>
 

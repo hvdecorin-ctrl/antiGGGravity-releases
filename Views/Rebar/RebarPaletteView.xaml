@@ -112,10 +112,10 @@
                                 <TextBlock Text="Quick Pick" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/>
                             </StackPanel>
                         </Button>
-                        <Button Style="{StaticResource PaletteButton}" Tag="ColorSplasher" Click="ToolButton_Click" ToolTip="Visualize Values (Color Splasher)">
+                        <Button Style="{StaticResource PaletteButton}" Tag="QuickFilter" Click="ToolButton_Click" ToolTip="Quick Filter (Filter &amp; Color)">
                             <StackPanel Orientation="Vertical">
-                                <Image Source="pack://application:,,,/antiGGGravity;component/Resources/Icons/ColorSplasher(32x32).png" Width="32" Height="32"/>
-                                <TextBlock Text="Splasher" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/>
+                                <Image Source="pack://application:,,,/antiGGGravity;component/Resources/Icons/QuickFilter(32x32).png" Width="32" Height="32"/>
+                                <TextBlock Text="Filter" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/>
                             </StackPanel>
                         </Button>
                         <Button Style="{StaticResource PaletteButton}" Tag="BeamRebar" Click="ToolButton_Click" ToolTip="Reinforce Beams">

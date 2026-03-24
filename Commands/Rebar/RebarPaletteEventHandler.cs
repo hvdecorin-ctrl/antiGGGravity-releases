@@ -29,7 +29,7 @@ namespace antiGGGravity.Commands.Rebar
                     case "RebarCranked": new RebarCrankCommand().Run(app); break;
                     case "RebarSplit": new RebarSplitCommand().Run(app); break;
                     case "QuickPick": new PickElementsCommand().Run(app); break;
-                    case "ColorSplasher": new antiGGGravity.Commands.Overrides.ColorSplashCommand().Run(app); break;
+                    case "QuickFilter": new antiGGGravity.Commands.Overrides.QuickFilterCommand().Run(app); break;
                     case "BeamRebar": new BeamRebarCommand().Run(app); break;
                     case "FoundationRebar": new FoundationRebarCommand().Run(app); break;
                     case "WallRebar": new WallRebarCommand().Run(app); break;

@@ -1,10 +1,10 @@
-<Window x:Class="antiGGGravity.Views.Overrides.ColorSplasherView"
+<Window x:Class="antiGGGravity.Views.Overrides.QuickFilterView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Color Splasher" Height="520" Width="660"
+        Title="Filter &amp; Color" Height="800" Width="660"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         WindowStartupLocation="CenterScreen" Topmost="True">
 
@@ -53,7 +53,7 @@
                         <TextBlock Style="{StaticResource CompanyLogoStyle}"/>
                         <TextBlock Style="{StaticResource CompanyDividerStyle}"/>
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="Color Splasher" Style="{StaticResource PremiumTitleStyle}"/>
+                            <TextBlock Text="Filter &amp; Color" Style="{StaticResource PremiumTitleStyle}"/>
                             <TextBlock Text="Visualize parameter values with color overrides" Style="{StaticResource PremiumSubtitleStyle}"/>
                         </StackPanel>
                     </StackPanel>
@@ -94,8 +94,9 @@
                         <TextBlock Grid.Row="2" Text="Parameter:" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,0,0,8"/>
                         
                         <!-- Search Box -->
-                        <TextBox x:Name="UI_Txt_Search" Grid.Row="3" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0"
-                                 Margin="0,0,0,10" TextChanged="UI_Txt_Search_TextChanged"
+                        <TextBox x:Name="UI_Txt_Search" Grid.Row="3" Height="32" Padding="30,0,8,0" VerticalContentAlignment="Center" 
+                                 Style="{StaticResource PremiumTextBoxStyle}" Margin="0,0,0,15" 
+                                 TextChanged="UI_Txt_Search_TextChanged"
                                  Tag="Search parameters..."/>
 
                         <ListBox x:Name="UI_List_Parameters" Grid.Row="4" Background="White" BorderBrush="#E0E0E0"
@@ -134,7 +135,31 @@
                                   RowHeight="36" AlternatingRowBackground="#FAFAFA" GridLinesVisibility="Horizontal"
                                   HorizontalGridLinesBrush="#F0F0F0" Margin="1">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Value" Binding="{Binding Value}" Width="*" IsReadOnly="True" />
+                                <DataGridTemplateColumn Width="*" IsReadOnly="True">
+                                    <DataGridTemplateColumn.HeaderStyle>
+                                        <Style TargetType="DataGridColumnHeader">
+                                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                            <Setter Property="VerticalContentAlignment" Value="Center"/>
+                                            <Setter Property="Background" Value="Transparent"/>
+                                            <Setter Property="Padding" Value="0"/>
+                                        </Style>
+                                    </DataGridTemplateColumn.HeaderStyle>
+                                    <DataGridTemplateColumn.Header>
+                                        <Grid HorizontalAlignment="Stretch">
+                                            <TextBox x:Name="UI_Txt_ValueSearch" 
+                                                     Height="28" Margin="0,2"
+                                                     HorizontalAlignment="Stretch"
+                                                     Style="{StaticResource PremiumTextBoxStyle}"
+                                                     Tag="Search list..."
+                                                     TextChanged="UI_Txt_ValueSearch_TextChanged"/>
+                                        </Grid>
+                                    </DataGridTemplateColumn.Header>
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Value}" VerticalAlignment="Center" Padding="15,0"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
                                 <DataGridTextColumn Header="Count" Binding="{Binding Count}" Width="80" IsReadOnly="True" />
                                 
                                 <!-- Color Column -->

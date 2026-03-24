@@ -5,10 +5,10 @@ panels:
   - name: Overrides
     items:
       - type: pushbutton
-        name: Color Splasher
-        command: ColorSplashCommand
-        icon: ColorSplasher
-        tooltip: Color-code elements by a chosen parameter value.
+        name: Quick Filter
+        command: QuickFilterCommand
+        icon: QuickFilter
+        tooltip: Quickly filter and color-code elements by a chosen parameter value.
       - type: stacked
         buttons:
           - type: pulldown

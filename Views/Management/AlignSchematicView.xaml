@@ -78,19 +78,20 @@
                         <Border Grid.Row="0" Background="#F8F9FA" Padding="15,10" CornerRadius="8,8,0,0" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,0,0,1">
                             <TextBlock Text="2. Select Target Sheets" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0"/>
                         </Border>
-                        <Grid Grid.Row="1" Margin="20,10,15,5">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <CheckBox x:Name="UI_Check_SelectAll" VerticalAlignment="Center" 
-                                      Checked="UI_Check_SelectAll_Changed" Unchecked="UI_Check_SelectAll_Changed"/>
-                            <TextBlock Grid.Column="1" Text="Select" FontSize="13" Margin="8,0,0,0" VerticalAlignment="Center"/>
-                        </Grid>
-                        <ListBox x:Name="UI_List_Others" Grid.Row="2" Margin="15,5,15,15" SelectionMode="Extended" BorderThickness="1" BorderBrush="#E0E0E0">
+                        <TextBox x:Name="UI_Txt_OthersSearch" Grid.Row="1" Height="32" Margin="15,10,15,5" Padding="25,0,5,0" 
+                                 VerticalContentAlignment="Center" BorderBrush="#E0E0E0" 
+                                 Style="{StaticResource PremiumTextBoxStyle}" Tag="Search target sheets..."
+                                 TextChanged="UI_Txt_OthersSearch_TextChanged"/>
+                        <ListBox x:Name="UI_List_Others" Grid.Row="2" Margin="15,5,15,15" SelectionMode="Extended" 
+                                 BorderThickness="1" BorderBrush="#E0E0E0" SelectionChanged="UI_List_Others_SelectionChanged">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <CheckBox IsChecked="{Binding IsSelected}" Content="{Binding Name}" Margin="5,2"/>
+                                    <TextBlock Text="{Binding Name}" Margin="5,2"/>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
@@ -111,7 +112,8 @@
                     <TextBlock x:Name="UI_Status_Text" Grid.Column="0" VerticalAlignment="Center" Foreground="#999999"/>
                     
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,20,0">
-                       <CheckBox x:Name="UI_Check_Titleblock" Content="Align Titleblock" IsChecked="True" Margin="0,0,15,0"/> 
+                       <CheckBox x:Name="UI_Check_Titleblock" Content="Align Titleblock" IsChecked="True" Visibility="Collapsed"/> 
+                       <CheckBox x:Name="UI_Check_Viewports" Content="Align Viewports" IsChecked="True" Margin="0,0,15,0"/> 
                        <CheckBox x:Name="UI_Check_Legends" Content="Align Legends" IsChecked="False"/> 
                     </StackPanel>
 

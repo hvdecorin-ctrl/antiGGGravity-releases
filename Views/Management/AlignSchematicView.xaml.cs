@@ -59,18 +59,17 @@ namespace antiGGGravity.Views.Management
             UpdateStatus();
         }
 
-        private void UI_Check_SelectAll_Changed(object sender, RoutedEventArgs e)
+        private void UI_List_Others_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (UI_List_Others == null || UI_Check_SelectAll == null || _allSheets == null) return;
-            
-            bool isChecked = UI_Check_SelectAll.IsChecked == true;
-            var main = UI_List_Main.SelectedItem as AlignSheetItem;
-            
-            foreach (var item in _allSheets)
-            {
-                if (item != main) item.IsSelected = isChecked;
-            }
             UpdateStatus();
+        }
+
+        private void UI_Txt_OthersSearch_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (_allSheets == null) return;
+            string filter = UI_Txt_OthersSearch.Text.ToLower();
+            var filtered = _allSheets.Where(s => s.Name.ToLower().Contains(filter)).ToList();
+            UI_List_Others.ItemsSource = filtered;
         }
 
         private void UpdateStatus()
@@ -110,6 +109,7 @@ namespace antiGGGravity.Views.Management
             }
 
             bool alignTitle = UI_Check_Titleblock.IsChecked == true;
+            bool alignViewport = UI_Check_Viewports.IsChecked == true;
             bool alignLegend = UI_Check_Legends.IsChecked == true;
 
             using (Transaction t = new Transaction(_doc, "Align Schematic Views"))
@@ -131,7 +131,7 @@ namespace antiGGGravity.Views.Management
                         
                         // Align all matching viewports by type and name
                         // legends are handled specifically by the UI checkbox
-                        targetData.AlignToMaster(mainData, true, alignLegend);
+                        targetData.AlignToMaster(mainData, alignViewport, alignLegend);
                         
                         if (alignTitle) targetData.AlignTitleBlock();
                     }

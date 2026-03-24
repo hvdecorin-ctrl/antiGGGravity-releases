@@ -7,7 +7,7 @@ using antiGGGravity.Utilities;
 
 namespace antiGGGravity.Views.Overrides
 {
-    public enum ColorSplashAction
+    public enum QuickFilterAction
     {
         Apply,
         Reset,
@@ -16,12 +16,12 @@ namespace antiGGGravity.Views.Overrides
         Isolate
     }
 
-    public class ColorSplashHandler : IExternalEventHandler
+    public class QuickFilterHandler : IExternalEventHandler
     {
-        private ColorSplasherView _view;
-        public ColorSplashAction CurrentAction { get; set; }
+        private QuickFilterView _view;
+        public QuickFilterAction CurrentAction { get; set; }
 
-        public ColorSplashHandler(ColorSplasherView view)
+        public QuickFilterHandler(QuickFilterView view)
         {
             _view = view;
         }
@@ -36,19 +36,19 @@ namespace antiGGGravity.Views.Overrides
             {
                 switch (CurrentAction)
                 {
-                    case ColorSplashAction.Apply:
+                    case QuickFilterAction.Apply:
                         ApplyColors(doc, activeView);
                         break;
-                    case ColorSplashAction.Reset:
+                    case QuickFilterAction.Reset:
                         ResetColors(doc, activeView);
                         break;
-                    case ColorSplashAction.CreateLegend:
+                    case QuickFilterAction.CreateLegend:
                         CreateLegend(doc);
                         break;
-                    case ColorSplashAction.CreateFilters:
+                    case QuickFilterAction.CreateFilters:
                         CreateFilters(doc, activeView);
                         break;
-                    case ColorSplashAction.Isolate:
+                    case QuickFilterAction.Isolate:
                         IsolateElements(doc, activeView);
                         break;
                 }
@@ -61,7 +61,7 @@ namespace antiGGGravity.Views.Overrides
 
         public string GetName()
         {
-            return "Color Splasher Handler";
+            return "Quick Filter Handler";
         }
 
         private void ApplyColors(Document doc, View view)
@@ -69,7 +69,7 @@ namespace antiGGGravity.Views.Overrides
             if (_view.UI_Combo_Category.SelectedItem is CategoryItem catItem &&
                 _view.UI_List_Parameters.SelectedItem is ParameterItem paramItem)
             {
-                using (Transaction t = new Transaction(doc, "Color Splash"))
+                using (Transaction t = new Transaction(doc, "Quick Filter"))
                 {
                     t.Start();
 
@@ -186,7 +186,7 @@ namespace antiGGGravity.Views.Overrides
                     View newLegend = doc.GetElement(newLegendId) as View;
 
                     // 3. Rename
-                    string newName = $"Color Splasher - {catItem.Name} - {paramItem.Name}";
+                    string newName = $"Quick Filter - {catItem.Name} - {paramItem.Name}";
                     try
                     {
                         newLegend.Name = newName;

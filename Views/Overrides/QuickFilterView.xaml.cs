@@ -10,7 +10,7 @@ using Autodesk.Revit.UI;
 
 namespace antiGGGravity.Views.Overrides
 {
-    public partial class ColorSplasherView : Window
+    public partial class QuickFilterView : Window
     {
         private UIApplication _uiApp;
         private UIDocument _uidoc;
@@ -21,7 +21,7 @@ namespace antiGGGravity.Views.Overrides
         private ExternalEvent _resetEvent;
         private ExternalEvent _legendEvent;
         private ExternalEvent _filtersEvent;
-        private ColorSplashHandler _handler;
+        private QuickFilterHandler _handler;
 
         public ObservableCollection<CategoryItem> Categories { get; set; }
         
@@ -31,8 +31,9 @@ namespace antiGGGravity.Views.Overrides
         // Bound collection
         public ObservableCollection<ParameterItem> Parameters { get; set; }
         public ObservableCollection<ValueItem> Values { get; set; }
+        private List<ValueItem> _allValues; // Full list for filtering values
 
-        public ColorSplasherView(UIApplication uiApp)
+        public QuickFilterView(UIApplication uiApp)
         {
             InitializeComponent();
             _uiApp = uiApp;
@@ -40,13 +41,14 @@ namespace antiGGGravity.Views.Overrides
             _doc = _uidoc.Document;
 
             // Initialize Handlers
-            _handler = new ColorSplashHandler(this);
+            _handler = new QuickFilterHandler(this);
             _applyEvent = ExternalEvent.Create(_handler);
 
             Categories = new ObservableCollection<CategoryItem>();
             _allParameters = new List<ParameterItem>();
             Parameters = new ObservableCollection<ParameterItem>();
             Values = new ObservableCollection<ValueItem>();
+            _allValues = new List<ValueItem>();
 
             UI_List_Parameters.ItemsSource = Parameters;
             UI_Grid_Values.ItemsSource = Values;
@@ -196,6 +198,8 @@ namespace antiGGGravity.Views.Overrides
         private void LoadValues(Category cat, ParameterItem paramItem)
         {
             Values.Clear();
+            _allValues.Clear();
+            UI_Txt_ValueSearch.Text = "";
             
             var collector = new FilteredElementCollector(_doc, _doc.ActiveView.Id)
                 .OfCategoryId(cat.Id);
@@ -245,10 +249,25 @@ namespace antiGGGravity.Views.Overrides
 
             foreach (var kvp in data)
             {
-                Values.Add(new ValueItem { Value = kvp.Key, Count = kvp.Value.Count, DoubleValue = kvp.Value.Internal, ColorBrush = Brushes.Gray });
+                var item = new ValueItem { Value = kvp.Key, Count = kvp.Value.Count, DoubleValue = kvp.Value.Internal, ColorBrush = Brushes.Gray };
+                _allValues.Add(item);
+                Values.Add(item);
             }
             
             RandomizeColors();
+        }
+
+        private void UI_Txt_ValueSearch_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            string filter = UI_Txt_ValueSearch.Text.ToLower();
+            Values.Clear();
+            foreach (var item in _allValues)
+            {
+                if (string.IsNullOrEmpty(filter) || item.Value.ToLower().Contains(filter))
+                {
+                    Values.Add(item);
+                }
+            }
         }
 
         private void RandomizeColors()
@@ -313,31 +332,31 @@ namespace antiGGGravity.Views.Overrides
 
         private void UI_Btn_Apply_Click(object sender, RoutedEventArgs e) 
         {
-            _handler.CurrentAction = ColorSplashAction.Apply;
+            _handler.CurrentAction = QuickFilterAction.Apply;
             _applyEvent.Raise();
         }
         
         private void UI_Btn_Reset_Click(object sender, RoutedEventArgs e)
         {
-             _handler.CurrentAction = ColorSplashAction.Reset;
+             _handler.CurrentAction = QuickFilterAction.Reset;
              _applyEvent.Raise();
         }
 
         private void UI_Btn_Legend_Click(object sender, RoutedEventArgs e)
         {
-            _handler.CurrentAction = ColorSplashAction.CreateLegend;
+            _handler.CurrentAction = QuickFilterAction.CreateLegend;
             _applyEvent.Raise();
         }
 
         private void UI_Btn_Filters_Click(object sender, RoutedEventArgs e)
         {
-            _handler.CurrentAction = ColorSplashAction.CreateFilters;
+            _handler.CurrentAction = QuickFilterAction.CreateFilters;
             _applyEvent.Raise();
         }
 
         private void UI_Btn_Isolate_Click(object sender, RoutedEventArgs e)
         {
-            _handler.CurrentAction = ColorSplashAction.Isolate;
+            _handler.CurrentAction = QuickFilterAction.Isolate;
             _applyEvent.Raise();
         }
 
