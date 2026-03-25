@@ -70,7 +70,7 @@
 | **Add Views** | Batch-place multiple views onto sheets in a single operation. |
 | **Duplicate Sheets** | Clone sheets with their titleblock, viewport layout, and configurations. |
 | **Set Crop View** | Interactively set or adjust the crop region boundary on section and plan views. |
-| **Toggle Crop** | One-click crop region visibility toggle for the active view. |
+| **Crop Region** | Toggle crop region visibility for all views placed on any sheet in the project. |
 | **Zoom To** | Instantly zoom to the bounding box of selected elements—no more manual pan-and-zoom. |
 | **Auto 3D** | Generate a default 3D view of selected elements with automatic orientation and section box. |
 | **Toggle 3D** | Toggle the section box on/off in the active 3D view. |
@@ -152,7 +152,7 @@ A complete parametric bracing system for steel structures:
 | **Toggle All Grids** | Master toggle for all grid line visibility. |
 | **Grid 3D & 2D** | Switch grid representation between 3D extents and 2D view-specific display. |
 | **Flip Elements** | Batch-flip the facing orientation of selected elements (beams,walls, doors, windows). |
-| **Transfer Templates** | Transfer view templates between views for consistent presentation. |
+| **Transfer Family** | Advanced transfer of views, templates, sheets, and families between Revit documents. Now with full **View Template** support. |
 | **Copy Filters** | Synchronize view filters from a source view to multiple target views—essential for maintaining drawing standards. |
 | **Filters Legend** | Auto-generate a color-coded legend sheet from active view filters for presentation and coordination. |
 | **Rotate Multiple** | Rotate multiple selected elements simultaneously around their individual centers. |
@@ -180,8 +180,8 @@ A complete parametric bracing system for steel structures:
 
 | Specification | Detail |
 |---|---|
-| **Target Platforms** | Revit 2025, Revit 2026 |
-| **Runtime** | .NET 8.0 (Core) |
+| **Target Platforms** | Revit 2022, 2023, 2024, 2025, 2026 |
+| **Runtime** | .NET Framework 4.8 / .NET 8.0 (Core) |
 | **Language** | C# / WPF |
 | **UI Framework** | Centralized XAML resource dictionaries (`Pre_BrandStyles.xaml`) with standardized `PremiumWindowChrome` |
 | **Configuration** | User preferences persisted via JSON in `%AppData%` |
