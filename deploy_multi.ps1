@@ -1,7 +1,13 @@
 # Deploy multi-version script
 param (
-    [string[]]$VersionsToBuild = @("R22", "R23", "R24", "R25", "R26")
+    [Parameter(Mandatory=$false)]
+    [object]$VersionsToBuild = @("R22", "R23", "R24", "R25", "R26")
 )
+
+# Normalize input if it comes in as a single string with spaces or commas
+if ($VersionsToBuild -is [string]) {
+    $VersionsToBuild = $VersionsToBuild -split '[\s,]+' | Where-Object { $_ -ne "" }
+}
 
 $distRoot = "Distribute"
 Write-Host "Cleaning up previous build artifacts..." -ForegroundColor Gray
@@ -34,12 +40,12 @@ foreach ($v in $VersionsToBuild) {
     # 1. CLEAN & BUILD
     if ($isNet8) {
         # NET 8+ uses dotnet build perfectly
-        dotnet build antiGGGravity.csproj -c $v --no-incremental
+        dotnet build antiGGGravity.csproj -c $v --no-incremental -p:EmbedLicense=true
     } else {
         # NET 4.8 WPF builds have MC1000 bugs in 'dotnet build'. 
         # We use Full MSBuild.exe from Visual Studio 2022 to fix this.
         $msbuildPath = "C:\Program Files\Microsoft Visual Studio\18\Community\MSBuild\Current\Bin\MSBuild.exe"
-        & $msbuildPath antiGGGravity.csproj /p:Configuration=$v /p:DeployToRevit=false /t:Clean,Build /nodeReuse:false
+        & $msbuildPath antiGGGravity.csproj /p:Configuration=$v /p:DeployToRevit=false /p:EmbedLicense=true /t:Clean,Build /nodeReuse:false
     }
     
     if ($LASTEXITCODE -ne 0) {

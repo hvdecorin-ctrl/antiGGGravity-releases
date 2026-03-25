@@ -11,15 +11,15 @@ panels:
         tooltip: Quickly filter and color-code elements by a chosen parameter value.
       - type: stacked
         buttons:
+          - name: Dim Fake
+            command: DimFakeCommand
+            icon: DimFake
+            tooltip: Override dimension text with a custom value.
           - type: pulldown
-            name: Dim & Text
+            name: Text Edit
             icon: DimText
             tooltip: Dimension and text override tools.
             buttons:
-              - name: DimFake
-                command: DimFakeCommand
-                icon: DimFake
-                tooltip: Override dimension text with a custom value.
               - name: Text Audit
                 command: TextAuditCommand
                 icon: TextAudit

@@ -29,6 +29,7 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
+Distribute/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
@@ -65,5 +66,7 @@ build_errors*.txt
 build_log.txt
 build_log_*.txt
 build_output.txt
+build.log
+msbuild.log
 pushbuttons.txt
 errors_only.txt

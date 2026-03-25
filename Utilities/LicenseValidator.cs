@@ -72,10 +72,14 @@ namespace antiGGGravity.Utilities
                     "System clock tampering detected. Please set your system time correctly and restart Revit.");
             }
 
-            // 3. Update the last-seen timestamp
-            LicenseStorage.SaveLastSeenDate(DateTime.UtcNow);
+            // 3. Compute the effective "now" using high-water mark approach
+            //    This prevents clock rollback from re-validating an expired license.
+            var effectiveNow = GetEffectiveUtcNow();
 
-            // 4. Try to validate stored activation key
+            // 4. Update the last-seen timestamp with the effective time
+            LicenseStorage.SaveLastSeenDate(effectiveNow);
+
+            // 5. Try to validate stored activation key
             var storedKey = LicenseStorage.LoadLicenseKey();
             if (!string.IsNullOrEmpty(storedKey))
             {
@@ -84,6 +88,10 @@ namespace antiGGGravity.Utilities
 
                 if (keyResult.IsValid)
                 {
+                    // Key signature is valid — now check expiry against effectiveNow
+                    if (keyResult.ExpiryDate.Value.Date < effectiveNow.Date)
+                        return LicenseResult.Expired(keyResult.ExpiryDate.Value);
+
                     return LicenseResult.Valid(keyResult.ExpiryDate.Value);
                 }
                 else if (keyResult.IsExpired)
@@ -98,12 +106,12 @@ namespace antiGGGravity.Utilities
                 }
             }
 
-            // 5. No activation key — check free trial
-            return CheckTrialPeriod();
+            // 6. No activation key — check free trial
+            return CheckTrialPeriod(effectiveNow);
 #endif
         }
 
-        private static LicenseResult CheckTrialPeriod()
+        private static LicenseResult CheckTrialPeriod(DateTime effectiveNow)
         {
             var installDate = LicenseStorage.GetInstallDate();
 
@@ -114,7 +122,7 @@ namespace antiGGGravity.Utilities
                 return LicenseResult.TrialExpired();
             }
 
-            var daysSinceInstall = (DateTime.UtcNow - installDate.Value).TotalDays;
+            var daysSinceInstall = (effectiveNow - installDate.Value).TotalDays;
 
             if (daysSinceInstall <= TrialDays)
             {
@@ -133,6 +141,33 @@ namespace antiGGGravity.Utilities
             // If current time is more than 1 hour BEFORE the last-seen time,
             // the user likely set the clock back
             return DateTime.UtcNow < lastSeen.Value.AddHours(-ClockToleranceHours);
+        }
+
+        /// <summary>
+        /// Computes the effective "current time" using the high-water mark approach:
+        ///   effectiveNow = max(DateTime.UtcNow, lastSeen, networkTime)
+        /// This ensures even if the clock is rolled back, we remember the real date.
+        /// </summary>
+        private static DateTime GetEffectiveUtcNow()
+        {
+            var now = DateTime.UtcNow;
+            var effectiveNow = now;
+
+            // Use last-seen date if it's newer than system clock (clock was rolled back)
+            var lastSeen = LicenseStorage.LoadLastSeenDate();
+            if (lastSeen.HasValue && lastSeen.Value > effectiveNow)
+                effectiveNow = lastSeen.Value;
+
+            // Try network time — non-blocking, 3s timeout
+            try
+            {
+                var networkTime = NetworkTime.GetUtcNow();
+                if (networkTime.HasValue && networkTime.Value > effectiveNow)
+                    effectiveNow = networkTime.Value;
+            }
+            catch { }
+
+            return effectiveNow;
         }
     }
 

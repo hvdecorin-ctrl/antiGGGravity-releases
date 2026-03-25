@@ -1,0 +1,22 @@
+antiGGGravity Revit Toolkit - Client Distribution
+=============================================
+
+This package contains the antiGGGravity Revit add-in tools for Revit versions 2022 through 2026.
+
+Installation Instructions:
+--------------------------
+1. Ensure Revit is closed.
+2. Double-click the 'install.bat' file.
+3. Select the number corresponding to your Revit version (e.g., press '5' for Revit 2026).
+4. The batch file will copy the necessary files to your Revit Addins folder automatically.
+5. Launch Revit. You should see the 'antiGGGravity' tab in the ribbon.
+
+Uninstallation:
+---------------
+Run 'uninstall.bat' and select the version you wish to remove.
+
+Support:
+--------
+For any issues, please contact the antiGGGravity development team.
+
+Note: This version is pre-activated for client use. No internet connection or hardware key is required.

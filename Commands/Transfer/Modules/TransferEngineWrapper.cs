@@ -27,12 +27,13 @@ namespace antiGGGravity.Commands.Transfer.Modules
             _sheetBuilder = new SheetBuilder(sourceDoc, targetDoc, _conflictResolver);
         }
 
-        public void ExecuteTransfer(List<ViewTransferItem> viewsToCopy, List<SheetTransferItem> sheetsToCopy, List<FamilyTransferItem> familiesToCopy, List<SystemFamilyTypeItem> systemTypesToCopy = null)
+        public void ExecuteTransfer(List<ViewTransferItem> viewsToCopy, List<SheetTransferItem> sheetsToCopy, List<FamilyTransferItem> familiesToCopy, List<SystemFamilyTypeItem> systemTypesToCopy = null, List<ViewTransferItem> templatesToCopy = null)
         {
             if ((viewsToCopy == null || viewsToCopy.Count == 0) &&
                 (sheetsToCopy == null || sheetsToCopy.Count == 0) &&
                 (familiesToCopy == null || familiesToCopy.Count == 0) &&
-                (systemTypesToCopy == null || systemTypesToCopy.Count == 0))
+                (systemTypesToCopy == null || systemTypesToCopy.Count == 0) &&
+                (templatesToCopy == null || templatesToCopy.Count == 0))
                 return;
 
             // ── Snapshot: Record existing views before transfer ──────────
@@ -64,7 +65,25 @@ namespace antiGGGravity.Commands.Transfer.Modules
                 _copyEngine.CopyFamilies(idsToCopy);
             }
 
-            // ── Step 3: Collect & Categorize ONLY explicitly selected views ──
+            // ── Step 4: Copy View Templates (1 transaction) ──────────────
+            Dictionary<ElementId, ElementId> viewMap = new Dictionary<ElementId, ElementId>();
+            
+            if (templatesToCopy != null && templatesToCopy.Count > 0)
+            {
+                var templateIds = templatesToCopy
+                    .Select(t => t.SourceViewId)
+                    .Where(id => id != null && id != ElementId.InvalidElementId)
+                    .ToList();
+
+                if (templateIds.Count > 0)
+                {
+                    var result = _copyEngine.BatchCopyViewDefinitions(templateIds);
+                    foreach (var kvp in result)
+                        viewMap[kvp.Key] = kvp.Value;
+                }
+            }
+
+            // ── Step 5: Collect & Categorize ONLY explicitly selected views ──
             var planViews = new List<View>();
             var nonPlanViewIds = new List<ElementId>();
 
@@ -91,9 +110,7 @@ namespace antiGGGravity.Commands.Transfer.Modules
                 }
             }
 
-            // ── Step 4: Batch Copy Non-Plan View Definitions (1 transaction) ──
-            Dictionary<ElementId, ElementId> viewMap = new Dictionary<ElementId, ElementId>();
-
+            // ── Step 6: Batch Copy Non-Plan View Definitions (1 transaction) ──
             if (nonPlanViewIds.Count > 0)
             {
                 var batchResult = _copyEngine.BatchCopyViewDefinitions(nonPlanViewIds);
@@ -101,7 +118,7 @@ namespace antiGGGravity.Commands.Transfer.Modules
                     viewMap[kvp.Key] = kvp.Value;
             }
 
-            // ── Step 5: Batch Create Plan Views (1 transaction) ──────────
+            // ── Step 7: Batch Create Plan Views (1 transaction) ──────────
             if (planViews.Count > 0)
             {
                 var planResult = _copyEngine.BatchCreatePlanViews(planViews);

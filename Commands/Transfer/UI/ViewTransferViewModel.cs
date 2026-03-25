@@ -28,6 +28,7 @@ namespace antiGGGravity.Commands.Transfer.UI
         private bool _isSourceLoaded;
 
         private string _viewSearchText;
+        private string _templateSearchText;
         private string _sheetSearchText;
         private string _familySearchText;
         private string _selectedCategory = "All";
@@ -42,6 +43,7 @@ namespace antiGGGravity.Commands.Transfer.UI
         private SheetTransferItem _selectedSheet;
         private FamilyTransferItem _selectedFamily;
         private bool? _selectAllViews = false;
+        private bool? _selectAllTemplates = false;
         private bool? _selectAllSheets = false;
         private bool? _selectAllFamilyTypes = false;
         private bool? _selectAllFamilies = false;
@@ -61,6 +63,7 @@ namespace antiGGGravity.Commands.Transfer.UI
         private string _folder2Path;
 
         public ObservableCollection<ViewTransferItem> AvailableViews { get; set; } = new ObservableCollection<ViewTransferItem>();
+        public ObservableCollection<ViewTransferItem> AvailableTemplates { get; set; } = new ObservableCollection<ViewTransferItem>();
         public ObservableCollection<SheetTransferItem> AvailableSheets { get; set; } = new ObservableCollection<SheetTransferItem>();
         public ObservableCollection<ViewTransferItem> ViewportsInSelectedSheet { get; set; } = new ObservableCollection<ViewTransferItem>();
         public ObservableCollection<FamilyTransferItem> AvailableFamilies { get; set; } = new ObservableCollection<FamilyTransferItem>();
@@ -68,6 +71,7 @@ namespace antiGGGravity.Commands.Transfer.UI
         public ObservableCollection<SystemFamilyTypeItem> AvailableSystemTypes { get; set; } = new ObservableCollection<SystemFamilyTypeItem>();
         
         public ICollectionView FilteredViews { get; private set; }
+        public ICollectionView FilteredTemplates { get; private set; }
         public ICollectionView FilteredSheets { get; private set; }
         public ICollectionView FilteredFamilies { get; private set; }
         public ICollectionView FilteredSystemTypes { get; private set; }
@@ -108,6 +112,12 @@ namespace antiGGGravity.Commands.Transfer.UI
         {
             get => _viewSearchText;
             set { _viewSearchText = value; FilteredViews.Refresh(); OnPropertyChanged(); }
+        }
+
+        public string TemplateSearchText
+        {
+            get => _templateSearchText;
+            set { _templateSearchText = value; FilteredTemplates?.Refresh(); OnPropertyChanged(); }
         }
 
         public string SheetSearchText
@@ -254,6 +264,7 @@ namespace antiGGGravity.Commands.Transfer.UI
                     ResetFilters();
                     OnPropertyChanged(); 
                     OnPropertyChanged(nameof(IsGeneralTab));
+                    OnPropertyChanged(nameof(IsTemplatesTab));
                     OnPropertyChanged(nameof(IsFamiliesTab));
                     OnPropertyChanged(nameof(IsSystemFamiliesTab));
                 }
@@ -263,22 +274,26 @@ namespace antiGGGravity.Commands.Transfer.UI
         private void ResetFilters()
         {
             _viewSearchText = string.Empty;
+            _templateSearchText = string.Empty;
             _sheetSearchText = string.Empty;
             _familySearchText = string.Empty;
             _selectedCategory = "All";
             _selectedFamilyCategory = "All";
             
             OnPropertyChanged(nameof(ViewSearchText));
+            OnPropertyChanged(nameof(TemplateSearchText));
             OnPropertyChanged(nameof(SheetSearchText));
             OnPropertyChanged(nameof(FamilySearchText));
             OnPropertyChanged(nameof(SelectedCategory));
             OnPropertyChanged(nameof(SelectedFamilyCategory));
             FilteredViews?.Refresh();
+            FilteredTemplates?.Refresh();
             FilteredSheets?.Refresh();
             FilteredFamilies?.Refresh();
         }
 
         public bool IsGeneralTab => CurrentTab == "General";
+        public bool IsTemplatesTab => CurrentTab == "Templates";
         public bool IsFamiliesTab => CurrentTab == "Families";
         public bool IsSystemFamiliesTab => CurrentTab == "SystemFamilies";
 
@@ -432,6 +447,21 @@ namespace antiGGGravity.Commands.Transfer.UI
             }
         }
 
+        public bool? SelectAllTemplates
+        {
+            get => _selectAllTemplates;
+            set
+            {
+                _selectAllTemplates = value;
+                if (value.HasValue)
+                {
+                    foreach (ViewTransferItem item in FilteredTemplates)
+                        item.IsSelected = value.Value;
+                }
+                OnPropertyChanged();
+            }
+        }
+
         public bool? SelectAllSheets
         {
             get => _selectAllSheets;
@@ -577,6 +607,16 @@ namespace antiGGGravity.Commands.Transfer.UI
                 // Search Filter
                 if (string.IsNullOrWhiteSpace(ViewSearchText)) return true;
                 return item.ViewName.IndexOf(ViewSearchText, StringComparison.OrdinalIgnoreCase) >= 0;
+            };
+
+            FilteredTemplates = CollectionViewSource.GetDefaultView(AvailableTemplates);
+            FilteredTemplates.Filter = (obj) =>
+            {
+                var item = obj as ViewTransferItem;
+                if (item == null) return false;
+
+                if (string.IsNullOrWhiteSpace(TemplateSearchText)) return true;
+                return item.ViewName.IndexOf(TemplateSearchText, StringComparison.OrdinalIgnoreCase) >= 0;
             };
 
             FilteredSheets = CollectionViewSource.GetDefaultView(AvailableSheets);
@@ -789,6 +829,7 @@ namespace antiGGGravity.Commands.Transfer.UI
             {
                 _viewCollector = new ViewCollectorModule(_fileManager.DocLoader.SourceDocument);
                 var views = _viewCollector.GetTransferableViews();
+                var templates = _viewCollector.GetViewTemplates();
                 var sheets = _viewCollector.GetSheets();
                 var families = _viewCollector.GetFamilies(_fileManager.DocLoader.SourceDocument);
 
@@ -797,6 +838,13 @@ namespace antiGGGravity.Commands.Transfer.UI
                 {
                     v.PropertyChanged += ViewItem_PropertyChanged;
                     AvailableViews.Add(v);
+                }
+
+                AvailableTemplates.Clear();
+                foreach (var t in templates)
+                {
+                    t.PropertyChanged += TemplateItem_PropertyChanged;
+                    AvailableTemplates.Add(t);
                 }
 
                 AvailableSheets.Clear();
@@ -911,6 +959,14 @@ namespace antiGGGravity.Commands.Transfer.UI
             }
         }
 
+        private void TemplateItem_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(ViewTransferItem.IsSelected))
+            {
+                UpdateSelectAllTemplatesState();
+            }
+        }
+
         private void UpdateSelectAllViewsState()
         {
             var list = FilteredViews.OfType<ViewTransferItem>().ToList();
@@ -922,6 +978,19 @@ namespace antiGGGravity.Commands.Transfer.UI
                 _selectAllViews = allChecked ? (bool?)true : (noneChecked ? (bool?)false : null);
             }
             OnPropertyChanged(nameof(SelectAllViews));
+        }
+
+        private void UpdateSelectAllTemplatesState()
+        {
+            var list = FilteredTemplates.OfType<ViewTransferItem>().ToList();
+            if (list.Count == 0) { _selectAllTemplates = false; }
+            else
+            {
+                bool allChecked = list.All(t => t.IsSelected);
+                bool noneChecked = list.All(t => !t.IsSelected);
+                _selectAllTemplates = allChecked ? (bool?)true : (noneChecked ? (bool?)false : null);
+            }
+            OnPropertyChanged(nameof(SelectAllTemplates));
         }
 
         private void UpdateSelectAllSheetsState()
@@ -968,9 +1037,13 @@ namespace antiGGGravity.Commands.Transfer.UI
             }
 
             // Collect selected system family types
+            // Collect selected system family types
             var selectedSystemTypes = AvailableSystemTypes.Where(st => st.IsSelected).ToList();
 
-            if (selectedViews.Count == 0 && selectedSheets.Count == 0 && selectedFamilies.Count == 0 && selectedSystemTypes.Count == 0)
+            // Collect selected templates
+            var selectedTemplates = AvailableTemplates.Where(t => t.IsSelected).ToList();
+
+            if (selectedViews.Count == 0 && selectedSheets.Count == 0 && selectedFamilies.Count == 0 && selectedSystemTypes.Count == 0 && selectedTemplates.Count == 0)
             {
                 StatusText = "Please select at least one item to transfer.";
                 return;
@@ -980,6 +1053,7 @@ namespace antiGGGravity.Commands.Transfer.UI
             RequestHandler.SourceDoc = _fileManager.DocLoader.SourceDocument;
             RequestHandler.Options = Options;
             RequestHandler.SelectedViews = selectedViews;
+            RequestHandler.SelectedTemplates = selectedTemplates;
             RequestHandler.SelectedSheets = selectedSheets;
             RequestHandler.SelectedFamilies = selectedFamilies;
             RequestHandler.SelectedSystemTypes = selectedSystemTypes;

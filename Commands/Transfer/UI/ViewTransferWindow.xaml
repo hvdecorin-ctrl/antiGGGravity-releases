@@ -165,6 +165,7 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
                             <RadioButton Grid.Column="0" Content="Views &amp; Sheets" 
@@ -173,13 +174,19 @@
                                          Style="{DynamicResource PremiumLightTabButtonStyle}" 
                                          HorizontalAlignment="Stretch" Margin="0,0,5,0"/>
                             
-                            <RadioButton Grid.Column="1" Content="Families" 
+                            <RadioButton Grid.Column="1" Content="Templates" 
+                                         Command="{Binding SetTabCommand}" CommandParameter="Templates"
+                                         IsChecked="{Binding IsTemplatesTab, Mode=OneWay}"
+                                         Style="{DynamicResource PremiumLightTabButtonStyle}" 
+                                         HorizontalAlignment="Stretch" Margin="0,0,5,0"/>
+
+                            <RadioButton Grid.Column="2" Content="Families" 
                                          Command="{Binding SetTabCommand}" CommandParameter="Families"
                                          IsChecked="{Binding IsFamiliesTab, Mode=OneWay}"
                                          Style="{DynamicResource PremiumLightTabButtonStyle}" 
                                          HorizontalAlignment="Stretch" Margin="0,0,5,0"/>
 
-                            <RadioButton Grid.Column="2" Content="System Families" 
+                            <RadioButton Grid.Column="3" Content="System Families" 
                                          Command="{Binding SetTabCommand}" CommandParameter="SystemFamilies"
                                          IsChecked="{Binding IsSystemFamiliesTab, Mode=OneWay}"
                                          Style="{DynamicResource PremiumLightTabButtonStyle}" 
@@ -296,6 +303,49 @@
                                         </DataGridTemplateColumn>
                                         <DataGridTextColumn Header="Type" Binding="{Binding ViewType}" Width="100" IsReadOnly="True" />
                                         <DataGridTextColumn Header="View Name" Binding="{Binding ViewName}" Width="*" IsReadOnly="True" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </GroupBox>
+                        </Grid>
+
+                        <!-- TAB: TEMPLATES -->
+                        <Grid Grid.Row="2" Visibility="{Binding IsTemplatesTab, Converter={StaticResource BoolToVis}}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Search Box -->
+                            <Border Grid.Row="0" Margin="0,0,0,10" Background="White" CornerRadius="4" BorderBrush="#DDDDDD" BorderThickness="1">
+                                <Grid Margin="12,6">
+                                    <TextBox Text="{Binding TemplateSearchText, UpdateSourceTrigger=PropertyChanged}" 
+                                             BorderThickness="0" Background="Transparent" VerticalAlignment="Center"
+                                             Style="{DynamicResource PremiumTextBoxStyle}" Margin="0"/>
+                                </Grid>
+                            </Border>
+
+                            <!-- Templates List -->
+                            <GroupBox Header="Select View Templates" Grid.Row="1">
+                                <DataGrid ItemsSource="{Binding FilteredTemplates}" 
+                                          AutoGenerateColumns="False" 
+                                          CanUserAddRows="False" 
+                                          HeadersVisibility="Column" 
+                                          GridLinesVisibility="None" 
+                                          BorderThickness="0" 
+                                          Background="Transparent">
+                                    <DataGrid.Columns>
+                                        <DataGridTemplateColumn Width="45">
+                                            <DataGridTemplateColumn.Header>
+                                                <CheckBox IsChecked="{Binding DataContext.SelectAllTemplates, RelativeSource={RelativeSource AncestorType=Window}}" HorizontalAlignment="Center"/>
+                                            </DataGridTemplateColumn.Header>
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTextColumn Header="Type" Binding="{Binding ViewType}" Width="150" IsReadOnly="True" />
+                                        <DataGridTextColumn Header="Template Name" Binding="{Binding ViewName}" Width="*" IsReadOnly="True" />
                                     </DataGrid.Columns>
                                 </DataGrid>
                             </GroupBox>

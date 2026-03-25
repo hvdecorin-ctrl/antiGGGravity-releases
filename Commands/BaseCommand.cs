@@ -20,6 +20,14 @@ namespace antiGGGravity.Commands
         {
             try
             {
+                // 0. Assembly Integrity Check — catch binary patching
+                if (!IntegrityChecker.IsIntact())
+                {
+                    TaskDialog.Show("antiGGGravity",
+                        "This installation appears to be corrupted.\nPlease reinstall from an official source.");
+                    return Result.Failed;
+                }
+
                 // 1. License Check
                 if (RequiresLicense)
                 {
@@ -50,7 +58,13 @@ namespace antiGGGravity.Commands
                 }
 
                 // 2. Safe Execution
-                return ExecuteSafe(commandData, ref message, elements);
+                var execResult = ExecuteSafe(commandData, ref message, elements);
+
+                // 3. Post-execution integrity re-check (catches runtime patching)
+                if (RequiresLicense && !IntegrityChecker.IsIntact())
+                    return Result.Failed;
+
+                return execResult;
             }
             catch (Exception ex)
             {

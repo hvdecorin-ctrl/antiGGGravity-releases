@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.Win32;
 
 namespace antiGGGravity.Utilities
 {
@@ -16,6 +17,10 @@ namespace antiGGGravity.Utilities
         private static readonly string StateFilePath;
         private static readonly string InstallDateFilePath;
         private static readonly object _lock = new object();
+
+        // Registry key path for redundant last-seen storage
+        private const string RegistryKeyPath = @"Software\antiGGGravity";
+        private const string RegistryLastSeenValue = "LastSeen";
 
         // Simple XOR key for obfuscating the state file (not crypto-grade, just anti-casual-edit)
         private static readonly byte[] StateObfuscationKey = { 0xA7, 0x3B, 0xF1, 0x5C, 0x82, 0xD4, 0x69, 0xE0 };
@@ -40,7 +45,9 @@ namespace antiGGGravity.Utilities
             lock (_lock)
             {
                 EnsureFolder();
-                File.WriteAllText(LicenseFilePath, activationKey.Trim());
+                var plainBytes = Encoding.UTF8.GetBytes(activationKey.Trim());
+                var obfuscated = XorObfuscate(plainBytes);
+                File.WriteAllBytes(LicenseFilePath, obfuscated);
             }
         }
 
@@ -54,8 +61,32 @@ namespace antiGGGravity.Utilities
             {
                 try
                 {
+                    if (!File.Exists(LicenseFilePath)) return null;
+
+                    var obfuscated = File.ReadAllBytes(LicenseFilePath);
+                    var plainBytes = XorObfuscate(obfuscated);
+                    var key = Encoding.UTF8.GetString(plainBytes).Trim();
+
+                    // Sanity check: valid keys only contain Base32 chars and dashes
+                    if (key.Length > 0 && key.Replace("-", "").Replace(" ", "").Length > 10)
+                        return key;
+                }
+                catch { }
+
+                // Fallback: try reading as plaintext (legacy/migration)
+                try
+                {
                     if (File.Exists(LicenseFilePath))
-                        return File.ReadAllText(LicenseFilePath).Trim();
+                    {
+                        var plainText = File.ReadAllText(LicenseFilePath).Trim();
+                        if (!string.IsNullOrEmpty(plainText) && plainText.Contains("-"))
+                        {
+                            // Re-save as obfuscated and return
+                            var plainBytes = Encoding.UTF8.GetBytes(plainText);
+                            File.WriteAllBytes(LicenseFilePath, XorObfuscate(plainBytes));
+                            return plainText;
+                        }
+                    }
                 }
                 catch { }
                 return null;
@@ -84,7 +115,7 @@ namespace antiGGGravity.Utilities
 
         /// <summary>
         /// Saves the current UTC timestamp as the last-seen date.
-        /// The file is obfuscated to prevent casual editing.
+        /// Writes to BOTH the obfuscated file AND the Windows Registry for redundancy.
         /// </summary>
         public static void SaveLastSeenDate(DateTime utcNow)
         {
@@ -99,34 +130,82 @@ namespace antiGGGravity.Utilities
                     File.WriteAllBytes(StateFilePath, obfuscated);
                 }
                 catch { }
+
+                // Redundant write to Registry
+                SaveLastSeenToRegistry(utcNow);
             }
         }
 
         /// <summary>
-        /// Reads the last-seen UTC date from disk.
-        /// Returns null if the file doesn't exist or is corrupted.
+        /// Reads the last-seen UTC date from BOTH file and Registry.
+        /// Returns the most recent of the two (high-water mark).
+        /// If only one source has a value, returns that one.
         /// </summary>
         public static DateTime? LoadLastSeenDate()
         {
             lock (_lock)
             {
-                try
+                var fileDate = LoadLastSeenFromFile();
+                var registryDate = LoadLastSeenFromRegistry();
+
+                if (fileDate == null && registryDate == null)
+                    return null;
+                if (fileDate == null) return registryDate;
+                if (registryDate == null) return fileDate;
+
+                // Return whichever is newer — prevents rollback via deleting one source
+                return fileDate.Value > registryDate.Value ? fileDate : registryDate;
+            }
+        }
+
+        private static DateTime? LoadLastSeenFromFile()
+        {
+            try
+            {
+                if (!File.Exists(StateFilePath)) return null;
+
+                var obfuscated = File.ReadAllBytes(StateFilePath);
+                var plainBytes = XorObfuscate(obfuscated); // XOR is symmetric
+                var timestamp = Encoding.UTF8.GetString(plainBytes);
+
+                if (DateTime.TryParse(timestamp, null,
+                    System.Globalization.DateTimeStyles.RoundtripKind, out var result))
                 {
-                    if (!File.Exists(StateFilePath)) return null;
+                    return result;
+                }
+            }
+            catch { }
+            return null;
+        }
 
-                    var obfuscated = File.ReadAllBytes(StateFilePath);
-                    var plainBytes = XorObfuscate(obfuscated); // XOR is symmetric
-                    var timestamp = Encoding.UTF8.GetString(plainBytes);
+        private static void SaveLastSeenToRegistry(DateTime utcNow)
+        {
+            try
+            {
+                using (var key = Registry.CurrentUser.CreateSubKey(RegistryKeyPath))
+                {
+                    key?.SetValue(RegistryLastSeenValue, utcNow.ToString("O"));
+                }
+            }
+            catch { }
+        }
 
-                    if (DateTime.TryParse(timestamp, null, 
+        private static DateTime? LoadLastSeenFromRegistry()
+        {
+            try
+            {
+                using (var key = Registry.CurrentUser.OpenSubKey(RegistryKeyPath))
+                {
+                    var value = key?.GetValue(RegistryLastSeenValue) as string;
+                    if (value != null && DateTime.TryParse(value, null,
                         System.Globalization.DateTimeStyles.RoundtripKind, out var result))
                     {
                         return result;
                     }
                 }
-                catch { }
-                return null;
             }
+            catch { }
+            return null;
         }
 
         #endregion

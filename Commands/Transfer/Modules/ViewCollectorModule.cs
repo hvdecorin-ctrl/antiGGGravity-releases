@@ -40,6 +40,18 @@ namespace antiGGGravity.Commands.Transfer.Modules
             }).ToList();
         }
 
+        public List<ViewTransferItem> GetViewTemplates()
+        {
+            var templates = _analyzer.GetAllViewTemplates();
+            return templates.Select(v => new ViewTransferItem
+            {
+                SourceViewId = v.Id,
+                ViewName = v.Name,
+                ViewType = v.ViewType,
+                IsSelected = false
+            }).ToList();
+        }
+
         public List<FamilyTransferItem> GetFamilies(Document sourceDoc, Document targetDoc = null)
         {
             var families = new FilteredElementCollector(sourceDoc)

@@ -34,6 +34,16 @@ namespace antiGGGravity.Commands.Transfer.Core
                 .ToList();
         }
 
+        public List<View> GetAllViewTemplates()
+        {
+            return new FilteredElementCollector(_sourceDoc)
+                .OfClass(typeof(View))
+                .Cast<View>()
+                .Where(v => v.IsTemplate)
+                .OrderBy(v => v.Name)
+                .ToList();
+        }
+
         private bool IsTransferableView(View view)
         {
             if (view.IsTemplate) return false;

@@ -6,49 +6,65 @@ namespace antiGGGravity.Utilities
 {
     /// <summary>
     /// Core cryptographic engine for license key generation and validation.
-    /// Uses HMAC-SHA256 signed keys bound to a specific Hardware ID.
-    /// 
+    /// Uses ECDSA P-256 asymmetric signing — the shipped DLL contains ONLY the public key.
+    /// The private key lives exclusively in the KeyGen app (never distributed).
+    ///
     /// Key format (before encoding):
-    ///   Bytes 0-3:   Expiry date as Unix timestamp (Int32, big-endian)
-    ///   Bytes 4-35:  HMAC-SHA256(HWID + ExpiryBytes, SecretSalt) — 32 bytes
-    ///   Total: 36 bytes → Base32 encoded → formatted as XXXXX-XXXXX-...
+    ///   Bytes 0-3:   Expiry date as Unix timestamp (Int32, big-endian, epoch 2020-01-01)
+    ///   Bytes 4-67:  ECDSA P-256 signature (64 bytes, IEEE P1363 format)
+    ///   Total: 68 bytes → Base32 encoded → formatted as XXXXX-XXXXX-...
     /// </summary>
     public static class LicenseCrypto
     {
         // =====================================================================
-        // SECRET SALT — This is the ONLY secret. Obfuscar HideStrings hides it.
-        // Change this to your own random string before publishing.
-        // Generate one with: [System.Guid]::NewGuid().ToString("N") + [System.Guid]::NewGuid().ToString("N")
+        // PUBLIC KEY — Safe to ship in the DLL. Cannot be used to forge keys.
         // =====================================================================
-        private const string SecretSalt = "aG7x2Qm9vKpL4wBnE8rT1sYd6jC0fHiU3oZaNbXcDeFgJkMlPqRtWuVyAzS5x";
+        private static readonly byte[] PublicKeyX = Convert.FromBase64String("/ti/xZPRw2vJAfMdM1DZG/2XWW9omw8n5T3bw0ki784=");
+        private static readonly byte[] PublicKeyY = Convert.FromBase64String("qSPOuSna6CPzPpmhxZc52wsXwhGecbfyAU9VTkgyM4s=");
+
+        // =====================================================================
+        // PRIVATE KEY — Only used by KeyGen. Compiled out of the main DLL via
+        // the KEYGEN_BUILD preprocessor constant.
+        // =====================================================================
+#if KEYGEN_BUILD
+        private static readonly byte[] PrivateKeyD = Convert.FromBase64String("K3QH0fP24s5Go13cqpm+/D4QBo5u7NmwgVWP3sIzduk=");
+#endif
 
         // Base32 alphabet — 32 chars, no 0/O/1/I to avoid user confusion
         private static readonly char[] Base32Chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789".ToCharArray();
 
         /// <summary>
         /// Generates a signed activation key for a given HWID and expiry date.
-        /// Called by the private KeyGen app only.
+        /// Only available in KeyGen builds (requires KEYGEN_BUILD constant).
         /// </summary>
+#if KEYGEN_BUILD
         public static string GenerateActivationKey(string hwid, DateTime expiryUtc)
         {
-            // 1. Encode expiry as 4-byte Unix timestamp (seconds since epoch)
+            // 1. Encode expiry as 4-byte timestamp
             var expiryBytes = GetExpiryBytes(expiryUtc);
 
-            // 2. Compute HMAC signature: HMAC(HWID + ExpiryBytes, SecretSalt)
-            var signature = ComputeSignature(hwid, expiryBytes);
+            // 2. Build the message to sign: HWID + ExpiryBytes
+            var message = BuildMessage(hwid, expiryBytes);
 
-            // 3. Combine: [4 bytes expiry] + [32 bytes signature] = 36 bytes
-            var payload = new byte[36];
-            Buffer.BlockCopy(expiryBytes, 0, payload, 0, 4);
-            Buffer.BlockCopy(signature, 0, payload, 4, 32);
+            // 3. Sign with private key (IEEE P1363 format = fixed 64 bytes for P-256)
+            using (var ecdsa = CreatePrivateKey())
+            {
+                var signature = ecdsa.SignData(message, HashAlgorithmName.SHA256);
 
-            // 4. Encode to user-friendly Base32 format
-            return FormatKey(ToBase32(payload));
+                // 4. Combine: [4 bytes expiry] + [64 bytes signature] = 68 bytes
+                var payload = new byte[68];
+                Buffer.BlockCopy(expiryBytes, 0, payload, 0, 4);
+                Buffer.BlockCopy(signature, 0, payload, 4, 64);
+
+                // 5. Encode to user-friendly Base32 format
+                return FormatKey(ToBase32(payload));
+            }
         }
+#endif
 
         /// <summary>
         /// Validates an activation key against the current machine's HWID.
-        /// Returns whether the key is valid, the expiry date, and any error message.
+        /// Uses only the PUBLIC key — cannot forge signatures.
         /// </summary>
         public static LicenseKeyResult ValidateActivationKey(string key, string hwid)
         {
@@ -61,7 +77,7 @@ namespace antiGGGravity.Utilities
                 var cleanKey = key.Replace("-", "").Replace(" ", "").Trim().ToUpperInvariant();
                 var payload = FromBase32(cleanKey);
 
-                if (payload == null || payload.Length != 36)
+                if (payload == null || payload.Length != 68)
                     return LicenseKeyResult.Invalid("Invalid key format.");
 
                 // 2. Extract expiry (first 4 bytes)
@@ -69,18 +85,22 @@ namespace antiGGGravity.Utilities
                 Buffer.BlockCopy(payload, 0, expiryBytes, 0, 4);
                 var expiryUtc = GetExpiryDate(expiryBytes);
 
-                // 3. Extract signature (remaining 32 bytes)
-                var storedSignature = new byte[32];
-                Buffer.BlockCopy(payload, 4, storedSignature, 0, 32);
+                // 3. Extract signature (remaining 64 bytes)
+                var signature = new byte[64];
+                Buffer.BlockCopy(payload, 4, signature, 0, 64);
 
-                // 4. Recompute expected signature
-                var expectedSignature = ComputeSignature(hwid, expiryBytes);
+                // 4. Build the message and verify with public key
+                var message = BuildMessage(hwid, expiryBytes);
 
-                // 5. Constant-time comparison to prevent timing attacks
-                if (!ConstantTimeEquals(storedSignature, expectedSignature))
-                    return LicenseKeyResult.Invalid("Invalid activation key. This key does not match your hardware.");
+                using (var ecdsa = CreatePublicKey())
+                {
+                    bool isValid = ecdsa.VerifyData(message, signature, HashAlgorithmName.SHA256);
 
-                // 6. Check expiry
+                    if (!isValid)
+                        return LicenseKeyResult.Invalid("Invalid activation key. This key does not match your hardware.");
+                }
+
+                // 5. Check expiry
                 if (expiryUtc.Date < DateTime.UtcNow.Date)
                     return LicenseKeyResult.Expired(expiryUtc);
 
@@ -115,31 +135,55 @@ namespace antiGGGravity.Utilities
             return epoch.AddSeconds(seconds);
         }
 
-        private static byte[] ComputeSignature(string hwid, byte[] expiryBytes)
+        /// <summary>
+        /// Builds the message to sign/verify: UTF8(lowercase HWID) + expiryBytes.
+        /// </summary>
+        private static byte[] BuildMessage(string hwid, byte[] expiryBytes)
         {
-            var saltBytes = Encoding.UTF8.GetBytes(SecretSalt);
-            using (var hmac = new HMACSHA256(saltBytes))
-            {
-                // Combine HWID bytes + expiry bytes as the message
-                var hwidBytes = Encoding.UTF8.GetBytes(hwid.ToLowerInvariant());
-                var message = new byte[hwidBytes.Length + expiryBytes.Length];
-                Buffer.BlockCopy(hwidBytes, 0, message, 0, hwidBytes.Length);
-                Buffer.BlockCopy(expiryBytes, 0, message, hwidBytes.Length, expiryBytes.Length);
-                return hmac.ComputeHash(message);
-            }
+            var hwidBytes = Encoding.UTF8.GetBytes(hwid.ToLowerInvariant());
+            var message = new byte[hwidBytes.Length + expiryBytes.Length];
+            Buffer.BlockCopy(hwidBytes, 0, message, 0, hwidBytes.Length);
+            Buffer.BlockCopy(expiryBytes, 0, message, hwidBytes.Length, expiryBytes.Length);
+            return message;
         }
 
         /// <summary>
-        /// Constant-time byte array comparison to prevent timing side-channel attacks.
+        /// Creates an ECDsa instance with only the public key for verification.
         /// </summary>
-        private static bool ConstantTimeEquals(byte[] a, byte[] b)
+        private static ECDsa CreatePublicKey()
         {
-            if (a.Length != b.Length) return false;
-            int diff = 0;
-            for (int i = 0; i < a.Length; i++)
-                diff |= a[i] ^ b[i];
-            return diff == 0;
+            var parameters = new ECParameters
+            {
+                Curve = ECCurve.NamedCurves.nistP256,
+                Q = new ECPoint
+                {
+                    X = (byte[])PublicKeyX.Clone(),
+                    Y = (byte[])PublicKeyY.Clone()
+                }
+            };
+            return ECDsa.Create(parameters);
         }
+
+#if KEYGEN_BUILD
+        /// <summary>
+        /// Creates an ECDsa instance with the private key for signing.
+        /// Only available in KeyGen builds.
+        /// </summary>
+        private static ECDsa CreatePrivateKey()
+        {
+            var parameters = new ECParameters
+            {
+                Curve = ECCurve.NamedCurves.nistP256,
+                Q = new ECPoint
+                {
+                    X = (byte[])PublicKeyX.Clone(),
+                    Y = (byte[])PublicKeyY.Clone()
+                },
+                D = (byte[])PrivateKeyD.Clone()
+            };
+            return ECDsa.Create(parameters);
+        }
+#endif
 
         #endregion
 

@@ -319,64 +319,77 @@ namespace antiGGGravity.Commands.Management
 
 
     // ===================================================================================
-    // TOGGLE CROP REGION
+    // CROP REGION (TOGGLE ALL ON SHEETS)
     // ===================================================================================
 
     [Transaction(TransactionMode.Manual)]
-    public class ToggleCropRegionCommand : IExternalCommand
+    public class CropRegionCommand : IExternalCommand
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;
-            View activeView = doc.ActiveView;
 
-            if (activeView is ViewSheet sheet)
+            // 1. Collect all views that are on any sheet in the project
+            var allViewports = new FilteredElementCollector(doc)
+                .OfClass(typeof(Viewport))
+                .Cast<Viewport>()
+                .ToList();
+
+            if (allViewports.Count == 0)
             {
-                var viewports = sheet.GetAllViewports();
-                if (viewports.Count == 0) return Result.Succeeded;
-
-                List<View> validViews = new List<View>();
-                foreach (ElementId vpId in viewports)
+                // Fallback to active view if no sheets/viewports exist
+                View activeView = doc.ActiveView;
+                if (CanToggleCrop(activeView))
                 {
-                    Viewport vp = doc.GetElement(vpId) as Viewport;
-                    View v = doc.GetElement(vp.ViewId) as View;
-                    if (v != null && (v.ViewType == ViewType.FloorPlan || v.ViewType == ViewType.Section || v.ViewType == ViewType.EngineeringPlan || v.ViewType == ViewType.CeilingPlan || v.ViewType == ViewType.DraftingView))
+                    using (Transaction t = new Transaction(doc, "Toggle Crop Region"))
                     {
-                        validViews.Add(v);
+                        t.Start();
+                        try { activeView.CropBoxVisible = !activeView.CropBoxVisible; } catch { }
+                        t.Commit();
                     }
                 }
-                 
-                if (validViews.Count == 0) return Result.Succeeded;
-
-                bool anyVisible = validViews.Any(v => v.CropBoxVisible);
-                bool newState = !anyVisible;
-
-                using (Transaction t = new Transaction(doc, "Toggle Crop Region"))
-                {
-                    t.Start();
-                    foreach (var v in validViews)
-                    {
-                        try { v.CropBoxVisible = newState; } catch { }
-                    }
-                    t.Commit();
-                }
+                return Result.Succeeded;
             }
-            else
+
+            // 2. Get unique set of views from viewports
+            var viewsOnSheets = allViewports
+                .Select(vp => doc.GetElement(vp.ViewId) as View)
+                .Where(v => v != null && CanToggleCrop(v))
+                .GroupBy(v => v.Id.GetIdValue())
+                .Select(g => g.First())
+                .ToList();
+
+            if (viewsOnSheets.Count == 0) return Result.Succeeded;
+
+            // 3. Determine toggle state based on global visibility
+            bool anyVisible = viewsOnSheets.Any(v => v.CropBoxVisible);
+            bool newState = !anyVisible;
+
+            // 4. Update all views
+            using (Transaction t = new Transaction(doc, "Toggle All Crop Regions"))
             {
-                 // Single View
-                 try 
-                 {
-                     using (Transaction t = new Transaction(doc, "Toggle Crop Region"))
-                     {
-                         t.Start();
-                         activeView.CropBoxVisible = !activeView.CropBoxVisible;
-                         t.Commit();
-                     }
-                 }
-                 catch { TaskDialog.Show("antiGGGravity", "Cannot toggle crop region for this view."); }
+                t.Start();
+                foreach (var v in viewsOnSheets)
+                {
+                    try 
+                    { 
+                        if (v.CropBoxVisible != newState)
+                            v.CropBoxVisible = newState; 
+                    } 
+                    catch { }
+                }
+                t.Commit();
             }
+
             return Result.Succeeded;
+        }
+
+        private bool CanToggleCrop(View v)
+        {
+            if (v == null) return false;
+            if (v.ViewType == ViewType.Legend || v.ViewType == ViewType.Schedule || v.ViewType == ViewType.DrawingSheet) return false;
+            try { var test = v.CropBoxVisible; return true; } catch { return false; }
         }
     }
 

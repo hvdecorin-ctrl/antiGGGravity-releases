@@ -11,8 +11,8 @@ panels:
       - type: stacked
         buttons:
           - type: pulldown
-            name: Rename View
-            icon: Views
+            name: Rename
+            icon: Rename
             tooltip: Rename views on sheets.
             buttons:
               - name: Rename Views (Active Sheet)
@@ -55,10 +55,10 @@ panels:
             command: SetCropCommand
             icon: SetCrop
             tooltip: Set the crop region boundary for the active view.
-          - name: Toggle Crop
-            command: ToggleCropRegionCommand
+          - name: Crop Region
+            command: CropRegionCommand
             icon: ToggleCrop
-            tooltip: Show or hide the crop region boundary in the active view.
+            tooltip: Toggle crop region visibility for all views placed on any sheet in the project.
           - name: Zoom To
             command: ZoomToSelectionCommand
             icon: ZoomTo
