@@ -61,7 +61,7 @@ namespace antiGGGravity.Views
             try
             {
                 Clipboard.SetText(UI_Txt_HWID.Text);
-                MessageBox.Show("Hardware ID copied to clipboard.\n\nPlease include this ID when requesting an activation key.", 
+                MessageBox.Show("Hardware ID copied to clipboard.\n\nPlease send this ID to antiGGGravity.info@gmail.com to request an activation key.", 
                     "Copied", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)

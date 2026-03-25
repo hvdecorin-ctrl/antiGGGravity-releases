@@ -385,7 +385,6 @@ namespace antiGGGravity.Commands.Management
     // ZOOM TO SELECTION
     // ===================================================================================
     
-    // ZoomToSelection requires persisting state. We can use a static variable for session persistence.
     [Transaction(TransactionMode.Manual)]
     public class ZoomToSelectionCommand : IExternalCommand
     {
@@ -417,15 +416,16 @@ namespace antiGGGravity.Commands.Management
             ElementId targetId = selection[_currentIndex];
             Element targetElem = doc.GetElement(targetId);
 
-            View targetView = FindViewForElement(targetElem, doc);
+            View activeView = uidoc.ActiveView;
+            View targetView = FindViewForElement(targetElem, doc, activeView);
 
             if (targetView != null)
             {
-                uidoc.ActiveView = targetView;
+                if (uidoc.ActiveView.Id != targetView.Id)
+                {
+                    uidoc.ActiveView = targetView;
+                }
                 uidoc.ShowElements(targetId);
-                // Simple toast replacement
-                 // In C#, showing a toast is harder without forms, so we'll just log or set status bar?
-                 // For now, assume it works.
             }
             else
             {
@@ -437,39 +437,77 @@ namespace antiGGGravity.Commands.Management
             return Result.Succeeded;
         }
 
-        private View FindViewForElement(Element elem, Document doc)
+        private View FindViewForElement(Element elem, Document doc, View activeView)
         {
+            // 1. Check OwnerViewId (Dimensions, Detail Lines, etc.)
             if (elem.OwnerViewId != ElementId.InvalidElementId)
             {
                 return doc.GetElement(elem.OwnerViewId) as View;
             }
 
-            // 3D/Model element logic
-            BoundingBoxXYZ bbox = elem.get_BoundingBox(null);
-            if (bbox == null) return null;
+            // 2. Check if already visible in ActiveView (Optimization)
+            try 
+            { 
+               if (!activeView.IsTemplate && IsElementVisible(activeView, elem)) return activeView; 
+            } catch { }
 
-            // Simplified: Find first plan/section that contains it.
-            // Using a filtered collector is expensive, might be slow for large projects.
-            // But matching python logic:
-            var views = new FilteredElementCollector(doc)
+            // 3. Search for other views
+            var viewTypes = new HashSet<ViewType> { 
+                ViewType.FloorPlan, 
+                ViewType.EngineeringPlan, 
+                ViewType.CeilingPlan, 
+                ViewType.AreaPlan, 
+                ViewType.Section, 
+                ViewType.Elevation, 
+                ViewType.ThreeD 
+            };
+
+            var collector = new FilteredElementCollector(doc)
                 .OfClass(typeof(View))
                 .Cast<View>()
-                .Where(v => !v.IsTemplate && (v.ViewType == ViewType.FloorPlan || v.ViewType == ViewType.Section))
+                .Where(v => !v.IsTemplate && viewTypes.Contains(v.ViewType))
+                .OrderBy(v => {
+                    if (v.ViewType == ViewType.FloorPlan || v.ViewType == ViewType.EngineeringPlan) return 1;
+                    if (v.ViewType == ViewType.Section || v.ViewType == ViewType.Elevation) return 2;
+                    if (v.ViewType == ViewType.ThreeD) return 3;
+                    return 4;
+                })
                 .ToList();
 
-            foreach (View v in views)
+            foreach (View v in collector)
             {
-                BoundingBoxXYZ vBox = v.get_BoundingBox(null);
-                if (vBox == null) continue;
-                
-                // Simple check
-                if (bbox.Min.X <= vBox.Max.X && bbox.Max.X >= vBox.Min.X &&
-                    bbox.Min.Y <= vBox.Max.Y && bbox.Max.Y >= vBox.Min.Y)
+                try 
                 {
-                    return v;
+                    if (IsElementVisible(v, elem)) return v;
+                }
+                catch { }
+            }
+
+            return null;
+        }
+
+        private bool IsElementVisible(View v, Element elem)
+        {
+            try
+            {
+                // IsElementVisibleInView(Element) exists in Revit 2019+
+                // Using reflection to avoid compiler errors in multi-version builds
+                var method = typeof(View).GetMethod("IsElementVisibleInView", new[] { typeof(Element) });
+                if (method != null)
+                {
+                    return (bool)method.Invoke(v, new object[] { elem });
                 }
             }
-            return null;
+            catch { }
+
+            // Fallback for cases where method is missing or fails
+            BoundingBoxXYZ bbox = elem.get_BoundingBox(null);
+            if (bbox == null) return false;
+            BoundingBoxXYZ vBox = v.get_BoundingBox(null);
+            if (vBox == null) return false;
+
+            return bbox.Min.X <= vBox.Max.X && bbox.Max.X >= vBox.Min.X &&
+                   bbox.Min.Y <= vBox.Max.Y && bbox.Max.Y >= vBox.Min.Y;
         }
     }
 }

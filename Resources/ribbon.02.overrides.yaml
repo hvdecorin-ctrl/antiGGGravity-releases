@@ -28,10 +28,6 @@ panels:
                 command: TextUpperCommand
                 icon: TextUpper
                 tooltip: Convert selected text elements to uppercase.
-              - name: Text Leader Align
-                command: TextLeaderAlignCommand
-                icon: TextLeaderAlign
-                tooltip: Batch align text notes and their leaders.
           - type: pulldown
             name: Cad Override
             icon: CadOverride

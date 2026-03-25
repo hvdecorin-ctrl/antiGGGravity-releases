@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System; // Added for Action<string>
 
-namespace antiGGGravity.Commands.Overrides
+namespace antiGGGravity.Commands.ProjectAudit
 {
     public enum ApplicationScope
     {
@@ -19,7 +19,7 @@ namespace antiGGGravity.Commands.Overrides
         Convert
     }
 
-    public class TextLeaderAlignHandler : IExternalEventHandler
+    public class ProjectTextStyleHandler : IExternalEventHandler
     {
         public TextToolMode OperationMode { get; set; } = TextToolMode.Align;
         public bool AlignLeft { get; set; }
@@ -71,7 +71,7 @@ namespace antiGGGravity.Commands.Overrides
             }
 
             // 2. Process
-            using (Transaction t = new Transaction(doc, "Text Leader Align"))
+            using (Transaction t = new Transaction(doc, "Project TextStyle"))
             {
                 t.Start();
                 int modified = 0;
@@ -167,6 +167,6 @@ namespace antiGGGravity.Commands.Overrides
             }
         }
 
-        public string GetName() => "Text Leader Align Handler";
+        public string GetName() => "Project TextStyle Handler";
     }
 }

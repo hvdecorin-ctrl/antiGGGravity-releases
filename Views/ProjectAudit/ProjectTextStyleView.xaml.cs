@@ -4,17 +4,17 @@ using Autodesk.Revit.UI;
 using Autodesk.Revit.DB;
 using System.Collections.Generic;
 using System.Linq;
-using antiGGGravity.Commands.Overrides;
+using antiGGGravity.Commands.ProjectAudit;
 
-namespace antiGGGravity.Views.Overrides
+namespace antiGGGravity.Views.ProjectAudit
 {
-    public partial class TextLeaderAlignView : Window
+    public partial class ProjectTextStyleView : Window
     {
         private readonly ExternalEvent _externalEvent;
-        private readonly TextLeaderAlignHandler _handler;
+        private readonly ProjectTextStyleHandler _handler;
         private readonly Document _doc;
 
-        public TextLeaderAlignView(ExternalEvent externalEvent, TextLeaderAlignHandler handler, Document doc)
+        public ProjectTextStyleView(ExternalEvent externalEvent, ProjectTextStyleHandler handler, Document doc)
         {
             InitializeComponent();
             _externalEvent = externalEvent;

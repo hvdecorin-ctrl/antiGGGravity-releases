@@ -16,6 +16,11 @@
     <GenerateAssemblyNeutralResourcesLanguageAttribute>false</GenerateAssemblyNeutralResourcesLanguageAttribute>
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
     <NoWarn>$(NoWarn);CA1416</NoWarn>
+    <DefineConstants>$(DefineConstants);EMBED_LICENSE</DefineConstants>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+    <IncludePackageReferencesDuringMarkupCompilation>false</IncludePackageReferencesDuringMarkupCompilation>
+    <_NoWinFXReferenceInclude>true</_NoWinFXReferenceInclude>
 
     <AssemblySearchPaths Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
       {CandidateAssemblyFiles};
@@ -98,27 +103,51 @@
     </Reference>
   </ItemGroup>
 
-  <!-- Conditional Revit SDK References -->
   <ItemGroup Condition="'$(Configuration)' == 'R22'">
     <PackageReference Include="Autodesk.Revit.SDK.Refs.2022" Version="*" Condition="'$(TargetFramework)' == 'net48'" />
   </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'R22'">
+    <DefineConstants>$(DefineConstants);REVIT2022</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup Condition="'$(Configuration)' == 'R23'">
     <PackageReference Include="Autodesk.Revit.SDK.Refs.2023" Version="*" Condition="'$(TargetFramework)' == 'net48'" />
   </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'R23'">
+    <DefineConstants>$(DefineConstants);REVIT2023;REVIT2023_OR_GREATER</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup Condition="'$(Configuration)' == 'R24'">
     <PackageReference Include="Autodesk.Revit.SDK.Refs.2024" Version="*" Condition="'$(TargetFramework)' == 'net48'" />
   </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'R24'">
+    <DefineConstants>$(DefineConstants);REVIT2024;REVIT2023_OR_GREATER;REVIT2024_OR_GREATER</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup Condition="'$(Configuration)' == 'R25'">
     <PackageReference Include="Autodesk.Revit.SDK.Refs.2025" Version="*" Condition="'$(TargetFramework)' != 'net48'" />
   </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'R25'">
+    <DefineConstants>$(DefineConstants);REVIT2025;REVIT2023_OR_GREATER;REVIT2024_OR_GREATER;REVIT2025_OR_GREATER</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup Condition="'$(Configuration)' == 'R26' Or '$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Release'">
     <PackageReference Include="Autodesk.Revit.SDK.Refs.2026" Version="*" Condition="'$(TargetFramework)' != 'net48'" />
   </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'R26' Or '$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Release'">
+    <DefineConstants>$(DefineConstants);REVIT2026;REVIT2023_OR_GREATER;REVIT2024_OR_GREATER;REVIT2025_OR_GREATER;REVIT2026_OR_GREATER</DefineConstants>
+  </PropertyGroup>
 
   <ItemGroup>
     <Resource Include="Resources\Icons\**\*.png" />
     <Resource Include="Resources\beam_cut_diagram.png" />
     <EmbeddedResource Include="Resources\ribbon*.yaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Reserve\**\*.cs" />
+    <Page Remove="Reserve\**\*.xaml" />
+    <EmbeddedResource Remove="Reserve\**\*" />
   </ItemGroup>
 
   <PropertyGroup>

@@ -59,6 +59,9 @@ namespace antiGGGravity.Utilities
 
         private static LicenseResult PerformValidation()
         {
+#if EMBED_LICENSE
+            return LicenseResult.Valid(DateTime.UtcNow.AddYears(99));
+#else
             // 1. Record install date for trial tracking
             LicenseStorage.EnsureInstallDateRecorded();
 
@@ -97,6 +100,7 @@ namespace antiGGGravity.Utilities
 
             // 5. No activation key — check free trial
             return CheckTrialPeriod();
+#endif
         }
 
         private static LicenseResult CheckTrialPeriod()

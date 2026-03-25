@@ -21,38 +21,18 @@ panels:
             command: WipeEmptyTagsCommand
             icon: WipeEmptyTags
             tooltip: Delete all tags that have no content in the current view.
+          - name: Project TextStyle
+            command: ProjectTextStyleCommand
+            icon: ProjectTextStyle
+            tooltip: Batch align text notes and their leaders, or convert between styles.
           - separator: true
-          - name: Title on Active View
-            command: TitleOnActiveViewCommand
-            icon: TitleOnActiveView
-            tooltip: Apply a title block to the active view.
           - name: Title on Sheets
             command: TitleOnSheetsCommand
             icon: TitleOnSheets
-            tooltip: Apply a consistent title block across all sheets.
-          - separator: true
-          - name: Drafter Text Off
-            command: DrafterTextOffCommand
-            icon: DrafterTextOff
-            tooltip: Hide drafter annotation text in the current view.
-          - name: Drafter Text On
-            command: DrafterTextOnCommand
-            icon: DrafterTextOn
-            tooltip: Show drafter annotation text in the current view.
-      - type: pulldown
-        name: Family Load
-        icon: FamilyLoad
-        tooltip: Tools for loading and duplicating families.
+            tooltip: Apply a consistent title block across all sheets (eg Section, Detail).
+      - type: stacked
         buttons:
-          - name: Family Loading
-            command: FamilyLoadingCommand
-            icon: FamilyLoading
-            tooltip: Load a family file into the current project.
           - name: Load More Type
             command: LoadMoreTypeCommand
             icon: LoadMoreType
             tooltip: Load additional types from an existing family.
-          - name: Duplicate Families
-            command: FamilyDuplicatorCommand
-            icon: FamilyDuplicator
-            tooltip: Duplicate selected families with a new name prefix.

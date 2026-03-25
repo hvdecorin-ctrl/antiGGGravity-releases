@@ -4,6 +4,9 @@ param (
 )
 
 $distRoot = "Distribute"
+Write-Host "Cleaning up previous build artifacts..." -ForegroundColor Gray
+Remove-Item -Path $distRoot, "bin", "obj" -Recurse -Force -ErrorAction SilentlyContinue
+if (!(Test-Path $distRoot)) { New-Item -ItemType Directory -Path $distRoot }
 
 foreach ($v in $VersionsToBuild) {
     Write-Host "`n==================================================" -ForegroundColor Yellow
@@ -12,16 +15,21 @@ foreach ($v in $VersionsToBuild) {
 
     # 1. SDK VERSION HANDLING
     $isNet8 = ($v -eq "R26" -or $v -eq "R25")
-    $globalJsonPath = "$PSScriptRoot\global.json"
-    $globalJsonBak = "$PSScriptRoot\global.json.bak"
+    # $globalJsonPath = "$PSScriptRoot\global.json"
+    # $globalJsonBak = "$PSScriptRoot\global.json.bak"
 
-    if ($isNet8) {
-        # Hide global.json so it uses the latest SDK (8.0/10.0) for .NET 8 build
-        if (Test-Path $globalJsonPath) { Rename-Item $globalJsonPath "global.json.bak" -Force }
-    } else {
-        # Ensure global.json is active for .NET 4.8 to avoid MC1000 bug
-        if (Test-Path $globalJsonBak) { Rename-Item $globalJsonBak "global.json" -Force }
-    }
+    # if ($isNet8) {
+    #     # Hide global.json so it uses the latest SDK (8.0/10.0) for .NET 8 build
+    #     if (Test-Path $globalJsonPath) { Rename-Item $globalJsonPath "global.json.bak" -Force }
+    # } else {
+    #     # Ensure global.json is active for .NET 4.8 to avoid MC1000 bug
+    #     if (Test-Path $globalJsonBak) { Rename-Item $globalJsonBak "global.json" -Force }
+    # }
+
+    # 0. RESTORE
+    Write-Host "Restoring for $v..." -ForegroundColor Gray
+    $msbuildPath = "C:\Program Files\Microsoft Visual Studio\18\Community\MSBuild\Current\Bin\MSBuild.exe"
+    & $msbuildPath antiGGGravity.csproj /t:Restore /p:Configuration=$v
 
     # 1. CLEAN & BUILD
     if ($isNet8) {
@@ -37,12 +45,12 @@ foreach ($v in $VersionsToBuild) {
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Build failed for $v. Stopping script." -ForegroundColor Red
         # Restore global.json if we were hiding it
-        if (Test-Path $globalJsonBak) { Rename-Item $globalJsonBak "global.json" -Force }
+        # if (Test-Path $globalJsonBak) { Rename-Item $globalJsonBak "global.json" -Force }
         exit 1
     }
 
     # Restore global.json if we were hiding it
-    if (Test-Path $globalJsonBak) { Rename-Item $globalJsonBak "global.json" -Force }
+    # if (Test-Path $globalJsonBak) { Rename-Item $globalJsonBak "global.json" -Force }
     
     # 2. RESOLVE PATHS
     $folderName = "R20" + $v.Substring(1)
@@ -106,20 +114,28 @@ foreach ($v in $VersionsToBuild) {
     $xmlContent | Set-Content $obfXmlPath
     
     Write-Host "Running Obfuscar for $v..." -ForegroundColor Blue
-    obfuscar.console $obfXmlPath
-    
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "Obfuscation failed for $v! Check search paths." -ForegroundColor Red
-        # Clean up temp file but stop
-        Remove-Item $obfXmlPath -ErrorAction SilentlyContinue
-        exit 1
+    if (Get-Command obfuscar.console -ErrorAction SilentlyContinue) {
+        obfuscar.console $obfXmlPath
+        
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "Obfuscation failed for $v! Check search paths." -ForegroundColor Red
+            # Clean up temp file but stop
+            Remove-Item $obfXmlPath -ErrorAction SilentlyContinue
+            exit 1
+        }
+        
+        # 4. PACKAGE INTO DISTRIBUTE (FROM OBFUSCATED)
+        Write-Host "Copying encrypted assemblies to $addonSubDir..." -ForegroundColor Green
+        # Copy main DLL from obfuscated output
+        Copy-Item -Path "$obfOutDir\antiGGGravity.dll" -Destination $addonSubDir -Force
+    } else {
+        Write-Host "WARNING: obfuscar.console not found. Skipping obfuscation for $v." -ForegroundColor Cyan
+        
+        # 4. PACKAGE INTO DISTRIBUTE (FROM BIN)
+        Write-Host "Copying standard assemblies to $addonSubDir..." -ForegroundColor Green
+        # Copy main DLL from bin folder
+        Copy-Item -Path "$inDir\antiGGGravity.dll" -Destination $addonSubDir -Force
     }
-
-    # 4. PACKAGE INTO DISTRIBUTE
-    Write-Host "Copying encrypted assemblies to $addonSubDir..." -ForegroundColor Green
-    
-    # Copy main DLL from obfuscated output
-    Copy-Item -Path "$obfOutDir\antiGGGravity.dll" -Destination $addonSubDir -Force
     
     # Copy dependencies (not obfuscated) from bin
     Get-ChildItem -Path $inDir -Exclude "antiGGGravity.dll", "antiGGGravity.pdb" | Copy-Item -Destination $addonSubDir -Force -Recurse

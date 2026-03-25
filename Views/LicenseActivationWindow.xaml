@@ -65,7 +65,7 @@
                 <!-- Hardware ID Section -->
                 <StackPanel Grid.Row="1" Margin="0,0,0,25">
                     <TextBlock Text="Your Hardware ID" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0,0,0,8"/>
-                    <TextBlock Text="Send this ID to activate or renew your license." Foreground="#666" FontSize="11" Margin="0,0,0,8" TextWrapping="Wrap"/>
+                    <TextBlock Text="Send this ID to antiGGGravity.info@gmail.com to activate or renew your license." Foreground="#666" FontSize="11" Margin="0,0,0,8" TextWrapping="Wrap" FontWeight="SemiBold"/>
                     
                     <Grid>
                         <Grid.ColumnDefinitions>

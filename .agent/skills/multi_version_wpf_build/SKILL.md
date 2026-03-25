@@ -35,9 +35,15 @@ Whenever you modify the `.csproj` for multi-version support, you **MUST** ensure
 
 3. **Opt-Out of Attribute Generation**: To mitigate the `NeutralResourcesLanguageAttribute` crash, always define these properties in your core `<PropertyGroup>`:
    ```xml
-   <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
-   <GenerateAssemblyNeutralResourcesLanguageAttribute>false</GenerateAssemblyNeutralResourcesLanguageAttribute>
-   <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+    <GenerateAssemblyNeutralResourcesLanguageAttribute>false</GenerateAssemblyNeutralResourcesLanguageAttribute>
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+    
+    <!-- MC1000 Advanced Workarounds -->
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+    <IncludePackageReferencesDuringMarkupCompilation>false</IncludePackageReferencesDuringMarkupCompilation>
+    <_NoWinFXReferenceInclude>true</_NoWinFXReferenceInclude>
    ```
 
 4. **Prevent Assembly Leakage (CRITICAL)**: Override `<AssemblySearchPaths>` specifically for `.NETFramework` targets to stop MSBuild from finding incorrect version assemblies in your project directory:
@@ -145,7 +151,23 @@ And for folder dialogs, use `#if` fallbacks:
 #endif
 ```
 
+## ✅ Step 5: Client Distribution Package (Standard)
+For client-ready deliveries, you must generate a self-contained root folder (e.g., `Distribute`) including:
+1. **Embedded License Implementation**: Use a preprocessor bypass (e.g., `EMBED_LICENSE`) to skip hardware-bound activation for the client build.
+2. **Version-Specific Subfolders**: `R2022`, `R2023`, etc., containing the `.addin` manifest and a sub-folder with the assembly and its dependencies.
+3. **Automation Scripts**:
+    - `install.bat`: Prompts for a Revit year and copies files to `%AppData%\Autodesk\Revit\Addins\[Year]`.
+    - `uninstall.bat`: Removes the specific version.
+4. **Documentation**: A clear `instructions.txt` explaining the zero-activation installation process.
+
+### Assembly Leakage Cleanup (CRITICAL)
+Before running a multi-version build, always delete existing `Distribute`, `bin`, and `obj` folders. Failure to do so causes MSBuild to find `.NET 8` candidates when building `.NET 4.8` versions, triggering the `MC1000` error.
+```powershell
+Remove-Item -Path "Distribute", "bin", "obj" -Recurse -Force -ErrorAction SilentlyContinue
+```
+
 ## Summary for the Agent
 1. When asked to build multi-version Revit SDK projects, **verify** the `.csproj` complies with the `TargetFramework` and `AssemblySearchPaths` rules above.
-2. Run `deploy_multi.ps1` to loop the configurations. 
-3. If MSBuild acts buggy with `MC1000` anyway, use `global.json` to pin to `.NET SDK 6.0.428`.
+2. **Always clean** the `Distribute`, `bin`, and `obj` folders before starting to prevent assembly leakage.
+3. Use `msbuild /t:Restore` and `msbuild` for `.net48` configurations to ensure the correct WPF compiler logic is used.
+4. Implement the `EMBED_LICENSE` pattern and provide `install.bat`/`uninstall.bat` for professional client deliveries.
