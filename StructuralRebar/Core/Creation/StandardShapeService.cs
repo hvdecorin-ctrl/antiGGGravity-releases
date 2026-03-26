@@ -21,10 +21,20 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
         public StandardShapeService(Document doc)
         {
             _doc = doc;
-            _shapeCache = new FilteredElementCollector(doc)
+            _shapeCache = new Dictionary<string, RebarShape>(StringComparer.OrdinalIgnoreCase);
+            var shapes = new FilteredElementCollector(doc)
                 .OfClass(typeof(RebarShape))
-                .Cast<RebarShape>()
-                .ToDictionary(s => s.Name, s => s, StringComparer.OrdinalIgnoreCase);
+                .Cast<RebarShape>();
+            
+            foreach (var s in shapes)
+            {
+                string name = s.Name ?? "";
+                _shapeCache[name] = s;
+                // Also index by sanitized name (no "Shape", no spaces)
+                string clean = name.Replace("Shape", "").Replace(" ", "").Trim();
+                if (!string.IsNullOrEmpty(clean) && !_shapeCache.ContainsKey(clean))
+                    _shapeCache[clean] = s;
+            }
         }
 
         /// <summary>
@@ -35,10 +45,12 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
         {
             if (rebar == null || def == null || def.SkipShapeReassignment) return false;
 
-            bool hasHookStart = rebar.GetHookTypeId(0) != ElementId.InvalidElementId;
-            bool hasHookEnd = rebar.GetHookTypeId(1) != ElementId.InvalidElementId;
+            // Use the DEFINITION's hook names (user intent) — not the rebar's actual hooks
+            // (Revit may auto-assign hooks to both ends when using certain shapes)
+            bool hasHookStart = !string.IsNullOrEmpty(def.HookStartName);
+            bool hasHookEnd = !string.IsNullOrEmpty(def.HookEndName);
 
-            string expectedName = GetExpectedName(def.Curves, def.Style, hasHookStart, hasHookEnd, def.ShapeNameHint);
+            string expectedName = GetExpectedName(def.Curves, def.Style, hasHookStart, hasHookEnd, def.ShapeNameHint, def.HookStartName, def.HookEndName);
             if (string.IsNullOrEmpty(expectedName)) return false;
 
             // 1. Check if already correct
@@ -65,7 +77,12 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
             try
             {
                 if (currentId != ElementId.InvalidElementId && currentId != target.Id)
-                    trashShapes?.Add(currentId);
+                {
+                    // Only trash auto-generated shapes, never user-created standard shapes
+                    var curShapeForTrash = _doc.GetElement(currentId) as RebarShape;
+                    bool isStandard = curShapeForTrash != null && (curShapeForTrash.Name ?? "").StartsWith("Shape", StringComparison.OrdinalIgnoreCase);
+                    if (!isStandard) trashShapes?.Add(currentId);
+                }
 
                 shapeParam.Set(target.Id);
                 _doc.Regenerate();
@@ -95,26 +112,23 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
             }
         }
 
-        public string GetExpectedName(IList<Curve> curves, RebarStyle style, bool hasHookStart, bool hasHookEnd, string hint = null)
+        public string GetExpectedName(IList<Curve> curves, RebarStyle style, bool hasHookStart, bool hasHookEnd, string hint = null, string hookStartName = null, string hookEndName = null)
         {
             if (!string.IsNullOrEmpty(hint)) return hint;
             if (curves == null || curves.Count == 0) return null;
 
             if (style == RebarStyle.StirrupTie) return "Shape HT";
 
-            bool both = hasHookStart && hasHookEnd;
-            bool any = hasHookStart || hasHookEnd;
+            string sCode = hasHookStart ? GetHookAngleCode(hookStartName) : "0";
+            string eCode = hasHookEnd ? GetHookAngleCode(hookEndName) : "0";
 
             switch (curves.Count)
             {
                 case 1 when curves[0] is Line:
-                    if (both) return "Shape 90x90";
-                    if (hasHookStart) return "Shape 90x0";
-                    if (hasHookEnd) return "Shape 0x90";
-                    return "Shape 00";
+                    if (sCode == "0" && eCode == "0") return "Shape 00";
+                    return $"Shape {sCode}x{eCode}";
 
                 case 2 when curves.All(c => c is Line):
-                    // Use "Shape L" if available, otherwise fallback to "90x0" logic
                     return "Shape L";
 
                 case 3 when curves.All(c => c is Line):
@@ -124,8 +138,8 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
                     bool isU = Math.Abs(d1.DotProduct(d3)) > 0.99 && Math.Abs(d1.DotProduct(d2)) < 0.01;
                     if (isU) return "Shape LL";
                     
-                    if (hasHookStart && hasHookEnd) return "Shape 90x90_Crk";
-                    if (hasHookStart) return "Shape 90x0_Crk";
+                    if (hasHookStart && hasHookEnd) return $"Shape {sCode}x{eCode}_Crk";
+                    if (hasHookStart) return $"Shape {sCode}x0_Crk";
                     return "Shape 00_Crk";
 
                 default:
@@ -133,30 +147,50 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
             }
         }
 
+        /// <summary>
+        /// Extracts the hook angle code from a hook type name.
+        /// e.g. "Standard - 180 deg" → "180", "Seismic - 135 deg" → "135", anything else → "90".
+        /// </summary>
+        private static string GetHookAngleCode(string hookName)
+        {
+            if (string.IsNullOrEmpty(hookName)) return "90";
+            if (hookName.Contains("180")) return "180";
+            if (hookName.Contains("135")) return "135";
+            return "90";
+        }
+
         public RebarShape FindShapeRobustly(string name)
         {
             if (string.IsNullOrEmpty(name)) return null;
             if (_shapeCache.TryGetValue(name, out var s)) return s;
 
-            string clean = name.Replace("Shape ", "").Trim();
-            if (_shapeCache.TryGetValue(clean, out s)) return s;
+            // Try matching without "Shape" prefix and without spaces
+            string target = name.Replace("Shape", "").Replace(" ", "").Trim();
+            if (_shapeCache.TryGetValue(target, out s)) return s;
 
+            // Last resort: scan all (should rarely be needed now)
             return _shapeCache.Values.FirstOrDefault(v => IsNameMatch(v.Name, name));
         }
 
         private bool IsNameMatch(string actual, string expected)
         {
-            if (string.IsNullOrEmpty(actual)) return false;
-            if (actual.Equals(expected, StringComparison.OrdinalIgnoreCase)) return true;
+            if (string.IsNullOrEmpty(actual) || string.IsNullOrEmpty(expected)) return false;
+            
+            // Normalize both
+            string a = actual.Replace("Shape", "").Replace(" ", "").Trim();
+            string e = expected.Replace("Shape", "").Replace(" ", "").Trim();
+            
+            if (a.Equals(e, StringComparison.OrdinalIgnoreCase)) return true;
 
-            string cleanEx = expected.Replace("Shape ", "").Trim();
-            if (actual.Equals(cleanEx, StringComparison.OrdinalIgnoreCase)) return true;
+            // Handle Revit naming variants (00 vs M_00)
+            a = a.Replace("M_", "");
+            e = e.Replace("M_", "");
+            if (a.Equals(e, StringComparison.OrdinalIgnoreCase)) return true;
 
-            string normAct = actual.Replace("Shape ", "").Replace("x", "0").Trim();
-            string normEx = cleanEx.Replace("x", "0").Trim();
-            if (normAct.Equals(normEx, StringComparison.OrdinalIgnoreCase)) return true;
-
-            return actual.EndsWith(cleanEx, StringComparison.OrdinalIgnoreCase);
+            // Check if one is a "Specific" subset of the other (e.g. "0x180" matches "180" only if the context allows)
+            // But we must be careful not to match "180x180" to "180x0"
+            // So we skip 'EndsWith' as it proved too broad in this context.
+            return false;
         }
 
         private XYZ GetRebarCenter(DBRebar rebar)
