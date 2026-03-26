@@ -16,7 +16,6 @@ namespace antiGGGravity.Commands.Rebar
     [Transaction(TransactionMode.Manual)]
     public class AssignElementNameCommand : BaseCommand
     {
-        protected override bool RequiresLicense => false;
 
         private const string ParamName = "Element Name";
 

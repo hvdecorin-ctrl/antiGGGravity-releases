@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using Autodesk.Revit.DB;
+using antiGGGravity.Utilities;
 
 namespace antiGGGravity.Views.Management
 {
@@ -25,7 +26,7 @@ namespace antiGGGravity.Views.Management
             
             // Sort by ElementId descending to show newest views first (latest creation order)
             _allWrappers = unsheetedViews
-                .OrderByDescending(w => w.Id)
+                .OrderByDescending(w => w.Id.GetIdValue())
                 .Select(v => new ViewWrapper { View = v })
                 .ToList();
 

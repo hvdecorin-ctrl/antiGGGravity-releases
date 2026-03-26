@@ -14,6 +14,8 @@ namespace antiGGGravity.Commands.AntiGravity
     [Regeneration(RegenerationOption.Manual)]
     public class LicensedCommand : BaseCommand
     {
+        protected override bool RequiresLicense => false;
+
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             // ========================================

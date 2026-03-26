@@ -7,11 +7,11 @@ using Autodesk.Revit.UI;
 namespace antiGGGravity.Commands
 {
     [Transaction(TransactionMode.Manual)]
-    public class ViewTransferCommand : IExternalCommand
+    public class ViewTransferCommand : BaseCommand
     {
         private static ViewTransferWindow _window;
 
-        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             if (_window != null && _window.IsLoaded)
             {
@@ -19,37 +19,23 @@ namespace antiGGGravity.Commands
                 return Result.Succeeded;
             }
 
-            try
-            {
-                // Setup External Event Handler for non-modal execution
-                TransferRequestHandler handler = new TransferRequestHandler();
-                ExternalEvent externalEvent = ExternalEvent.Create(handler);
+            // Setup External Event Handler for non-modal execution
+            TransferRequestHandler handler = new TransferRequestHandler();
+            ExternalEvent externalEvent = ExternalEvent.Create(handler);
 
-                FamilyManagerRequestHandler fmHandler = new FamilyManagerRequestHandler();
-                ExternalEvent fmExternalEvent = ExternalEvent.Create(fmHandler);
+            FamilyManagerRequestHandler fmHandler = new FamilyManagerRequestHandler();
+            ExternalEvent fmExternalEvent = ExternalEvent.Create(fmHandler);
 
-                ReadFamilyTypesHandler typesHandler = new ReadFamilyTypesHandler();
-                ExternalEvent typesExEvent = ExternalEvent.Create(typesHandler);
+            ReadFamilyTypesHandler typesHandler = new ReadFamilyTypesHandler();
+            ExternalEvent typesExEvent = ExternalEvent.Create(typesHandler);
 
-                DuplicatorRequestHandler dupHandler = new DuplicatorRequestHandler();
-                ExternalEvent dupExEvent = ExternalEvent.Create(dupHandler);
+            DuplicatorRequestHandler dupHandler = new DuplicatorRequestHandler();
+            ExternalEvent dupExEvent = ExternalEvent.Create(dupHandler);
 
-                _window = new ViewTransferWindow(commandData.Application, handler, externalEvent, fmHandler, fmExternalEvent, typesHandler, typesExEvent, dupHandler, dupExEvent);
-                _window.Show();
+            _window = new ViewTransferWindow(commandData.Application, handler, externalEvent, fmHandler, fmExternalEvent, typesHandler, typesExEvent, dupHandler, dupExEvent);
+            _window.Show();
 
-                return Result.Succeeded;
-            }
-            catch (Exception ex)
-            {
-                TaskDialog td = new TaskDialog("Application Error");
-                td.MainInstruction = "Failed to load Transfer Tool";
-                td.MainContent = ex.Message;
-                td.ExpandedContent = ex.ToString();
-                td.Show();
-                
-                message = ex.Message;
-                return Result.Failed;
-            }
+            return Result.Succeeded;
         }
     }
 }

@@ -49,8 +49,6 @@ namespace antiGGGravity.Commands.Rebar
         private static ExternalEvent _refreshEvent;
         private static RebarQuantityRefreshHandler _refreshHandler;
 
-        protected override bool RequiresLicense => false;
-
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIApplication uiApp = commandData.Application;

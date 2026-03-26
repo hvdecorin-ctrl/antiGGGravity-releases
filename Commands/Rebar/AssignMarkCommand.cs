@@ -18,7 +18,6 @@ namespace antiGGGravity.Commands.Rebar
     [Transaction(TransactionMode.Manual)]
     public class AssignMarkCommand : BaseCommand
     {
-        protected override bool RequiresLicense => false;
 
         private static readonly BuiltInCategory[] TargetCategories = new[]
         {

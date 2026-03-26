@@ -14,21 +14,15 @@ namespace antiGGGravity.Commands.Management
     // ===================================================================================
 
     [Transaction(TransactionMode.Manual)]
-    public class DuplicateSheetsCommand : IExternalCommand
+    public class DuplicateSheetsCommand : BaseCommand
     {
-        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        protected override bool RequiresLicense => false;
+
+        protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            try
-            {
-                DuplicateSheetsView view = new DuplicateSheetsView(commandData);
-                view.ShowDialog();
-                return Result.Succeeded;
-            }
-            catch (Exception ex)
-            {
-                message = ex.Message;
-                return Result.Failed;
-            }
+            DuplicateSheetsView view = new DuplicateSheetsView(commandData);
+            view.ShowDialog();
+            return Result.Succeeded;
         }
     }
 
@@ -37,21 +31,15 @@ namespace antiGGGravity.Commands.Management
     // ===================================================================================
 
     [Transaction(TransactionMode.Manual)]
-    public class AlignSchematicCommand : IExternalCommand
+    public class AlignSchematicCommand : BaseCommand
     {
-        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        protected override bool RequiresLicense => false;
+
+        protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            try
-            {
-                AlignSchematicView view = new AlignSchematicView(commandData);
-                view.ShowDialog();
-                return Result.Succeeded;
-            }
-            catch (Exception ex)
-            {
-                message = ex.Message;
-                return Result.Failed;
-            }
+            AlignSchematicView view = new AlignSchematicView(commandData);
+            view.ShowDialog();
+            return Result.Succeeded;
         }
     }
 

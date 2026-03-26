@@ -13,7 +13,6 @@ namespace antiGGGravity.Commands.Rebar
     [Transaction(TransactionMode.Manual)]
     public class RemoveMarkCommand : BaseCommand
     {
-        protected override bool RequiresLicense => false;
 
         private static readonly BuiltInCategory[] TargetCategories = new[]
         {

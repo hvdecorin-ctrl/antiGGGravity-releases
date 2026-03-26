@@ -13,9 +13,11 @@ namespace antiGGGravity.Commands.Management
     // ===================================================================================
 
     [Transaction(TransactionMode.Manual)]
-    public class RenameViewsActiveSheetCommand : IExternalCommand
+    public class RenameViewsActiveSheetCommand : BaseCommand
     {
-        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        protected override bool RequiresLicense => false;
+
+        protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;
@@ -56,9 +58,11 @@ namespace antiGGGravity.Commands.Management
     // ===================================================================================
 
     [Transaction(TransactionMode.Manual)]
-    public class RenameViewsAllSheetsCommand : IExternalCommand
+    public class RenameViewsAllSheetsCommand : BaseCommand
     {
-        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        protected override bool RequiresLicense => false;
+
+        protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             Document doc = commandData.Application.ActiveUIDocument.Document;
 
@@ -99,9 +103,11 @@ namespace antiGGGravity.Commands.Management
     // ===================================================================================
 
     [Transaction(TransactionMode.Manual)]
-    public class RenumberViewportsCommand : IExternalCommand
+    public class RenumberViewportsCommand : BaseCommand
     {
-        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        protected override bool RequiresLicense => false;
+
+        protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;
@@ -229,9 +235,11 @@ namespace antiGGGravity.Commands.Management
     // ===================================================================================
 
     [Transaction(TransactionMode.Manual)]
-    public class AddSelectedViewCommand : IExternalCommand
+    public class AddSelectedViewCommand : BaseCommand
     {
-        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        protected override bool RequiresLicense => false;
+
+        protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;
@@ -355,9 +363,11 @@ namespace antiGGGravity.Commands.Management
     // ===================================================================================
 
     [Transaction(TransactionMode.Manual)]
-    public class AddViewsCommand : IExternalCommand
+    public class AddViewsCommand : BaseCommand
     {
-        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        protected override bool RequiresLicense => false;
+
+        protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;

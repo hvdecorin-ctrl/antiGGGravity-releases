@@ -12,8 +12,6 @@ namespace antiGGGravity.Commands.Rebar
         private static ExternalEvent _externalEvent;
         private static RebarPaletteEventHandler _handler;
 
-        protected override bool RequiresLicense => false;
-
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             var uiApp = commandData.Application;

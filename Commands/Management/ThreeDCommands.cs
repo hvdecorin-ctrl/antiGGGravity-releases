@@ -14,9 +14,11 @@ namespace antiGGGravity.Commands.Management
     // ===================================================================================
 
     [Transaction(TransactionMode.Manual)]
-    public class Auto3DCommand : IExternalCommand
+    public class Auto3DCommand : BaseCommand
     {
-        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        protected override bool RequiresLicense => false;
+
+        protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;
@@ -67,6 +69,7 @@ namespace antiGGGravity.Commands.Management
 
             if (form.Result != null)
             {
+                uidoc.ActiveView = form.Result;
                 return Result.Succeeded;
             }
 
@@ -92,9 +95,11 @@ namespace antiGGGravity.Commands.Management
     // ===================================================================================
 
     [Transaction(TransactionMode.Manual)]
-    public class Toggle3DSectionBoxCommand : IExternalCommand
+    public class Toggle3DSectionBoxCommand : BaseCommand
     {
-        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        protected override bool RequiresLicense => false;
+
+        protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;
@@ -207,9 +212,11 @@ namespace antiGGGravity.Commands.Management
     // ===================================================================================
 
     [Transaction(TransactionMode.Manual)]
-    public class ToggleSectionBoxVisibilityCommand : IExternalCommand
+    public class ToggleSectionBoxVisibilityCommand : BaseCommand
     {
-        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        protected override bool RequiresLicense => false;
+
+        protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;

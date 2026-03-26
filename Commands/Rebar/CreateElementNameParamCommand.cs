@@ -14,7 +14,6 @@ namespace antiGGGravity.Commands.Rebar
     [Transaction(TransactionMode.Manual)]
     public class CreateElementNameParamCommand : BaseCommand
     {
-        protected override bool RequiresLicense => false;
 
         private const string ParamName = "Element Name";
         private const string GroupName = "antiGGGravity";
