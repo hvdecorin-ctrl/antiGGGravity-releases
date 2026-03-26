@@ -2,14 +2,16 @@ using System;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
-using antiGGGravity.Views.Overrides;
+using antiGGGravity.Views.VisibilityGraphic;
 
-namespace antiGGGravity.Commands.Overrides
+namespace antiGGGravity.Commands.VisibilityGraphic
 {
     [Transaction(TransactionMode.Manual)]
-    public class QuickFilterCommand : IExternalCommand
+    public class QuickFilterCommand : BaseCommand
     {
-        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        protected override bool RequiresLicense => false;
+
+        protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             return Run(commandData.Application);
         }

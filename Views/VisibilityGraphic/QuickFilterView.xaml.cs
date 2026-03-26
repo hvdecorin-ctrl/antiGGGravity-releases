@@ -8,7 +8,7 @@ using System.Windows.Media;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 
-namespace antiGGGravity.Views.Overrides
+namespace antiGGGravity.Views.VisibilityGraphic
 {
     public partial class QuickFilterView : Window
     {
@@ -366,12 +366,6 @@ namespace antiGGGravity.Views.Overrides
         }
     }
 
-    // Helper Classes
-    public class CategoryItem
-    {
-        public string Name { get; set; }
-        public Category Category { get; set; }
-    }
 
     public class ParameterItem
     {

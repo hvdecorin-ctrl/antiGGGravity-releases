@@ -5,15 +5,17 @@ using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.UI.Selection;
-using antiGGGravity.Views.General;
+using antiGGGravity.Views.VisibilityGraphic;
 using antiGGGravity.Utilities;
 
-namespace antiGGGravity.Commands.General
+namespace antiGGGravity.Commands.VisibilityGraphic
 {
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
-    public class PickElementsCommand : IExternalCommand
+    public class QuickPickCommand : BaseCommand
     {
-        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        protected override bool RequiresLicense => false;
+
+        protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             return Run(commandData.Application);
         }
@@ -27,7 +29,7 @@ namespace antiGGGravity.Commands.General
                 .Where(c => (c.CategoryType == Autodesk.Revit.DB.CategoryType.Model || c.CategoryType == Autodesk.Revit.DB.CategoryType.Annotation))
                 .ToList();
 
-            PickElementsView win = new PickElementsView(categories);
+            QuickPickView win = new QuickPickView(categories);
             if (win.ShowDialog() != true) return Result.Cancelled;
 
             try

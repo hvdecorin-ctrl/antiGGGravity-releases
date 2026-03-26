@@ -5,7 +5,7 @@ using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using antiGGGravity.Utilities;
 
-namespace antiGGGravity.Views.Overrides
+namespace antiGGGravity.Views.VisibilityGraphic
 {
     public enum QuickFilterAction
     {

@@ -4,11 +4,6 @@ panels:
   # ============================================================
   - name: Overrides
     items:
-      - type: pushbutton
-        name: Quick Filter
-        command: QuickFilterCommand
-        icon: QuickFilter
-        tooltip: Quickly filter and color-code elements by a chosen parameter value.
       - type: stacked
         buttons:
           - name: Dim Fake

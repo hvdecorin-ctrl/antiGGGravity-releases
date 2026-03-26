@@ -4,6 +4,11 @@ panels:
   # ============================================================
   - name: Visibility Graphic
     items:
+      - type: pushbutton
+        name: Quick Filter
+        command: QuickFilterCommand
+        icon: QuickFilter
+        tooltip: Quickly filter and color-code elements by a chosen parameter value.
       - type: pulldown
         name: Visibility
         icon: Visibility
@@ -89,3 +94,8 @@ panels:
         command: QuickVgCommand
         icon: QuickVG
         tooltip: Batch toggle element categories via a quick Visibility/Graphic panel.
+      - type: pushbutton
+        name: Quick Pick
+        command: QuickPickCommand
+        icon: Pick
+        tooltip: Quickly select elements by type, category, or parameter value.

@@ -7,11 +7,11 @@ using System.IO;
 using System.Text.Json;
 using Autodesk.Revit.DB;
 
-namespace antiGGGravity.Views.General
+namespace antiGGGravity.Views.VisibilityGraphic
 {
     public enum FilterMode { SingleCategory, All3D, All2D, SpecificCategory }
 
-    public partial class PickElementsView : Window
+    public partial class QuickPickView : Window
     {
         private List<CategoryItem> _allCategories;
         
@@ -19,7 +19,7 @@ namespace antiGGGravity.Views.General
         public FilterMode Mode { get; private set; } = FilterMode.SingleCategory;
         public BuiltInCategory QuickCategory { get; private set; }
 
-        public PickElementsView(IEnumerable<Category> categories)
+        public QuickPickView(List<Category> categories)
         {
             InitializeComponent();
             _allCategories = categories.Select(c => new CategoryItem { Name = c.Name, Category = c }).OrderBy(c => c.Name).ToList();
@@ -220,9 +220,4 @@ namespace antiGGGravity.Views.General
         }
     }
 
-    public class CategoryItem
-    {
-        public string Name { get; set; }
-        public Category Category { get; set; }
-    }
 }

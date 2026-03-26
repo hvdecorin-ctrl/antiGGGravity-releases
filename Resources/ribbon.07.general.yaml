@@ -4,11 +4,6 @@ panels:
   # ============================================================
   - name: General
     items:
-      - type: splitpushbutton
-        name: Quick Pick
-        icon: Pick
-        command: PickElementsCommand
-        tooltip: Quickly select elements by type, category, or parameter value.
       - type: stacked
         buttons:
           - type: pulldown

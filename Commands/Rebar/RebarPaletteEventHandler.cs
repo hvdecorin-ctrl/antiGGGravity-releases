@@ -1,6 +1,6 @@
 using System;
 using Autodesk.Revit.UI;
-using antiGGGravity.Commands.General;
+using antiGGGravity.Commands.VisibilityGraphic;
 using antiGGGravity.StructuralRebar;
 
 namespace antiGGGravity.Commands.Rebar
@@ -28,8 +28,8 @@ namespace antiGGGravity.Commands.Rebar
                     case "DeleteByHost": new SelectDeleteRebarCommand().Run(app); break;
                     case "RebarCranked": new RebarCrankCommand().Run(app); break;
                     case "RebarSplit": new RebarSplitCommand().Run(app); break;
-                    case "QuickPick": new PickElementsCommand().Run(app); break;
-                    case "QuickFilter": new antiGGGravity.Commands.Overrides.QuickFilterCommand().Run(app); break;
+                    case "QuickPick": new QuickPickCommand().Run(app); break;
+                    case "QuickFilter": new QuickFilterCommand().Run(app); break;
                     case "BeamRebar": new BeamRebarCommand().Run(app); break;
                     case "FoundationRebar": new FoundationRebarCommand().Run(app); break;
                     case "WallRebar": new WallRebarCommand().Run(app); break;
