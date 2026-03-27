@@ -42,8 +42,12 @@ Distribute/
 *.old
 *.obj
 *.pdb
+# Binary files (Ignore by default, but unignore for KeyGen_App)
 *.exe
 *.dll
+!/KeyGen_App/*.exe
+!/KeyGen_App/*.dll
+!/KeyGen_App/*.json
 
 # AppData / Temporary
 .gemini/
@@ -55,7 +59,8 @@ Distribute/
 *.addin
 !antiGGGravity.addin
 
-# Private KeyGen Apps (NEVER distribute)
+# Private KeyGen Apps (Unignored for GitHub synchronization as requested)
+!KeyGen_App/
 KeyGen/
 KeyGenUI/
 
