@@ -12,11 +12,11 @@ using antiGGGravity.Utilities;
 namespace antiGGGravity.Commands.Model
 {
     [Transaction(TransactionMode.Manual)]
-    public class RoofFramingCommand : IExternalCommand
+    public class RoofFramingCommand : BaseCommand
     {
         private const double TOL = 1e-6;
 
-        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;

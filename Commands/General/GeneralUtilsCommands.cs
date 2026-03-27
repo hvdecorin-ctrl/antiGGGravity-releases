@@ -26,7 +26,7 @@ namespace antiGGGravity.Commands.General
     }
 
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
-    public class FlipElementsCommand : IExternalCommand
+    public class FlipElementsCommand : BaseCommand
     {
         private const int CORE_CENTERLINE = 1;
         private static readonly Dictionary<int, int> LOCATION_LINE_FLIP = new Dictionary<int, int>
@@ -34,7 +34,7 @@ namespace antiGGGravity.Commands.General
             {0, 0}, {1, 1}, {2, 3}, {3, 2}, {4, 5}, {5, 4}
         };
 
-        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;
@@ -111,9 +111,9 @@ namespace antiGGGravity.Commands.General
     }
 
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
-    public class ElementsRotateMultipleCommand : IExternalCommand
+    public class ElementsRotateMultipleCommand : BaseCommand
     {
-        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;
@@ -150,9 +150,9 @@ namespace antiGGGravity.Commands.General
     }
 
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
-    public class JoinUnjoinGeometryCommand : IExternalCommand
+    public class JoinUnjoinGeometryCommand : BaseCommand
     {
-        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             try
             {
@@ -169,9 +169,9 @@ namespace antiGGGravity.Commands.General
     }
 
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
-    public class TransferTemplatesCommand : IExternalCommand
+    public class TransferTemplatesCommand : BaseCommand
     {
-        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             TaskDialog.Show("Transfer Templates", "This tool will be fully implemented in a separate batch due to source/destination document complexity.");
             return Result.Succeeded;

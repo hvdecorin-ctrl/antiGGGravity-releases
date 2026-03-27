@@ -11,9 +11,9 @@ using antiGGGravity.Utilities;
 namespace antiGGGravity.Commands.General
 {
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
-    public class WallMatchTopCommand : IExternalCommand
+    public class WallMatchTopCommand : BaseCommand
     {
-        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;
@@ -71,9 +71,9 @@ namespace antiGGGravity.Commands.General
     }
 
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
-    public class WallMatchBaseCommand : IExternalCommand
+    public class WallMatchBaseCommand : BaseCommand
     {
-        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;
@@ -104,9 +104,9 @@ namespace antiGGGravity.Commands.General
     }
 
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
-    public class WallMatchBothCommand : IExternalCommand
+    public class WallMatchBothCommand : BaseCommand
     {
-        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;
@@ -149,9 +149,9 @@ namespace antiGGGravity.Commands.General
     }
 
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
-    public class ModifyWallConstraintsCommand : IExternalCommand
+    public class ModifyWallConstraintsCommand : BaseCommand
     {
-        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;

@@ -16,7 +16,6 @@ namespace antiGGGravity.Commands.Management
     [Transaction(TransactionMode.Manual)]
     public class Auto3DCommand : BaseCommand
     {
-        protected override bool RequiresLicense => false;
 
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
@@ -97,8 +96,6 @@ namespace antiGGGravity.Commands.Management
     [Transaction(TransactionMode.Manual)]
     public class Toggle3DSectionBoxCommand : BaseCommand
     {
-        protected override bool RequiresLicense => false;
-
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
@@ -214,8 +211,6 @@ namespace antiGGGravity.Commands.Management
     [Transaction(TransactionMode.Manual)]
     public class ToggleSectionBoxVisibilityCommand : BaseCommand
     {
-        protected override bool RequiresLicense => false;
-
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIDocument uidoc = commandData.Application.ActiveUIDocument;

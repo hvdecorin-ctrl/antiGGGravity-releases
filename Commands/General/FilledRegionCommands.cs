@@ -10,9 +10,9 @@ using antiGGGravity.Views.General;
 namespace antiGGGravity.Commands.General
 {
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
-    public class MergeRegionsCommand : IExternalCommand
+    public class MergeRegionsCommand : BaseCommand
     {
-        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;
@@ -55,9 +55,9 @@ namespace antiGGGravity.Commands.General
     }
 
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
-    public class RegionChangeLineStyleCommand : IExternalCommand
+    public class RegionChangeLineStyleCommand : BaseCommand
     {
-        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;
@@ -87,9 +87,9 @@ namespace antiGGGravity.Commands.General
     }
 
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
-    public class RegionsToFloorsCommand : IExternalCommand
+    public class RegionsToFloorsCommand : BaseCommand
     {
-        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;
@@ -130,9 +130,9 @@ namespace antiGGGravity.Commands.General
     }
 
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
-    public class RegionsToCeilingsCommand : IExternalCommand
+    public class RegionsToCeilingsCommand : BaseCommand
     {
-        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;

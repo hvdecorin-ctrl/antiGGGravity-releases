@@ -8,7 +8,6 @@ namespace antiGGGravity.Commands.VisibilityGraphic
 {
     public abstract class ToggleCategoryBaseCommand : BaseCommand
     {
-        protected override bool RequiresLicense => false;
 
         protected abstract BuiltInCategory Category { get; }
 

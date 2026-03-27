@@ -13,7 +13,6 @@ namespace antiGGGravity.Commands.VisibilityGraphic
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
     public class QuickPickCommand : BaseCommand
     {
-        protected override bool RequiresLicense => false;
 
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {

@@ -8,9 +8,9 @@ using Autodesk.Revit.Attributes;
 namespace antiGGGravity.Commands.General
 {
     [Transaction(TransactionMode.Manual)]
-    public class CutGeometryCommand : IExternalCommand
+    public class CutGeometryCommand : BaseCommand
     {
-        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;

@@ -9,8 +9,6 @@ namespace antiGGGravity.Commands.VisibilityGraphic
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
     public class ToggleAllElementsCommand : BaseCommand
     {
-        protected override bool RequiresLicense => false; // As requested, simple utility
-
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             var doc = commandData.Application.ActiveUIDocument.Document;

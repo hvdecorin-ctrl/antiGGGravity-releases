@@ -16,8 +16,6 @@ namespace antiGGGravity.Commands.VisibilityGraphic
         private static bool _lastWasTempMode = false;
         private static bool _isSubscribed = false;
 
-        protected override bool RequiresLicense => false;
-
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             var uiApp = commandData.Application;

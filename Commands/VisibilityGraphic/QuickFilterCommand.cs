@@ -9,7 +9,6 @@ namespace antiGGGravity.Commands.VisibilityGraphic
     [Transaction(TransactionMode.Manual)]
     public class QuickFilterCommand : BaseCommand
     {
-        protected override bool RequiresLicense => false;
 
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {

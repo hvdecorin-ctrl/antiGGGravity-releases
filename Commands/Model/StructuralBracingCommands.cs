@@ -11,9 +11,9 @@ using antiGGGravity.Utilities;
 
 namespace antiGGGravity.Commands.Model
 {
-    public abstract class BracingCommandBase : IExternalCommand
+    public abstract class BracingCommandBase : BaseCommand
     {
-        public abstract Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements);
+        protected abstract override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements);
 
         protected FamilySymbol SelectBeamType(Document doc, Selection selection)
         {
@@ -269,7 +269,7 @@ namespace antiGGGravity.Commands.Model
     [Transaction(TransactionMode.Manual)]
     public class HFrameCommand : BracingCommandBase
     {
-        public override Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;
@@ -339,7 +339,7 @@ namespace antiGGGravity.Commands.Model
     [Transaction(TransactionMode.Manual)]
     public class KBraceCommand : BracingCommandBase
     {
-        public override Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;
@@ -396,7 +396,7 @@ namespace antiGGGravity.Commands.Model
     [Transaction(TransactionMode.Manual)]
     public class XBraceCommand : BracingCommandBase
     {
-        public override Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;

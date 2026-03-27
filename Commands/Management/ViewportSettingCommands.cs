@@ -15,7 +15,6 @@ namespace antiGGGravity.Commands.Management
     [Transaction(TransactionMode.Manual)]
     public class RenameViewsActiveSheetCommand : BaseCommand
     {
-        protected override bool RequiresLicense => false;
 
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
@@ -60,7 +59,6 @@ namespace antiGGGravity.Commands.Management
     [Transaction(TransactionMode.Manual)]
     public class RenameViewsAllSheetsCommand : BaseCommand
     {
-        protected override bool RequiresLicense => false;
 
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
@@ -105,8 +103,6 @@ namespace antiGGGravity.Commands.Management
     [Transaction(TransactionMode.Manual)]
     public class RenumberViewportsCommand : BaseCommand
     {
-        protected override bool RequiresLicense => false;
-
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
@@ -237,8 +233,6 @@ namespace antiGGGravity.Commands.Management
     [Transaction(TransactionMode.Manual)]
     public class AddSelectedViewCommand : BaseCommand
     {
-        protected override bool RequiresLicense => false;
-
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
@@ -365,8 +359,6 @@ namespace antiGGGravity.Commands.Management
     [Transaction(TransactionMode.Manual)]
     public class AddViewsCommand : BaseCommand
     {
-        protected override bool RequiresLicense => false;
-
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIDocument uidoc = commandData.Application.ActiveUIDocument;

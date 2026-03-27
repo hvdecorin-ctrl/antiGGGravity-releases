@@ -10,7 +10,6 @@ namespace antiGGGravity.Commands.VisibilityGraphic
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
     public class ToggleCadLinksCommand : BaseCommand
     {
-        protected override bool RequiresLicense => false;
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             var uidoc = commandData.Application.ActiveUIDocument;
@@ -42,7 +41,6 @@ namespace antiGGGravity.Commands.VisibilityGraphic
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
     public class ToggleStructuralPacksCommand : BaseCommand
     {
-        protected override bool RequiresLicense => false;
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             var uidoc = commandData.Application.ActiveUIDocument;
@@ -88,7 +86,6 @@ namespace antiGGGravity.Commands.VisibilityGraphic
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
     public class Toggle2DCommand : BaseCommand
     {
-        protected override bool RequiresLicense => false;
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             var doc = commandData.Application.ActiveUIDocument.Document;
@@ -161,7 +158,6 @@ namespace antiGGGravity.Commands.VisibilityGraphic
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
     public class Toggle3DCommand : BaseCommand
     {
-        protected override bool RequiresLicense => false;
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             var doc = commandData.Application.ActiveUIDocument.Document;
