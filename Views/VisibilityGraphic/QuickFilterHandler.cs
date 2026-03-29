@@ -13,7 +13,8 @@ namespace antiGGGravity.Views.VisibilityGraphic
         Reset,
         CreateLegend,
         CreateFilters,
-        Isolate
+        Isolate,
+        Highlight
     }
 
     public class QuickFilterHandler : IExternalEventHandler
@@ -50,6 +51,9 @@ namespace antiGGGravity.Views.VisibilityGraphic
                         break;
                     case QuickFilterAction.Isolate:
                         IsolateElements(doc, activeView);
+                        break;
+                    case QuickFilterAction.Highlight:
+                        HighlightElements(doc, activeView);
                         break;
                 }
             }
@@ -136,21 +140,29 @@ namespace antiGGGravity.Views.VisibilityGraphic
 
         private void ResetColors(Document doc, View view)
         {
-            if (_view.UI_Combo_Category.SelectedItem is CategoryItem catItem)
+            using (Transaction t = new Transaction(doc, "Reset Colors"))
             {
-                using (Transaction t = new Transaction(doc, "Reset Colors"))
-                {
-                    t.Start();
-                    var collector = new FilteredElementCollector(doc, view.Id)
-                        .OfCategoryId(catItem.Category.Id);
+                t.Start();
+                
+                // Reset temporary isolation if active
+                try { view.DisableTemporaryViewMode(TemporaryViewMode.TemporaryHideIsolate); } catch { }
 
-                    OverrideGraphicSettings clear = new OverrideGraphicSettings();
-                    foreach (Element e in collector)
-                    {
-                        view.SetElementOverrides(e.Id, clear);
-                    }
-                    t.Commit();
+                OverrideGraphicSettings clear = new OverrideGraphicSettings();
+
+                // Clear ALL visible model elements (handles Highlight which affects all categories)
+                var allElements = new FilteredElementCollector(doc, view.Id)
+                    .WhereElementIsNotElementType()
+                    .WhereElementIsViewIndependent();
+
+                foreach (Element e in allElements)
+                {
+                    if (e.Category == null) continue;
+                    if (e.Category.CategoryType != CategoryType.Model) continue;
+
+                    view.SetElementOverrides(e.Id, clear);
                 }
+
+                t.Commit();
             }
         }
         private void CreateLegend(Document doc)
@@ -358,6 +370,134 @@ namespace antiGGGravity.Views.VisibilityGraphic
                 }
 
                 view.IsolateElementsTemporary(idsToIsolate);
+                t.Commit();
+            }
+        }
+
+        private void HighlightElements(Document doc, View view)
+        {
+            if (!(_view.UI_Combo_Category.SelectedItem is CategoryItem catItem) ||
+                !(_view.UI_List_Parameters.SelectedItem is ParameterItem paramItem))
+            {
+                TaskDialog.Show("Highlight", "Select category and parameter first.");
+                return;
+            }
+
+            // Get selected values from the DataGrid
+            var selectedValues = new HashSet<string>();
+            foreach (var item in _view.UI_Grid_Values.SelectedItems)
+            {
+                if (item is ValueItem valItem)
+                    selectedValues.Add(valItem.Value);
+            }
+
+            if (selectedValues.Count == 0)
+            {
+                TaskDialog.Show("Highlight", "Select one or more values in the grid to highlight.");
+                return;
+            }
+
+            // Build a lookup: value string → Revit color from the Values grid
+            var colorMap = new Dictionary<string, Autodesk.Revit.DB.Color>();
+            foreach (var vi in _view.Values)
+            {
+                if (!colorMap.ContainsKey(vi.Value))
+                    colorMap[vi.Value] = vi.RevitColor;
+            }
+
+            // Get Solid Fill Pattern for color overrides
+            FillPatternElement solidFill = new FilteredElementCollector(doc)
+                .OfClass(typeof(FillPatternElement))
+                .Cast<FillPatternElement>()
+                .FirstOrDefault(x => x.GetFillPattern().IsSolidFill);
+
+            using (Transaction t = new Transaction(doc, "Highlight by Value"))
+            {
+                t.Start();
+
+                // Reset any existing temporary isolation first
+                try { view.DisableTemporaryViewMode(TemporaryViewMode.TemporaryHideIsolate); } catch { }
+
+                // Step 1: Identify matching element IDs and their colors
+                var matchingColors = new Dictionary<ElementId, Autodesk.Revit.DB.Color>();
+
+                var catCollector = new FilteredElementCollector(doc, view.Id)
+                    .OfCategoryId(catItem.Category.Id);
+
+                foreach (Element e in catCollector)
+                {
+                    Parameter p = null;
+
+                    if (paramItem.IsTypeParameter)
+                    {
+                        Element typeElem = doc.GetElement(e.GetTypeId());
+                        if (typeElem != null) p = typeElem.LookupParameter(paramItem.Name);
+                    }
+                    else
+                    {
+                        p = e.LookupParameter(paramItem.Name);
+                    }
+
+                    if (p == null) continue;
+
+                    string val = p.AsValueString() ?? p.AsString();
+                    if (val == null)
+                    {
+                        if (p.StorageType == StorageType.Double) val = p.AsDouble().ToString("F2");
+                        else if (p.StorageType == StorageType.Integer) val = p.AsInteger().ToString();
+                        else if (p.StorageType == StorageType.ElementId) val = p.AsElementId().ToString();
+                        else val = "<null>";
+                    }
+                    if (string.IsNullOrEmpty(val)) val = "<empty>";
+
+                    if (selectedValues.Contains(val) && colorMap.TryGetValue(val, out var color))
+                    {
+                        matchingColors[e.Id] = color;
+                    }
+                }
+
+                if (matchingColors.Count == 0)
+                {
+                    t.RollBack();
+                    TaskDialog.Show("Highlight", "No elements found matching the selected value(s).");
+                    return;
+                }
+
+                // Step 2: Make ALL visible 3D elements across ALL categories transparent
+                var transparentOgs = new OverrideGraphicSettings();
+                transparentOgs.SetSurfaceTransparency(80);
+                transparentOgs.SetHalftone(true);
+
+                var allVisibleElements = new FilteredElementCollector(doc, view.Id)
+                    .WhereElementIsNotElementType()
+                    .WhereElementIsViewIndependent();
+
+                foreach (Element e in allVisibleElements)
+                {
+                    if (e.Category == null) continue;
+                    if (e.Category.CategoryType != CategoryType.Model) continue;
+
+                    view.SetElementOverrides(e.Id, transparentOgs);
+                }
+
+                // Step 3: Highlight matching elements — clear transparency + apply color
+                foreach (var kvp in matchingColors)
+                {
+                    var colorOgs = new OverrideGraphicSettings();
+                    colorOgs.SetSurfaceTransparency(0);
+                    colorOgs.SetHalftone(false);
+                    colorOgs.SetSurfaceForegroundPatternColor(kvp.Value);
+                    colorOgs.SetCutForegroundPatternColor(kvp.Value);
+
+                    if (solidFill != null)
+                    {
+                        colorOgs.SetSurfaceForegroundPatternId(solidFill.Id);
+                        colorOgs.SetCutForegroundPatternId(solidFill.Id);
+                    }
+
+                    view.SetElementOverrides(kvp.Key, colorOgs);
+                }
+
                 t.Commit();
             }
         }

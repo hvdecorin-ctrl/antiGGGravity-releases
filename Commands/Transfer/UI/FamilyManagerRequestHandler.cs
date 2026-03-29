@@ -16,14 +16,28 @@ namespace antiGGGravity.Commands.Transfer.UI
         {
             if (FamiliesToProcess == null || FamiliesToProcess.Count == 0) return;
 
-            var engine = new FamilyManagerEngine(app.Application);
-            
-            using (Transaction t = new Transaction(app.ActiveUIDocument.Document, "Batch Load & Update Families"))
-            {
-                t.Start();
-                engine.ProcessFamilies(app.ActiveUIDocument.Document, FamiliesToProcess, out int loaded, out int updated, out List<string> errors);
-                t.Commit();
+            int loaded = 0;
+            int updated = 0;
+            List<string> errors = new List<string>();
 
+            try
+            {
+                var engine = new FamilyManagerEngine(app.Application);
+                var doc = app.ActiveUIDocument.Document;
+                
+                using (Transaction t = new Transaction(doc, "Batch Load & Update Families"))
+                {
+                    t.Start();
+                    engine.ProcessFamilies(doc, FamiliesToProcess, out loaded, out updated, out errors);
+                    t.Commit();
+                }
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"FATAL: {ex.GetType().Name}: {ex.Message}");
+            }
+            finally
+            {
                 ProcessCompleted?.Invoke(this, new FamilyManagerProcessResultEventArgs
                 {
                     LoadedCount = loaded,

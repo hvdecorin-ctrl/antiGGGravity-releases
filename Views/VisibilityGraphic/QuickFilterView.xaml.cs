@@ -360,6 +360,12 @@ namespace antiGGGravity.Views.VisibilityGraphic
             _applyEvent.Raise();
         }
 
+        private void UI_Btn_Highlight_Click(object sender, RoutedEventArgs e)
+        {
+            _handler.CurrentAction = QuickFilterAction.Highlight;
+            _applyEvent.Raise();
+        }
+
         private void UI_Btn_Close_Click(object sender, RoutedEventArgs e)
         {
             Close();

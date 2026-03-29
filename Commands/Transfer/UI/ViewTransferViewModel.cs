@@ -1289,7 +1289,7 @@ namespace antiGGGravity.Commands.Transfer.UI
             OnPropertyChanged(nameof(SelectAllManagerFamilyTypes));
 
             if (e.Errors != null && e.Errors.Count > 0)
-                StatusText = $"Loaded {e.LoadedCount}, Updated {e.UpdatedCount}. Errors: {e.Errors.Count}";
+                StatusText = $"Loaded {e.LoadedCount}, Updated {e.UpdatedCount}. Errors: {e.Errors.Count}. [{e.Errors[0]}]";
             else
                 StatusText = $"Successfully Loaded {e.LoadedCount} and Updated {e.UpdatedCount} families.";
 
@@ -1618,7 +1618,7 @@ namespace antiGGGravity.Commands.Transfer.UI
             {
                 if (collection == null || !collection.Any()) continue;
 
-                var allowedCategoryNames = new[] { "Structural Framing", "Structural Columns", "Structural Foundations", "Walls", "Floors" };
+                var allowedCategoryNames = new[] { "Structural Framing", "Structural Columns", "Structural Foundations", "Walls", "Floors", "Timber", "Concrete" };
                 var structuralFamilies = collection.Where(f => f.CategoryName != null && allowedCategoryNames.Any(c => f.CategoryName.IndexOf(c, StringComparison.OrdinalIgnoreCase) >= 0)).ToList();
                 if (structuralFamilies.Count == 0) continue;
 

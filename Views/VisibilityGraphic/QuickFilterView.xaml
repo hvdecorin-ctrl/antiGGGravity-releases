@@ -187,6 +187,7 @@
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
@@ -204,11 +205,14 @@
                             Style="{StaticResource PremiumPrimaryButtonStyle}"
                             Click="UI_Btn_Isolate_Click"/>
 
-                    <Button Grid.Column="4" Content="Reset View" Width="100" Height="30" Margin="0,0,10,0"
+                    <Button Grid.Column="3" Content="Highlight" Width="90" Height="30" Margin="10,0,0,0"
+                            Style="{StaticResource PremiumPrimaryButtonStyle}"
+                            Click="UI_Btn_Highlight_Click"/>
+                    <Button Grid.Column="5" Content="Reset View" Width="100" Height="30" Margin="0,0,10,0"
                             Style="{StaticResource PremiumPrimaryButtonStyle}"
                             Click="UI_Btn_Reset_Click"/>
 
-                    <Button Grid.Column="5" Content="Apply Colors" Width="120" Height="30"
+                    <Button Grid.Column="6" Content="Apply Colors" Width="120" Height="30"
                             Style="{StaticResource PremiumActionButtonStyle}"
                             Click="UI_Btn_Apply_Click"/>
                 </Grid>

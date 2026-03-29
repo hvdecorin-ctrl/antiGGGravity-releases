@@ -24,11 +24,12 @@ namespace antiGGGravity.Commands.Transfer.Core
             if (string.IsNullOrEmpty(folderPath) || !Directory.Exists(folderPath))
                 return results;
 
-            // 1. Get all loaded families in the project
+            // 1. Get all loaded families in the project (GroupBy handles duplicate names)
             var loadedFamilies = new FilteredElementCollector(targetDoc)
                 .OfClass(typeof(Family))
                 .Cast<Family>()
-                .ToDictionary(f => f.Name, f => f, StringComparer.OrdinalIgnoreCase);
+                .GroupBy(f => f.Name, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
 
             // 2. Scan all .rfa files in the folder (and subfolders)
             string[] rfaFiles = Directory.GetFiles(folderPath, "*.rfa", SearchOption.AllDirectories);
@@ -102,11 +103,12 @@ namespace antiGGGravity.Commands.Transfer.Core
             updatedCount = 0;
             errors = new List<string>();
 
-            // Get authoritative list of loaded families to check category conflicts
+            // Get authoritative list of loaded families to check category conflicts (GroupBy handles duplicate names)
             var loadedFamilies = new FilteredElementCollector(targetDoc)
                 .OfClass(typeof(Family))
                 .Cast<Family>()
-                .ToDictionary(f => f.Name, f => f, StringComparer.OrdinalIgnoreCase);
+                .GroupBy(f => f.Name, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
 
             IFamilyLoadOptions loadOptions = new FamilyLoadOptionsOverwrite();
 
@@ -114,44 +116,25 @@ namespace antiGGGravity.Commands.Transfer.Core
             {
                 try
                 {
-                    // Revit Restriction: Cannot load a family if another family with same name 
-                    // but different category already exists in the document.
-                    if (loadedFamilies.TryGetValue(item.FamilyName, out Family existingFamily))
-                    {
-                        string projectCat = existingFamily.FamilyCategory?.Name;
-                        if (!string.Equals(projectCat, item.CategoryName, StringComparison.OrdinalIgnoreCase))
-                        {
-                            errors.Add($"CONFLICT: Family '{item.FamilyName}' exists in project as '{projectCat}', but the file on disk is category '{item.CategoryName}'. Revit forbids same-name cross-category families. Rename the existing family first.");
-                            continue;
-                        }
-                    }
-
-                    bool wasLoadedAlready = item.Status == "Loaded";
+                    // Note: Category conflict pre-check removed. item.CategoryName is derived from 
+                    // folder names (e.g. "38 Timber") and doesn't match Revit categories (e.g. "Structural Framing").
+                    // Revit's own LoadFamilySymbol/LoadFamily will reject genuine cross-category conflicts natively.
+                    bool wasLoadedAlready = loadedFamilies.ContainsKey(item.FamilyName);
                     var selectedTypes = item.Types.Where(t => t.IsSelected).ToList();
-                    bool loadAll = item.Types.Count == 0 || selectedTypes.Count == item.Types.Count;
-
-                    if (loadAll)
+                    
+                    // Priority 1: Load specific symbols if any are selected OR if we have types at all.
+                    // This forces Revit to bypass the "Select Types" catalog dialog.
+                    if (item.Types.Count > 0)
                     {
-                        Family loadedFamily;
-                        if (targetDoc.LoadFamily(item.FilePath, loadOptions, out loadedFamily))
-                        {
-                            if (wasLoadedAlready) updatedCount++; else loadedCount++;
-                            item.Status = "Loaded";
-                            foreach (var t in item.Types) { t.IsAlreadyInTarget = true; t.IsSelected = false; }
-                        }
-                        else
-                        {
-                            errors.Add($"FAILED: Revit could not load family '{item.FamilyName}'. It may be corrupted or blocked by another internal conflict.");
-                        }
-                    }
-                    else
-                    {
-                        // Selective Sub-Type loading
                         bool anySuccess = false;
-                        foreach (var st in selectedTypes)
+                        
+                        // If user checked the parent family but NO specific types, load ALL types we found
+                        var typesToLoad = selectedTypes.Count > 0 ? selectedTypes : item.Types.ToList();
+
+                        foreach (var st in typesToLoad)
                         {
                             FamilySymbol symbol;
-                            if (targetDoc.LoadFamilySymbol(item.FilePath, st.TypeName, out symbol))
+                            if (targetDoc.LoadFamilySymbol(item.FilePath, st.TypeName, loadOptions, out symbol))
                             {
                                 st.IsAlreadyInTarget = true;
                                 st.IsSelected = false;
@@ -159,20 +142,41 @@ namespace antiGGGravity.Commands.Transfer.Core
                             }
                             else
                             {
-                                errors.Add($"FAILED: Could not load type '{st.TypeName}' from '{item.FamilyName}'. Check if this type exists in the .rfa file.");
+                                errors.Add($"FAILED type '{st.TypeName}' from '{item.FamilyName}' @ '{item.FilePath}'");
                             }
                         }
-                        
+
                         if (anySuccess)
                         {
                             if (wasLoadedAlready) updatedCount++; else loadedCount++;
                             item.Status = "Loaded";
+                            
+                            // If we weren't in "selection" mode (no specific types checked), 
+                            // mark everything as loaded since we just loaded all indexed types
+                            if (selectedTypes.Count == 0)
+                            {
+                               foreach (var t in item.Types) t.IsAlreadyInTarget = true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Priority 2: Fallback to whole family load ONLY if index has no types (e.g. no .txt and .rfa not scanned)
+                        Family loadedFamily;
+                        if (targetDoc.LoadFamily(item.FilePath, loadOptions, out loadedFamily))
+                        {
+                            if (wasLoadedAlready) updatedCount++; else loadedCount++;
+                            item.Status = "Loaded";
+                        }
+                        else
+                        {
+                            errors.Add($"FAILED family load '{item.FamilyName}' @ '{item.FilePath}'");
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    errors.Add($"ERROR processing {item.FamilyName}: {ex.Message}");
+                    errors.Add($"EXCEPTION {item.FamilyName}: {ex.GetType().Name}: {ex.Message}");
                 }
             }
         }
