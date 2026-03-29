@@ -9,6 +9,11 @@ panels:
         command: QuickFilterCommand
         icon: QuickFilter
         tooltip: Quickly filter and color-code elements by a chosen parameter value.
+      - type: pushbutton
+        name: Highlight
+        command: HighlightCommand
+        icon: Highlight
+        tooltip: Highlight pre-selected elements — fades all other model elements to 80% transparency.
       - type: pulldown
         name: Visibility
         icon: Visibility
