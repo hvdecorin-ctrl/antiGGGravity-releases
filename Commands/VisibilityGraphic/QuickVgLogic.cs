@@ -15,6 +15,7 @@ public enum VgDisciplineFilter
     Electrical,
     Piping,
     Infrastructure,
+    Annotation,
     Links
 }
 
@@ -40,7 +41,8 @@ namespace antiGGGravity.Commands.VisibilityGraphic
                             Name = cat.Name,
                             Id = cat.Id,
                             IsVisible = !view.GetCategoryHidden(cat.Id),
-                            IsLinkInstance = false
+                            IsLinkInstance = false,
+                            IsAnnotation = (cat.CategoryType == CategoryType.Annotation)
                         });
                     }
                 }
@@ -58,7 +60,8 @@ namespace antiGGGravity.Commands.VisibilityGraphic
                     Name = $"[Link] {link.Name}",
                     Id = link.Id,
                     IsVisible = !link.IsHidden(view),
-                    IsLinkInstance = true
+                    IsLinkInstance = true,
+                    IsAnnotation = false
                 });
             }
             
@@ -93,7 +96,8 @@ namespace antiGGGravity.Commands.VisibilityGraphic
                         Name = match.Name,
                         Id = match.Id,
                         IsVisible = match.IsVisible,
-                        IsLinkInstance = match.IsLinkInstance
+                        IsLinkInstance = match.IsLinkInstance,
+                        IsAnnotation = match.IsAnnotation
                     });
                 }
             }
@@ -104,6 +108,7 @@ namespace antiGGGravity.Commands.VisibilityGraphic
         public static VgDisciplineFilter GetDiscipline(CategoryVisibilityModel model)
         {
             if (model.IsLinkInstance) return VgDisciplineFilter.Links;
+            if (model.IsAnnotation) return VgDisciplineFilter.Annotation;
             
             long idVal = model.Id.GetIdValue();
 
@@ -112,10 +117,38 @@ namespace antiGGGravity.Commands.VisibilityGraphic
             if (_electricalCategories.Contains(idVal)) return VgDisciplineFilter.Electrical;
             if (_pipingCategories.Contains(idVal)) return VgDisciplineFilter.Piping;
             if (_infrastructureCategories.Contains(idVal)) return VgDisciplineFilter.Infrastructure;
+            if (_architectureCategories.Contains(idVal)) return VgDisciplineFilter.Architecture;
 
-            // Default: Architecture (matches Revit behavior)
+            // Default fallback if it's a model category but not in explicit lists
             return VgDisciplineFilter.Architecture;
         }
+
+        // Core Architecture Categories to "Tidy Up" the list
+        private static readonly HashSet<long> _architectureCategories = new HashSet<long>
+        {
+            (long)BuiltInCategory.OST_Walls,
+            (long)BuiltInCategory.OST_Doors,
+            (long)BuiltInCategory.OST_Windows,
+            (long)BuiltInCategory.OST_Floors,
+            (long)BuiltInCategory.OST_Roofs,
+            (long)BuiltInCategory.OST_Ceilings,
+            (long)BuiltInCategory.OST_Stairs,
+            (long)BuiltInCategory.OST_StairsRailing,
+            (long)BuiltInCategory.OST_Ramps,
+            (long)BuiltInCategory.OST_Furniture,
+            (long)BuiltInCategory.OST_FurnitureSystems,
+            (long)BuiltInCategory.OST_Casework,
+            (long)BuiltInCategory.OST_SpecialityEquipment,
+            (long)BuiltInCategory.OST_CurtainWallPanels,
+            (long)BuiltInCategory.OST_CurtainWallMullions,
+            (long)BuiltInCategory.OST_Columns, // Architectural Columns
+            (long)BuiltInCategory.OST_Site,
+            (long)BuiltInCategory.OST_Topography,
+            (long)BuiltInCategory.OST_Planting,
+            (long)BuiltInCategory.OST_Entourage,
+            (long)BuiltInCategory.OST_Rooms,
+            (long)BuiltInCategory.OST_Areas
+        };
 
         // Structure discipline categories
         private static readonly HashSet<long> _structureCategories = new HashSet<long>
@@ -306,6 +339,7 @@ namespace antiGGGravity.Commands.VisibilityGraphic
         public string Name { get; set; }
         public ElementId Id { get; set; }
         public bool IsLinkInstance { get; set; }
+        public bool IsAnnotation { get; set; }
         
         private bool _isVisible;
         public bool IsVisible 

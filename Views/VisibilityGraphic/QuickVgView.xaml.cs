@@ -175,7 +175,8 @@ namespace antiGGGravity.Views.VisibilityGraphic
                 case 4: return VgDisciplineFilter.Electrical;
                 case 5: return VgDisciplineFilter.Piping;
                 case 6: return VgDisciplineFilter.Infrastructure;
-                case 7: return VgDisciplineFilter.Links;
+                case 7: return VgDisciplineFilter.Annotation;
+                case 8: return VgDisciplineFilter.Links;
                 default: return VgDisciplineFilter.All;
             }
         }
@@ -346,7 +347,8 @@ namespace antiGGGravity.Views.VisibilityGraphic
                         Name = c.Name, 
                         Id = c.Id, 
                         IsVisible = c.IsVisible,
-                        IsLinkInstance = c.IsLinkInstance 
+                        IsLinkInstance = c.IsLinkInstance,
+                        IsAnnotation = c.IsAnnotation
                     };
                 }
                 
@@ -358,7 +360,8 @@ namespace antiGGGravity.Views.VisibilityGraphic
                         Name = s.Name, 
                         Id = s.Id, 
                         IsVisible = s.IsVisible,
-                        IsLinkInstance = s.IsLinkInstance
+                        IsLinkInstance = s.IsLinkInstance,
+                        IsAnnotation = s.IsAnnotation
                     };
                 }
 
