@@ -465,7 +465,7 @@ namespace antiGGGravity.Views.VisibilityGraphic
 
                 // Step 2: Make ALL visible 3D elements across ALL categories transparent
                 var transparentOgs = new OverrideGraphicSettings();
-                transparentOgs.SetSurfaceTransparency(80);
+                transparentOgs.SetSurfaceTransparency(60);
                 transparentOgs.SetHalftone(true);
 
                 var allVisibleElements = new FilteredElementCollector(doc, view.Id)

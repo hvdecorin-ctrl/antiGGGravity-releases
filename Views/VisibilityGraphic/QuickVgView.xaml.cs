@@ -17,6 +17,7 @@ namespace antiGGGravity.Views.VisibilityGraphic
         private View _activeView;
         private ObservableCollection<CategoryVisibilityModel> _structCategories;
         private ObservableCollection<CategoryVisibilityModel> _coordCategories;
+        private string _currentSlot = "A";
 
         private readonly ExternalEvent _externalEvent;
         private readonly QuickVgEventHandler _handler;
@@ -53,7 +54,7 @@ namespace antiGGGravity.Views.VisibilityGraphic
             {
                 if (_activeView == null || !_activeView.IsValidObject) return;
                 
-                var states = QuickVgLogic.GetCategoryStates(_activeView);
+                var states = QuickVgLogic.GetCategoryStates(_activeView, _currentSlot);
                 _structCategories = new ObservableCollection<CategoryVisibilityModel>(states.Structural);
                 _coordCategories = new ObservableCollection<CategoryVisibilityModel>(states.Coordinate);
                 
@@ -76,6 +77,69 @@ namespace antiGGGravity.Views.VisibilityGraphic
             }
         }
 
+        private void BtnCustomA_Click(object sender, RoutedEventArgs e)
+        {
+            SwitchSlot("A");
+        }
+
+        private void BtnCustomB_Click(object sender, RoutedEventArgs e)
+        {
+            SwitchSlot("B");
+        }
+
+        private void BtnCustomC_Click(object sender, RoutedEventArgs e)
+        {
+            SwitchSlot("C");
+        }
+
+        private void SwitchSlot(string slot)
+        {
+            if (_currentSlot == slot) return;
+            _currentSlot = slot;
+            UpdateTabVisuals();
+            LoadCategories();
+        }
+
+        private void UpdateTabVisuals()
+        {
+            // Reset all buttons to inactive state
+            var inactiveBrush = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x99, 0x99, 0x99));
+            var activeBrush = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x33, 0x33, 0x33));
+            var accentBrush = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x00, 0x88, 0x55));
+
+            BtnCustomA.FontWeight = FontWeights.Normal;
+            BtnCustomA.Foreground = inactiveBrush;
+            BtnCustomA.BorderBrush = System.Windows.Media.Brushes.Transparent;
+
+            BtnCustomB.FontWeight = FontWeights.Normal;
+            BtnCustomB.Foreground = inactiveBrush;
+            BtnCustomB.BorderBrush = System.Windows.Media.Brushes.Transparent;
+
+            BtnCustomC.FontWeight = FontWeights.Normal;
+            BtnCustomC.Foreground = inactiveBrush;
+            BtnCustomC.BorderBrush = System.Windows.Media.Brushes.Transparent;
+
+            // Set current slot to active
+            switch (_currentSlot)
+            {
+                case "A":
+                    BtnCustomA.FontWeight = FontWeights.SemiBold;
+                    BtnCustomA.Foreground = activeBrush;
+                    BtnCustomA.BorderBrush = accentBrush;
+                    break;
+                case "B":
+                    BtnCustomB.FontWeight = FontWeights.SemiBold;
+                    BtnCustomB.Foreground = activeBrush;
+                    BtnCustomB.BorderBrush = accentBrush;
+                    break;
+                case "C":
+                    BtnCustomC.FontWeight = FontWeights.SemiBold;
+                    BtnCustomC.Foreground = activeBrush;
+                    BtnCustomC.BorderBrush = accentBrush;
+                    break;
+            }
+        }
+
         private void StructSearchBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
             var searchText = StructSearchBox.Text?.ToLower() ?? "";
@@ -92,14 +156,49 @@ namespace antiGGGravity.Views.VisibilityGraphic
 
         private void CoordSearchBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
-            var searchText = CoordSearchBox.Text?.ToLower() ?? "";
-            var view = CollectionViewSource.GetDefaultView(CoordListBox.ItemsSource);
+            ApplyCoordFilters();
+        }
+
+        private void DisciplineFilterCombo_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            ApplyCoordFilters();
+        }
+
+        private VgDisciplineFilter GetSelectedDiscipline()
+        {
+            if (DisciplineFilterCombo == null) return VgDisciplineFilter.All;
+            switch (DisciplineFilterCombo.SelectedIndex)
+            {
+                case 1: return VgDisciplineFilter.Architecture;
+                case 2: return VgDisciplineFilter.Structure;
+                case 3: return VgDisciplineFilter.Mechanical;
+                case 4: return VgDisciplineFilter.Electrical;
+                case 5: return VgDisciplineFilter.Piping;
+                case 6: return VgDisciplineFilter.Infrastructure;
+                default: return VgDisciplineFilter.All;
+            }
+        }
+
+        private void ApplyCoordFilters()
+        {
+            var searchText = CoordSearchBox?.Text?.ToLower() ?? "";
+            var discipline = GetSelectedDiscipline();
+            var view = CollectionViewSource.GetDefaultView(CoordListBox?.ItemsSource);
             if (view != null)
             {
                 view.Filter = item =>
                 {
                     var cat = item as CategoryVisibilityModel;
-                    return string.IsNullOrEmpty(searchText) || cat.Name.ToLower().Contains(searchText);
+                    if (cat == null) return false;
+
+                    // Text search filter
+                    bool matchesSearch = string.IsNullOrEmpty(searchText) || cat.Name.ToLower().Contains(searchText);
+
+                    // Discipline filter
+                    bool matchesDiscipline = discipline == VgDisciplineFilter.All || 
+                                             QuickVgLogic.GetDiscipline(cat.Id) == discipline;
+
+                    return matchesSearch && matchesDiscipline;
                 };
             }
         }
@@ -169,7 +268,7 @@ namespace antiGGGravity.Views.VisibilityGraphic
 
             if (changed)
             {
-                QuickVgLogic.SaveCustomCategoryIds(_structCategories.Select(c => c.Id.GetIdValue()));
+                QuickVgLogic.SaveCustomCategoryIds(_structCategories.Select(c => c.Id.GetIdValue()), _currentSlot);
             }
         }
 
@@ -187,7 +286,7 @@ namespace antiGGGravity.Views.VisibilityGraphic
                 }
             }
 
-            QuickVgLogic.SaveCustomCategoryIds(_structCategories.Select(c => c.Id.GetIdValue()));
+            QuickVgLogic.SaveCustomCategoryIds(_structCategories.Select(c => c.Id.GetIdValue()), _currentSlot);
         }
 
         private void StructListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -198,7 +297,7 @@ namespace antiGGGravity.Views.VisibilityGraphic
                 if (existing != null)
                 {
                     _structCategories.Remove(existing);
-                    QuickVgLogic.SaveCustomCategoryIds(_structCategories.Select(c => c.Id.GetIdValue()));
+                    QuickVgLogic.SaveCustomCategoryIds(_structCategories.Select(c => c.Id.GetIdValue()), _currentSlot);
                     e.Handled = true;
                 }
             }
@@ -217,7 +316,7 @@ namespace antiGGGravity.Views.VisibilityGraphic
                         IsVisible = item.IsVisible 
                     });
                     
-                    QuickVgLogic.SaveCustomCategoryIds(_structCategories.Select(c => c.Id.GetIdValue()));
+                    QuickVgLogic.SaveCustomCategoryIds(_structCategories.Select(c => c.Id.GetIdValue()), _currentSlot);
                     e.Handled = true;
                 }
             }

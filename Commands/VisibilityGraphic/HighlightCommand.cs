@@ -41,7 +41,7 @@ namespace antiGGGravity.Commands.VisibilityGraphic
 
                 // Step 1: Make ALL visible model elements transparent
                 var transparentOgs = new OverrideGraphicSettings();
-                transparentOgs.SetSurfaceTransparency(80);
+                transparentOgs.SetSurfaceTransparency(60);
                 transparentOgs.SetHalftone(true);
 
                 var allVisibleElements = new FilteredElementCollector(doc, view.Id)
@@ -57,7 +57,7 @@ namespace antiGGGravity.Commands.VisibilityGraphic
                 }
 
                 // Step 2: Highlight selected elements — clear transparency + apply highlight color
-                var highlightColor = new Color(0, 180, 255); // Bright cyan-blue highlight
+                var highlightColor = new Color(245, 194, 130); // antiGGGravity Peach-Gold highlight
 
                 foreach (var id in selectedIds)
                 {
