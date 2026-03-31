@@ -14,7 +14,8 @@ public enum VgDisciplineFilter
     Mechanical,
     Electrical,
     Piping,
-    Infrastructure
+    Infrastructure,
+    Links
 }
 
 namespace antiGGGravity.Commands.VisibilityGraphic
@@ -26,6 +27,8 @@ namespace antiGGGravity.Commands.VisibilityGraphic
             if (view == null || view.Document == null) return (new List<CategoryVisibilityModel>(), new List<CategoryVisibilityModel>());
 
             var allModels = new List<CategoryVisibilityModel>();
+            
+            // 1. Fetch Categories
             foreach (Category cat in view.Document.Settings.Categories)
             {
                 if (cat.CategoryType == CategoryType.Model || cat.CategoryType == CategoryType.Annotation)
@@ -36,41 +39,73 @@ namespace antiGGGravity.Commands.VisibilityGraphic
                         {
                             Name = cat.Name,
                             Id = cat.Id,
-                            IsVisible = !view.GetCategoryHidden(cat.Id)
+                            IsVisible = !view.GetCategoryHidden(cat.Id),
+                            IsLinkInstance = false
                         });
                     }
                 }
             }
-            
-            var dict = allModels.ToDictionary(x => x.Id, x => x);
 
-            var customIds = LoadCustomCategoryIds(slot);
-            var structModels = new List<CategoryVisibilityModel>();
-            foreach (var id in customIds)
+            // 2. Fetch Revit Links
+            var links = new FilteredElementCollector(view.Document)
+                .OfClass(typeof(RevitLinkInstance))
+                .Cast<RevitLinkInstance>();
+
+            foreach (var link in links)
             {
-                var eid = RevitCompatibility.NewElementId(id);
-                if (dict.TryGetValue(eid, out var model))
+                allModels.Add(new CategoryVisibilityModel
+                {
+                    Name = $"[Link] {link.Name}",
+                    Id = link.Id,
+                    IsVisible = !link.IsHidden(view),
+                    IsLinkInstance = true
+                });
+            }
+            
+            var allModelsSorted = allModels.OrderBy(x => x.Name).ToList();
+
+            // 3. Load Custom Selection
+            var customEntries = LoadCustomCategoryIds(slot);
+            var structModels = new List<CategoryVisibilityModel>();
+            
+            foreach (var entry in customEntries)
+            {
+                CategoryVisibilityModel match = null;
+                if (entry.StartsWith("CAT:"))
+                {
+                    if (long.TryParse(entry.Substring(4), out long idVal))
+                    {
+                        var eid = RevitCompatibility.NewElementId(idVal);
+                        match = allModelsSorted.FirstOrDefault(x => !x.IsLinkInstance && x.Id == eid);
+                    }
+                }
+                else if (entry.StartsWith("LNK:"))
+                {
+                    string linkName = entry.Substring(4);
+                    // Match link by name (name from model includes [Link] prefix)
+                    match = allModelsSorted.FirstOrDefault(x => x.IsLinkInstance && x.Name == $"[Link] {linkName}");
+                }
+
+                if (match != null)
                 {
                     structModels.Add(new CategoryVisibilityModel 
                     {
-                        Name = model.Name,
-                        Id = model.Id,
-                        IsVisible = model.IsVisible
+                        Name = match.Name,
+                        Id = match.Id,
+                        IsVisible = match.IsVisible,
+                        IsLinkInstance = match.IsLinkInstance
                     });
                 }
             }
 
-            return (structModels, allModels.OrderBy(x => x.Name).ToList());
+            return (structModels, allModelsSorted);
         }
 
-        /// <summary>
-        /// Determines the discipline of a Revit category, matching the native VG "Filter list" dropdown.
-        /// The Revit API does not expose discipline directly, so we use a BuiltInCategory mapping.
-        /// Categories not in the map default to Architecture (matching Revit's behavior).
-        /// </summary>
-        public static VgDisciplineFilter GetDiscipline(ElementId categoryId)
+        public static VgDisciplineFilter GetDiscipline(CategoryVisibilityModel model)
         {
-            long idVal = categoryId.GetIdValue();
+            if (model.IsLinkInstance) return VgDisciplineFilter.Links;
+            
+            long idVal = model.Id.GetIdValue();
 
             if (_structureCategories.Contains(idVal)) return VgDisciplineFilter.Structure;
             if (_mechanicalCategories.Contains(idVal)) return VgDisciplineFilter.Mechanical;
@@ -154,7 +189,6 @@ namespace antiGGGravity.Commands.VisibilityGraphic
         private static readonly HashSet<long> _infrastructureCategories = new HashSet<long>
         {
             // Infrastructure categories are relatively new (Revit 2025+)
-            // Using numeric IDs for categories that may not exist in older API versions
         };
 
         private static string GetConfigFilePath(string slot = "A")
@@ -169,7 +203,7 @@ namespace antiGGGravity.Commands.VisibilityGraphic
             return System.IO.Path.Combine(configDir, fileName);
         }
 
-        public static List<long> LoadCustomCategoryIds(string slot = "A")
+        public static List<string> LoadCustomCategoryIds(string slot = "A")
         {
             string path = GetConfigFilePath(slot);
             if (!System.IO.File.Exists(path))
@@ -193,24 +227,33 @@ namespace antiGGGravity.Commands.VisibilityGraphic
                         BuiltInCategory.OST_CLines,
                         BuiltInCategory.OST_VolumeOfInterest,
                         BuiltInCategory.OST_RvtLinks
-                    }.Select(b => (long)b).ToList();
+                    }.Select(b => "CAT:" + (long)b).ToList();
                 }
-                return new List<long>();
+                return new List<string>();
             }
 
-            var ids = new List<long>();
+            var entries = new List<string>();
             foreach (var line in System.IO.File.ReadAllLines(path))
             {
-                if (long.TryParse(line, out long id))
-                    ids.Add(id);
+                if (string.IsNullOrWhiteSpace(line)) continue;
+                
+                // Compatibility with old format (raw numbers)
+                if (long.TryParse(line, out long idVal))
+                {
+                    entries.Add("CAT:" + idVal);
+                }
+                else
+                {
+                    entries.Add(line);
+                }
             }
-            return ids;
+            return entries;
         }
 
-        public static void SaveCustomCategoryIds(IEnumerable<long> ids, string slot = "A")
+        public static void SaveCustomCategoryIds(IEnumerable<string> entries, string slot = "A")
         {
             string path = GetConfigFilePath(slot);
-            System.IO.File.WriteAllLines(path, ids.Select(id => id.ToString()).ToArray());
+            System.IO.File.WriteAllLines(path, entries.ToArray());
         }
 
         public static void ApplyVisibility(View view, List<CategoryVisibilityModel> models)
@@ -219,11 +262,38 @@ namespace antiGGGravity.Commands.VisibilityGraphic
             using (var t = new Transaction(view.Document, "Quick VG Update"))
             {
                 t.Start();
+
+                // If any link instance is set to visible, ensure the Revit Links category is ON
+                bool anyLinkVisible = models.Any(m => m.IsLinkInstance && m.IsVisible);
+                if (anyLinkVisible)
+                {
+                    ElementId rvtLinksId = RevitCompatibility.NewElementId((long)BuiltInCategory.OST_RvtLinks);
+                    if (view.CanCategoryBeHidden(rvtLinksId))
+                    {
+                        view.SetCategoryHidden(rvtLinksId, false);
+                    }
+                }
+
                 foreach (var model in models)
                 {
-                    if (view.CanCategoryBeHidden(model.Id))
+                    if (model.IsLinkInstance)
                     {
-                        view.SetCategoryHidden(model.Id, !model.IsVisible);
+                        var element = view.Document.GetElement(model.Id);
+                        if (element != null && element.CanBeHidden(view))
+                        {
+                            var ids = new List<ElementId> { model.Id };
+                            if (model.IsVisible)
+                                view.UnhideElements(ids);
+                            else
+                                view.HideElements(ids);
+                        }
+                    }
+                    else
+                    {
+                        if (view.CanCategoryBeHidden(model.Id))
+                        {
+                            view.SetCategoryHidden(model.Id, !model.IsVisible);
+                        }
                     }
                 }
                 t.Commit();
@@ -235,6 +305,7 @@ namespace antiGGGravity.Commands.VisibilityGraphic
     {
         public string Name { get; set; }
         public ElementId Id { get; set; }
+        public bool IsLinkInstance { get; set; }
         
         private bool _isVisible;
         public bool IsVisible 

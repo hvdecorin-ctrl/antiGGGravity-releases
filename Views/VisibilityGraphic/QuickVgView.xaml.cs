@@ -175,6 +175,7 @@ namespace antiGGGravity.Views.VisibilityGraphic
                 case 4: return VgDisciplineFilter.Electrical;
                 case 5: return VgDisciplineFilter.Piping;
                 case 6: return VgDisciplineFilter.Infrastructure;
+                case 7: return VgDisciplineFilter.Links;
                 default: return VgDisciplineFilter.All;
             }
         }
@@ -196,7 +197,7 @@ namespace antiGGGravity.Views.VisibilityGraphic
 
                     // Discipline filter
                     bool matchesDiscipline = discipline == VgDisciplineFilter.All || 
-                                             QuickVgLogic.GetDiscipline(cat.Id) == discipline;
+                                             QuickVgLogic.GetDiscipline(cat) == discipline;
 
                     return matchesSearch && matchesDiscipline;
                 };
@@ -260,7 +261,8 @@ namespace antiGGGravity.Views.VisibilityGraphic
                     { 
                         Name = item.Name, 
                         Id = item.Id, 
-                        IsVisible = item.IsVisible 
+                        IsVisible = item.IsVisible,
+                        IsLinkInstance = item.IsLinkInstance
                     });
                     changed = true;
                 }
@@ -268,7 +270,8 @@ namespace antiGGGravity.Views.VisibilityGraphic
 
             if (changed)
             {
-                QuickVgLogic.SaveCustomCategoryIds(_structCategories.Select(c => c.Id.GetIdValue()), _currentSlot);
+                var entries = _structCategories.Select(c => c.IsLinkInstance ? $"LNK:{c.Name.Replace("[Link] ", "")}" : $"CAT:{c.Id.GetIdValue()}");
+                QuickVgLogic.SaveCustomCategoryIds(entries, _currentSlot);
             }
         }
 
@@ -286,7 +289,8 @@ namespace antiGGGravity.Views.VisibilityGraphic
                 }
             }
 
-            QuickVgLogic.SaveCustomCategoryIds(_structCategories.Select(c => c.Id.GetIdValue()), _currentSlot);
+            var entries = _structCategories.Select(c => c.IsLinkInstance ? $"LNK:{c.Name.Replace("[Link] ", "")}" : $"CAT:{c.Id.GetIdValue()}");
+            QuickVgLogic.SaveCustomCategoryIds(entries, _currentSlot);
         }
 
         private void StructListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -297,7 +301,8 @@ namespace antiGGGravity.Views.VisibilityGraphic
                 if (existing != null)
                 {
                     _structCategories.Remove(existing);
-                    QuickVgLogic.SaveCustomCategoryIds(_structCategories.Select(c => c.Id.GetIdValue()), _currentSlot);
+                    var entries = _structCategories.Select(c => c.IsLinkInstance ? $"LNK:{c.Name.Replace("[Link] ", "")}" : $"CAT:{c.Id.GetIdValue()}");
+                    QuickVgLogic.SaveCustomCategoryIds(entries, _currentSlot);
                     e.Handled = true;
                 }
             }
@@ -313,10 +318,12 @@ namespace antiGGGravity.Views.VisibilityGraphic
                     { 
                         Name = item.Name, 
                         Id = item.Id, 
-                        IsVisible = item.IsVisible 
+                        IsVisible = item.IsVisible,
+                        IsLinkInstance = item.IsLinkInstance
                     });
                     
-                    QuickVgLogic.SaveCustomCategoryIds(_structCategories.Select(c => c.Id.GetIdValue()), _currentSlot);
+                    var entries = _structCategories.Select(c => c.IsLinkInstance ? $"LNK:{c.Name.Replace("[Link] ", "")}" : $"CAT:{c.Id.GetIdValue()}");
+                    QuickVgLogic.SaveCustomCategoryIds(entries, _currentSlot);
                     e.Handled = true;
                 }
             }
@@ -334,13 +341,25 @@ namespace antiGGGravity.Views.VisibilityGraphic
                 // Add all settings from Coordinate side
                 foreach (var c in _coordCategories)
                 {
-                    mergedDict[c.Id] = new CategoryVisibilityModel { Name = c.Name, Id = c.Id, IsVisible = c.IsVisible };
+                    mergedDict[c.Id] = new CategoryVisibilityModel 
+                    { 
+                        Name = c.Name, 
+                        Id = c.Id, 
+                        IsVisible = c.IsVisible,
+                        IsLinkInstance = c.IsLinkInstance 
+                    };
                 }
                 
                 // Add/Overwrite settings from Structural side (takes precedence)
                 foreach (var s in _structCategories)
                 {
-                    mergedDict[s.Id] = new CategoryVisibilityModel { Name = s.Name, Id = s.Id, IsVisible = s.IsVisible };
+                    mergedDict[s.Id] = new CategoryVisibilityModel 
+                    { 
+                        Name = s.Name, 
+                        Id = s.Id, 
+                        IsVisible = s.IsVisible,
+                        IsLinkInstance = s.IsLinkInstance
+                    };
                 }
 
                 var clonedData = mergedDict.Values.ToList();
