@@ -28,18 +28,18 @@ namespace antiGGGravity.Views.ProjectAudit
 
         private void Tab_Checked(object sender, RoutedEventArgs e)
         {
-            if (PanelAlign == null || PanelConvert == null) return;
+            if (PanelAlign == null || PanelConvert == null || PanelUpperCase == null) return;
+
+            PanelAlign.Visibility = System.Windows.Visibility.Collapsed;
+            PanelConvert.Visibility = System.Windows.Visibility.Collapsed;
+            PanelUpperCase.Visibility = System.Windows.Visibility.Collapsed;
 
             if (TabAlign.IsChecked == true)
-            {
                 PanelAlign.Visibility = System.Windows.Visibility.Visible;
-                PanelConvert.Visibility = System.Windows.Visibility.Collapsed;
-            }
-            else
-            {
-                PanelAlign.Visibility = System.Windows.Visibility.Collapsed;
+            else if (TabConvert.IsChecked == true)
                 PanelConvert.Visibility = System.Windows.Visibility.Visible;
-            }
+            else if (TabUpperCase.IsChecked == true)
+                PanelUpperCase.Visibility = System.Windows.Visibility.Visible;
         }
 
         private void LoadTextStyles(Document doc)
@@ -113,11 +113,23 @@ namespace antiGGGravity.Views.ProjectAudit
             // 1. Set Scope (Universal)
             if (RadEntireProject.IsChecked == true)
                 _handler.Scope = ApplicationScope.EntireProject;
-            else
+            else if (RadActiveView.IsChecked == true)
                 _handler.Scope = ApplicationScope.ActiveView;
+            else
+                _handler.Scope = ApplicationScope.Selection;
 
             // 2. Set Mode and Parameters
-            if (TabConvert.IsChecked == true)
+            if (TabUpperCase.IsChecked == true)
+            {
+                _handler.OperationMode = TextToolMode.UpperCase;
+                _handler.ConvertTextNotes = ChkUpperNotes.IsChecked == true;
+                _handler.ConvertSheetNames = ChkUpperSheets.IsChecked == true;
+                _handler.ConvertInstanceComments = ChkUpperInstanceComments.IsChecked == true;
+                _handler.ConvertTypeComments = ChkUpperTypeComments.IsChecked == true;
+                _handler.ConvertTypeMarks = ChkUpperTypeMark.IsChecked == true;
+                _handler.ConvertDescriptions = ChkUpperDescriptions.IsChecked == true;
+            }
+            else if (TabConvert.IsChecked == true)
             {
                 _handler.OperationMode = TextToolMode.Convert;
                 

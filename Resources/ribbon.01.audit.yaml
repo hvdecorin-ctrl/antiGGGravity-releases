@@ -21,6 +21,10 @@ panels:
             command: WipeEmptyTagsCommand
             icon: WipeEmptyTags
             tooltip: Delete all tags that have no content in the current view.
+          - name: Resolve Overlaps
+            command: OverlapResolverCommand
+            icon: ResolveOverlaps
+            tooltip: Detect and fix overlapping text notes and tags.
           - name: Project TextStyle
             command: ProjectTextStyleCommand
             icon: ProjectTextStyle

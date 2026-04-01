@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Project TextStyle" Height="500" Width="380"
+        Title="Project TextStyle" Height="600" Width="380"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         WindowStartupLocation="CenterScreen" ShowInTaskbar="False"
         MinHeight="650" MinWidth="400" Topmost="True">
@@ -55,6 +55,7 @@
             <StackPanel Grid.Row="1" Margin="25,15,25,0">
                 <TextBlock Text="Application Scope" Style="{DynamicResource PremiumSectionLabelStyle}" Margin="0,0,0,10"/>
                 <StackPanel Orientation="Horizontal" Margin="5,0,0,15">
+                    <RadioButton x:Name="RadSelection" Content="Selection" GroupName="Scope" Margin="0,0,20,0"/>
                     <RadioButton x:Name="RadActiveView" Content="Active View" IsChecked="True" GroupName="Scope" Margin="0,0,20,0"/>
                     <RadioButton x:Name="RadEntireProject" Content="Entire Project" GroupName="Scope"/>
                 </StackPanel>
@@ -76,6 +77,10 @@
                                  IsChecked="True" Checked="Tab_Checked"
                                  Cursor="Hand"/>
                     <RadioButton x:Name="TabConvert" Content="Text Convert" 
+                                 Style="{StaticResource PremiumLightTabButtonStyle}" 
+                                 Margin="15,0,0,0" Checked="Tab_Checked"
+                                 Cursor="Hand"/>
+                    <RadioButton x:Name="TabUpperCase" Content="Upper Case" 
                                  Style="{StaticResource PremiumLightTabButtonStyle}" 
                                  Margin="15,0,0,0" Checked="Tab_Checked"
                                  Cursor="Hand"/>
@@ -137,6 +142,24 @@
                         </ComboBox>
 
                         <CheckBox x:Name="ChkDeleteSources" Content="Delete Source Styles After Conversion" Margin="5,0,0,20"/>
+                    </StackPanel>
+
+                    <!-- Tab 3: Upper Case -->
+                    <StackPanel x:Name="PanelUpperCase" Visibility="Collapsed">
+                        <TextBlock Text="Smart Uppercase Conversion" Style="{DynamicResource PremiumSectionLabelStyle}" Margin="0,0,0,10"/>
+                        <TextBlock Text="Select Text Sources to Standardize" FontSize="12" Foreground="#666666" Margin="5,0,0,15"/>
+                        
+                        <StackPanel Margin="10,0,0,0">
+                            <CheckBox x:Name="ChkUpperNotes" Content="Text Notes" IsChecked="True" Style="{StaticResource AlignmentCheckBoxStyle}"/>
+                            <CheckBox x:Name="ChkUpperSheets" Content="Sheet Names" IsChecked="True" Style="{StaticResource AlignmentCheckBoxStyle}"/>
+                            <CheckBox x:Name="ChkUpperInstanceComments" Content="Instance Comments" IsChecked="True" Style="{StaticResource AlignmentCheckBoxStyle}"/>
+                            <CheckBox x:Name="ChkUpperTypeComments" Content="Type Comments" IsChecked="True" Style="{StaticResource AlignmentCheckBoxStyle}"/>
+                            <CheckBox x:Name="ChkUpperTypeMark" Content="Type Marks" IsChecked="True" Style="{StaticResource AlignmentCheckBoxStyle}"/>
+                            <CheckBox x:Name="ChkUpperDescriptions" Content="Descriptions" IsChecked="True" Style="{StaticResource AlignmentCheckBoxStyle}"/>
+                        </StackPanel>
+                        
+                        <TextBlock Text="Logic preserves units (mm, m²), products (hySPAN), and dimensions (300x65)." 
+                                   FontStyle="Italic" FontSize="11" Foreground="#999999" Margin="5,10,0,0" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Grid>
             </Grid>
