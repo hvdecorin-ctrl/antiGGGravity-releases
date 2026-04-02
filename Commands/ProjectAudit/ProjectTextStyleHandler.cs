@@ -212,7 +212,7 @@ namespace antiGGGravity.Commands.ProjectAudit
         private static readonly Regex RE_SLASH_M2 = new Regex(@"/M2\b", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex RE_SLASH_M3 = new Regex(@"/M3\b", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly List<(Regex pNum, Regex pStand, string canonical)> RE_UNITS = new List<(Regex, Regex, string)>();
-        private static readonly Regex RE_DIMENSION = new Regex(@"(\d+)(?:\s*X\s*\d+)+", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex RE_DIMENSION = new Regex(@"\b(\d+[A-WY-Z]*)(?:\s*X\s*(\d+[A-WY-Z]*))+\b", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly List<(Regex reg, string val)> RE_PRODUCTS = new List<(Regex, string)>();
 
         static ProjectTextStyleHandler()
@@ -279,8 +279,11 @@ namespace antiGGGravity.Commands.ProjectAudit
                 }
             }
 
-            // 6. Dimensions (300 x 65) - Only lowercase the 'x', preserve spacing
-            s = RE_DIMENSION.Replace(s, m => m.Value.Replace("X", "x"));
+            // 6. Dimensions (300 x 65) - Enforce spacing and lowercase 'x'
+            s = RE_DIMENSION.Replace(s, m => {
+                var parts = Regex.Split(m.Value, @"\s*X\s*", RegexOptions.IgnoreCase);
+                return string.Join(" x ", parts);
+            });
             
             // 7. Standalone ' X ' (e.g., 200 CRS x 2000)
             s = s.Replace(" X ", " x ");

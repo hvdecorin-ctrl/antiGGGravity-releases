@@ -35,7 +35,7 @@ namespace antiGGGravity.Views.General
             "Walls",
             "Floors",
             "Structural Framing",
-            "Columns",
+            "Structural Columns",
             "Structural Foundations",
             "Generic Models",
             "Roofs"
@@ -212,6 +212,15 @@ namespace antiGGGravity.Views.General
 
         private void UI_Btn_Cancel_Click(object sender, RoutedEventArgs e) => Close();
 
+        private void UI_Btn_Copy_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Clipboard.SetText(SessionLog);
+            }
+            catch {}
+        }
+
         private void UI_Btn_Run_Click(object sender, RoutedEventArgs e)
         {
             bool hasLeft = _leftDefaults.Any(c => c.IsChecked);
@@ -231,5 +240,7 @@ namespace antiGGGravity.Views.General
         public IReadOnlyList<CheckedListItem> AllLeftItems => _leftDefaults.ToList();
 
         public IReadOnlyList<CheckedListItem> AllRightItems => _rightDefaults.ToList();
+
+        public string SessionLog { get; set; } = "No operations performed yet.";
     }
 }
