@@ -10,6 +10,11 @@ panels:
         icon: RulesSetting
         tooltip: View design codes, reference parameters, and calculation rules.
       - type: pushbutton
+        name: Pre-defined Shape
+        command: RebarShapeSetupCommand
+        icon: RulesSetting
+        tooltip: Load special rebar shapes (HT, L, LL, SP, CT) from the project library.
+      - type: pushbutton
         name: Foundation Rebar
         command: FoundationRebarCommand
         icon: RebarFoundation
