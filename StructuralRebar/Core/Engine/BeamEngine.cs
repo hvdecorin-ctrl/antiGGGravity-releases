@@ -358,7 +358,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                         OverrideHookLength = layer.OverrideHookLength,
                         HookLengthOverride = layer.HookLengthOverride,
                         Label = layer.IsContinuous ? (segments.Count > 1 ? "Top Continuous (lapped)" : "Top Continuous") : "Top Additional (Hogging)",
-                        Comment = (topLayerIdx == 0) ? "Top Bar" : (topLayerIdx == 1 ? "Top T2" : (topLayerIdx == 2 ? "Top T3" : "Top Bar"))
+                        Comment = (topLayerIdx == 0) ? "Top T1" : (topLayerIdx == 1 ? "Top T2" : (topLayerIdx == 2 ? "Top T3" : "Top Bar"))
                     });
                 }
 
@@ -421,8 +421,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                                 Normal = firstHost.WAxis,
                                 HookStartOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Left,
                                 HookEndOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Left,
-                                HookStartName = (t1Layer != null && Math.Abs(seg.Start - 0) < 0.001) ? t1Layer.HookStartName : null,
-                                HookEndName = (t1Layer != null && Math.Abs(seg.End - barLen) < 0.01) ? t1Layer.HookEndName : null,
+                                HookStartName = (Math.Abs(seg.Start - 0) < 0.001) ? globalT2?.HookStartName : null,
+                                HookEndName = (Math.Abs(seg.End - barLen) < 0.01) ? globalT2?.HookEndName : null,
                                 Label = $"T2 @ {over.SupportName}",
                                 Comment = "Top T2"
                             });
@@ -477,8 +477,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                                 Normal = firstHost.WAxis,
                                 HookStartOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Left,
                                 HookEndOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Left,
-                                HookStartName = (t1Layer != null && Math.Abs(seg.Start - 0) < 0.001) ? t1Layer.HookStartName : null,
-                                HookEndName = (t1Layer != null && Math.Abs(seg.End - barLen) < 0.01) ? t1Layer.HookEndName : null,
+                                HookStartName = (Math.Abs(seg.Start - 0) < 0.001) ? globalT3?.HookStartName : null,
+                                HookEndName = (Math.Abs(seg.End - barLen) < 0.01) ? globalT3?.HookEndName : null,
                                 Label = $"T3 @ {over.SupportName}",
                                 Comment = "Top T3"
                             });
@@ -566,7 +566,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                         OverrideHookLength = layer.OverrideHookLength,
                         HookLengthOverride = layer.HookLengthOverride,
                         Label = layer.IsContinuous ? (segments.Count > 1 ? "Btm Continuous (lapped)" : "Btm Continuous") : "Btm Continuous",
-                        Comment = (botLayerIdx == 0) ? "Btm Bar" : (botLayerIdx == 1 ? "Btm B2" : (botLayerIdx == 2 ? "Btm B3" : "Btm Bar"))
+                        Comment = (botLayerIdx == 0) ? "Btm B1" : (botLayerIdx == 1 ? "Btm B2" : (botLayerIdx == 2 ? "Btm B3" : "Btm Bar"))
                     });
                 }
 

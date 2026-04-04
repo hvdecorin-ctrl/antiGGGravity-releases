@@ -218,7 +218,12 @@
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock x:Name="UI_Status_Text" Grid.Column="0" Text="Select categories and process." VerticalAlignment="Center" Foreground="#999999"/>
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock x:Name="UI_Status_Text" Text="Select categories and process." Foreground="#999999" VerticalAlignment="Center"/>
+                        <Button x:Name="UI_Btn_Copy" Content="📋 Copy Log" Margin="8,0,0,0" ToolTip="Copy detailed execution log"
+                                Padding="6,2" FontSize="11" Foreground="#4A708B" Background="#EEEEEE" BorderBrush="#CCCCCC" BorderThickness="1"
+                                Click="UI_Btn_Copy_Click" Cursor="Hand"/>
+                    </StackPanel>
                     
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
                         <Button x:Name="UI_Btn_Cancel" Content="Close" Width="90" Style="{DynamicResource PremiumPrimaryButtonStyle}" Margin="0,0,12,0" Click="UI_Btn_Cancel_Click"/>

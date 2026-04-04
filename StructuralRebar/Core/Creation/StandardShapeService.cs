@@ -17,6 +17,34 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
     {
         private readonly Document _doc;
         private readonly Dictionary<string, RebarShape> _shapeCache;
+        
+        /// <summary>
+        /// Multi-standard alias table — Primary lookup priority from User Standard (Pic 1).
+        /// These are the 5 geometry-specific shapes that MUST be matched.
+        /// </summary>
+        private static readonly Dictionary<string, string[]> ShapeAliases =
+            new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
+        {
+            // ── 1. Closed rectangular stirrup / tie ────────────────────────────────
+            // US: M_T1  |  AS: HT  |  BS: 52
+            ["Shape HT"]      = new[] { "Shape HT", "M_T1", "HT", "52" },
+
+            // ── 2. L-bar (2 segments at 90°) ───────────────────────────────────────
+            // US: M_17A  |  AS: L   |  BS: 11
+            ["Shape L"]       = new[] { "Shape L", "M_17A", "L", "11" },
+
+            // ── 3. U-bar / hairpin (3 segments, U-shape) ───────────────────────────
+            // US: M_17   |  AS: LL  |  BS: 21
+            ["Shape LL"]      = new[] { "Shape LL", "M_17", "LL", "21" },
+
+            // ── 4. Circular tie (closed loop) ──────────────────────────────────────
+            // US: M_T3  |  AS: CT  |  BS: 75
+            ["Shape CT"]      = new[] { "Shape CT", "M_T3", "CT", "75" },
+
+            // ── 5. Spiral ──────────────────────────────────────────────────────────
+            // US: M_SP  |  AS: SP  |  BS: 77
+            ["Shape SP"]      = new[] { "Shape SP", "M_SP", "77" },
+        };
 
         public StandardShapeService(Document doc)
         {
@@ -162,14 +190,53 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
         public RebarShape FindShapeRobustly(string name)
         {
             if (string.IsNullOrEmpty(name)) return null;
+
+            // 1. Exact match (Priority 1)
             if (_shapeCache.TryGetValue(name, out var s)) return s;
 
-            // Try matching without "Shape" prefix and without spaces
-            string target = name.Replace("Shape", "").Replace(" ", "").Trim();
-            if (_shapeCache.TryGetValue(target, out s)) return s;
+            // 2. Multi-standard alias lookup (Priority 2 - Pic 1 Standard)
+            // If we have a canonical name (e.g. "Shape L"), immediately check regional 
+            // equivalents before trying broader fuzzy matching.
+            if (ShapeAliases.TryGetValue(name, out var aliases))
+            {
+                foreach (var alias in aliases)
+                {
+                    if (_shapeCache.TryGetValue(alias, out s)) return s;
+                }
+            }
 
-            // Last resort: scan all (should rarely be needed now)
-            return _shapeCache.Values.FirstOrDefault(v => IsNameMatch(v.Name, name));
+            // 3. Sanitized match (Priority 3) — Remove "Shape" prefix and spaces
+            string clean = name.Replace("Shape", "").Replace(" ", "").Trim();
+            if (_shapeCache.TryGetValue(clean, out s)) return s;
+
+            // 4. Exact Alias Lookup again using the cleaned name 
+            // (e.g. "L" should also find M_17A, H, 11)
+            if (ShapeAliases.TryGetValue("Shape " + clean, out var aliasesAlt))
+            {
+                foreach (var alias in aliasesAlt)
+                {
+                    if (_shapeCache.TryGetValue(alias, out s)) return s;
+                    string cleanAlias = alias.Replace("Shape", "").Replace(" ", "").Trim();
+                    if (_shapeCache.TryGetValue(cleanAlias, out s)) return s;
+                }
+            }
+
+            // 5. Full scan with IsNameMatch (Priority 4) — Handles "M_" prefixes, etc.
+            s = _shapeCache.Values.FirstOrDefault(v => IsNameMatch(v.Name, name));
+            if (s != null) return s;
+
+            return null;
+        }
+
+        /// <summary>
+        /// Used by the Setup tool to report which project shape is being used as a fallback.
+        /// </summary>
+        public string FindAliasInProject(string canonicalName)
+        {
+            var shape = FindShapeRobustly(canonicalName);
+            if (shape == null) return null;
+            if (shape.Name.Equals(canonicalName, StringComparison.OrdinalIgnoreCase)) return null;
+            return shape.Name;
         }
 
         private bool IsNameMatch(string actual, string expected)
