@@ -43,7 +43,7 @@ namespace antiGGGravity.StructuralRebar.Core.Creation
 
             // ── 5. Spiral ──────────────────────────────────────────────────────────
             // US: M_SP  |  AS: SP  |  BS: 77
-            ["Shape SP"]      = new[] { "Shape SP", "M_SP", "77" },
+            ["Shape SP"]      = new[] { "Shape SP", "M_SP", "M_Spiral", "77" },
         };
 
         public StandardShapeService(Document doc)

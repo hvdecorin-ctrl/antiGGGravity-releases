@@ -19,7 +19,8 @@ namespace antiGGGravity.StructuralRebar
     [Transaction(TransactionMode.Manual)]
     public class RebarShapeSetupCommand : BaseCommand
     {
-        // All canonical shape names our Rebar Suite tools may request
+        // All geometry-specific shapes our Rebar Suite tools require.
+        // Standard-specific shapes (HT, LL, L, SP, CT) are excluded here as they must be loaded manually by the user.
         private static readonly string[] RequiredShapes = new[]
         {
             "Shape 00", "Shape 0x0",
@@ -27,8 +28,6 @@ namespace antiGGGravity.StructuralRebar
             "Shape 135x0", "Shape 0x135",
             "Shape 180x0", "Shape 0x180",
             "Shape 90x90", "Shape 135x135", "Shape 180x180",
-            "Shape L", "Shape LL",
-            "Shape HT", "Shape CT", "Shape SP",
             "Shape 00_Crk", "Shape 0x0_Crk",
             "Shape 90x0_Crk", "Shape 90x90_Crk",
             "Shape U_135 Hook", "Shape U_180 Hook",
@@ -49,19 +48,28 @@ namespace antiGGGravity.StructuralRebar
 
             // ── Find RebarShapes folder ──────────────────────────────────────────
             string dllDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string baseFolder = Path.Combine(dllDir, "RebarShapes");
-
-            if (!Directory.Exists(baseFolder))
-            {
-                TaskDialog.Show("Setup Shapes", $"⚠ RebarShapes folder not found.\nExpected: {baseFolder}");
-                return Result.Failed;
-            }
-
-            // Version-specific subfolder (e.g. R26, R25), fallback to base
             string revitVersion = commandData.Application.Application.VersionNumber;
             string versionKey = "R" + revitVersion.Substring(revitVersion.Length - 2);
+
+            // Try standard deployed location first, then check for Resources (development)
+            string baseFolder = Path.Combine(dllDir, "RebarShapes");
+            if (!Directory.Exists(baseFolder))
+            {
+                // Development fallback: look for Resources/RebarShapes relative to DLL
+                // Deployed: AppData\Revit\Addins\2026\antiGGGravity\antiGGGravity.dll
+                // Source: source\repos\antiGGGravity\bin\R26\antiGGGravity.dll -> ..\..\Resources\RebarShapes
+                string devPath = Path.GetFullPath(Path.Combine(dllDir, "..", "..", "Resources", "RebarShapes"));
+                if (Directory.Exists(devPath)) baseFolder = devPath;
+            }
+
             string versionFolder = Path.Combine(baseFolder, versionKey);
             string shapesFolder = Directory.Exists(versionFolder) ? versionFolder : baseFolder;
+
+            if (!Directory.Exists(shapesFolder))
+            {
+                TaskDialog.Show("Setup Shapes", $"⚠ RebarShapes folder not found.\nExpected: {shapesFolder}");
+                return Result.Failed;
+            }
 
             string[] rfaFiles = Directory.GetFiles(shapesFolder, "*.rfa");
             if (rfaFiles.Length == 0)
@@ -109,6 +117,11 @@ namespace antiGGGravity.StructuralRebar
                 foreach (string rfaPath in rfaFiles.OrderBy(f => f))
                 {
                     string familyName = Path.GetFileNameWithoutExtension(rfaPath);
+
+                    // Skip standard-specific shapes that must be loaded manually
+                    string[] manualShapes = { "Shape HT", "Shape LL", "Shape L", "Shape SP", "Shape CT" };
+                    if (manualShapes.Any(s => familyName.Equals(s, StringComparison.OrdinalIgnoreCase)))
+                        continue;
 
                     if (existingShapes.Contains(familyName))
                     {
@@ -173,6 +186,13 @@ namespace antiGGGravity.StructuralRebar
                 report += "\n\nFallback matching (US / AS / BS aliases):";
                 report += "\n" + string.Join("\n", aliasReport);
             }
+
+            // ── Manual Loading Instructions ──────────────────────────────────────
+            report += "\n\n🔔 MANUAL LOAD REQUIRED:";
+            report += "\nPlease manually load these shapes for your standard:";
+            report += "\n • Australia (AS): HT, LL, L, SP, CT";
+            report += "\n • United Kingdom (BS): 52, 11, 21, 75, 77";
+            report += "\n • United States (US): M_T1, M_17A, M_17, M_T3, M_SP";
 
             if (failed.Count == 0 && aliasReport.All(r => r.StartsWith("  ✔")))
             {

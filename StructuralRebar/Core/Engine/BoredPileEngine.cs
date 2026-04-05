@@ -16,11 +16,13 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
     {
         private readonly Document _doc;
         private readonly RebarCreationService _creationService;
+        private readonly StandardShapeService _shapeService;
 
         public BoredPileEngine(Document doc)
         {
             _doc = doc;
             _creationService = new RebarCreationService(doc);
+            _shapeService = new StandardShapeService(doc);
         }
 
         public bool Execute(Element host, RebarRequest request)
@@ -97,10 +99,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                         .Cast<RebarBarType>()
                         .FirstOrDefault(t => t.Name.Equals(request.TransverseBarTypeName, StringComparison.OrdinalIgnoreCase));
 
-                    RebarShape tieShape = new FilteredElementCollector(_doc)
-                        .OfClass(typeof(RebarShape))
-                        .Cast<RebarShape>()
-                        .FirstOrDefault(s => s.Name == (request.EnableSpiral ? "SP" : "CT") || s.Name == (request.EnableSpiral ? "Shape SP" : "Shape CT"));
+                    RebarShape tieShape = _shapeService.FindShapeRobustly(request.EnableSpiral ? "Shape SP" : "Shape CT");
 
                     if (tieBarType != null && dist > 0)
                     {
