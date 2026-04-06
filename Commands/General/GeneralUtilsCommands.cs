@@ -150,13 +150,13 @@ namespace antiGGGravity.Commands.General
     }
 
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
-    public class JoinUnjoinGeometryCommand : BaseCommand
+    public class JoinAdvanceCommand : BaseCommand
     {
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             try
             {
-                JoinUnjoinView win = new JoinUnjoinView(commandData);
+                JoinAdvanceView win = new JoinAdvanceView(commandData);
                 win.Show();
                 return Result.Succeeded;
             }

@@ -1,7 +1,7 @@
-<Window x:Class="antiGGGravity.Views.General.JoinUnjoinView"
+<Window x:Class="antiGGGravity.Views.General.JoinAdvanceView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Join &amp; Unjoin Advanced" Height="600" Width="800"
+        Title="Join Advance" Height="600" Width="800"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         WindowStartupLocation="CenterScreen" ShowInTaskbar="True">
 
@@ -33,8 +33,8 @@
                         <TextBlock Style="{DynamicResource CompanyLogoStyle}"/>
                         <TextBlock Style="{DynamicResource CompanyDividerStyle}"/>
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="Join &amp; Unjoin Advanced" Style="{DynamicResource PremiumTitleStyle}"/>
-                            <TextBlock Text="Batch process geometry joins" Style="{DynamicResource PremiumSubtitleStyle}"/>
+                            <TextBlock Text="Join Advance" Style="{DynamicResource PremiumTitleStyle}"/>
+                            <TextBlock Text="Advanced geometry joining with priority mode" Style="{DynamicResource PremiumSubtitleStyle}"/>
                         </StackPanel>
                     </StackPanel>
                     <Button HorizontalAlignment="Right" VerticalAlignment="Center" Content="✕" 

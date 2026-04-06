@@ -33,21 +33,48 @@ namespace antiGGGravity.Commands.General
                 t.Start();
                 try
                 {
-                    var loops = new List<CurveLoop>();
+                    List<Solid> solids = new List<Solid>();
                     foreach (var region in regions)
                     {
-                        foreach (var loop in region.GetBoundaries())
+                        var boundaries = region.GetBoundaries();
+                        if (boundaries.Count == 0) continue;
+                        
+                        // Create 1-foot high extrusion for boolean operations
+                        Solid solid = GeometryCreationUtilities.CreateExtrusionGeometry(boundaries, XYZ.BasisZ, 1.0);
+                        if (solid != null) solids.Add(solid);
+                    }
+
+                    if (solids.Count < 2) return Result.Failed;
+
+                    // Boolean Union
+                    Solid combinedSolid = solids[0];
+                    for (int i = 1; i < solids.Count; i++)
+                    {
+                        combinedSolid = BooleanOperationsUtils.ExecuteBooleanOperation(combinedSolid, solids[i], BooleanOperationsType.Union);
+                    }
+
+                    // Extract Top Faces (Normal == BasisZ)
+                    List<CurveLoop> finalLoops = new List<CurveLoop>();
+                    foreach (Face face in combinedSolid.Faces)
+                    {
+                        if (face is PlanarFace planar && planar.FaceNormal.IsAlmostEqualTo(XYZ.BasisZ))
                         {
-                            loops.Add(loop);
+                            finalLoops.AddRange(face.GetEdgesAsCurveLoops());
                         }
                     }
 
-                    FilledRegion first = regions.First();
-                    FilledRegion.Create(doc, first.GetTypeId(), doc.ActiveView.Id, loops);
-                    
-                    doc.Delete(regions.Select(r => r.Id).ToList());
+                    if (finalLoops.Count > 0)
+                    {
+                        FilledRegion first = regions.First();
+                        FilledRegion.Create(doc, first.GetTypeId(), doc.ActiveView.Id, finalLoops);
+                        doc.Delete(regions.Select(r => r.Id).ToList());
+                    }
                 }
-                catch (Exception ex) { message = ex.Message; return Result.Failed; }
+                catch (Exception ex) 
+                { 
+                    TaskDialog.Show("Merge Error", "Could not merge regions. Ensure they are on the same plane and overlap correctly.\n\n" + ex.Message);
+                    return Result.Failed; 
+                }
                 t.Commit();
             }
             return Result.Succeeded;
@@ -71,17 +98,23 @@ namespace antiGGGravity.Commands.General
 
             if (!regions.Any()) return Result.Cancelled;
 
-            var validStyles = FilledRegion.GetValidLineStyleIdsForFilledRegion(doc).Select(id => doc.GetElement(id)).ToList();
-            
-            // For now, use a simple TaskDialog if styles are few, or prompt user.
-            // I'll use a placeholder for a proper selector view if needed.
-            TaskDialog td = new TaskDialog("Change LineStyle");
-            td.MainContent = "Select a LineStyle to apply to selected regions.";
-            
-            // This is a bit limited for many styles, but let's implement a simple selection if possible.
-            // I'll skip implementing a custom view for this single use case unless I have time.
-            // Actually, let's use a simple one-off view.
-            
+            // Get valid styles
+            var styleIds = FilledRegion.GetValidLineStyleIdsForFilledRegion(doc);
+            var styles = styleIds.Select(id => doc.GetElement(id)).OfType<GraphicsStyle>().ToList();
+
+            LineStyleSelectionView win = new LineStyleSelectionView(styles);
+            if (win.ShowDialog() != true) return Result.Cancelled;
+
+            using (Transaction t = new Transaction(doc, "Change Region LineStyle"))
+            {
+                t.Start();
+                foreach (var region in regions)
+                {
+                    try { region.SetLineStyleId(win.SelectedStyle.Id); } catch { }
+                }
+                t.Commit();
+            }
+
             return Result.Succeeded;
         }
     }

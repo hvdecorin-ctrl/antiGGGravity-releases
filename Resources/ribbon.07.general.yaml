@@ -38,9 +38,9 @@ panels:
             tooltip: Reset beam start/end extensions and justification to defaults.
       - type: stacked
         buttons:
-          - name: Join Geometry
-            command: JoinUnjoinGeometryCommand
-            icon: JoinUnjoin
+          - name: Join Advance
+            command: JoinAdvanceCommand
+            icon: JoinAdvance
             tooltip: Toggle join/unjoin geometry between two selected elements.
           - name: Cut Geometry
             command: CutGeometryCommand

@@ -10,7 +10,7 @@ using antiGGGravity.Commands.General;
 
 namespace antiGGGravity.Views.General
 {
-    public partial class JoinUnjoinView : Window
+    public partial class JoinAdvanceView : Window
     {
         // Structural default items (red section) — now Observable to support dynamic promotion
         private ObservableCollection<CheckedListItem> _leftDefaults;
@@ -27,7 +27,7 @@ namespace antiGGGravity.Views.General
 
         // External Event for modeless operation
         private ExternalEvent _externalEvent;
-        private JoinUnjoinHandler _handler;
+        private JoinAdvanceHandler _handler;
 
         // Structural/Core priority list matching original Python code
         private static readonly HashSet<string> DefaultCategoryNames = new HashSet<string>
@@ -41,12 +41,12 @@ namespace antiGGGravity.Views.General
             "Roofs"
         };
 
-        public JoinUnjoinView(ExternalCommandData commandData)
+        public JoinAdvanceView(ExternalCommandData commandData)
         {
             InitializeComponent();
 
             // Create external event handler for modeless operation
-            _handler = new JoinUnjoinHandler(this);
+            _handler = new JoinAdvanceHandler(this);
             _externalEvent = ExternalEvent.Create(_handler);
 
             var doc = commandData.Application.ActiveUIDocument.Document;
@@ -59,25 +59,25 @@ namespace antiGGGravity.Views.General
             var defaults = sortedCats.Where(c => DefaultCategoryNames.Contains(c.Name)).ToList();
             var project = sortedCats.Where(c => !DefaultCategoryNames.Contains(c.Name)).ToList();
 
-            // LEFT defaults (red) — unchecked by default
+            // LEFT defaults (pills) — unchecked by default
             _leftDefaults = new ObservableCollection<CheckedListItem>(defaults.Select(c => new CheckedListItem
             {
                 Name = c.Name, Category = c, IsDefault = true, IsChecked = false
             }));
 
-            // RIGHT defaults (red) — unchecked by default
+            // RIGHT defaults (pills) — unchecked by default
             _rightDefaults = new ObservableCollection<CheckedListItem>(defaults.Select(c => new CheckedListItem
             {
                 Name = c.Name, Category = c, IsDefault = true, IsChecked = false
             }));
 
-            // LEFT project (green) — unchecked
+            // LEFT project categories
             _allLeftProject = project.Select(c => new CheckedListItem
             {
                 Name = c.Name, Category = c, IsDefault = false, IsChecked = false
             }).ToList();
 
-            // RIGHT project (green) — unchecked
+            // RIGHT project categories
             _allRightProject = project.Select(c => new CheckedListItem
             {
                 Name = c.Name, Category = c, IsDefault = false, IsChecked = false
@@ -185,7 +185,7 @@ namespace antiGGGravity.Views.General
             list.Insert(index, item);
         }
 
-        // --- Select All (affects only the Pre-defined/Structural Default list) ---
+        // --- Select All ---
         private void UI_Check_LeftAll_Changed(object sender, RoutedEventArgs e)
         {
             if (sender is CheckBox cb && _leftDefaults != null)
@@ -223,12 +223,12 @@ namespace antiGGGravity.Views.General
 
         private void UI_Btn_Run_Click(object sender, RoutedEventArgs e)
         {
-            bool hasLeft = _leftDefaults.Any(c => c.IsChecked);
-            bool hasRight = _rightDefaults.Any(c => c.IsChecked);
+            bool hasLeft = _leftDefaults.Any(c => c.IsChecked) || LeftProjectFiltered.Any(c => c.IsChecked);
+            bool hasRight = _rightDefaults.Any(c => c.IsChecked) || RightProjectFiltered.Any(c => c.IsChecked);
 
             if (!hasLeft || !hasRight)
             {
-                MessageBox.Show("Please select at least one category from each panel header (Pre-defined list).", "Join/Unjoin Advance");
+                MessageBox.Show("Please select at least one category from each panel.", "Join Advance");
                 return;
             }
 
@@ -236,10 +236,8 @@ namespace antiGGGravity.Views.General
             _externalEvent.Raise();
         }
 
-        // Expose ONLY the Pre-defined categories for the handler
-        public IReadOnlyList<CheckedListItem> AllLeftItems => _leftDefaults.ToList();
-
-        public IReadOnlyList<CheckedListItem> AllRightItems => _rightDefaults.ToList();
+        public IReadOnlyList<CheckedListItem> AllLeftItems => _leftDefaults.Concat(_allLeftProject).ToList();
+        public IReadOnlyList<CheckedListItem> AllRightItems => _rightDefaults.Concat(_allRightProject).ToList();
 
         public string SessionLog { get; set; } = "No operations performed yet.";
     }
