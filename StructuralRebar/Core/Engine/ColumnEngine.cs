@@ -86,7 +86,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
 
             if (request.IsCircularColumn)
             {
-                var circDefs = CircularColumnLayoutGenerator.Generate(host, request);
+                var circDefs = CircularColumnLayoutGenerator.Generate(_doc, host, request);
                 var circIds = _creationService.PlaceRebar(column, circDefs);
                 bool success = circIds.Count > 0;
 
@@ -379,7 +379,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
 
                 if (request.IsCircularColumn)
                 {
-                    var circDefs = CircularColumnLayoutGenerator.Generate(host, request);
+                    var circDefs = CircularColumnLayoutGenerator.Generate(_doc, host, request);
                     var circIds = _creationService.PlaceRebar(column, circDefs);
                     if (circIds.Count > 0) anySuccess = true;
 

@@ -55,7 +55,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                 overrideZEnd = bpHost.SolidZMax + request.PileMainExtensionVal;
             }
 
-            var definitions = BoredPileLayoutGenerator.Generate(bpHost, request, overrideZEnd);
+            var definitions = BoredPileLayoutGenerator.Generate(_doc, bpHost, request, overrideZEnd);
             var ids = _creationService.PlaceRebar(foundation, definitions);
             bool success = ids.Count > 0;
 
