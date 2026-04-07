@@ -46,7 +46,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                     if (bb != null)
                     {
                         zMax = bb.Max.Z;
-                        overrideZEnd = zMax - cTop - UnitConversion.MmToFeet(100);
+                        overrideZEnd = zMax - cTop - UnitConversion.MmToFeet(40);
                     }
                 }
             }
