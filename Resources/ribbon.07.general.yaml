@@ -9,10 +9,10 @@ panels:
         icon: Print
         tooltip: Drawing Set printing and plotting tools.
         buttons:
-          - name: Print / Export Sheets
+          - name: Print PDF / CAD
             command: PrintCommand
             icon: Print
-            tooltip: Batch export sheets to PDF or DWG with automatic sorting by sheet schedule.
+            tooltip: Batch export sheets to PDF or DWG with automatic sorting and Print Set selection.
       - type: stacked
         buttons:
           - type: pulldown

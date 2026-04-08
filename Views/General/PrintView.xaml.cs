@@ -17,9 +17,22 @@ namespace antiGGGravity.Views.General
     {
         private Document _doc;
         private ObservableCollection<PrintSheetViewModel> _allSheets;
+        private ObservableCollection<PrintSetViewModel> _printSets;
         private ObservableCollection<PrintSheetViewModel> _filteredSheets;
+        private bool _canToggleSelection = true;
+
+        public bool CanToggleSelection
+        {
+            get => _canToggleSelection;
+            set
+            {
+                _canToggleSelection = value;
+                OnPropertyChanged(nameof(CanToggleSelection));
+            }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
         public PrintView(Document doc)
         {
@@ -46,24 +59,54 @@ namespace antiGGGravity.Views.General
             _allSheets = new ObservableCollection<PrintSheetViewModel>(sheets);
             UI_List_Sheets.ItemsSource = _allSheets;
 
-            // 2. Load Schedules
+            // 2. Load Selection Sources (Sets + Schedules + Manual)
+            LoadSelectionSources();
+
+            // 7. Default Path & Load Settings
+            LoadSettings();
+        }
+
+        private void LoadSelectionSources()
+        {
+            var sources = new List<PrintSourceViewModel>();
+
+            // 1. Manual Option
+            sources.Add(new PrintSourceViewModel { Type = SourceType.Manual, Name = "<Manual Selection>" });
+
+            // 2. Print Sets
+            var sets = new FilteredElementCollector(_doc)
+                .OfClass(typeof(ViewSheetSet))
+                .Cast<ViewSheetSet>()
+                .OrderBy(s => s.Name);
+            
+            foreach (var set in sets)
+            {
+                sources.Add(new PrintSourceViewModel { Type = SourceType.Set, Object = set, Name = $"Set: {set.Name}" });
+            }
+
+            // 3. Schedules
             var schedules = new FilteredElementCollector(_doc)
                 .OfClass(typeof(ViewSchedule))
                 .Cast<ViewSchedule>()
                 .Where(s => s.Definition.CategoryId == new ElementId(BuiltInCategory.OST_Sheets) && !s.IsTemplate)
-                .OrderBy(s => s.Name)
-                .ToList();
+                .OrderBy(s => s.Name);
 
-            UI_Combo_Schedules.ItemsSource = schedules;
+            foreach (var sch in schedules)
+            {
+                sources.Add(new PrintSourceViewModel { Type = SourceType.Schedule, Object = sch, Name = $"Schedule: {sch.Name}" });
+            }
 
-            // 3. Load Printers
+            UI_Combo_Source.ItemsSource = sources;
+            UI_Combo_Source.SelectedIndex = 0;
+
+            // Load Printers (Moved here since previous block was replaced)
             foreach (string printer in System.Drawing.Printing.PrinterSettings.InstalledPrinters)
             {
                 UI_Combo_Printers.Items.Add(printer);
             }
             UI_Combo_Printers.SelectedItem = _doc.PrintManager.PrinterName;
 
-            // 4. Load Print Setups
+            // Load Print Setups
             var setups = new FilteredElementCollector(_doc)
                 .OfClass(typeof(PrintSetting))
                 .Cast<PrintSetting>()
@@ -72,7 +115,7 @@ namespace antiGGGravity.Views.General
             UI_Combo_Setups.ItemsSource = setups;
             UI_Combo_Setups.SelectedItem = _doc.PrintManager.PrintSetup.CurrentPrintSetting;
 
-            // 5. Load CAD Export Setups 
+            // Load CAD Setups
             var cadSetups = new FilteredElementCollector(_doc)
                 .OfClass(typeof(Autodesk.Revit.DB.ExportDWGSettings))
                 .Cast<Autodesk.Revit.DB.ExportDWGSettings>()
@@ -80,9 +123,48 @@ namespace antiGGGravity.Views.General
                 .ToList();
             UI_Combo_CadSetups.ItemsSource = cadSetups;
             if (cadSetups.Count > 0) UI_Combo_CadSetups.SelectedIndex = 0;
+        }
 
-            // 6. Default Path & Load Settings
-            LoadSettings();
+        private void UI_Combo_Source_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (UI_Combo_Source.SelectedItem is PrintSourceViewModel source)
+            {
+                switch (source.Type)
+                {
+                    case SourceType.Manual:
+                        CanToggleSelection = true;
+                        _filteredSheets = new ObservableCollection<PrintSheetViewModel>(_allSheets);
+                        UI_Txt_Status.Text = "Mode: Manual Selection (All Sheets)";
+                        break;
+
+                    case SourceType.Set:
+                        CanToggleSelection = false;
+                        var set = source.Object as ViewSheetSet;
+                        var setSheetIds = new HashSet<ElementId>();
+                        foreach (View v in set.Views) if (v is ViewSheet) setSheetIds.Add(v.Id);
+
+                        var setSheets = _allSheets.Where(vm => setSheetIds.Contains(vm.Sheet.Id)).ToList();
+                        foreach (var vm in setSheets) vm.IsSelected = true;
+
+                        _filteredSheets = new ObservableCollection<PrintSheetViewModel>(setSheets);
+                        UI_Txt_Status.Text = $"Mode: Print Set - {set.Name} ({setSheets.Count} sheets)";
+                        break;
+
+                    case SourceType.Schedule:
+                        CanToggleSelection = false; // Locked for schedules as well
+                        var sch = source.Object as ViewSchedule;
+                        var ordered = PrintLogic.OrderSheetsBySchedule(sch, _allSheets.Select(vm => vm.Sheet));
+                        
+                        // Preserving selection matches for the schedule
+                        var schSheets = ordered.Select(s => new PrintSheetViewModel(s) { IsSelected = true }).ToList();
+
+                        _filteredSheets = new ObservableCollection<PrintSheetViewModel>(schSheets);
+                        UI_Txt_Status.Text = $"Mode: Schedule Sort - {sch.Name} ({schSheets.Count} sheets)";
+                        break;
+                }
+                UI_List_Sheets.ItemsSource = _filteredSheets;
+                UI_List_Sheets.Items.Refresh();
+            }
         }
 
         private string GetSettingsPath()
@@ -152,22 +234,6 @@ namespace antiGGGravity.Views.General
             }
         }
 
-        private void UI_Combo_Schedules_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (UI_Combo_Schedules.SelectedItem is ViewSchedule schedule)
-            {
-                var ordered = PrintLogic.OrderSheetsBySchedule(schedule, _allSheets.Select(vm => vm.Sheet));
-                
-                // Re-map to VMs preserving selection
-                var selectedIds = _allSheets.Where(vm => vm.IsSelected).Select(vm => vm.Sheet.Id).ToHashSet();
-                
-                var newOrder = ordered.Select(s => new PrintSheetViewModel(s) { IsSelected = selectedIds.Contains(s.Id) }).ToList();
-                
-                _allSheets = new ObservableCollection<PrintSheetViewModel>(newOrder);
-                UI_List_Sheets.ItemsSource = _allSheets;
-                UI_Txt_Status.Text = $"Ordered by {schedule.Name}";
-            }
-        }
 
         private void UI_Btn_Browse_Click(object sender, RoutedEventArgs e)
         {
@@ -256,6 +322,7 @@ namespace antiGGGravity.Views.General
                             case 0: opts.RasterQuality = RasterQualityType.Low; break;
                             case 1: opts.RasterQuality = RasterQualityType.Medium; break;
                             case 2: opts.RasterQuality = RasterQualityType.High; break;
+                            case 3: opts.RasterQuality = RasterQualityType.Presentation; break;
                             default: opts.RasterQuality = RasterQualityType.Medium; break;
                         }
                     }
@@ -344,12 +411,55 @@ namespace antiGGGravity.Views.General
         }
     }
 
+    public enum SourceType { Manual, Set, Schedule }
+    
+    public class PrintSourceViewModel
+    {
+        public SourceType Type { get; set; }
+        public object Object { get; set; }
+        public string Name { get; set; }
+    }
+
+    public class PrintSetViewModel
+    {
+        public ViewSheetSet Set { get; }
+        public string NameOverride { get; set; }
+        public string Name => NameOverride ?? Set?.Name ?? "Unnamed Set";
+        public List<ElementId> SheetIds { get; }
+
+        public PrintSetViewModel(ViewSheetSet set)
+        {
+            Set = set;
+            SheetIds = new List<ElementId>();
+            if (Set != null)
+            {
+                foreach (View sheet in Set.Views)
+                {
+                    if (sheet is ViewSheet) SheetIds.Add(sheet.Id);
+                }
+            }
+        }
+    }
+
     public class PrintSheetViewModel : INotifyPropertyChanged
     {
         public ViewSheet Sheet { get; }
-        public bool IsSelected { get; set; } = true;
+
+        private bool _isSelected = true;
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                _isSelected = value;
+                OnPropertyChanged(nameof(IsSelected));
+            }
+        }
 
         public string NumberName => $"{Sheet.SheetNumber} - {Sheet.Name}";
+        
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         
         public string SheetSize 
         {
@@ -377,7 +487,5 @@ namespace antiGGGravity.Views.General
         {
             Sheet = sheet;
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

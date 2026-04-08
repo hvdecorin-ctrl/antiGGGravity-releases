@@ -1,12 +1,12 @@
 <Window x:Class="antiGGGravity.Views.General.PrintView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Print Drawing Set" Height="750" Width="1000"
+        Title="Print Drawing Set" Height="900" Width="600"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         WindowStartupLocation="CenterScreen" Topmost="True">
 
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="55" CornerRadius="12" GlassFrameThickness="0"/>
+        <WindowChrome CaptionHeight="55" CornerRadius="12" GlassFrameThickness="0" ResizeBorderThickness="7"/>
     </WindowChrome.WindowChrome>
 
     <Window.Resources>
@@ -47,15 +47,16 @@
             <!-- CONTENT -->
             <Grid Grid.Row="1" Margin="25">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1.5*"/> <!-- Left: Sheets -->
-                    <ColumnDefinition Width="20"/>    <!-- Spacer -->
-                    <ColumnDefinition Width="1.2*"/> <!-- Right: Settings -->
+                    <ColumnDefinition Width="1.5*"/> <!-- Selection -->
+                    <ColumnDefinition Width="20"/>   <!-- Spacer -->
+                    <ColumnDefinition Width="1.2*"/> <!-- Settings -->
                 </Grid.ColumnDefinitions>
 
-                <!-- LEFT: SHEET LIST -->
+                <!-- SELECTION PANEL -->
                 <Border Grid.Column="0" Background="White" CornerRadius="8" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="1">
                     <Grid>
                         <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
@@ -63,13 +64,13 @@
                         </Grid.RowDefinitions>
                         
                         <Border Grid.Row="0" Background="#F8F9FA" Padding="15,10" CornerRadius="8,8,0,0" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,0,0,1">
-                            <TextBlock Text="Select Sheets" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0"/>
+                            <TextBlock Text="Select Drawings" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0"/>
                         </Border>
 
-                        <!-- SORTING -->
-                        <StackPanel Grid.Row="1" Margin="15,10,15,5">
-                            <TextBlock Text="Order by Schedule" FontSize="11" Foreground="#666666" Margin="0,0,0,5"/>
-                            <ComboBox x:Name="UI_Combo_Schedules" Height="32" DisplayMemberPath="Name" SelectionChanged="UI_Combo_Schedules_SelectionChanged"/>
+                        <!-- UNIFIED SELECTION SOURCE -->
+                        <StackPanel Grid.Row="1" Margin="15,15,15,10">
+                            <TextBlock Text="Drawing Selection Source" FontSize="11" Foreground="#666666" Margin="0,0,0,5"/>
+                            <ComboBox x:Name="UI_Combo_Source" Height="32" DisplayMemberPath="Name" SelectionChanged="UI_Combo_Source_SelectionChanged"/>
                         </StackPanel>
 
                         <!-- SEARCH -->
@@ -78,11 +79,11 @@
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <CheckBox x:Name="UI_Check_All" VerticalAlignment="Center" Margin="0,0,10,0" IsChecked="True" Checked="UI_Check_All_Checked" Unchecked="UI_Check_All_Unchecked"/>
+                            <CheckBox x:Name="UI_Check_All" VerticalAlignment="Center" Margin="0,0,10,0" IsChecked="True" Checked="UI_Check_All_Checked" Unchecked="UI_Check_All_Unchecked" IsEnabled="{Binding CanToggleSelection}"/>
                             <TextBox x:Name="UI_Txt_Search" Grid.Column="1" Height="32" Padding="25,0,5,0" 
                                      VerticalContentAlignment="Center" BorderBrush="#E0E0E0" TextChanged="UI_Txt_Search_TextChanged"/>
                         </Grid>
-                        
+
                         <ListBox x:Name="UI_List_Sheets" Grid.Row="3" Margin="15,5,15,15" SelectionMode="Extended" BorderThickness="1" BorderBrush="#E0E0E0">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
@@ -91,7 +92,7 @@
                                             <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <CheckBox IsChecked="{Binding IsSelected}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                        <CheckBox IsChecked="{Binding IsSelected}" VerticalAlignment="Center" Margin="0,0,10,0" IsEnabled="{Binding DataContext.CanToggleSelection, RelativeSource={RelativeSource AncestorType=Window}}"/>
                                         <StackPanel Grid.Column="1">
                                             <TextBlock Text="{Binding NumberName}" FontWeight="SemiBold" FontSize="12"/>
                                         </StackPanel>
@@ -179,10 +180,12 @@
                                 <CheckBox x:Name="UI_Check_Color" Content="Color Export (Force Color)" IsChecked="True" Margin="0,5,0,0"/>
 
                                 <TextBlock Text="PDF Quality" FontSize="11" Foreground="#666666" Margin="0,10,0,5"/>
+                                <TextBlock Text="(Affects high-fidelity elements)" FontSize="9" Foreground="#999999" Margin="0,-5,0,5"/>
                                 <ComboBox x:Name="UI_Combo_Quality" Height="32" Margin="0,0,0,5">
-                                    <ComboBoxItem Content="Low (Smallest Files)"/>
-                                    <ComboBoxItem x:Name="UI_Item_Medium" Content="Medium (Standard)" IsSelected="True"/>
-                                    <ComboBoxItem Content="High (Best Quality)"/>
+                                    <ComboBoxItem Content="Standard (Vector Preference)" IsSelected="True"/>
+                                    <ComboBoxItem Content="Medium (150 DPI)"/>
+                                    <ComboBoxItem Content="High (300 DPI)"/>
+                                    <ComboBoxItem Content="Presentation (600 DPI)"/>
                                 </ComboBox>
                             </StackPanel>
                         </Border>
