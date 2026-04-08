@@ -1,58 +1,55 @@
 @echo off
-setlocal
-echo ==================================================
-echo   antiGGGravity Revit Add-in Installer
-echo ==================================================
+setlocal enabledelayedexpansion
+
+echo ==========================================================
+echo   antiGGGravity Revit Add-in Smart Installer
+echo ==========================================================
+echo.
+echo Detecting installed Revit versions and installing...
 echo.
 
-:CHOOSE_VERSION
-echo Please select the Revit version to install for:
-echo 1. Revit 2022
-echo 2. Revit 2023
-echo 3. Revit 2024
-echo 4. Revit 2025
-echo 5. Revit 2026
-echo.
-set /p choice="Enter choice (1-5): "
+set "INSTALLED_VERSIONS="
+set "FOUND_REBIT=0"
 
-if "%choice%"=="1" set REVIT_YEAR=2022
-if "%choice%"=="2" set REVIT_YEAR=2023
-if "%choice%"=="3" set REVIT_YEAR=2024
-if "%choice%"=="4" set REVIT_YEAR=2025
-if "%choice%"=="5" set REVIT_YEAR=2026
-
-if "%REVIT_YEAR%"=="" (
-    echo Invalid choice. Please try again.
-    goto CHOOSE_VERSION
+for %%V in (2022 2023 2024 2025 2026 2027) do (
+    set "REVIT_YEAR=%%V"
+    set "SOURCE_DIR=%~dp0R!REVIT_YEAR!"
+    set "TARGET_DIR=%AppData%\Autodesk\Revit\Addins\!REVIT_YEAR!"
+    
+    REM Check if Revit folder exists in AppData (indicating it's installed or was installed)
+    if exist "!TARGET_DIR!\.." (
+        REM Check if our distribution folder for this version exists
+        if exist "!SOURCE_DIR!" (
+            echo [+] Installing for Revit !REVIT_YEAR!...
+            
+            if not exist "!TARGET_DIR!" mkdir "!TARGET_DIR!"
+            
+            xcopy "!SOURCE_DIR!\*" "!TARGET_DIR!" /s /e /y /i /q >nul
+            
+            if !ERRORLEVEL! EQU 0 (
+                set "INSTALLED_VERSIONS=!INSTALLED_VERSIONS! %%V"
+                set "FOUND_REBIT=1"
+            ) else (
+                echo [X] Failed to install for Revit !REVIT_YEAR!.
+            )
+        )
+    )
 )
 
-set SOURCE_DIR=%~dp0R%REVIT_YEAR%
-set TARGET_DIR=%AppData%\Autodesk\Revit\Addins\%REVIT_YEAR%
-
-if not exist "%SOURCE_DIR%" (
-    echo Error: Source folder %SOURCE_DIR% not found.
-    echo Please ensure you are running this from the distribution root.
-    pause
-    exit /b 1
-)
-
 echo.
-echo Installing for Revit %REVIT_YEAR%...
-echo Source: %SOURCE_DIR%
-echo Target: %TARGET_DIR%
-echo.
-
-if not exist "%TARGET_DIR%" mkdir "%TARGET_DIR%"
-
-xcopy "%SOURCE_DIR%\*" "%TARGET_DIR%" /s /e /y /i
-
-if %ERRORLEVEL% EQU 0 (
+if !FOUND_REBIT! EQU 1 (
+    echo ==========================================================
+    echo   SUCCESS: Installed antiGGGravity for: !INSTALLED_VERSIONS!
+    echo ==========================================================
     echo.
-    echo Successfully installed antiGGGravity for Revit %REVIT_YEAR%! 🚀
-    echo Please restart Revit to see the new tools.
+    echo Please RESTART Revit to see the new tools.
 ) else (
+    echo ==========================================================
+    echo   ERROR: No compatible Revit versions detected.
+    echo ==========================================================
     echo.
-    echo Installation failed. Error code: %ERRORLEVEL%
+    echo Please ensure Revit 2022-2027 is installed.
 )
 
+echo.
 pause

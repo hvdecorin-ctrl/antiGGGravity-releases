@@ -19,11 +19,20 @@ namespace antiGGGravity.Commands.Management
 
         public static void RenameViewsOnSheet(ViewSheet sheet, HashSet<string> existingViewNames)
         {
+            RenameViewsOnSheetInternal(sheet, existingViewNames, false);
+        }
+
+        public static void RenameViewsOnSheetOverride(ViewSheet sheet)
+        {
+            RenameViewsOnSheetInternal(sheet, null, true);
+        }
+
+        private static void RenameViewsOnSheetInternal(ViewSheet sheet, HashSet<string> existingViewNames, bool isOverride)
+        {
             Document doc = sheet.Document;
             var placedViewIds = sheet.GetAllPlacedViews();
 
             // Regex for default names: "Section 1", "Detail 1", "Drafting 1", "Callout of Section 1"
-            // Captures: Name + space + number
             var defaultNamePattern = new Regex(@"^(Section|Detail|Drafting|Callout of .*?) \d+$", RegexOptions.IgnoreCase);
 
             foreach (ElementId id in placedViewIds)
@@ -39,40 +48,52 @@ namespace antiGGGravity.Commands.Management
                         if (string.IsNullOrEmpty(detailNumber)) continue;
 
                         string originalName = view.Name;
-                        string content = originalName;
+                        string newNameBase;
 
-                        // 1. Check if matches "Standard" renaming pattern (e.g. "1_Something", "2.1B_Section 1")
-                        // Use [\w\.-] to allow Detail Numbers like "1", "1A", "2.1B", "A-101"
-                        var matchPrefix = Regex.Match(originalName, @"^[\w\.-]+_(.*)$");
-                        if (matchPrefix.Success)
+                        if (isOverride)
                         {
-                            content = matchPrefix.Groups[1].Value;
+                            // Override mode: exactly the detail number
+                            newNameBase = detailNumber;
                         }
-                        
-                        // 2. Check if content is just a Default Revit Name (e.g. "Section 1")
-                        // matches default pattern OR is just digits/dots/dash/letter (e.g. "1", "2.1", "2.1a")
-                        if (defaultNamePattern.IsMatch(content) || Regex.IsMatch(content, @"^[\d\.-]+[a-zA-Z]?$"))
+                        else
                         {
-                            content = "";
+                            // Standard mode: intelligent prefixing
+                            string content = originalName;
+                            var matchPrefix = Regex.Match(originalName, @"^[\w\.-]+_(.*)$");
+                            if (matchPrefix.Success) content = matchPrefix.Groups[1].Value;
+
+                            if (defaultNamePattern.IsMatch(content) || Regex.IsMatch(content, @"^[\d\.-]+[a-zA-Z]?$"))
+                            {
+                                content = "";
+                            }
+
+                            newNameBase = string.IsNullOrEmpty(content) ? detailNumber : $"{detailNumber}_{content}";
                         }
 
-                        // Rule: Detail Number + underscore + content (if content exists)
-                        // If content is empty, just Detail Number
-                        string newNameBase = string.IsNullOrEmpty(content) 
-                            ? detailNumber 
-                            : $"{detailNumber}_{content}";
-                        
-                        // If already correctly named, skip
                         if (originalName == newNameBase) continue;
 
-                        // Handle duplicates at project level
-                        int counter = 1;
                         string finalName = newNameBase;
-                        while (existingViewNames.Contains(finalName) && finalName != originalName)
+
+                        if (isOverride)
                         {
-                            finalName = $"{newNameBase}-{counter}";
-                            counter++;
-                            if (counter > 100) break;
+                            // Handle collisions by force-renaming the blocker to a temp name
+                            View blocker = FindViewByName(doc, finalName);
+                            if (blocker != null && blocker.Id != view.Id)
+                            {
+                                try { blocker.Name = $"{finalName}_temp_{Guid.NewGuid().ToString().Substring(0, 4)}"; }
+                                catch { /* Blocker might be read-only if in another link or template */ }
+                            }
+                        }
+                        else
+                        {
+                            // Handle duplicates by appending counter
+                            int counter = 1;
+                            while (existingViewNames.Contains(finalName) && finalName != originalName)
+                            {
+                                finalName = $"{newNameBase}-{counter}";
+                                counter++;
+                                if (counter > 100) break;
+                            }
                         }
 
                         if (finalName != originalName)
@@ -80,14 +101,25 @@ namespace antiGGGravity.Commands.Management
                             try
                             {
                                 view.Name = finalName;
-                                existingViewNames.Remove(originalName);
-                                existingViewNames.Add(finalName);
+                                if (!isOverride && existingViewNames != null)
+                                {
+                                    existingViewNames.Remove(originalName);
+                                    existingViewNames.Add(finalName);
+                                }
                             }
                             catch { /* Ignore naming errors */ }
                         }
                     }
                 }
             }
+        }
+
+        private static View FindViewByName(Document doc, string name)
+        {
+            return new FilteredElementCollector(doc)
+                .OfClass(typeof(View))
+                .Cast<View>()
+                .FirstOrDefault(v => v.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
         }
 
         public static void SetViewportTitles(ViewSheet sheet)

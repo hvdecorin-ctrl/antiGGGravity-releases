@@ -7,7 +7,7 @@ using antiGGGravity.Utilities;
 namespace antiGGGravity.Utilities
 {
     /// <summary>
-    /// Global Compatibility Layer to handle Revit API changes across 2022-2026.
+    /// Global Compatibility Layer to handle Revit API changes across 2022-2027.
     /// This allows most command code to remain unchanged.
     /// </summary>
     public static class RevitCompatibility
@@ -77,6 +77,7 @@ namespace antiGGGravity.Utilities
 
         /// <summary>
         /// Safely creates Rebar from curves, handling the 2026 BarTerminationsData change.
+        /// RebarHookOrientation is aliased to RebarTerminationOrientation for R27+ via GlobalUsings.Rebar.cs.
         /// </summary>
         public static Rebar CreateRebar(Document doc, RebarStyle style, RebarBarType barType,
                                         RebarHookType startHook, RebarHookType endHook,
@@ -89,12 +90,10 @@ namespace antiGGGravity.Utilities
             if (startHook != null) termData.HookTypeIdAtStart = startHook.Id;
             if (endHook != null) termData.HookTypeIdAtEnd = endHook.Id;
             
-#pragma warning disable 0618
             termData.TerminationOrientationAtStart = (RebarTerminationOrientation)(int)startOrient;
             termData.TerminationOrientationAtEnd = (RebarTerminationOrientation)(int)endOrient;
 
             return Rebar.CreateFromCurves(doc, style, barType, host, normal, curves, termData, useExisting, createNew);
-#pragma warning restore 0618
 #else
             return Rebar.CreateFromCurves(doc, style, barType, startHook, endHook, host, normal, curves, startOrient, endOrient, useExisting, createNew);
 #endif
@@ -113,12 +112,10 @@ namespace antiGGGravity.Utilities
             if (startHook != null) termData.HookTypeIdAtStart = startHook.Id;
             if (endHook != null) termData.HookTypeIdAtEnd = endHook.Id;
             
-#pragma warning disable 0618
             termData.TerminationOrientationAtStart = (RebarTerminationOrientation)(int)startOrient;
             termData.TerminationOrientationAtEnd = (RebarTerminationOrientation)(int)endOrient;
 
             return Rebar.CreateFromCurvesAndShape(doc, shape, barType, host, normal, curves, termData);
-#pragma warning restore 0618
 #else
             return Rebar.CreateFromCurvesAndShape(doc, shape, barType, startHook, endHook, host, normal, curves, startOrient, endOrient);
 #endif
@@ -129,9 +126,13 @@ namespace antiGGGravity.Utilities
         /// </summary>
         public static void SetHookOrientationCompatible(Rebar rebar, int end, RebarHookOrientation orient)
         {
+#if REVIT2027_OR_GREATER
+            rebar.SetTerminationOrientation(end, orient);
+#else
 #pragma warning disable 0618
             rebar.SetHookOrientation(end, orient);
 #pragma warning restore 0618
+#endif
         }
 
         /// <summary>

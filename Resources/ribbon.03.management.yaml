@@ -15,14 +15,14 @@ panels:
             icon: Rename
             tooltip: Rename views on sheets.
             buttons:
-              - name: Rename Views (Active Sheet)
-                command: RenameViewsActiveSheetCommand
-                icon: RenameViews
-                tooltip: Rename all viewports on the currently active sheet.
-              - name: Rename View (all Sheets)
-                command: RenameViewsAllSheetsCommand
+              - name: Rename View
+                command: RenameViewsCommand
                 icon: RenameViews
                 tooltip: Rename viewports across all sheets using a naming rule.
+              - name: Rename (Override)
+                command: RenameViewsOverrideCommand
+                icon: RenameViews
+                tooltip: Strictly rename views to match their Detail Number, overriding any existing name collisions.
               - name: Renumber Viewports
                 command: RenumberViewportsCommand
                 icon: RenumberViewports

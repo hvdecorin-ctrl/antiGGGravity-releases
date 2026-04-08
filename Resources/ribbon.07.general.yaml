@@ -4,6 +4,15 @@ panels:
   # ============================================================
   - name: General
     items:
+      - type: pulldown
+        name: Export Manager
+        icon: Print
+        tooltip: Drawing Set printing and plotting tools.
+        buttons:
+          - name: Print / Export Sheets
+            command: PrintCommand
+            icon: Print
+            tooltip: Batch export sheets to PDF or DWG with automatic sorting by sheet schedule.
       - type: stacked
         buttons:
           - type: pulldown
@@ -52,10 +61,6 @@ panels:
             tooltip: Flip the facing or orientation of selected elements.
       - type: stacked
         buttons:
-          - name: Transfer Templates
-            command: TransferTemplatesCommand
-            icon: TransferTemplates
-            tooltip: Copy view templates from one project to another.
           - type: pulldown
             name: View Filters
             icon: ViewFilters

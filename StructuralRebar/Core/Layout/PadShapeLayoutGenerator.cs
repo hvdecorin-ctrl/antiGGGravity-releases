@@ -147,6 +147,16 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
             var intersectionPoints = new List<XYZ>();
             foreach (var edge in boundary)
             {
+#if REVIT2027_OR_GREATER
+                var intersectResult = line.Intersect(edge, CurveIntersectResultOption.Detailed);
+                if (intersectResult != null)
+                {
+                    foreach (var overlap in intersectResult.GetOverlaps())
+                    {
+                        intersectionPoints.Add(overlap.Point);
+                    }
+                }
+#else
                 IntersectionResultArray results;
                 SetComparisonResult res = line.Intersect(edge, out results);
                 if (res == SetComparisonResult.Overlap || res == SetComparisonResult.Disjoint)
@@ -159,6 +169,7 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                         }
                     }
                 }
+#endif
             }
 
             // Sort points along the line

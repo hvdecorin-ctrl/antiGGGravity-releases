@@ -1,8 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configurations>Debug;Release;R22;R23;R24;R25;R26</Configurations>
+    <Configurations>Debug;Release;R22;R23;R24;R25;R26;R27</Configurations>
     <TargetFramework Condition="'$(Configuration)' == 'R22' OR '$(Configuration)' == 'R23' OR '$(Configuration)' == 'R24'">net48</TargetFramework>
     <TargetFramework Condition="'$(Configuration)' == 'R25' OR '$(Configuration)' == 'R26' OR '$(Configuration)' == 'Debug' OR '$(Configuration)' == 'Release'">net8.0-windows</TargetFramework>
+    <TargetFramework Condition="'$(Configuration)' == 'R27'">net10.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <LangVersion>latest</LangVersion>
     <AssemblyName>antiGGGravity</AssemblyName>
@@ -80,6 +81,9 @@
   <PropertyGroup Condition="'$(Configuration)' == 'R26' Or '$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Release'">
     <DefineConstants>REVIT2026;REVIT2022_OR_GREATER;REVIT2023_OR_GREATER;REVIT2024_OR_GREATER;REVIT2025_OR_GREATER;REVIT2026_OR_GREATER</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'R27'">
+    <DefineConstants>REVIT2027;REVIT2022_OR_GREATER;REVIT2023_OR_GREATER;REVIT2024_OR_GREATER;REVIT2025_OR_GREATER;REVIT2026_OR_GREATER;REVIT2027_OR_GREATER</DefineConstants>
+  </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' != 'net48'">
     <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
@@ -140,6 +144,21 @@
     <DefineConstants>$(DefineConstants);REVIT2026;REVIT2023_OR_GREATER;REVIT2024_OR_GREATER;REVIT2025_OR_GREATER;REVIT2026_OR_GREATER</DefineConstants>
   </PropertyGroup>
 
+  <ItemGroup Condition="'$(Configuration)' == 'R27'">
+    <!-- Using local references until NuGet package is available -->
+    <Reference Include="RevitAPI">
+      <HintPath>C:\Program Files\Autodesk\Revit 2027\RevitAPI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="RevitAPIUI">
+      <HintPath>C:\Program Files\Autodesk\Revit 2027\RevitAPIUI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'R27'">
+    <DefineConstants>$(DefineConstants);REVIT2027;REVIT2023_OR_GREATER;REVIT2024_OR_GREATER;REVIT2025_OR_GREATER;REVIT2026_OR_GREATER;REVIT2027_OR_GREATER</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <Resource Include="Resources\Icons\**\*.png" />
     <Resource Include="Resources\beam_cut_diagram.png" />
@@ -167,6 +186,7 @@
       <RevitYear Condition="'$(Configuration)' == 'R24'">2024</RevitYear>
       <RevitYear Condition="'$(Configuration)' == 'R25'">2025</RevitYear>
       <RevitYear Condition="'$(Configuration)' == 'R26' Or '$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Release'">2026</RevitYear>
+      <RevitYear Condition="'$(Configuration)' == 'R27'">2027</RevitYear>
     </PropertyGroup>
 
     <ItemGroup>

@@ -1,7 +1,7 @@
 # Deploy multi-version script
 param (
     [Parameter(Mandatory=$false)]
-    [object]$VersionsToBuild = @("R22", "R23", "R24", "R25", "R26")
+    [object]$VersionsToBuild = @("R22", "R23", "R24", "R25", "R26", "R27")
 )
 
 # Normalize input if it comes in as a single string with spaces or commas
@@ -20,7 +20,7 @@ foreach ($v in $VersionsToBuild) {
     Write-Host "==================================================`n" -ForegroundColor Yellow
 
     # 1. SDK VERSION HANDLING
-    $isNet8 = ($v -eq "R26" -or $v -eq "R25")
+    $isNetCore = ($v -eq "R27" -or $v -eq "R26" -or $v -eq "R25")
     # $globalJsonPath = "$PSScriptRoot\global.json"
     # $globalJsonBak = "$PSScriptRoot\global.json.bak"
 
@@ -38,7 +38,7 @@ foreach ($v in $VersionsToBuild) {
     & $msbuildPath antiGGGravity.csproj /t:Restore /p:Configuration=$v
 
     # 1. CLEAN & BUILD
-    if ($isNet8) {
+    if ($isNetCore) {
         # NET 8+ uses dotnet build perfectly
         dotnet build antiGGGravity.csproj -c $v --no-incremental -p:EmbedLicense=true
     } else {
@@ -67,7 +67,10 @@ foreach ($v in $VersionsToBuild) {
     
     $inDir = "bin\$v"
     $isNet8 = ($v -eq "R26" -or $v -eq "R25")
-    if ($isNet8) {
+    $isNet10 = ($v -eq "R27")
+    if ($isNet10) {
+        $inDir = Join-Path $inDir "net10.0-windows"
+    } elseif ($isNet8) {
         $inDir = Join-Path $inDir "net8.0-windows"
     } else {
         $inDir = Join-Path $inDir "net48"
@@ -169,7 +172,7 @@ foreach ($v in $VersionsToBuild) {
 
 # 6. COPY SUPPORTING FILES (INSTALL/UNINSTALL/INSTRUCUTIONS)
 Write-Host "`nCopying supporting files into Distribute..." -ForegroundColor Yellow
-$supportingFiles = @("install.bat", "uninstall.bat", "instructions.txt")
+$supportingFiles = @("install.bat", "uninstall.bat")
 foreach ($file in $supportingFiles) {
     if (Test-Path "$PSScriptRoot\$file") {
         Copy-Item -Path "$PSScriptRoot\$file" -Destination $distRoot -Force

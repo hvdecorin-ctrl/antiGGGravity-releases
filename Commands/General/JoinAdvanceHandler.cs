@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Autodesk.Revit.DB;
+using Autodesk.Revit.DB.Structure;
 using Autodesk.Revit.UI;
 using antiGGGravity.Views.General;
 using antiGGGravity.Utilities;
@@ -89,60 +90,68 @@ namespace antiGGGravity.Commands.General
 
                     if (isJoin)
                     {
-                        // --- JOIN OPERATION MATCHING PYTHON PRIORITY LOGIC ---
+                        // --- JOIN OPERATION WITH AUTOMATIC SWITCHING ---
                         foreach (var left in leftElements)
                         {
-                            var solidsLeft = GetSolids(left, geoOptions);
-                            if (solidsLeft.Count == 0) continue;
+                            var leftStructuralMaterial = GetStructuralMaterial(left);
+                            bool leftIsConcrete = IsConcrete(leftStructuralMaterial);
+                            bool leftIsSteel = IsSteel(leftStructuralMaterial);
 
-                            foreach (var right in rightElements)
+                            // 1. Correct Existing Joins (Switch Order)
+                            try 
+                            {
+                                var joinedIds = JoinGeometryUtils.GetJoinedElements(doc, left);
+                                foreach (var joinedId in joinedIds)
+                                {
+                                    Element joinedRight = doc.GetElement(joinedId);
+                                    if (rightCats.Contains(joinedRight.Category.Id))
+                                    {
+                                        // Priority Check: Should 'left' cut 'joinedRight'?
+                                        if (!JoinGeometryUtils.IsCuttingElementInJoin(doc, left, joinedRight))
+                                        {
+                                            JoinGeometryUtils.SwitchJoinOrder(doc, left, joinedRight);
+                                            processedCount++;
+                                            log.AppendLine($"[SWITCHED] {left.Category.Name} [{left.Id}] / {joinedRight.Category.Name} [{joinedRight.Id}] - Priority Enforced.");
+                                        }
+                                    }
+                                }
+                            }
+                            catch { }
+
+                            // 2. Perform New Joins (Intersection Filter)
+                            var intersectFilter = new ElementIntersectsElementFilter(left);
+                            var potentialIntersects = new FilteredElementCollector(doc, rightElements.Select(e => e.Id).ToList())
+                                .WherePasses(intersectFilter)
+                                .ToElements();
+
+                            foreach (var right in potentialIntersects)
                             {
                                 if (left.Id == right.Id) continue;
 
                                 try
                                 {
+                                    // Material Exclusion: Skip Steel-Concrete joints
+                                    var rightStructuralMaterial = GetStructuralMaterial(right);
+                                    if ((leftIsSteel && IsConcrete(rightStructuralMaterial)) || 
+                                        (leftIsConcrete && IsSteel(rightStructuralMaterial)))
+                                    {
+                                        continue; 
+                                    }
+
                                     bool alreadyJoined = JoinGeometryUtils.AreElementsJoined(doc, left, right);
                                     
                                     if (!alreadyJoined)
                                     {
-                                        // Intersection check as per python logic
-                                        var solidsRight = GetSolids(right, geoOptions);
-                                        bool intersectFound = false;
-                                        foreach (var sLeft in solidsLeft)
-                                        {
-                                            foreach (var sRight in solidsRight)
-                                            {
-                                                try {
-                                                    var inter = BooleanOperationsUtils.ExecuteBooleanOperation(sLeft, sRight, BooleanOperationsType.Intersect);
-                                                    if (inter != null && inter.Volume > 0.000001)
-                                                    {
-                                                        JoinGeometryUtils.JoinGeometry(doc, left, right);
-                                                        processedCount++;
-                                                        
-                                                        // Ensure Left (Priority) cuts Right
-                                                        if (!JoinGeometryUtils.IsCuttingElementInJoin(doc, left, right))
-                                                        {
-                                                            JoinGeometryUtils.SwitchJoinOrder(doc, left, right);
-                                                        }
-                                                        
-                                                        log.AppendLine($"[JOINED] {left.Category.Name} [{left.Id}] to {right.Category.Name} [{right.Id}]");
-                                                        intersectFound = true;
-                                                        break;
-                                                    }
-                                                } catch { }
-                                            }
-                                            if (intersectFound) break;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        // Already joined, ensure correct order
+                                        JoinGeometryUtils.JoinGeometry(doc, left, right);
+                                        processedCount++;
+                                        
+                                        // Ensure Left (Priority) cuts Right
                                         if (!JoinGeometryUtils.IsCuttingElementInJoin(doc, left, right))
                                         {
                                             JoinGeometryUtils.SwitchJoinOrder(doc, left, right);
-                                            processedCount++;
-                                            log.AppendLine($"[SWITCHED] {left.Category.Name} [{left.Id}] / {right.Category.Name} [{right.Id}] - Priority Enforced.");
                                         }
+                                        
+                                        log.AppendLine($"[JOINED] {left.Category.Name} [{left.Id}] to {right.Category.Name} [{right.Id}]");
                                     }
                                 }
                                 catch { }
@@ -189,26 +198,40 @@ namespace antiGGGravity.Commands.General
             }
         }
 
-        private List<Solid> GetSolids(Element element, Options options)
+        private StructuralMaterialType GetStructuralMaterial(Element element)
         {
-            var solids = new List<Solid>();
-            var geom = element.get_Geometry(options);
-            if (geom != null)
+            // For FamilyInstances (Framing/Columns), check the property directly
+            if (element is FamilyInstance fi)
             {
-                foreach (var obj in geom)
-                {
-                    if (obj is Solid s && s.Volume > 0) solids.Add(s);
-                    else if (obj is GeometryInstance inst)
-                    {
-                        foreach (var instObj in inst.GetInstanceGeometry())
-                        {
-                            if (instObj is Solid instS && instS.Volume > 0) solids.Add(instS);
-                        }
-                    }
-                }
+                return fi.StructuralMaterialType;
             }
-            return solids;
+
+            // For Walls/Floors/Foundations, check BuiltInParameter or default to Concrete
+            Parameter p = element.get_Parameter(BuiltInParameter.STRUCTURAL_MATERIAL_TYPE);
+            if (p != null && p.AsInteger() != 0) return (StructuralMaterialType)p.AsInteger();
+
+            if (element is Wall || element is Floor || element.Category.Id == new ElementId(BuiltInCategory.OST_StructuralFoundation))
+            {
+                return StructuralMaterialType.Concrete;
+            }
+
+            return StructuralMaterialType.Other;
         }
+
+        private bool DoesPhysicallyOverlap(Element e1, Element e2)
+        {
+            try
+            {
+                // Double check using the most restrictive filter
+                return new FilteredElementCollector(e1.Document, new List<ElementId> { e2.Id })
+                    .WherePasses(new ElementIntersectsElementFilter(e1))
+                    .Any();
+            }
+            catch { return false; }
+        }
+
+        private bool IsSteel(StructuralMaterialType mat) => mat == StructuralMaterialType.Steel;
+        private bool IsConcrete(StructuralMaterialType mat) => mat == StructuralMaterialType.Concrete || mat == StructuralMaterialType.PrecastConcrete;
 
         public string GetName() => "Join Advance Handler";
     }

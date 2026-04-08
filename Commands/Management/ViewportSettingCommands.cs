@@ -57,7 +57,7 @@ namespace antiGGGravity.Commands.Management
     // ===================================================================================
 
     [Transaction(TransactionMode.Manual)]
-    public class RenameViewsAllSheetsCommand : BaseCommand
+    public class RenameViewsCommand : BaseCommand
     {
 
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
@@ -80,6 +80,45 @@ namespace antiGGGravity.Commands.Management
                     foreach (ViewSheet sheet in allSheets)
                     {
                         ViewRenamingLogic.RenameViewsOnSheet(sheet, existingViewNames);
+                        ViewRenamingLogic.SetViewportTitles(sheet);
+                    }
+
+                    t.Commit();
+                    return Result.Succeeded;
+                }
+                catch (Exception ex)
+                {
+                    message = ex.Message;
+                    t.RollBack();
+                    return Result.Failed;
+                }
+            }
+        }
+    }
+
+    // ===================================================================================
+    // RENAME VIEWS OVERRIDE (ALL SHEETS)
+    // ===================================================================================
+
+    [Transaction(TransactionMode.Manual)]
+    public class RenameViewsOverrideCommand : BaseCommand
+    {
+        protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
+        {
+            Document doc = commandData.Application.ActiveUIDocument.Document;
+
+            using (Transaction t = new Transaction(doc, "Rename Views (Override)"))
+            {
+                t.Start();
+                try
+                {
+                    var allSheets = new FilteredElementCollector(doc)
+                        .OfClass(typeof(ViewSheet))
+                        .Cast<ViewSheet>();
+
+                    foreach (ViewSheet sheet in allSheets)
+                    {
+                        ViewRenamingLogic.RenameViewsOnSheetOverride(sheet);
                         ViewRenamingLogic.SetViewportTitles(sheet);
                     }
 

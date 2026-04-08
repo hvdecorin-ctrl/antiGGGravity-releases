@@ -351,8 +351,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                         DistributionWidth = distWidthL,
                         ArrayDirection = firstHost.WAxis,
                         Normal = firstHost.WAxis,
-                        HookStartOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Left,
-                        HookEndOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Left,
+                        HookStartOrientation = (RebarHookOrientation)1, // Left
+                        HookEndOrientation = (RebarHookOrientation)1,   // Left
                         HookStartName = (Math.Abs(seg.Start - 0) < 0.001) ? layer.HookStartName : null,
                         HookEndName = (Math.Abs(seg.End - barLen) < 0.001) ? layer.HookEndName : null,
                         OverrideHookLength = layer.OverrideHookLength,
@@ -419,8 +419,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                                 DistributionWidth = distWidth_base,
                                 ArrayDirection = firstHost.WAxis,
                                 Normal = firstHost.WAxis,
-                                HookStartOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Left,
-                                HookEndOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Left,
+                                HookStartOrientation = (RebarHookOrientation)1, // Left
+                                HookEndOrientation = (RebarHookOrientation)1,   // Left
                                 HookStartName = (Math.Abs(seg.Start - 0) < 0.001) ? globalT2?.HookStartName : null,
                                 HookEndName = (Math.Abs(seg.End - barLen) < 0.01) ? globalT2?.HookEndName : null,
                                 Label = $"T2 @ {over.SupportName}",
@@ -475,8 +475,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                                 DistributionWidth = distWidth_base,
                                 ArrayDirection = firstHost.WAxis,
                                 Normal = firstHost.WAxis,
-                                HookStartOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Left,
-                                HookEndOrientation = Autodesk.Revit.DB.Structure.RebarHookOrientation.Left,
+                                HookStartOrientation = (RebarHookOrientation)1, // Left
+                                HookEndOrientation = (RebarHookOrientation)1,   // Left
                                 HookStartName = (Math.Abs(seg.Start - 0) < 0.001) ? globalT3?.HookStartName : null,
                                 HookEndName = (Math.Abs(seg.End - barLen) < 0.01) ? globalT3?.HookEndName : null,
                                 Label = $"T3 @ {over.SupportName}",
