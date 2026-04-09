@@ -62,6 +62,19 @@ panels:
       - type: stacked
         buttons:
           - type: pulldown
+            name: Revision
+            icon: Revision
+            tooltip: Revision management tools.
+            buttons:
+              - name: Set Rev
+                command: SetRevisionCommand
+                icon: SetRev
+                tooltip: Set selected revisions on selected sheets.
+              - name: Create Rev Set
+                command: CreateRevSetCommand
+                icon: CreateRev
+                tooltip: Create a sheet set from sheets containing selected revisions.
+          - type: pulldown
             name: View Filters
             icon: ViewFilters
             tooltip: Copy view filters or create a filter legend.

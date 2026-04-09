@@ -389,7 +389,8 @@ namespace antiGGGravity.Views.General
                     }
                 }
 
-                Autodesk.Revit.UI.TaskDialog.Show("antiGG Print", "Export completed successfully.");
+                UI_Overlay_Success.Visibility = System.Windows.Visibility.Visible;
+                UI_Txt_Status.Text = "Export Complete";
                 
                 // Open the output folder
                 Process.Start(new ProcessStartInfo(folder) { UseShellExecute = true });

@@ -1,0 +1,123 @@
+<Window x:Class="antiGGGravity.Views.General.CreateRevSetView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Create Revision Sheet Set" Height="700" Width="500"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        WindowStartupLocation="CenterScreen" Topmost="True">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="55" CornerRadius="12" GlassFrameThickness="0" ResizeBorderThickness="10"/>
+    </WindowChrome.WindowChrome>
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/antiGGGravity;component/Resources/Pre_BrandStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Border Style="{StaticResource PremiumBorderStyle}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="55"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- HEADER -->
+            <Border Grid.Row="0" Background="{StaticResource BrandGradientBrush}" CornerRadius="12,12,0,0">
+                <Grid Margin="25,0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource CompanyLogoStyle}"/>
+                        <TextBlock Style="{StaticResource CompanyDividerStyle}"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Create Rev Set" Style="{StaticResource PremiumTitleStyle}"/>
+                            <TextBlock Text="Create a sheet set from revisions" Style="{StaticResource PremiumSubtitleStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <Button HorizontalAlignment="Right" VerticalAlignment="Center" Content="✕" 
+                            Style="{StaticResource PremiumIconButtonStyle}" Width="30" Height="30"
+                            Click="UI_Btn_Cancel_Click" WindowChrome.IsHitTestVisibleInChrome="True"/>
+                </Grid>
+            </Border>
+
+            <!-- CONTENT -->
+            <Grid Grid.Row="1" Margin="25">
+                <StackPanel>
+                    <!-- REVISION LIST -->
+                    <Border Background="White" CornerRadius="8" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="1" Height="300">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Border Grid.Row="0" Background="#F8F9FA" Padding="15,10" CornerRadius="8,8,0,0" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,0,0,1">
+                                <TextBlock Text="Target Revisions" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0"/>
+                            </Border>
+
+                            <ListBox x:Name="UI_List_Revisions" Grid.Row="1" Margin="10" BorderThickness="0" SelectionMode="Extended">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,2">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <CheckBox IsChecked="{Binding IsSelected}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                            <StackPanel Grid.Column="1">
+                                                <TextBlock Text="{Binding Label}" FontWeight="SemiBold" FontSize="12"/>
+                                                <TextBlock Text="{Binding Date}" FontSize="10" Foreground="#666666"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Grid>
+                    </Border>
+
+                    <!-- MATCH LOGIC -->
+                    <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="1" Padding="15" Margin="0,15,0,15">
+                        <StackPanel>
+                            <TextBlock Text="Matching Option" Style="{StaticResource PremiumSectionLabelStyle}"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <RadioButton x:Name="UI_Radio_Any" Content="Matching ANY" IsChecked="True" Grid.Column="0"/>
+                                <RadioButton x:Name="UI_Radio_All" Content="Matching ALL" Grid.Column="1"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- NAME INPUT -->
+                    <Border Background="White" CornerRadius="8" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="1" Padding="15">
+                        <StackPanel>
+                            <TextBlock Text="Sheet Set Name" Style="{StaticResource PremiumSectionLabelStyle}"/>
+                            <TextBox x:Name="UI_Txt_SetName" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0" Tag="Enter set name..."/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+
+            <!-- FOOTER -->
+            <Border Grid.Row="2" Background="#FAFAFA" Padding="15,10" CornerRadius="0,0,12,12" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,1,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <TextBlock x:Name="UI_Txt_Status" Grid.Column="0" Text="Select revisions and name the set." VerticalAlignment="Center" Foreground="#999999" FontSize="11"/>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <Button Content="Cancel" Width="100" Style="{StaticResource PremiumPrimaryButtonStyle}" Margin="0,0,10,0" Click="UI_Btn_Cancel_Click"/>
+                        <Button x:Name="UI_Btn_Create" Content="Create Set" Width="150" Style="{StaticResource PremiumActionButtonStyle}" Click="UI_Btn_Create_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>
