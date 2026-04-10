@@ -28,14 +28,14 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="15"/>
-                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
                                 <TextBlock Text="Rebar Type" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
                                 <ComboBox x:Name="UI_Combo_TopType" Height="32" Padding="8,0" VerticalContentAlignment="Center"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2">
-                                <TextBlock Text="Spacing (mm)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                                <TextBlock Text="Spacing" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
                                 <TextBox x:Name="UI_Text_TopSpacing" Text="200" Height="32" VerticalContentAlignment="Center" Padding="8,0" TextChanged="toggle_visibility"/>
                             </StackPanel>
                         </Grid>
@@ -43,7 +43,7 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="15"/>
-                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <CheckBox x:Name="UI_Check_TopHookOverride" Content="Override Leg Length" FontSize="11" Foreground="#666666" VerticalAlignment="Center" Grid.Column="0"/>
                             <TextBox x:Name="UI_Text_TopHookLength" Text="300" Height="32" VerticalContentAlignment="Center" Padding="8,0" Grid.Column="2" 
@@ -76,14 +76,14 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="15"/>
-                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
                                 <TextBlock Text="Rebar Type" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
                                 <ComboBox x:Name="UI_Combo_BotType" Height="32" Padding="8,0" VerticalContentAlignment="Center"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2">
-                                <TextBlock Text="Spacing (mm)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                                <TextBlock Text="Spacing" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
                                 <TextBox x:Name="UI_Text_BotSpacing" Text="200" Height="32" VerticalContentAlignment="Center" Padding="8,0" TextChanged="toggle_visibility"/>
                             </StackPanel>
                         </Grid>
@@ -91,7 +91,7 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="15"/>
-                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <CheckBox x:Name="UI_Check_BotHookOverride" Content="Override Leg Length" FontSize="11" Foreground="#666666" VerticalAlignment="Center" Grid.Column="0"/>
                             <TextBox x:Name="UI_Text_BotHookLength" Text="300" Height="32" VerticalContentAlignment="Center" Padding="8,0" Grid.Column="2"
@@ -121,7 +121,7 @@
                                 <ComboBox x:Name="UI_Combo_SideType" Height="32" Padding="8,0" VerticalContentAlignment="Center"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2">
-                                <TextBlock Text="Spacing (mm)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                                <TextBlock Text="Spacing" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
                                 <TextBox x:Name="UI_Text_SideSpacing" Text="200" Height="32" VerticalContentAlignment="Center" Padding="8,0" TextChanged="toggle_visibility"/>
                             </StackPanel>
                         </Grid>

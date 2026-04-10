@@ -26,7 +26,7 @@
                 
                 <Grid Margin="0,0,0,15">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="15"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
@@ -35,7 +35,7 @@
                         <ComboBox x:Name="UI_Combo_VertType" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0"/>
                     </StackPanel>
                     <StackPanel Grid.Column="2">
-                        <TextBlock Text="Spacing (mm)" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
+                        <TextBlock Text="Spacing" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
                         <TextBox x:Name="UI_Text_VertSpacing" Text="200" Height="32" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0"/>
                     </StackPanel>
                 </Grid>
@@ -48,11 +48,11 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="Start Offset (mm)" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
+                        <TextBlock Text="Start Offset" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
                         <TextBox x:Name="UI_Text_VertStartOffset" Text="50" Height="32" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0" Margin="0,0,0,15"/>
                     </StackPanel>
                     <StackPanel Grid.Column="2">
-                        <TextBlock Text="End Offset (mm)" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
+                        <TextBlock Text="End Offset" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
                         <TextBox x:Name="UI_Text_VertEndOffset" Text="50" Height="32" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0" Margin="0,0,0,15"/>
                     </StackPanel>
                 </Grid>
@@ -70,7 +70,7 @@
                         <ComboBox x:Name="UI_Combo_VertHookStart" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0" />
                         <CheckBox x:Name="UI_Check_VertHookStartOut" Content="Bend Outward" FontSize="13" Foreground="#666666" Margin="0,10,0,15" IsChecked="False"/>
                         
-                        <CheckBox x:Name="UI_Check_VertBotExt" Content="Bottom Ext (mm)" FontSize="13" Foreground="#666666" IsChecked="False" Margin="0,0,0,8" Click="UI_Check_VertBotExt_Click"/>
+                        <CheckBox x:Name="UI_Check_VertBotExt" Content="Bottom Ext" FontSize="13" Foreground="#666666" IsChecked="False" Margin="0,0,0,8" Click="UI_Check_VertBotExt_Click"/>
                         <TextBox x:Name="UI_Text_VertBotExt" Text="500" Height="32" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0" Margin="0,0,0,10" />
                     </StackPanel>
                     
@@ -79,7 +79,7 @@
                         <ComboBox x:Name="UI_Combo_VertHookEnd" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0" />
                         <CheckBox x:Name="UI_Check_VertHookEndOut" Content="Bend Outward" FontSize="13" Foreground="#666666" Margin="0,10,0,15" IsChecked="False"/>
                         
-                        <CheckBox x:Name="UI_Check_VertTopExt" Content="Top Ext (mm)" FontSize="13" Foreground="#666666" IsChecked="False" Margin="0,0,0,8" Click="UI_Check_VertTopExt_Click"/>
+                        <CheckBox x:Name="UI_Check_VertTopExt" Content="Top Ext" FontSize="13" Foreground="#666666" IsChecked="False" Margin="0,0,0,8" Click="UI_Check_VertTopExt_Click"/>
                         <TextBox x:Name="UI_Text_VertTopExt" Text="500" Height="32" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0" Margin="0,0,0,10" />
                     </StackPanel>
                 </Grid>
@@ -102,7 +102,7 @@
                 
                 <Grid Margin="0,0,0,15">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="15"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
@@ -111,7 +111,7 @@
                         <ComboBox x:Name="UI_Combo_HorizType" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0"/>
                     </StackPanel>
                     <StackPanel Grid.Column="2">
-                        <TextBlock Text="Spacing (mm)" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
+                        <TextBlock Text="Spacing" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
                         <TextBox x:Name="UI_Text_HorizSpacing" Text="200" Height="32" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0"/>
                     </StackPanel>
                 </Grid>
@@ -124,11 +124,11 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="Top Offset (mm)" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
+                        <TextBlock Text="Top Offset" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
                         <TextBox x:Name="UI_Text_HorizTopOffset" Text="50" Height="32" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0" Margin="0,0,0,15"/>
                     </StackPanel>
                     <StackPanel Grid.Column="2">
-                        <TextBlock Text="Bottom Offset (mm)" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
+                        <TextBlock Text="Bottom Offset" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
                         <TextBox x:Name="UI_Text_HorizBottomOffset" Text="50" Height="32" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0" Margin="0,0,0,15"/>
                     </StackPanel>
                 </Grid>
@@ -251,7 +251,7 @@
                         </StackPanel>
                         
                         <StackPanel Grid.Column="4">
-                            <TextBlock Text="Dev Length (mm)" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
+                            <TextBlock Text="Dev Length" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
                             <TextBox x:Name="UI_Text_StarterBar" Text="800" Height="32" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0"/>
                         </StackPanel>
                     </Grid>

@@ -62,7 +62,7 @@
                         <ComboBox x:Name="UI_Combo_VHookBot" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0" />
                         <CheckBox x:Name="UI_Check_VHookBotOut" Content="Bend Outward" FontSize="13" Foreground="#666666" Margin="0,10,0,15" IsChecked="False"/>
                         
-                        <CheckBox x:Name="UI_Check_BotExt" Content="Bottom Ext (mm)" FontSize="13" Foreground="#666666" IsChecked="False" Margin="0,0,0,8"/>
+                        <CheckBox x:Name="UI_Check_BotExt" Content="Bottom Ext" FontSize="13" Foreground="#666666" IsChecked="False" Margin="0,0,0,8"/>
                         <TextBox x:Name="UI_Text_BotExtValue" Text="300" Height="32" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0" Margin="0,0,0,10"
                                  Visibility="{Binding IsChecked, ElementName=UI_Check_BotExt, Converter={StaticResource BoolToVis}}"/>
                     </StackPanel>
@@ -72,7 +72,7 @@
                         <ComboBox x:Name="UI_Combo_VHookTop" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0" />
                         <CheckBox x:Name="UI_Check_VHookTopOut" Content="Bend Outward" FontSize="13" Foreground="#666666" Margin="0,10,0,15" IsChecked="False"/>
                         
-                        <CheckBox x:Name="UI_Check_TopExt" Content="Top Ext (mm)" FontSize="13" Foreground="#666666" IsChecked="False" Margin="0,0,0,8"/>
+                        <CheckBox x:Name="UI_Check_TopExt" Content="Top Ext" FontSize="13" Foreground="#666666" IsChecked="False" Margin="0,0,0,8"/>
                         <TextBox x:Name="UI_Text_TopExtValue" Text="300" Height="32" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0" Margin="0,0,0,10"
                                  Visibility="{Binding IsChecked, ElementName=UI_Check_TopExt, Converter={StaticResource BoolToVis}}"/>
                     </StackPanel>
@@ -96,7 +96,7 @@
                 
                 <Grid Margin="0,0,0,15">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="15"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
@@ -105,7 +105,7 @@
                         <ComboBox x:Name="UI_Combo_TieType" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0"/>
                     </StackPanel>
                     <StackPanel Grid.Column="2">
-                        <TextBlock Text="Spacing (mm)" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
+                        <TextBlock Text="Spacing" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
                         <TextBox x:Name="UI_Text_TieSpacing" Text="200" Height="32" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0"/>
                     </StackPanel>
                 </Grid>
@@ -118,11 +118,11 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="Top Offset (mm)" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
+                        <TextBlock Text="Top Offset" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
                         <TextBox x:Name="UI_Text_TieTopOffset" Text="50" Height="32" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0" Margin="0,0,0,15"/>
                     </StackPanel>
                     <StackPanel Grid.Column="2">
-                        <TextBlock Text="Bottom Offset (mm)" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
+                        <TextBlock Text="Bottom Offset" FontSize="12" Foreground="#666666" Margin="0,0,0,4"/>
                         <TextBox x:Name="UI_Text_TieBotOffset" Text="50" Height="32" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0" Margin="0,0,0,15"/>
                     </StackPanel>
                 </Grid>

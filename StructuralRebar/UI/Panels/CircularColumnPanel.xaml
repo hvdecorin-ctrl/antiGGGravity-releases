@@ -73,7 +73,7 @@
                         </StackPanel>
 
                         <StackPanel Margin="0,0,0,15">
-                            <TextBlock x:Name="UI_Label_Spacing" Text="Spacing (mm)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                            <TextBlock x:Name="UI_Label_Spacing" Text="Spacing" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
                             <TextBox x:Name="UI_Text_TransSpacing" Text="200" Height="32" VerticalContentAlignment="Center" Padding="8,0"/>
                         </StackPanel>
                     </StackPanel>

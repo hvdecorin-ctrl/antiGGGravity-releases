@@ -47,7 +47,7 @@
                             <StackPanel x:Name="UI_Group_T1">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="2*"/>
+                                        <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="10"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
@@ -71,7 +71,7 @@
                             <StackPanel x:Name="UI_Group_T2">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="2*"/>
+                                        <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="10"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="10"/>
@@ -100,7 +100,7 @@
                             <StackPanel x:Name="UI_Group_T3">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="2*"/>
+                                        <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="10"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="10"/>
@@ -201,40 +201,16 @@
                 </StackPanel>
             </Border>
 
-            <!-- STIRRUP DISTRIBUTION (Moved from right) -->
-            <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#E8E8E8" BorderThickness="1" Padding="15" Margin="0,0,0,15">
-                <StackPanel>
-                    <TextBlock Text="Stirrup Distribution" FontSize="12" FontWeight="SemiBold" Foreground="#4A759C" Margin="0,0,0,12"/>
-
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                        <RadioButton x:Name="UI_Radio_StirrupEQ" Content="Equal (EQ)" IsChecked="True" GroupName="StirrupDist" 
-                                     FontSize="12" Foreground="#333" Margin="0,0,20,0" Click="StirrupDist_Changed"/>
-                        <RadioButton x:Name="UI_Radio_StirrupUnEQ" Content="Unequal (Code)" GroupName="StirrupDist" 
-                                     FontSize="12" Foreground="#333" Click="StirrupDist_Changed"/>
-                    </StackPanel>
-
-                    <!-- Zone Info (visible when UnEQ selected) -->
-                    <Border x:Name="UI_ZoneInfo" Background="#EDF6FF" CornerRadius="4" BorderBrush="#C8DFF0" BorderThickness="1" Padding="10" Visibility="Collapsed">
-                        <StackPanel>
-                            <TextBlock x:Name="UI_ZoneTitle" Text="3-Zone Layout (ACI 318):" FontSize="11" FontWeight="SemiBold" Foreground="#3A6D99" Margin="0,0,0,6"/>
-                            <TextBlock x:Name="UI_ZoneLine1" Text="├─ Left End Zone:  2h length, d/4 spacing" FontSize="10" Foreground="#555" FontFamily="Consolas"/>
-                            <TextBlock x:Name="UI_ZoneLine2" Text="├─ Mid Zone:       remainder, user spacing" FontSize="10" Foreground="#555" FontFamily="Consolas"/>
-                            <TextBlock x:Name="UI_ZoneLine3" Text="└─ Right End Zone: 2h length, d/4 spacing" FontSize="10" Foreground="#555" FontFamily="Consolas"/>
-                            <TextBlock x:Name="UI_ZoneNote" Text="h = beam depth, spacing = min(h/4, s/2, 150mm)" FontSize="9" Foreground="#888" Margin="0,6,0,0" FontStyle="Italic"/>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
-            </Border>
 
             <!-- OTHER SETTING (Kept in center, but below Distribution) -->
             <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#E8E8E8" BorderThickness="1" Padding="15">
                 <StackPanel>
                     <TextBlock Text="Other Setting" FontSize="12" FontWeight="SemiBold" Foreground="#4A759C" Margin="0,0,0,12"/>
                     
-                    <TextBlock Text="Stirrup Start Offset (mm)" FontSize="11" Foreground="#666" Margin="0,0,0,4"/>
+                    <TextBlock Text="Stirrup Start Offset" FontSize="11" Foreground="#666" Margin="0,0,0,4"/>
                     <TextBox x:Name="UI_Text_TransStartOffset" Text="100" Height="30" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0" Margin="0,0,0,10" TextChanged="toggle_visibility"/>
 
-                    <TextBlock Text="Layer Clear Gap (mm)" FontSize="11" Foreground="#666" Margin="0,0,0,4"
+                    <TextBlock Text="Layer Clear Gap" FontSize="11" Foreground="#666" Margin="0,0,0,4"
                                ToolTip="Clear vertical spacing between T1/T2 and B1/B2 layers."/>
                     <TextBox x:Name="UI_Text_LayerGap" Text="25" Height="30" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0" TextChanged="toggle_visibility"/>
                 </StackPanel>
@@ -255,7 +231,7 @@
                             <StackPanel x:Name="UI_Group_B3">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="2*"/>
+                                        <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="10"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="10"/>
@@ -284,7 +260,7 @@
                             <StackPanel x:Name="UI_Group_B2">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="2*"/>
+                                        <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="10"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="10"/>
@@ -313,7 +289,7 @@
                             <StackPanel x:Name="UI_Group_B1">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="2*"/>
+                                        <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="10"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
@@ -371,7 +347,7 @@
 
                     <Grid Margin="0,0,0,8">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="10"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
@@ -380,7 +356,7 @@
                             <ComboBox x:Name="UI_Combo_TransType" Height="30" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0"/>
                         </StackPanel>
                         <StackPanel Grid.Column="2">
-                            <TextBlock Text="Spacing (mm)" FontSize="11" Foreground="#666" Margin="0,0,0,4"/>
+                            <TextBlock Text="Spacing" FontSize="11" Foreground="#666" Margin="0,0,0,4"/>
                             <TextBox x:Name="UI_Text_TransSpacing" Text="200" Height="30" VerticalContentAlignment="Center" Padding="8,0" BorderBrush="#E0E0E0" TextChanged="toggle_visibility"/>
                         </StackPanel>
                     </Grid>
@@ -400,6 +376,31 @@
                             <ComboBox x:Name="UI_Combo_HookEnd" Height="30" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0" />
                         </StackPanel>
                     </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- STIRRUP DISTRIBUTION -->
+            <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#E8E8E8" BorderThickness="1" Padding="15" Margin="0,0,0,15">
+                <StackPanel>
+                    <TextBlock Text="Stirrup Distribution" FontSize="12" FontWeight="SemiBold" Foreground="#4A759C" Margin="0,0,0,12"/>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <RadioButton x:Name="UI_Radio_StirrupEQ" Content="Equal (EQ)" IsChecked="True" GroupName="StirrupDist" 
+                                     FontSize="12" Foreground="#333" Margin="0,0,20,0" Click="StirrupDist_Changed"/>
+                        <RadioButton x:Name="UI_Radio_StirrupUnEQ" Content="Unequal (Code)" GroupName="StirrupDist" 
+                                     FontSize="12" Foreground="#333" Click="StirrupDist_Changed"/>
+                    </StackPanel>
+
+                    <!-- Zone Info (visible when UnEQ selected) -->
+                    <Border x:Name="UI_ZoneInfo" Background="#EDF6FF" CornerRadius="4" BorderBrush="#C8DFF0" BorderThickness="1" Padding="10" Visibility="Collapsed">
+                        <StackPanel>
+                            <TextBlock x:Name="UI_ZoneTitle" Text="3-Zone Layout (ACI 318):" FontSize="11" FontWeight="SemiBold" Foreground="#3A6D99" Margin="0,0,0,6"/>
+                            <TextBlock x:Name="UI_ZoneLine1" Text="├─ Left End Zone:  2h length, d/4 spacing" FontSize="10" Foreground="#555" FontFamily="Consolas"/>
+                            <TextBlock x:Name="UI_ZoneLine2" Text="├─ Mid Zone:       remainder, user spacing" FontSize="10" Foreground="#555" FontFamily="Consolas"/>
+                            <TextBlock x:Name="UI_ZoneLine3" Text="└─ Right End Zone: 2h length, d/4 spacing" FontSize="10" Foreground="#555" FontFamily="Consolas"/>
+                            <TextBlock x:Name="UI_ZoneNote" Text="h = beam depth, spacing = min(h/4, s/2, 150mm)" FontSize="9" Foreground="#888" Margin="0,6,0,0" FontStyle="Italic"/>
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
             </Border>
 
