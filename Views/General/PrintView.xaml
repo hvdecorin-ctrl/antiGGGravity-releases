@@ -178,15 +178,6 @@
                                 <CheckBox x:Name="UI_Check_HideCrop" Content="Hide Crop Boundaries" IsChecked="True" Margin="0,5,0,0"/>
                                 <CheckBox x:Name="UI_Check_HideRef" Content="Hide Reference Planes" IsChecked="True" Margin="0,5,0,0"/>
                                 <CheckBox x:Name="UI_Check_Color" Content="Color Export (Force Color)" IsChecked="True" Margin="0,5,0,0"/>
-
-                                <TextBlock Text="PDF Quality" FontSize="11" Foreground="#666666" Margin="0,10,0,5"/>
-                                <TextBlock Text="(Affects high-fidelity elements)" FontSize="9" Foreground="#999999" Margin="0,-5,0,5"/>
-                                <ComboBox x:Name="UI_Combo_Quality" Height="32" Margin="0,0,0,5">
-                                    <ComboBoxItem Content="Standard (Vector Preference)" IsSelected="True"/>
-                                    <ComboBoxItem Content="Medium (150 DPI)"/>
-                                    <ComboBoxItem Content="High (300 DPI)"/>
-                                    <ComboBoxItem Content="Presentation (600 DPI)"/>
-                                </ComboBox>
                             </StackPanel>
                         </Border>
                     </StackPanel>

@@ -129,10 +129,15 @@ namespace antiGGGravity.Views.General
         {
             if (UI_Combo_Source.SelectedItem is PrintSourceViewModel source)
             {
+                // Clear selection before applying new source selection
+                foreach (var vm in _allSheets) vm.IsSelected = false;
+
                 switch (source.Type)
                 {
                     case SourceType.Manual:
                         CanToggleSelection = true;
+                        // For manual, we usually want all selected initially, or leave as cleared
+                        // User requested that hidden selection shouldn't bleed through
                         _filteredSheets = new ObservableCollection<PrintSheetViewModel>(_allSheets);
                         UI_Txt_Status.Text = "Mode: Manual Selection (All Sheets)";
                         break;
@@ -155,8 +160,17 @@ namespace antiGGGravity.Views.General
                         var sch = source.Object as ViewSchedule;
                         var ordered = PrintLogic.OrderSheetsBySchedule(sch, _allSheets.Select(vm => vm.Sheet));
                         
-                        // Preserving selection matches for the schedule
-                        var schSheets = ordered.Select(s => new PrintSheetViewModel(s) { IsSelected = true }).ToList();
+                        // Map ordered sheets back to existing VM instances to preserve selection state consistency
+                        var allSheetsMap = _allSheets.ToDictionary(vm => vm.Sheet.Id);
+                        var schSheets = new List<PrintSheetViewModel>();
+                        foreach (var s in ordered)
+                        {
+                            if (allSheetsMap.TryGetValue(s.Id, out var vm))
+                            {
+                                vm.IsSelected = true;
+                                schSheets.Add(vm);
+                            }
+                        }
 
                         _filteredSheets = new ObservableCollection<PrintSheetViewModel>(schSheets);
                         UI_Txt_Status.Text = $"Mode: Schedule Sort - {sch.Name} ({schSheets.Count} sheets)";
@@ -186,8 +200,7 @@ namespace antiGGGravity.Views.General
                     UI_Check_Combine.IsChecked.ToString(),
                     UI_Check_Color.IsChecked.ToString(),
                     UI_Combo_CadSetups.SelectedIndex.ToString(),
-                    "", // Reserved for CAD
-                    UI_Combo_Quality.SelectedIndex.ToString()
+                    "" // Reserved
                 };
                 File.WriteAllLines(GetSettingsPath(), settings);
             }
@@ -207,7 +220,6 @@ namespace antiGGGravity.Views.General
                     if (lines.Length >= 3) UI_Check_Combine.IsChecked = lines[2].ToLower() == "true";
                     if (lines.Length >= 4) UI_Check_Color.IsChecked = lines[3].ToLower() == "true";
                     if (lines.Length >= 5 && int.TryParse(lines[4], out int cadIndex)) UI_Combo_CadSetups.SelectedIndex = cadIndex;
-                    if (lines.Length >= 6 && int.TryParse(lines[5], out int quantIndex)) UI_Combo_Quality.SelectedIndex = quantIndex;
                 }
                 else
                 {
@@ -275,7 +287,12 @@ namespace antiGGGravity.Views.General
 
         private async void UI_Btn_Print_Click(object sender, RoutedEventArgs e)
         {
-            var selectedSheets = _allSheets.Where(vm => vm.IsSelected).ToList();
+            // Use the visible list (ItemsSource) as the source of truth for printing.
+            // This ensures we respect the active mode (Manual/Set/Schedule) and its specific ordering.
+            var selectedSheets = (UI_List_Sheets.ItemsSource as IEnumerable<PrintSheetViewModel>)
+                ?.Where(vm => vm.IsSelected)
+                .ToList() ?? new List<PrintSheetViewModel>();
+
             if (selectedSheets.Count == 0)
             {
                 Autodesk.Revit.UI.TaskDialog.Show("Print", "Please select at least one sheet.");
@@ -315,16 +332,6 @@ namespace antiGGGravity.Views.General
                             opts.ColorDepth = printParameters.ColorDepth;
                         }
                         catch { }
-
-                        // 1. PDF Quality Mapping (Resolution)
-                        switch (UI_Combo_Quality.SelectedIndex)
-                        {
-                            case 0: opts.RasterQuality = RasterQualityType.Low; break;
-                            case 1: opts.RasterQuality = RasterQualityType.Medium; break;
-                            case 2: opts.RasterQuality = RasterQualityType.High; break;
-                            case 3: opts.RasterQuality = RasterQualityType.Presentation; break;
-                            default: opts.RasterQuality = RasterQualityType.Medium; break;
-                        }
                     }
 
                     // User Override for Color
