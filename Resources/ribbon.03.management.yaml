@@ -45,10 +45,10 @@ panels:
             icon: Sheets
             tooltip: Sheet management tools.
             buttons:
-              - name: Duplicate Sheets
-                command: DuplicateSheetsCommand
-                icon: DuplicateSheets
-                tooltip: Duplicate selected sheets with views and title blocks.
+              - name: Sheet Maker
+                command: SheetMakerCommand
+                icon: SheetMaker
+                tooltip: Batch create multi-sheets or manage (rename/renumber) existing sheets.
       - type: stacked
         buttons:
           - name: Set Crop View

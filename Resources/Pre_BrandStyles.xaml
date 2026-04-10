@@ -293,6 +293,24 @@
 
     <GridLength x:Key="PremiumHeaderHeight">55</GridLength>
 
+    <!-- Standardized Premium Window Style (Single Source of Truth) -->
+    <Style x:Key="PremiumWindowStyle" TargetType="Window">
+        <Setter Property="WindowStyle" Value="None"/>
+        <Setter Property="AllowsTransparency" Value="True"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="WindowChrome.WindowChrome" Value="{StaticResource PremiumWindowChrome}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Window">
+                    <!-- Standard Rounded Border is now part of the Window Template itself -->
+                    <Border Style="{StaticResource PremiumBorderStyle}">
+                        <ContentPresenter/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- Standardized Margins -->
     <Thickness x:Key="PremiumContentMargin">20,15,20,20</Thickness>
     <Thickness x:Key="PremiumSidebarMargin">15,15,15,20</Thickness>

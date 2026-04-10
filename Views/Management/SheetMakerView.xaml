@@ -1,0 +1,183 @@
+<Window x:Class="antiGGGravity.Views.Management.SheetMakerView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Sheet Maker" Height="650" Width="850"
+        Style="{DynamicResource PremiumWindowStyle}"
+        WindowStartupLocation="CenterScreen" Topmost="True">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/antiGGGravity;component/Resources/Pre_BrandStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            
+            <Style x:Key="SheetDataGridStyle" TargetType="DataGrid">
+                <Setter Property="Background" Value="White"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+                <Setter Property="HorizontalGridLinesBrush" Value="#F0F0F0"/>
+                <Setter Property="RowHeight" Value="28"/>
+                <Setter Property="FontSize" Value="11.5"/>
+                <Setter Property="CanUserAddRows" Value="False"/>
+                <Setter Property="AutoGenerateColumns" Value="False"/>
+                <Setter Property="HeadersVisibility" Value="Column"/>
+            </Style>
+            <Style x:Key="PremiumDeleteButtonStyle" TargetType="Button" BasedOn="{StaticResource PremiumPrimaryButtonStyle}">
+                <Setter Property="Background" Value="#FFF5F5"/>
+                <Setter Property="Foreground" Value="#C42B1C"/>
+                <Setter Property="BorderBrush" Value="#FAD4D4"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="0">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="border" Property="Background" Value="#C42B1C"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                    <Setter TargetName="border" Property="BorderBrush" Value="#C42B1C"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="border" Property="Background" Value="#9E2317"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="55"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- HEADER -->
+        <Border Grid.Row="0" Background="{StaticResource BrandGradientBrush}" CornerRadius="12,12,0,0">
+            <Grid Margin="25,0">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Style="{StaticResource CompanyLogoStyle}"/>
+                    <TextBlock Style="{StaticResource CompanyDividerStyle}"/>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="Sheet Maker" Style="{StaticResource PremiumTitleStyle}"/>
+                        <TextBlock Text="Batch create and manage project sheets" Style="{StaticResource PremiumSubtitleStyle}"/>
+                    </StackPanel>
+                </StackPanel>
+                <Button HorizontalAlignment="Right" VerticalAlignment="Center" Content="✕" 
+                        Style="{StaticResource PremiumIconButtonStyle}" Width="30" Height="30"
+                        Click="UI_Btn_Cancel_Click" WindowChrome.IsHitTestVisibleInChrome="True"/>
+            </Grid>
+        </Border>
+
+        <!-- CONTENT -->
+        <Grid Grid.Row="1" Margin="25">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/> <!-- Sheet List -->
+                <ColumnDefinition Width="20"/> <!-- Spacer -->
+                <ColumnDefinition Width="1.2*"/> <!-- Options -->
+            </Grid.ColumnDefinitions>
+
+            <!-- LEFT: SHEET LIST -->
+            <Border Grid.Column="0" Background="White" CornerRadius="8" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="1">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Border Grid.Row="0" Background="#F8F9FA" Padding="15,10" CornerRadius="8,8,0,0" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,0,0,1">
+                        <TextBlock Text="Manage Existing Sheets" Style="{StaticResource PremiumSectionLabelStyle}" Margin="0"/>
+                    </Border>
+                    <TextBox x:Name="UI_Txt_Search" Grid.Row="1" Height="32" Margin="15,10,15,5" Padding="5" VerticalContentAlignment="Center" BorderBrush="#E0E0E0" TextChanged="UI_Txt_Search_TextChanged" 
+                                Tag="Search sheets..."/>
+                    
+                    <DataGrid x:Name="UI_Grid_Sheets" Grid.Row="2" Margin="15,5,15,15" Style="{StaticResource SheetDataGridStyle}">
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Width="35">
+                                <DataGridTemplateColumn.Header>
+                                    <CheckBox x:Name="UI_Check_All" Click="UI_Check_All_Click" HorizontalAlignment="Center" Margin="5,0,0,0"/>
+                                </DataGridTemplateColumn.Header>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Number" Binding="{Binding Number, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+
+            <!-- RIGHT: OPTIONS -->
+            <StackPanel Grid.Column="2">
+                <!-- NEW SHEET SETTINGS -->
+                <Border Background="White" CornerRadius="8" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="1" Padding="15" Margin="0,0,0,15">
+                    <StackPanel>
+                        <TextBlock Text="Sheet Creation Settings" Style="{StaticResource PremiumSectionLabelStyle}"/>
+                        
+                        <TextBlock Text="Sheet Name" FontSize="11" Foreground="#666666" Margin="0,8,0,5"/>
+                        <TextBox x:Name="UI_Txt_SheetName" Text="Sheet Name" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0"/>
+
+                        <TextBlock Text="Title Block" FontSize="11" Foreground="#666666" Margin="0,12,0,5"/>
+                        <ComboBox x:Name="UI_Combo_TitleBlocks" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0" DisplayMemberPath="Name"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- SHEET NUMBERING -->
+                <Border Background="White" CornerRadius="8" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="1" Padding="15">
+                    <StackPanel>
+                        <TextBlock Text="Batch Numbering" Style="{StaticResource PremiumSectionLabelStyle}"/>
+                        
+                        <Grid Margin="0,5,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="15"/>
+                                <ColumnDefinition Width="2*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Count" FontSize="11" Foreground="#666666" Margin="0,0,0,5"/>
+                                <TextBox x:Name="UI_Txt_Count" Text="1" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Start Number" FontSize="11" Foreground="#666666" Margin="0,0,0,5"/>
+                                <TextBox x:Name="UI_Txt_Rule" Text="S5-6" Height="32" Padding="8,0" VerticalContentAlignment="Center" BorderBrush="#E0E0E0" TextChanged="UI_Txt_Rule_TextChanged"/>
+                            </StackPanel>
+                        </Grid>
+                        
+                        <TextBlock x:Name="UI_Txt_Preview" Text="Preview: S5-6, S5-7, S5-8..." Foreground="#999999" Margin="2,8,0,0" FontSize="11" FontStyle="Italic"/>
+                    </StackPanel>
+                </Border>
+                
+                <TextBlock Text="* Created sheets will be added to the list above." FontSize="10" Foreground="#999" Margin="5,10,5,0" FontStyle="Italic" TextWrapping="Wrap"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- FOOTER -->
+        <Border Grid.Row="2" Background="#FAFAFA" Padding="20,15" CornerRadius="0,0,12,12" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,1,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <TextBlock x:Name="UI_Txt_Status" Grid.Column="0" Text="Ready to create sheets" VerticalAlignment="Center" Foreground="#999999"/>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button x:Name="UI_Btn_Delete" Content="Delete Selected" Width="130" Style="{StaticResource PremiumDeleteButtonStyle}" Margin="0,0,12,0" Click="UI_Btn_Delete_Click"/>
+                    <Button x:Name="UI_Btn_Cancel" Content="Cancel" Width="100" Style="{StaticResource PremiumPrimaryButtonStyle}" Margin="0,0,12,0" Click="UI_Btn_Cancel_Click"/>
+                </StackPanel>
+                
+                <Button x:Name="UI_Btn_Process" Grid.Column="2" Content="Create &amp; Update" Width="180" Style="{StaticResource PremiumActionButtonStyle}" Click="UI_Btn_Process_Click"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

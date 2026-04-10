@@ -10,16 +10,16 @@ using antiGGGravity.Views.Management;
 namespace antiGGGravity.Commands.Management
 {
     // ===================================================================================
-    // DUPLICATE SHEETS
+    // SHEET MAKER
     // ===================================================================================
 
     [Transaction(TransactionMode.Manual)]
-    public class DuplicateSheetsCommand : BaseCommand
+    public class SheetMakerCommand : BaseCommand
     {
 
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            DuplicateSheetsView view = new DuplicateSheetsView(commandData);
+            SheetMakerView view = new SheetMakerView(commandData);
             view.ShowDialog();
             return Result.Succeeded;
         }
