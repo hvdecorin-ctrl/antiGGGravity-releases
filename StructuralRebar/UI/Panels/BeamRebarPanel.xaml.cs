@@ -489,8 +489,8 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 
                 if (cW <= 0 || cH <= 0 || double.IsNaN(cW) || double.IsNaN(cH)) return;
 
-                double marginL = 10;
-                double marginR = 55; 
+                double marginL = 25;
+                double marginR = 40; 
                 double marginTB = 10;
                 double beamW = cW - marginL - marginR;
                 double beamH = cH - 2 * marginTB;
@@ -654,8 +654,8 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
 
                 if (cW <= 0 || cH <= 0 || double.IsNaN(cW) || double.IsNaN(cH)) return;
 
-                double marginL = 10;
-                double marginR = 60; 
+                double marginL = 25;
+                double marginR = 45; 
                 double marginTB = 10;
 
                 bool isMultiSpan = (UI_Check_MultiSpan.IsChecked == true);
