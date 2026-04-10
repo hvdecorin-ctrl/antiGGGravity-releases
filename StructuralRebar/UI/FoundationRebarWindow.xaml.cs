@@ -93,7 +93,21 @@ namespace antiGGGravity.StructuralRebar.UI
         public bool RemoveExisting => UI_Check_RemoveExisting.IsChecked == true;
         public bool EnableLapSplice => UI_Check_CutRebar.IsChecked == true;
         public bool IsCircularColumn => false;
-        public DesignCodeStandard DesignCode => DesignCodeStandard.ACI318; // Default
+        public DesignCodeStandard DesignCode
+        {
+            get
+            {
+                if (UI_Combo_DesignCode.SelectedItem is ComboBoxItem item)
+                {
+                    string content = item.Content.ToString();
+                    if (content == "ACI 318") return DesignCodeStandard.ACI318;
+                    if (content == "AS 3600") return DesignCodeStandard.AS3600;
+                    if (content == "Eurocode 2") return DesignCodeStandard.EC2;
+                    if (content == "NZS 3101") return DesignCodeStandard.NZS3101;
+                }
+                return DesignCodeStandard.Custom;
+            }
+        }
 
         public BeamRebarPanel BeamPanel => null;
         public WallRebarPanel WallPanel => null;

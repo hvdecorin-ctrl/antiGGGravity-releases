@@ -16,6 +16,17 @@ namespace antiGGGravity.StructuralRebar.Constants
         /// <summary>Feet → Millimeters (display)</summary>
         public static double FeetToMm(double feet) => feet * MmPerFoot;
 
+        /// <summary>
+        /// Rounds up a value in feet to the nearest 25mm increment.
+        /// Example: 420mm -> 425mm, 960mm -> 975mm.
+        /// </summary>
+        public static double RoundUpToNearest25mm(double feet)
+        {
+            double mm = FeetToMm(feet);
+            double roundedMm = System.Math.Ceiling(mm / 25.0) * 25.0;
+            return MmToFeet(roundedMm);
+        }
+
         /// <summary>Meters → Feet</summary>
         public static double MToFeet(double m) => m * FeetPerMeter;
 

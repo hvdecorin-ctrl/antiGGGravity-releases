@@ -96,7 +96,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                                         double crankOff = LapSpliceCalculator.GetCrankOffset(longDef.BarDiameter);
                                         double crankRun = LapSpliceCalculator.GetCrankRun(longDef.BarDiameter);
                                         double lapLen = LapSpliceCalculator.CalculateTensionLapLength(longDef.BarDiameter, request.DesignCode);
-                                        double straightLap = lapLen + crankRun;
+                                        double straightLap = lapLen;
 
                                         XYZ crankDir = (layer.Side == RebarSide.Top) ? -host.HAxis : host.HAxis;
 

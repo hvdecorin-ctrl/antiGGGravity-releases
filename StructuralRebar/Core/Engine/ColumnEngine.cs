@@ -259,7 +259,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                                         double crankOff = LapSpliceCalculator.GetCrankOffset(vDef.BarDiameter);
                                         double crankRun = LapSpliceCalculator.GetCrankRun(vDef.BarDiameter);
                                         double lapLen = GetLapSpliceLength(vDef.BarDiameter, request);
-                                        double straightLap = lapLen + crankRun; // entire overlap at offset, crank outside
+                                        double straightLap = lapLen;
 
                                         XYZ inDir = -vDef.Normal.CrossProduct(barDir).Normalize();
                                         XYZ crankDir = inDir;
@@ -532,7 +532,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                                 double crankOff = LapSpliceCalculator.GetCrankOffset(vDef.BarDiameter);
                                 double crankRun = LapSpliceCalculator.GetCrankRun(vDef.BarDiameter);
                                 double lapLen = GetLapSpliceLength(vDef.BarDiameter, request);
-                                double straightLap = lapLen + crankRun;
+                                double straightLap = lapLen;
 
                                 XYZ inDir = -vDef.Normal.CrossProduct(barDir).Normalize();
 

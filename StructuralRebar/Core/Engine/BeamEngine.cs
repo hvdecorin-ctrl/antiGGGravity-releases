@@ -325,7 +325,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                         double crankOff = LapSpliceCalculator.GetCrankOffset(barDia);
                         double crankRun = LapSpliceCalculator.GetCrankRun(barDia);
                         double lapLen = GetLapSpliceLength(barDia, request, BarPosition.Top);
-                        double straightLap = lapLen + crankRun + barDia * 2.0;
+                        double straightLap = lapLen;
 
                         XYZ crankDir = -firstHost.HAxis;
                         XYZ ptA = barStart + crankDir * crankOff;
@@ -533,7 +533,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                         double crankOff = LapSpliceCalculator.GetCrankOffset(barDia);
                         double crankRun = LapSpliceCalculator.GetCrankRun(barDia);
                         double lapLen = LapSpliceCalculator.CalculateTensionLapLength(barDia, request.DesignCode, ConcreteGrade.C30, SteelGrade.Grade500E, BarPosition.Bottom);
-                        double straightLap = lapLen + crankRun + barDia * 2.0;
+                        double straightLap = lapLen;
 
                         XYZ crankDir = firstHost.HAxis;
                         XYZ ptA = barStart + crankDir * crankOff;
