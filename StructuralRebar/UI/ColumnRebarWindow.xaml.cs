@@ -83,6 +83,7 @@ namespace antiGGGravity.StructuralRebar.UI
         {
             if (_doc == null) return;
             _columnPanel?.UpdateZoneInfo(DesignCode);
+            _circularPanel?.UpdateZoneInfo(DesignCode);
         }
 
         public BeamRebarPanel BeamPanel => null;

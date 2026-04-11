@@ -232,6 +232,36 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                                 tZstart, tZend, tieBarType, request.TransverseSpacing, tieShape);
                             if (tie != null) success = true;
                         }
+                        else if (request.EnableZoneSpacing)
+                        {
+                            // Zone-based distribution (3-zone confinement)
+                            double mainBarDia = GetBarDiameter(request.VerticalBarTypeName);
+                            double transDia = GetBarDiameter(request.TransverseBarTypeName);
+                            double maxDim = hostRadius * 2; // diameter for circular
+
+                            var zones = ZoneSpacingCalculator.CalculateColumnZones(
+                                dist, maxDim, mainBarDia > 0 ? mainBarDia : transDia, transDia, request.DesignCode);
+
+                            double zoneStart = tZstart;
+                            foreach (var zone in zones)
+                            {
+                                double zoneEnd = zoneStart + zone.Length;
+                                double zoneDist = zone.Length;
+                                if (zoneDist > UnitConversion.MmToFeet(50))
+                                {
+                                    var tie = CircularRebarService.CreateCircularTie(
+                                        _doc, column, center, hoopRadius, zoneStart, tieBarType, tieShape);
+                                    if (tie != null)
+                                    {
+                                        var accessor = tie.GetShapeDrivenAccessor();
+                                        accessor.SetLayoutAsMaximumSpacing(
+                                            zone.Spacing, zoneDist, true, true, true);
+                                        success = true;
+                                    }
+                                }
+                                zoneStart = zoneEnd;
+                            }
+                        }
                         else
                         {
                             var tie = CircularRebarService.CreateCircularTie(

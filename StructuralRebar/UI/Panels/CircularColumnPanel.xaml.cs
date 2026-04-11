@@ -69,6 +69,14 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             UI_Combo_StarterHook.ItemsSource = _hookList.ToList();
             UI_Combo_StarterHook.DisplayMemberPath = "Name";
             UI_Combo_StarterHook.SelectedIndex = 0;
+
+            UI_Combo_TransHookStart.ItemsSource = _hookList.ToList();
+            UI_Combo_TransHookStart.DisplayMemberPath = "Name";
+            UI_Combo_TransHookStart.SelectedIndex = 0;
+
+            UI_Combo_TransHookEnd.ItemsSource = _hookList.ToList();
+            UI_Combo_TransHookEnd.DisplayMemberPath = "Name";
+            UI_Combo_TransHookEnd.SelectedIndex = 0;
         }
 
         private void LoadSettings()
@@ -97,8 +105,18 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 UI_Combo_CrankPos.SelectedIndex = SettingsManager.GetInt(VIEW_NAME, "CrankPos", 1);
                 UI_Combo_LapMode.SelectedIndex = SettingsManager.GetInt(VIEW_NAME, "LapMode", 0);
                 UI_Text_LapSplice.Text = SettingsManager.Get(VIEW_NAME, "LapSplice", "40");
-                UI_Check_Starters.IsChecked = SettingsManager.GetBool(VIEW_NAME, "Starters", false);
                 UI_Text_StarterDevLength.Text = SettingsManager.Get(VIEW_NAME, "StarterDevLength", "0");
+
+                SelectHookByName(UI_Combo_TransHookStart, SettingsManager.Get(VIEW_NAME, "TransHookStart"));
+                SelectHookByName(UI_Combo_TransHookEnd, SettingsManager.Get(VIEW_NAME, "TransHookEnd"));
+                UI_Radio_TieUnEQ.IsChecked = SettingsManager.GetBool(VIEW_NAME, "TieDistUnEQ", false);
+                UI_Radio_TieEQ.IsChecked = !(UI_Radio_TieUnEQ.IsChecked == true);
+                
+                // Set halftone states
+                UpdateHooksExtHalftone(null, null);
+                MultiLevel_Changed(null, null);
+                Starters_Changed(null, null);
+                TieDist_Changed(null, null);
             }
             catch { }
         }
@@ -132,6 +150,10 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 SettingsManager.Set(VIEW_NAME, "Starters", (UI_Check_Starters.IsChecked == true).ToString());
                 SettingsManager.Set(VIEW_NAME, "StarterDevLength", UI_Text_StarterDevLength.Text);
 
+                SettingsManager.Set(VIEW_NAME, "TransHookStart", HookName(UI_Combo_TransHookStart));
+                SettingsManager.Set(VIEW_NAME, "TransHookEnd", HookName(UI_Combo_TransHookEnd));
+                SettingsManager.Set(VIEW_NAME, "TieDistUnEQ", (UI_Radio_TieUnEQ.IsChecked == true).ToString());
+
                 SettingsManager.SaveAll();
             }
             catch { }
@@ -156,6 +178,9 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 TransverseBarTypeName = TransTypeName(UI_Combo_TransType),
                 TransverseSpacing = UnitConversion.MmToFeet(ParseDouble(UI_Text_TransSpacing.Text, 200)),
                 EnableSpiral = UI_Combo_TransMode.SelectedIndex == 1,
+                TransverseHookStartName = HookName(UI_Combo_TransHookStart),
+                TransverseHookEndName = HookName(UI_Combo_TransHookEnd),
+                EnableZoneSpacing = (UI_Radio_TieUnEQ.IsChecked == true),
 
                 // Vertical extensions
                 VerticalTopExtension = UI_Check_TopExt.IsChecked == true ? UnitConversion.MmToFeet(ParseDouble(UI_Text_TopExtValue.Text, 300)) : 0,
@@ -191,13 +216,113 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             return request;
         }
 
+        private void HookCombo_Changed(object sender, SelectionChangedEventArgs e)
+        {
+            UpdateHooksExtHalftone(null, null);
+            UpdateDisplay(null, null);
+        }
+
+        private void UpdateHooksExtHalftone(object sender, RoutedEventArgs e)
+        {
+            if (UI_Combo_HookBot == null) return;
+
+            // Bottom Hook halftone
+            bool hasBotHook = (UI_Combo_HookBot.SelectedItem as HookViewModel)?.Hook != null;
+            UI_Check_HookBotOut.IsEnabled = hasBotHook;
+            UI_Check_HookBotOut.Opacity = hasBotHook ? 1.0 : 0.5;
+            UI_Check_BotExt.IsEnabled = hasBotHook;
+            UI_Check_BotExt.Opacity = hasBotHook ? 1.0 : 0.5;
+            
+            bool hasBotExt = hasBotHook && UI_Check_BotExt.IsChecked == true;
+            UI_Text_BotExtValue.IsEnabled = hasBotExt;
+            UI_Text_BotExtValue.Opacity = hasBotExt ? 1.0 : 0.5;
+
+            // Top Hook halftone
+            bool hasTopHook = (UI_Combo_MainHook.SelectedItem as HookViewModel)?.Hook != null;
+            UI_Check_HookTopOut.IsEnabled = hasTopHook;
+            UI_Check_HookTopOut.Opacity = hasTopHook ? 1.0 : 0.5;
+            UI_Check_TopExt.IsEnabled = hasTopHook;
+            UI_Check_TopExt.Opacity = hasTopHook ? 1.0 : 0.5;
+
+            bool hasTopExt = hasTopHook && UI_Check_TopExt.IsChecked == true;
+            UI_Text_TopExtValue.IsEnabled = hasTopExt;
+            UI_Text_TopExtValue.Opacity = hasTopExt ? 1.0 : 0.5;
+        }
+
+        private void MultiLevel_Changed(object sender, RoutedEventArgs e)
+        {
+            if (UI_Panel_MultiLevelFields == null || UI_Check_MultiLevel == null) return;
+            bool isChecked = UI_Check_MultiLevel.IsChecked == true;
+            UI_Panel_MultiLevelFields.IsEnabled = isChecked;
+            UI_Panel_MultiLevelFields.Opacity = isChecked ? 1.0 : 0.5;
+        }
+
+        private void Starters_Changed(object sender, RoutedEventArgs e)
+        {
+            if (UI_Panel_StarterFields == null || UI_Check_Starters == null) return;
+            bool isChecked = UI_Check_Starters.IsChecked == true;
+            UI_Panel_StarterFields.IsEnabled = isChecked;
+            UI_Panel_StarterFields.Opacity = isChecked ? 1.0 : 0.5;
+        }
+
+        private void TieDist_Changed(object sender, RoutedEventArgs e)
+        {
+            if (UI_TieZoneInfo == null) return;
+            UI_TieZoneInfo.Visibility = (UI_Radio_TieUnEQ.IsChecked == true)
+                ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+        }
+
+        public void UpdateZoneInfo(DesignCodeStandard code)
+        {
+            if (UI_TieZoneTitle == null) return;
+
+            switch (code)
+            {
+                case DesignCodeStandard.ACI318:
+                    UI_TieZoneTitle.Text = "3-Zone Layout (ACI 318):";
+                    UI_TieZoneLine1.Text = "├─ Bottom Confinement: l_o length, s_o spacing";
+                    UI_TieZoneLine2.Text = "├─ Mid Span:           H-2×l_o,   2×s_o";
+                    UI_TieZoneLine3.Text = "└─ Top Confinement:    l_o length, s_o spacing";
+                    UI_TieZoneNote.Text = "l_o = max(H/6, D, 450mm), s_o = min(D/4, 6db, 150mm)";
+                    break;
+                case DesignCodeStandard.AS3600:
+                    UI_TieZoneTitle.Text = "3-Zone Layout (AS 3600):";
+                    UI_TieZoneLine1.Text = "├─ Bottom Confinement: l_o length, s_o spacing";
+                    UI_TieZoneLine2.Text = "├─ Mid Span:           H-2×l_o,   2×s_o";
+                    UI_TieZoneLine3.Text = "└─ Top Confinement:    l_o length, s_o spacing";
+                    UI_TieZoneNote.Text = "l_o = max(H/6, D, 450mm), s_o = min(D/2, 15db, 300mm)";
+                    break;
+                case DesignCodeStandard.EC2:
+                    UI_TieZoneTitle.Text = "3-Zone Layout (Eurocode 2):";
+                    UI_TieZoneLine1.Text = "├─ Bottom Confinement: l_o length, s_o spacing";
+                    UI_TieZoneLine2.Text = "├─ Mid Span:           H-2×l_o,   relaxed";
+                    UI_TieZoneLine3.Text = "└─ Top Confinement:    l_o length, s_o spacing";
+                    UI_TieZoneNote.Text = "l_o = max(H/6, D, 450mm), s_o = min(D/2, 8db, 175mm)";
+                    break;
+                case DesignCodeStandard.NZS3101:
+                    UI_TieZoneTitle.Text = "3-Zone Layout (NZS 3101):";
+                    UI_TieZoneLine1.Text = "├─ Bottom Confinement: l_o length, D/4 spacing";
+                    UI_TieZoneLine2.Text = "├─ Mid Span:           H-2×l_o,   D/2";
+                    UI_TieZoneLine3.Text = "└─ Top Confinement:    l_o length, D/4 spacing";
+                    UI_TieZoneNote.Text = "l_o = max(H/6, D, 450mm), end = min(D/4, 100mm)";
+                    break;
+                default:
+                    UI_TieZoneTitle.Text = "3-Zone Layout (Custom):";
+                    UI_TieZoneLine1.Text = "├─ Bottom Confinement: l_o length, 100mm spacing";
+                    UI_TieZoneLine2.Text = "├─ Mid Span:           H-2×l_o,   200mm";
+                    UI_TieZoneLine3.Text = "└─ Top Confinement:    l_o length, 100mm spacing";
+                    UI_TieZoneNote.Text = "l_o = max(H/6, D, 450mm)";
+                    break;
+            }
+        }
+
         private void UpdateDisplay(object sender, RoutedEventArgs e)
         {
             if (UI_Canvas_Preview == null) return;
             
             // Update labels
             if (UI_Label_Spacing != null)
-                UI_Label_Spacing.Text = (UI_Combo_TransMode.SelectedIndex == 1) ? "Pitch (mm)" : "Spacing (mm)";
+                UI_Label_Spacing.Text = (UI_Combo_TransMode.SelectedIndex == 1) ? "Pitch" : "Spacing";
 
             var canvas = UI_Canvas_Preview;
             canvas.Children.Clear();

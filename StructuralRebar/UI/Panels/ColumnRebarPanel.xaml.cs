@@ -285,15 +285,6 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             UI_TieZoneInfo.Opacity = isUnEQ ? 1.0 : 0.5;
         }
 
-        private void MultiLevel_Changed(object sender, RoutedEventArgs e)
-        {
-            if (UI_Panel_MultiLevelFields == null || UI_Check_MultiLevel == null) return;
-            bool isMultiLevel = UI_Check_MultiLevel.IsChecked == true;
-            
-            UI_Check_MultiLevel.Opacity = isMultiLevel ? 1.0 : 0.5;
-            UI_Panel_MultiLevelFields.IsEnabled = isMultiLevel;
-            UI_Panel_MultiLevelFields.Opacity = isMultiLevel ? 1.0 : 0.5;
-        }
 
         private void UI_Combo_LapMode_Changed(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
@@ -309,6 +300,50 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             return mode.StartsWith("Auto", StringComparison.OrdinalIgnoreCase);
         }
 
+        private void MultiLevel_Changed(object sender, RoutedEventArgs e)
+        {
+            if (UI_Panel_MultiLevelFields == null || UI_Check_MultiLevel == null) return;
+            bool isChecked = UI_Check_MultiLevel.IsChecked == true;
+            UI_Panel_MultiLevelFields.IsEnabled = isChecked;
+            UI_Panel_MultiLevelFields.Opacity = isChecked ? 1.0 : 0.5;
+            
+            UI_Check_MultiLevel.Opacity = isChecked ? 1.0 : 0.5;
+            DrawCrossSection();
+        }
+
+        private void HookCombo_Changed(object sender, SelectionChangedEventArgs e)
+        {
+            UpdateHooksExtHalftone(null, null);
+            DrawCrossSection();
+        }
+
+        private void UpdateHooksExtHalftone(object sender, RoutedEventArgs e)
+        {
+            if (UI_Combo_VHookBot == null) return;
+
+            // Bottom Hook halftone
+            bool hasBotHook = (UI_Combo_VHookBot.SelectedItem as HookViewModel)?.Hook != null;
+            UI_Check_VHookBotOut.IsEnabled = hasBotHook;
+            UI_Check_VHookBotOut.Opacity = hasBotHook ? 1.0 : 0.5;
+            UI_Check_BotExt.IsEnabled = hasBotHook;
+            UI_Check_BotExt.Opacity = hasBotHook ? 1.0 : 0.5;
+            
+            bool hasBotExt = hasBotHook && UI_Check_BotExt.IsChecked == true;
+            UI_Text_BotExtValue.IsEnabled = hasBotExt;
+            UI_Text_BotExtValue.Opacity = hasBotExt ? 1.0 : 0.5;
+
+            // Top Hook halftone
+            bool hasTopHook = (UI_Combo_VHookTop.SelectedItem as HookViewModel)?.Hook != null;
+            UI_Check_VHookTopOut.IsEnabled = hasTopHook;
+            UI_Check_VHookTopOut.Opacity = hasTopHook ? 1.0 : 0.5;
+            UI_Check_TopExt.IsEnabled = hasTopHook;
+            UI_Check_TopExt.Opacity = hasTopHook ? 1.0 : 0.5;
+
+            bool hasTopExt = hasTopHook && UI_Check_TopExt.IsChecked == true;
+            UI_Text_TopExtValue.IsEnabled = hasTopExt;
+            UI_Text_TopExtValue.Opacity = hasTopExt ? 1.0 : 0.5;
+        }
+
         private void Starters_Changed(object sender, RoutedEventArgs e)
         {
             if (UI_Panel_StarterFields == null || UI_Check_Starters == null) return;
@@ -317,6 +352,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             UI_Check_Starters.Opacity = hasStarters ? 1.0 : 0.5;
             UI_Panel_StarterFields.IsEnabled = hasStarters;
             UI_Panel_StarterFields.Opacity = hasStarters ? 1.0 : 0.5;
+            DrawCrossSection();
         }
 
         private void BarCount_Changed(object sender, TextChangedEventArgs e)

@@ -120,7 +120,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
 
                 UI_Text_StarterBar.Text = SettingsManager.Get(VIEW_NAME, "StarterBar", "800");
                 UI_Check_StarterEnabled.IsChecked = SettingsManager.GetBool(VIEW_NAME, "StarterEnabled", true);
-                UI_Check_StarterEnabled_Click(null, null);
+                Starters_Changed(null, null);
 
 
                 SelectByName(UI_Combo_VertType, SettingsManager.Get(VIEW_NAME, "VertType"));
@@ -154,8 +154,13 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                     }
                 }
 
-                UI_Check_VertBotExt_Click(null, null);
-                UI_Check_VertTopExt_Click(null, null);
+                UI_Check_VertBotExt.IsChecked = SettingsManager.GetBool(VIEW_NAME, "VertBotExtEnabled", false);
+                UI_Check_VertTopExt.IsChecked = SettingsManager.GetBool(VIEW_NAME, "VertTopExtEnabled", false);
+                
+                // Set halftone states
+                UpdateHooksExtHalftone(null, null);
+                MultiLevel_Changed(null, null);
+                Starters_Changed(null, null);
                 
                 DrawWallCrossSection();
             }
@@ -353,31 +358,67 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
 
         private static string TransTypeName(ComboBox combo) => (combo.SelectedItem as RebarBarType)?.Name ?? "";
         private static string HookName(ComboBox combo) => (combo.SelectedItem as HookViewModel)?.Hook?.Name ?? "";
-        private void UI_Check_VertBotExt_Click(object sender, RoutedEventArgs e)
+        private void HookCombo_Changed(object sender, SelectionChangedEventArgs e)
         {
-            if (UI_Text_VertBotExt == null || UI_Check_VertBotExt == null) return;
-            bool hasExt = UI_Check_VertBotExt.IsChecked == true;
-            UI_Check_VertBotExt.Opacity = hasExt ? 1.0 : 0.5;
-            UI_Text_VertBotExt.IsEnabled = hasExt;
-            UI_Text_VertBotExt.Opacity = hasExt ? 1.0 : 0.5;
+            UpdateHooksExtHalftone(null, null);
+            DrawWallCrossSection();
         }
 
-        private void UI_Check_StarterEnabled_Click(object sender, RoutedEventArgs e)
+        private void UpdateHooksExtHalftone(object sender, RoutedEventArgs e)
+        {
+            if (UI_Combo_VertHookStart == null) return;
+
+            // Vertical Bottom Hook halftone
+            bool hasVertBotHook = (UI_Combo_VertHookStart.SelectedItem as HookViewModel)?.Hook != null;
+            UI_Check_VertHookStartOut.IsEnabled = hasVertBotHook;
+            UI_Check_VertHookStartOut.Opacity = hasVertBotHook ? 1.0 : 0.5;
+            UI_Check_VertBotExt.IsEnabled = hasVertBotHook;
+            UI_Check_VertBotExt.Opacity = hasVertBotHook ? 1.0 : 0.5;
+            
+            bool hasVertBotExt = hasVertBotHook && UI_Check_VertBotExt.IsChecked == true;
+            UI_Text_VertBotExt.IsEnabled = hasVertBotExt;
+            UI_Text_VertBotExt.Opacity = hasVertBotExt ? 1.0 : 0.5;
+
+            // Vertical Top Hook halftone
+            bool hasVertTopHook = (UI_Combo_VertHookEnd.SelectedItem as HookViewModel)?.Hook != null;
+            UI_Check_VertHookEndOut.IsEnabled = hasVertTopHook;
+            UI_Check_VertHookEndOut.Opacity = hasVertTopHook ? 1.0 : 0.5;
+            UI_Check_VertTopExt.IsEnabled = hasVertTopHook;
+            UI_Check_VertTopExt.Opacity = hasVertTopHook ? 1.0 : 0.5;
+
+            bool hasVertTopExt = hasVertTopHook && UI_Check_VertTopExt.IsChecked == true;
+            UI_Text_VertTopExt.IsEnabled = hasVertTopExt;
+            UI_Text_VertTopExt.Opacity = hasVertTopExt ? 1.0 : 0.5;
+
+            // Horizontal Start Hook halftone
+            bool hasHorizStartHook = (UI_Combo_HorizHookStart.SelectedItem as HookViewModel)?.Hook != null;
+            UI_Check_HorizHookStartOut.IsEnabled = hasHorizStartHook;
+            UI_Check_HorizHookStartOut.Opacity = hasHorizStartHook ? 1.0 : 0.5;
+
+            // Horizontal End Hook halftone
+            bool hasHorizEndHook = (UI_Combo_HorizHookEnd.SelectedItem as HookViewModel)?.Hook != null;
+            UI_Check_HorizHookEndOut.IsEnabled = hasHorizEndHook;
+            UI_Check_HorizHookEndOut.Opacity = hasHorizEndHook ? 1.0 : 0.5;
+        }
+
+        private void Starters_Changed(object sender, RoutedEventArgs e)
         {
             if (UI_Panel_StarterFields == null || UI_Check_StarterEnabled == null) return;
             bool hasStarters = UI_Check_StarterEnabled.IsChecked == true;
             UI_Check_StarterEnabled.Opacity = hasStarters ? 1.0 : 0.5;
             UI_Panel_StarterFields.IsEnabled = hasStarters;
             UI_Panel_StarterFields.Opacity = hasStarters ? 1.0 : 0.5;
+            DrawWallCrossSection();
         }
 
-        private void UI_Check_VertTopExt_Click(object sender, RoutedEventArgs e)
+        private void MultiLevel_Changed(object sender, RoutedEventArgs e)
         {
-            if (UI_Text_VertTopExt == null || UI_Check_VertTopExt == null) return;
-            bool hasTopExt = UI_Check_VertTopExt.IsChecked == true;
-            UI_Check_VertTopExt.Opacity = hasTopExt ? 1.0 : 0.5;
-            UI_Text_VertTopExt.IsEnabled = hasTopExt;
-            UI_Text_VertTopExt.Opacity = hasTopExt ? 1.0 : 0.5;
+            if (UI_Panel_MultiLevelFields == null || UI_Check_MultiLevel == null) return;
+            bool isMultiLevel = UI_Check_MultiLevel.IsChecked == true;
+            UI_Check_MultiLevel.Opacity = isMultiLevel ? 1.0 : 0.5;
+            UI_Panel_MultiLevelFields.IsEnabled = isMultiLevel;
+            UI_Panel_MultiLevelFields.Opacity = isMultiLevel ? 1.0 : 0.5;
+            DrawWallCrossSection();
         }
 
         private double ParseDouble(string text, double defaultValue)
