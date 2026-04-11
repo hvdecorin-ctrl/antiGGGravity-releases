@@ -395,106 +395,40 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                     }
                 }
 
-                // 2. Horizontal Bars
-                if (request.Layers.Count > 0 && hDia > 0)
-                {
-                    var layer = request.Layers[0]; // Use first layer template for params
-
-                    // If hooks are specified at an end, don't trim horizontal bars there —
-                    // the user wants bars (U-bars) extending to the wall face with hooks.
-                    double hStartCover = host.CoverOther + (string.IsNullOrEmpty(layer.HookStartName) ? startTrim : 0);
-                    double hEndCover = host.CoverOther + (string.IsNullOrEmpty(layer.HookEndName) ? endTrim : 0);
-
-                    var horizDef = WallLayoutGenerator.CreateHorizontalBars(
-                        host, layer.HorizontalBarTypeName, hDia,
-                        layer.HorizontalSpacing, layer.TopOffset, layer.BottomOffset,
-                        hStartCover,
-                        hEndCover,
-                        hOff,
-                        layer.HookStartName, layer.HookEndName,
-                        layer.HookStartOutward, layer.HookEndOutward);
-
-                    if (horizDef != null)
+                    // 2. Horizontal Bars
+                    if (request.Layers.Count > 0 && hDia > 0)
                     {
-                        double barLen = host.Length - 2 * host.CoverOther;
-                        
-                        if (request.EnableLapSplice && barLen > LapSpliceCalculator.MaxStockLengthFt)
+                        var layer = request.Layers[0]; // Use first layer template for params
+
+                        // --- NEW: Skip Slabs Implementation ---
+                        // Get Z-ranges of the wall that are not occupied by floor slabs
+                        var zones = GetValidHorizontalZones(wall, host.SolidZMin + layer.BottomOffset, host.SolidZMax - layer.TopOffset, request.SkipSlabIntersections);
+
+                        foreach (var zone in zones)
                         {
-                            var segments = LapSpliceCalculator.SplitBarForLap(
-                                barLen, horizDef.BarDiameter, request.DesignCode, 0, LapSpliceCalculator.GetCrankRun(horizDef.BarDiameter), 
-                                BarPosition.Top, GetLapSpliceLength(horizDef.BarDiameter, request, BarPosition.Top));
+                            // Calculate offsets relative to the full wall for the generator
+                            double zoneBotOffset = zone.Min - host.SolidZMin;
+                            double zoneTopOffset = host.SolidZMax - zone.Max;
 
-                            if (segments.Count <= 1)
+                            // If hooks are specified at an end, don't trim horizontal bars there
+                            double hStartCover = host.CoverOther + (string.IsNullOrEmpty(layer.HookStartName) ? startTrim : 0);
+                            double hEndCover = host.CoverOther + (string.IsNullOrEmpty(layer.HookEndName) ? endTrim : 0);
+
+                            var horizDef = WallLayoutGenerator.CreateHorizontalBars(
+                                host, layer.HorizontalBarTypeName, hDia,
+                                layer.HorizontalSpacing, zoneTopOffset, zoneBotOffset,
+                                hStartCover,
+                                hEndCover,
+                                hOff,
+                                layer.HookStartName, layer.HookEndName,
+                                layer.HookStartOutward, layer.HookEndOutward);
+
+                            if (horizDef != null)
                             {
-                                definitions.Add(horizDef);
+                                AddHorizontalDefinition(definitions, horizDef, host, request, hOff);
                             }
-                            else
-                            {
-                                var origLine = horizDef.Curves[0] as Line;
-                                if (origLine == null) { definitions.Add(horizDef); continue; }
-                                XYZ barDir = (origLine.GetEndPoint(1) - origLine.GetEndPoint(0)).Normalize();
-                                XYZ barStart = origLine.GetEndPoint(0);
-
-                                for (int si = 0; si < segments.Count; si++)
-                                {
-                                    var seg = segments[si];
-                                    XYZ segStart = barStart + barDir * seg.Start;
-                                    XYZ segEnd = barStart + barDir * seg.End;
-
-                                    var curves = new List<Curve>();
-                                    if (si > 0)
-                                    {
-                                        double crankOff = LapSpliceCalculator.GetCrankOffset(horizDef.BarDiameter);
-                                        double crankRun = LapSpliceCalculator.GetCrankRun(horizDef.BarDiameter);
-                                        double lapLen = GetLapSpliceLength(horizDef.BarDiameter, request, BarPosition.Top);
-                                        double straightLap = lapLen + crankRun;
-
-                                        // Crank inward (towards center of wall)
-                                        XYZ inwardDir = host.WAxis;
-                                        if (hOff > 0) inwardDir = -host.WAxis; 
-                                        else if (hOff < 0) inwardDir = host.WAxis;
-                                        else inwardDir = host.WAxis;
-
-                                        XYZ ptA = segStart + inwardDir * crankOff;
-                                        XYZ ptB = ptA + barDir * straightLap;
-                                        XYZ ptC = segStart + barDir * (straightLap + crankRun);
-
-                                        curves.Add(Line.CreateBound(ptA, ptB));
-                                        curves.Add(Line.CreateBound(ptB, ptC));
-                                        curves.Add(Line.CreateBound(ptC, segEnd));
-                                    }
-                                    else
-                                    {
-                                        curves.Add(Line.CreateBound(segStart, segEnd));
-                                    }
-
-                                    definitions.Add(new RebarDefinition
-                                    {
-                                        Curves = curves,
-                                        Style = horizDef.Style,
-                                        BarTypeName = horizDef.BarTypeName,
-                                        BarDiameter = horizDef.BarDiameter,
-                                        Spacing = horizDef.Spacing,
-                                        ArrayLength = horizDef.ArrayLength,
-                                        Normal = horizDef.Normal,
-                                        HookStartName = (si == 0) ? horizDef.HookStartName : null,
-                                        HookEndName = (si == segments.Count - 1) ? horizDef.HookEndName : null,
-                                        HookStartOrientation = horizDef.HookStartOrientation,
-                                        HookEndOrientation = horizDef.HookEndOrientation,
-                                        Label = "Horizontal Bar (lapped)",
-                                        FixedCount = horizDef.FixedCount,
-                                        DistributionWidth = horizDef.DistributionWidth,
-                                        ArrayDirection = horizDef.ArrayDirection
-                                    });
-                                }
-                            }
-                        }
-                        else
-                        {
-                            definitions.Add(horizDef);
                         }
                     }
-                }
 
                 // 3. Starter Bars
                 if (request.EnableStarterBars && vDia > 0)
@@ -785,111 +719,46 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                         }
                     }
 
-                    // 3. Horizontal Bars
-                    if (request.Layers.Count > 0 && hDia > 0)
-                    {
-                        var layer = request.Layers[0];
-
-                        // If hooks are specified at an end, don't trim horizontal bars there —
-                        // the user wants bars (U-bars) extending to the wall face with hooks.
-                        double hStartCover = host.CoverOther + (string.IsNullOrEmpty(layer.HookStartName) ? startTrim : 0);
-                        double hEndCover = host.CoverOther + (string.IsNullOrEmpty(layer.HookEndName) ? endTrim : 0);
-
-                        var horizDef = WallLayoutGenerator.CreateHorizontalBars(
-                            host, layer.HorizontalBarTypeName, hDia,
-                            layer.HorizontalSpacing, layer.TopOffset, layer.BottomOffset,
-                            hStartCover,
-                            hEndCover,
-                            hOff,
-                            layer.HookStartName, layer.HookEndName,
-                            layer.HookStartOutward, layer.HookEndOutward);
-
-                        if (horizDef != null)
+                        // 3. Horizontal Bars
+                        if (request.Layers.Count > 0 && hDia > 0)
                         {
-                            double barLen = host.Length - 2 * host.CoverOther;
-                            if (barLen > LapSpliceCalculator.MaxStockLengthFt)
+                            var layer = request.Layers[0];
+
+                            // --- NEW: Skip Slabs Implementation ---
+                            var zones = GetValidHorizontalZones(wall, host.SolidZMin + layer.BottomOffset, host.SolidZMax - layer.TopOffset, request.SkipSlabIntersections);
+
+                            foreach (var zone in zones)
                             {
-                                var segments = LapSpliceCalculator.SplitBarForLap(
-                                    barLen, horizDef.BarDiameter, request.DesignCode, 0, LapSpliceCalculator.GetCrankRun(horizDef.BarDiameter), 
-                                    BarPosition.Top, GetLapSpliceLength(horizDef.BarDiameter, request, BarPosition.Top));
-                                
-                                if (segments.Count <= 1)
+                                double zoneBotOffset = zone.Min - host.SolidZMin;
+                                double zoneTopOffset = host.SolidZMax - zone.Max;
+
+                                // If hooks are specified at an end, don't trim horizontal bars there
+                                double hStartCover = host.CoverOther + (string.IsNullOrEmpty(layer.HookStartName) ? startTrim : 0);
+                                double hEndCover = host.CoverOther + (string.IsNullOrEmpty(layer.HookEndName) ? endTrim : 0);
+
+                                var horizDef = WallLayoutGenerator.CreateHorizontalBars(
+                                    host, layer.HorizontalBarTypeName, hDia,
+                                    layer.HorizontalSpacing, zoneTopOffset, zoneBotOffset,
+                                    hStartCover,
+                                    hEndCover,
+                                    hOff,
+                                    layer.HookStartName, layer.HookEndName,
+                                    layer.HookStartOutward, layer.HookEndOutward);
+
+                                if (horizDef != null)
                                 {
-                                    definitions.Add(horizDef);
+                                    AddHorizontalDefinition(definitions, horizDef, host, request, hOff);
                                 }
-                                else
-                                {
-                                    var origLine = horizDef.Curves[0] as Line;
-                                    if (origLine == null) { definitions.Add(horizDef); continue; }
-                                    XYZ barDir = (origLine.GetEndPoint(1) - origLine.GetEndPoint(0)).Normalize();
-                                    XYZ barStart = origLine.GetEndPoint(0);
-
-                                    for (int si = 0; si < segments.Count; si++)
-                                    {
-                                        var seg = segments[si];
-                                        XYZ segStart = barStart + barDir * seg.Start;
-                                        XYZ segEnd = barStart + barDir * seg.End;
-
-                                        var curves = new List<Curve>();
-                                        if (si > 0)
-                                        {
-                                            double crankOff = LapSpliceCalculator.GetCrankOffset(horizDef.BarDiameter);
-                                            double crankRun = LapSpliceCalculator.GetCrankRun(horizDef.BarDiameter);
-                                            double lapLen = GetLapSpliceLength(horizDef.BarDiameter, request, BarPosition.Top);
-                                            double straightLap = lapLen + crankRun;
-
-                                            XYZ inwardDir = host.WAxis;
-                                            if (hOff > 0) inwardDir = -host.WAxis; 
-                                            else if (hOff < 0) inwardDir = host.WAxis;
-                                            
-                                            XYZ ptA = segStart + inwardDir * crankOff;
-                                            XYZ ptB = ptA + barDir * straightLap;
-                                            XYZ ptC = segStart + barDir * (straightLap + crankRun);
-
-                                            curves.Add(Line.CreateBound(ptA, ptB));
-                                            curves.Add(Line.CreateBound(ptB, ptC));
-                                            curves.Add(Line.CreateBound(ptC, segEnd));
-                                        }
-                                        else
-                                        {
-                                            curves.Add(Line.CreateBound(segStart, segEnd));
-                                        }
-
-                                        definitions.Add(new RebarDefinition
-                                        {
-                                            Curves = curves,
-                                            Style = horizDef.Style,
-                                            BarTypeName = horizDef.BarTypeName,
-                                            BarDiameter = horizDef.BarDiameter,
-                                            Spacing = horizDef.Spacing,
-                                            ArrayLength = horizDef.ArrayLength,
-                                            Normal = horizDef.Normal,
-                                            HookStartName = (si == 0) ? horizDef.HookStartName : null,
-                                            HookEndName = (si == segments.Count - 1) ? horizDef.HookEndName : null,
-                                            HookStartOrientation = horizDef.HookStartOrientation,
-                                            HookEndOrientation = horizDef.HookEndOrientation,
-                                            Label = "Horizontal Bar (lapped)",
-                                            FixedCount = horizDef.FixedCount,
-                                            DistributionWidth = horizDef.DistributionWidth,
-                                            ArrayDirection = horizDef.ArrayDirection
-                                        });
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                definitions.Add(horizDef);
                             }
                         }
                     }
+
+                    var ids = _creationService.PlaceRebar(wall, definitions);
+                    if (ids.Count > 0) anySuccess = true;
                 }
 
-                var ids = _creationService.PlaceRebar(wall, definitions);
-                if (ids.Count > 0) anySuccess = true;
+                return anySuccess;
             }
-
-            return anySuccess;
-        }
 
         private bool ProcessWallCornerL(CornerInfo corner, RebarRequest request)
         {
@@ -1045,6 +914,216 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                 }
             }
             return -1;
+        }
+
+        private void AddHorizontalDefinition(List<RebarDefinition> definitions, RebarDefinition horizDef, HostGeometry host, RebarRequest request, double hOff)
+        {
+            double barLen = host.Length - 2 * host.CoverOther;
+            if (request.EnableLapSplice && barLen > LapSpliceCalculator.MaxStockLengthFt)
+            {
+                var segments = LapSpliceCalculator.SplitBarForLap(
+                    barLen, horizDef.BarDiameter, request.DesignCode, 0, LapSpliceCalculator.GetCrankRun(horizDef.BarDiameter),
+                    BarPosition.Top, GetLapSpliceLength(horizDef.BarDiameter, request, BarPosition.Top));
+
+                if (segments.Count <= 1)
+                {
+                    definitions.Add(horizDef);
+                }
+                else
+                {
+                    var origLine = horizDef.Curves[0] as Line;
+                    if (origLine == null) { definitions.Add(horizDef); return; }
+                    XYZ barDir = (origLine.GetEndPoint(1) - origLine.GetEndPoint(0)).Normalize();
+                    XYZ barStart = origLine.GetEndPoint(0);
+
+                    for (int si = 0; si < segments.Count; si++)
+                    {
+                        var seg = segments[si];
+                        XYZ segStart = barStart + barDir * seg.Start;
+                        XYZ segEnd = barStart + barDir * seg.End;
+
+                        var curves = new List<Curve>();
+                        if (si > 0)
+                        {
+                            double crankOff = LapSpliceCalculator.GetCrankOffset(horizDef.BarDiameter);
+                            double crankRun = LapSpliceCalculator.GetCrankRun(horizDef.BarDiameter);
+                            double lapLen = GetLapSpliceLength(horizDef.BarDiameter, request, BarPosition.Top);
+                            double straightLap = lapLen; // Aligned with the new rule in Checkpoint 3
+
+                            XYZ inwardDir = host.WAxis;
+                            if (hOff > 0) inwardDir = -host.WAxis;
+                            else if (hOff < 0) inwardDir = host.WAxis;
+                            else inwardDir = host.WAxis;
+
+                            XYZ ptA = segStart + inwardDir * crankOff;
+                            XYZ ptB = ptA + barDir * straightLap;
+                            XYZ ptC = segStart + barDir * (straightLap + crankRun);
+
+                            curves.Add(Line.CreateBound(ptA, ptB));
+                            curves.Add(Line.CreateBound(ptB, ptC));
+                            curves.Add(Line.CreateBound(ptC, segEnd));
+                        }
+                        else
+                        {
+                            curves.Add(Line.CreateBound(segStart, segEnd));
+                        }
+
+                        definitions.Add(new RebarDefinition
+                        {
+                            Curves = curves,
+                            Style = horizDef.Style,
+                            BarTypeName = horizDef.BarTypeName,
+                            BarDiameter = horizDef.BarDiameter,
+                            Spacing = horizDef.Spacing,
+                            ArrayLength = horizDef.ArrayLength,
+                            Normal = horizDef.Normal,
+                            HookStartName = (si == 0) ? horizDef.HookStartName : null,
+                            HookEndName = (si == segments.Count - 1) ? horizDef.HookEndName : null,
+                            HookStartOrientation = horizDef.HookStartOrientation,
+                            HookEndOrientation = horizDef.HookEndOrientation,
+                            Label = "Horizontal Bar (lapped)",
+                            FixedCount = horizDef.FixedCount,
+                            DistributionWidth = horizDef.DistributionWidth,
+                            ArrayDirection = horizDef.ArrayDirection
+                        });
+                    }
+                }
+            }
+            else
+            {
+                definitions.Add(horizDef);
+            }
+        }
+
+        private List<(double Min, double Max)> GetIntersectingSlabRanges(Wall wall)
+        {
+            var ranges = new List<(double Min, double Max)>();
+            Options opt = new Options { DetailLevel = ViewDetailLevel.Fine };
+            GeometryElement geo = wall.get_Geometry(opt);
+            Solid wallSolid = null;
+            if (geo != null)
+            {
+                foreach (GeometryObject obj in geo)
+                {
+                    if (obj is Solid s && s.Volume > 0)
+                    {
+                        wallSolid = s;
+                        break;
+                    }
+                }
+            }
+            
+            // Build collection of potential "slab-like" elements
+            var categories = new List<BuiltInCategory> 
+            { 
+                BuiltInCategory.OST_Floors, 
+                BuiltInCategory.OST_StructuralFoundation, // Catch foundation slabs
+                BuiltInCategory.OST_StructuralFraming      // Catch thick beams intersecting walls
+            };
+            var catFilter = new ElementMulticategoryFilter(categories);
+
+            // Filter by bounding box first for performance
+            BoundingBoxXYZ wallBox = wall.get_BoundingBox(null);
+            if (wallBox == null) return ranges;
+            
+            var collector = new FilteredElementCollector(_doc)
+                .WhereElementIsNotElementType()
+                .WherePasses(catFilter)
+                .WherePasses(new BoundingBoxIntersectsFilter(new Outline(wallBox.Min, wallBox.Max)));
+
+            // If we have a successful solid, use it with a slight expansion to catch touching elements
+            if (wallSolid != null)
+            {
+                try 
+                {
+                    // Expand solid by ~6mm to capture elements technically touching but not penetrating
+                    Solid expandedWall = BooleanOperationsUtils.ExecuteBooleanOperation(
+                        wallSolid, null, BooleanOperationsType.Union); // Clone first
+
+                    collector = collector.WherePasses(new ElementIntersectsSolidFilter(wallSolid)); // Use original for now standard
+                }
+                catch { /* Fallback to collector state as is (BB filter already applied) */ }
+            }
+
+            foreach (var elem in collector)
+            {
+                // Skip the wall itself if somehow caught (shouldn't be in these categories)
+                if (elem.Id == wall.Id) continue;
+
+                BoundingBoxXYZ bbox = elem.get_BoundingBox(null);
+                if (bbox != null)
+                {
+                    // Ensure the element actually overlaps vertically with our wall's core height
+                    if (bbox.Max.Z < wallBox.Min.Z || bbox.Min.Z > wallBox.Max.Z) continue;
+
+                    ranges.Add((bbox.Min.Z, bbox.Max.Z));
+                }
+            }
+            return MergeRanges(ranges.OrderBy(r => r.Min).ToList());
+        }
+
+        private List<(double Min, double Max)> MergeRanges(List<(double Min, double Max)> sorted)
+        {
+            if (sorted.Count <= 1) return sorted;
+            var merged = new List<(double Min, double Max)>();
+            var current = sorted[0];
+            for (int i = 1; i < sorted.Count; i++)
+            {
+                if (sorted[i].Min <= current.Max + 0.05) // 15mm tolerance
+                {
+                    current = (current.Min, Math.Max(current.Max, sorted[i].Max));
+                }
+                else
+                {
+                    merged.Add(current);
+                    current = sorted[i];
+                }
+            }
+            merged.Add(current);
+            return merged;
+        }
+
+        private List<(double Min, double Max)> GetValidHorizontalZones(Wall wall, double zMin, double zMax, bool skipSlabs)
+        {
+            var results = new List<(double Min, double Max)>();
+            if (!skipSlabs)
+            {
+                results.Add((zMin, zMax));
+                return results;
+            }
+
+            var slabRanges = GetIntersectingSlabRanges(wall);
+            double currentZ = zMin;
+            
+            // Clearance buffer to keep rebar away from slab faces (approx 30mm)
+            double clearance = 0.1;
+
+            foreach (var slab in slabRanges)
+            {
+                if (slab.Min >= zMax) break;
+                if (slab.Max <= currentZ) continue;
+
+                if (slab.Min > currentZ + 0.1) // Min threshold for a zone
+                {
+                    double zoneMax = slab.Min - clearance;
+                    if (zoneMax > currentZ + 0.05) // Ensure zone still valid after clearance
+                    {
+                        results.Add((currentZ, zoneMax));
+                    }
+                }
+                currentZ = Math.Max(currentZ, slab.Max + clearance);
+            }
+
+            if (currentZ < zMax - 0.1)
+            {
+                results.Add((currentZ, zMax));
+            }
+
+            if (results.Count == 0 && slabRanges.Count == 0)
+            {
+                results.Add((zMin, zMax));
+            }
+            return results;
         }
     }
 }

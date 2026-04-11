@@ -65,6 +65,9 @@ namespace antiGGGravity.StructuralRebar.DTO
         /// <summary>Whether vertical hook end bends outward.</summary>
         public bool TransverseHookEndOut { get; set; }
 
+        /// <summary>Whether to skip horizontal rebar within intersecting floor slabs (compulsory rule).</summary>
+        public bool SkipSlabIntersections { get; set; } = true;
+
         // === LONGITUDINAL LAYERS ===
         /// <summary>Per-layer configurations (one per face/position).</summary>
         public List<RebarLayerConfig> Layers { get; set; } = new();
