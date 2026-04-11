@@ -132,7 +132,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
 
             // ── 2. Vertical Bars ───────────────────────────
             double zStart = zBase + host.CoverBottom;
-            double zEnd = zTop - host.CoverTop - UnitConversion.MmToFeet(70); // 70mm safety gap
+            double zEnd = zTop - host.CoverTop; // Standard cover at top
 
             // Manual extensions from UI
             if (request.VerticalBottomExtension > 0)
@@ -547,40 +547,54 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
         }
         private double DetectSlabAboveExtension(FamilyInstance column, HostGeometry host)
         {
-            double searchRadius = UnitConversion.MmToFeet(100);
+            double searchRadius = UnitConversion.MmToFeet(150);
             double colTopZ = host.SolidZMax;
             XYZ origin = host.Origin;
 
-            XYZ searchMin = new XYZ(origin.X - searchRadius, origin.Y - searchRadius, colTopZ - 0.01);
-            XYZ searchMax = new XYZ(origin.X + searchRadius, origin.Y + searchRadius, colTopZ + UnitConversion.MmToFeet(1000));
+            XYZ searchMin = new XYZ(origin.X - searchRadius, origin.Y - searchRadius, colTopZ - 0.1);
+            XYZ searchMax = new XYZ(origin.X + searchRadius, origin.Y + searchRadius, colTopZ + UnitConversion.MmToFeet(1200));
 
             try
             {
                 Outline searchOutline = new Outline(searchMin, searchMax);
-                var slabs = new FilteredElementCollector(_doc)
-                    .OfCategory(BuiltInCategory.OST_Floors)
+                
+                // Search for Floors and Beams
+                var categories = new List<BuiltInCategory> { BuiltInCategory.OST_Floors, BuiltInCategory.OST_StructuralFraming };
+                var filter = new ElementMulticategoryFilter(categories);
+
+                var candidates = new FilteredElementCollector(_doc)
+                    .WherePasses(filter)
                     .WherePasses(new BoundingBoxIntersectsFilter(searchOutline))
                     .WhereElementIsNotElementType()
                     .ToList();
 
-                foreach (var slab in slabs)
+                foreach (var element in candidates)
                 {
-                    if (slab.Id == column.Id) continue;
-                    var bb = slab.get_BoundingBox(null);
+                    if (element.Id == column.Id) continue;
+                    var bb = element.get_BoundingBox(null);
                     if (bb == null) continue;
 
-                    // Check slab bottom is near column top (within 60mm tolerance)
-                    if (Math.Abs(bb.Min.Z - colTopZ) < UnitConversion.MmToFeet(60))
+                    // Check top element bottom is near column top (within 100mm tolerance for messy models)
+                    bool isAtColumnTop = Math.Abs(bb.Min.Z - colTopZ) < UnitConversion.MmToFeet(100);
+                    
+                    if (isAtColumnTop)
                     {
-                        double cTop = GeometryUtils.GetCoverDistance(_doc, slab, BuiltInParameter.CLEAR_COVER_TOP);
-                        double slabThickness = bb.Max.Z - bb.Min.Z;
-                        // Extension = slab thickness - top cover - 40mm gap
-                        double ext = slabThickness - cTop - UnitConversion.MmToFeet(40);
+                        // For extension, we want to go into the element
+                        double elementTopCover = GeometryUtils.GetCoverDistance(_doc, element, BuiltInParameter.CLEAR_COVER_TOP);
+                        double thickness = bb.Max.Z - bb.Min.Z;
+                        
+                        // Extension = thickness - cover - extra 40mm safety
+                        double ext = thickness - elementTopCover - UnitConversion.MmToFeet(40);
+                        if (ext > thickness) ext = thickness * 0.8; // Sanity check
+
                         if (ext > 0) return ext;
                     }
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"DetectSlabAboveExtension Error: {ex.Message}");
+            }
             return 0;
         }
     }
