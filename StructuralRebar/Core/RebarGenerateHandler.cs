@@ -259,6 +259,32 @@ namespace antiGGGravity.StructuralRebar.Core
             request.RemoveExisting = _window.RemoveExisting;
             request.EnableLapSplice = _window.EnableLapSplice;
             request.DesignCode = _window.DesignCode;
+
+            // Use dedicated engine for circular columns (completely separate from standard)
+            if (_window.IsCircularColumn)
+            {
+                var circEngine = new CircularColumnEngine(doc);
+
+                if (request.MultiLevel)
+                {
+                    var stacks = Geometry.MultiLevelResolver.GroupIntoColumnStacks(doc, columns);
+                    int totalProcessed = 0;
+                    int totalColumns = 0;
+                    foreach (var stack in stacks)
+                    {
+                        var (processed, total) = circEngine.GenerateColumnStackRebar(stack, request);
+                        totalProcessed += processed;
+                        totalColumns += total;
+                    }
+                    return $"Successfully reinforced {totalProcessed} circular columns across {stacks.Count} stack(s), {totalColumns} levels.";
+                }
+                else
+                {
+                    var (processed, total) = circEngine.GenerateColumnRebar(columns, request);
+                    return $"Successfully reinforced {processed} of {total} circular columns.";
+                }
+            }
+
             var engine = new ColumnEngine(doc);
 
             if (request.MultiLevel)

@@ -57,6 +57,18 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             UI_Combo_MainHook.ItemsSource = _hookList;
             UI_Combo_MainHook.DisplayMemberPath = "Name";
             UI_Combo_MainHook.SelectedIndex = 0;
+
+            UI_Combo_HookBot.ItemsSource = _hookList.ToList();
+            UI_Combo_HookBot.DisplayMemberPath = "Name";
+            UI_Combo_HookBot.SelectedIndex = 0;
+
+            UI_Combo_StarterType.ItemsSource = _rebarTypes;
+            UI_Combo_StarterType.DisplayMemberPath = "Name";
+            UI_Combo_StarterType.SelectedItem = _rebarTypes.FirstOrDefault(x => x.Name.Contains("D20")) ?? _rebarTypes.FirstOrDefault();
+
+            UI_Combo_StarterHook.ItemsSource = _hookList.ToList();
+            UI_Combo_StarterHook.DisplayMemberPath = "Name";
+            UI_Combo_StarterHook.SelectedIndex = 0;
         }
 
         private void LoadSettings()
@@ -70,6 +82,23 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 SelectByName(UI_Combo_MainType, SettingsManager.Get(VIEW_NAME, "MainType"));
                 SelectByName(UI_Combo_TransType, SettingsManager.Get(VIEW_NAME, "TransType"));
                 SelectHookByName(UI_Combo_MainHook, SettingsManager.Get(VIEW_NAME, "MainHook"));
+                SelectHookByName(UI_Combo_HookBot, SettingsManager.Get(VIEW_NAME, "HookBot"));
+                UI_Check_HookBotOut.IsChecked = SettingsManager.GetBool(VIEW_NAME, "HookBotOut", false);
+                UI_Check_HookTopOut.IsChecked = SettingsManager.GetBool(VIEW_NAME, "HookTopOut", false);
+                UI_Check_BotExt.IsChecked = SettingsManager.GetBool(VIEW_NAME, "BotExt", false);
+                UI_Text_BotExtValue.Text = SettingsManager.Get(VIEW_NAME, "BotExtValue", "300");
+                UI_Check_TopExt.IsChecked = SettingsManager.GetBool(VIEW_NAME, "TopExt", false);
+                UI_Text_TopExtValue.Text = SettingsManager.Get(VIEW_NAME, "TopExtValue", "300");
+                SelectByName(UI_Combo_StarterType, SettingsManager.Get(VIEW_NAME, "StarterType"));
+                SelectHookByName(UI_Combo_StarterHook, SettingsManager.Get(VIEW_NAME, "StarterHook"));
+
+                UI_Check_MultiLevel.IsChecked = SettingsManager.GetBool(VIEW_NAME, "MultiLevel", false);
+                UI_Combo_SplicePos.SelectedIndex = SettingsManager.GetInt(VIEW_NAME, "SplicePos", 0);
+                UI_Combo_CrankPos.SelectedIndex = SettingsManager.GetInt(VIEW_NAME, "CrankPos", 1);
+                UI_Combo_LapMode.SelectedIndex = SettingsManager.GetInt(VIEW_NAME, "LapMode", 0);
+                UI_Text_LapSplice.Text = SettingsManager.Get(VIEW_NAME, "LapSplice", "40");
+                UI_Check_Starters.IsChecked = SettingsManager.GetBool(VIEW_NAME, "Starters", false);
+                UI_Text_StarterDevLength.Text = SettingsManager.Get(VIEW_NAME, "StarterDevLength", "0");
             }
             catch { }
         }
@@ -85,6 +114,23 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 SettingsManager.Set(VIEW_NAME, "MainType", TransTypeName(UI_Combo_MainType));
                 SettingsManager.Set(VIEW_NAME, "TransType", TransTypeName(UI_Combo_TransType));
                 SettingsManager.Set(VIEW_NAME, "MainHook", HookName(UI_Combo_MainHook));
+                SettingsManager.Set(VIEW_NAME, "HookBot", HookName(UI_Combo_HookBot));
+                SettingsManager.Set(VIEW_NAME, "HookBotOut", (UI_Check_HookBotOut.IsChecked == true).ToString());
+                SettingsManager.Set(VIEW_NAME, "HookTopOut", (UI_Check_HookTopOut.IsChecked == true).ToString());
+                SettingsManager.Set(VIEW_NAME, "BotExt", (UI_Check_BotExt.IsChecked == true).ToString());
+                SettingsManager.Set(VIEW_NAME, "BotExtValue", UI_Text_BotExtValue.Text);
+                SettingsManager.Set(VIEW_NAME, "TopExt", (UI_Check_TopExt.IsChecked == true).ToString());
+                SettingsManager.Set(VIEW_NAME, "TopExtValue", UI_Text_TopExtValue.Text);
+                SettingsManager.Set(VIEW_NAME, "StarterType", TransTypeName(UI_Combo_StarterType));
+                SettingsManager.Set(VIEW_NAME, "StarterHook", HookName(UI_Combo_StarterHook));
+
+                SettingsManager.Set(VIEW_NAME, "MultiLevel", (UI_Check_MultiLevel.IsChecked == true).ToString());
+                SettingsManager.Set(VIEW_NAME, "SplicePos", UI_Combo_SplicePos.SelectedIndex.ToString());
+                SettingsManager.Set(VIEW_NAME, "CrankPos", UI_Combo_CrankPos.SelectedIndex.ToString());
+                SettingsManager.Set(VIEW_NAME, "LapMode", UI_Combo_LapMode.SelectedIndex.ToString());
+                SettingsManager.Set(VIEW_NAME, "LapSplice", UI_Text_LapSplice.Text);
+                SettingsManager.Set(VIEW_NAME, "Starters", (UI_Check_Starters.IsChecked == true).ToString());
+                SettingsManager.Set(VIEW_NAME, "StarterDevLength", UI_Text_StarterDevLength.Text);
 
                 SettingsManager.SaveAll();
             }
@@ -93,10 +139,15 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
 
         public RebarRequest GetRequest()
         {
+            double lapMultiplier = ParseDouble(UI_Text_LapSplice.Text, 40);
+            double vBarDia = (_rebarTypes.FirstOrDefault(x => x.Name == TransTypeName(UI_Combo_MainType)))?.BarModelDiameter ?? 0;
+            double manuallyCalculatedLap = lapMultiplier * vBarDia;
+            bool isAutoLap = UI_Combo_LapMode.SelectedIndex == 0;
+
             var request = new RebarRequest
             {
                 HostType = ElementHostType.Column,
-                IsCircularColumn = true, // I need to add this property to RebarRequest
+                IsCircularColumn = true,
                 RemoveExisting = false,
                 
                 VerticalBarTypeName = TransTypeName(UI_Combo_MainType),
@@ -105,8 +156,36 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 TransverseBarTypeName = TransTypeName(UI_Combo_TransType),
                 TransverseSpacing = UnitConversion.MmToFeet(ParseDouble(UI_Text_TransSpacing.Text, 200)),
                 EnableSpiral = UI_Combo_TransMode.SelectedIndex == 1,
-                
-                TransverseHookStartName = HookName(UI_Combo_MainHook), // Using for top reinforcement if needed, or mapping specifically
+
+                // Vertical extensions
+                VerticalTopExtension = UI_Check_TopExt.IsChecked == true ? UnitConversion.MmToFeet(ParseDouble(UI_Text_TopExtValue.Text, 300)) : 0,
+                VerticalBottomExtension = UI_Check_BotExt.IsChecked == true ? UnitConversion.MmToFeet(ParseDouble(UI_Text_BotExtValue.Text, 300)) : 0,
+
+                // Multi-Level
+                MultiLevel = (UI_Check_MultiLevel.IsChecked == true),
+                SplicePosition = (UI_Combo_SplicePos.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Above Slab",
+                CrankPosition = (UI_Combo_CrankPos.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Upper Bar",
+                LapSpliceMode = isAutoLap ? "Auto" : "Manual",
+                LapSpliceLength = manuallyCalculatedLap,
+                VerticalContinuousSpliceLength = isAutoLap ? 0 : manuallyCalculatedLap,
+
+                // Starters
+                EnableStarterBars = (UI_Check_Starters.IsChecked == true),
+                StarterBarTypeName = TransTypeName(UI_Combo_StarterType),
+                StarterHookEndName = HookName(UI_Combo_StarterHook),
+                StarterDevLength = UnitConversion.MmToFeet(ParseDouble(UI_Text_StarterDevLength.Text, 0)),
+            };
+
+            // Vertical bar hooks -> same pattern as standard column (Layers[0])
+            request.Layers = new List<RebarLayerConfig>
+            {
+                new RebarLayerConfig
+                {
+                    HookStartName = HookName(UI_Combo_HookBot),
+                    HookEndName = HookName(UI_Combo_MainHook),
+                    HookStartOutward = UI_Check_HookBotOut.IsChecked == true,
+                    HookEndOutward = UI_Check_HookTopOut.IsChecked == true
+                }
             };
 
             return request;

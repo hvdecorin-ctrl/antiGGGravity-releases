@@ -86,11 +86,32 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
 
             if (request.IsCircularColumn)
             {
-                var circDefs = CircularColumnLayoutGenerator.Generate(_doc, host, request);
+                // Calculate extensions for single column (starters)
+                double topExt = request.VerticalTopExtension;
+                double botExt = request.VerticalBottomExtension;
+                double footingExt = -1;
+
+                if (request.EnableStarterBars)
+                {
+                    footingExt = DetermineStarterExtensionIntoFooting(column, host);
+                    if (footingExt > 0) botExt = footingExt;
+                }
+
+                var circDefs = CircularColumnLayoutGenerator.Generate(_doc, host, request, topExt, botExt);
+                
+                // Add Circular Starters if foundation detected
+                if (request.EnableStarterBars && footingExt > 0)
+                {
+                    double maxBarDia = GetBarDiameter(request.VerticalBarTypeName);
+                    double starterTopExt = GetLapSpliceLength(maxBarDia, request);
+                    var circularStarters = CircularColumnLayoutGenerator.GenerateStarters(_doc, host, request, footingExt, starterTopExt);
+                    if (circularStarters != null) circDefs.AddRange(circularStarters);
+                }
+
                 var circIds = _creationService.PlaceRebar(column, circDefs);
                 bool success = circIds.Count > 0;
 
-                // Manually generate Transverse Reinforcement for Circular Columns
+                // Transverse logic (existing) ...
                 if (!string.IsNullOrEmpty(request.TransverseBarTypeName))
                 {
                     double hostRadius = 0;
@@ -112,8 +133,31 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                         
                         double zStart = host.SolidZMin + host.CoverBottom + UnitConversion.MmToFeet(50);
                         double zEnd = host.SolidZMax - host.CoverTop - UnitConversion.MmToFeet(120); // 70mm gap + 50mm hoop gap
-                        double dist = zEnd - zStart;
+                        
+                        // --- NEW: Add ties into footing for circular columns ---
+                        if (request.EnableStarterBars && footingExt > 0)
+                        {
+                            double ftzStart = -footingExt + UnitConversion.MmToFeet(75);
+                            double ftzEnd = -UnitConversion.MmToFeet(50);
+                            RebarBarType ftBarType = new FilteredElementCollector(_doc)
+                                .OfClass(typeof(RebarBarType))
+                                .Cast<RebarBarType>()
+                                .FirstOrDefault(t => t.Name.Equals(request.TransverseBarTypeName, StringComparison.OrdinalIgnoreCase));
+                            
+                            if (ftBarType != null)
+                            {
+                                try {
+                                    var tie = CircularRebarService.CreateCircularTie(_doc, column, center, rebarRadius, ftzStart, ftBarType);
+                                    if (tie != null) {
+                                        var accessor = tie.GetShapeDrivenAccessor();
+                                        accessor.SetLayoutAsMaximumSpacing(request.TransverseSpacing, ftzEnd - ftzStart, true, true, true);
+                                    }
+                                } catch {}
+                            }
+                        }
+                        // -----------------------------------------------------
 
+                        double dist = zEnd - zStart;
                         RebarBarType tieBarType = new FilteredElementCollector(_doc)
                             .OfClass(typeof(RebarBarType))
                             .Cast<RebarBarType>()
@@ -122,6 +166,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                         RebarShape tieShape = _shapeService.FindShapeRobustly(request.EnableSpiral ? "Shape SP" : "Shape CT");
 
                         if (tieBarType != null && dist > 0)
+// ... (rest of old code)
                         {
                             try 
                             {
@@ -398,9 +443,37 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                 if (request.RemoveExisting)
                     _creationService.DeleteExistingRebar(column);
 
+                bool crankUpper = string.Equals(request.CrankPosition, "Upper Column", StringComparison.OrdinalIgnoreCase);
+                bool crankLower = string.Equals(request.CrankPosition, "Lower Column", StringComparison.OrdinalIgnoreCase);
+
                 if (request.IsCircularColumn)
                 {
-                    var circDefs = CircularColumnLayoutGenerator.Generate(_doc, host, request);
+                    double botExt = request.VerticalBottomExtension;
+                    double topExt = request.VerticalTopExtension;
+                    double maxBarDia = GetBarDiameter(request.VerticalBarTypeName);
+                    double footingExt = -1;
+
+                    if (!isBottom) botExt = 0;
+                    if (!isTop) topExt = ColumnContinuityCalculator.GetSpliceStartOffset() + GetLapSpliceLength(maxBarDia, request);
+
+                    if (isBottom && request.EnableStarterBars)
+                    {
+                        footingExt = DetermineStarterExtensionIntoFooting(column, host);
+                        if (footingExt > 0) botExt = footingExt;
+                    }
+
+
+                    var circDefs = CircularColumnLayoutGenerator.Generate(_doc, host, request, topExt, botExt, 
+                        !isBottom && crankUpper, !isTop && crankLower);
+                    
+                    // Starters for bottom column
+                    if (isBottom && request.EnableStarterBars && footingExt > 0)
+                    {
+                        double starterTopExt = GetLapSpliceLength(maxBarDia, request);
+                        var starterDefs = CircularColumnLayoutGenerator.GenerateStarters(_doc, host, request, footingExt, starterTopExt);
+                        if (starterDefs != null) circDefs.AddRange(starterDefs);
+                    }
+
                     var circIds = _creationService.PlaceRebar(column, circDefs);
                     if (circIds.Count > 0) anySuccess = true;
 
@@ -426,6 +499,31 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                             
                             double zStart = host.SolidZMin + host.CoverBottom + UnitConversion.MmToFeet(50);
                             double zEnd = host.SolidZMax - host.CoverTop - UnitConversion.MmToFeet(120); // 70mm gap + 50mm hoop gap
+                            
+                            // --- NEW: Add ties into footing for circular columns stack ---
+                            if (isBottom && request.EnableStarterBars && footingExt > 0)
+                            {
+                                double ftzStart = -footingExt + UnitConversion.MmToFeet(75);
+                                double ftzEnd = -UnitConversion.MmToFeet(50);
+                                RebarBarType ftBarType = new FilteredElementCollector(_doc)
+                                    .OfClass(typeof(RebarBarType))
+                                    .Cast<RebarBarType>()
+                                    .FirstOrDefault(t => t.Name.Equals(request.TransverseBarTypeName, StringComparison.OrdinalIgnoreCase));
+                                
+                                if (ftBarType != null)
+                                {
+                                    try {
+                                        var tie = CircularRebarService.CreateCircularTie(_doc, column, center, rebarRadius, ftzStart, ftBarType);
+                                        if (tie != null) {
+                                            var accessor = tie.GetShapeDrivenAccessor();
+                                            accessor.SetLayoutAsMaximumSpacing(request.TransverseSpacing, ftzEnd - ftzStart, true, true, true);
+                                            anySuccess = true;
+                                        }
+                                    } catch {}
+                                }
+                            }
+                            // -----------------------------------------------------------
+
                             double dist = zEnd - zStart;
 
                             RebarBarType tieBarType = new FilteredElementCollector(_doc)
@@ -470,7 +568,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                 double tDia = 0.0328; // fallback 10mm
                 if (!string.IsNullOrEmpty(request.TransverseBarTypeName))
                     tDia = GetBarDiameter(request.TransverseBarTypeName);
-                double maxBarDia = Math.Max(vDiaX, vDiaY);
+                
+                double maxBarDiaStandard = Math.Max(vDiaX, vDiaY);
 
                 // ── 1. TIES (same as single-column, reuse existing logic) ──
                 if (!string.IsNullOrEmpty(request.TransverseBarTypeName))
@@ -499,8 +598,6 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                 }
 
                 // ── 2. VERTICAL BARS with multi-level splice logic ──
-                bool crankUpper = string.Equals(request.CrankPosition, "Upper Column", StringComparison.OrdinalIgnoreCase);
-                bool crankLower = string.Equals(request.CrankPosition, "Lower Column", StringComparison.OrdinalIgnoreCase);
                 if (vDiaX > 0 || vDiaY > 0)
                 {
                     var layerTempl = request.Layers.FirstOrDefault() ?? new RebarLayerConfig();
@@ -519,7 +616,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                     // For non-top columns: bars extend up into upper column by splice length
                     if (!isTop)
                     {
-                        double lapLen = GetLapSpliceLength(maxBarDia, request);
+                        double lapLen = GetLapSpliceLength(maxBarDiaStandard, request);
                         topExt = ColumnContinuityCalculator.GetSpliceStartOffset() + lapLen;
                     }
 
@@ -657,11 +754,11 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                 }
 
                 // ── 3. STARTER BARS (bottom column only) ──
-                if (isBottom && request.EnableStarterBars && maxBarDia > 0)
+                if (isBottom && request.EnableStarterBars && maxBarDiaStandard > 0)
                 {
                     double starterLen = request.StarterDevLength > 0
                         ? request.StarterDevLength
-                        : ColumnContinuityCalculator.GetStarterBarLength(maxBarDia, request.DesignCode);
+                        : ColumnContinuityCalculator.GetStarterBarLength(maxBarDiaStandard, request.DesignCode);
 
                     // --- NEW: Check for Footing below ---
                     double footingExt = DetermineStarterExtensionIntoFooting(column, host);
@@ -678,7 +775,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
 
                     var layerTempl = request.Layers.FirstOrDefault() ?? new RebarLayerConfig();
 
-                    double starterTopExt = GetLapSpliceLength(maxBarDia, request);
+                    double starterTopExt = GetLapSpliceLength(maxBarDiaStandard, request);
 
                     // Create starter bar definitions extending BELOW the column base and UP into the column by lap length
                     var starterDefs = CreateStarterBars(
