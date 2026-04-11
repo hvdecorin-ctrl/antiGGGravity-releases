@@ -351,6 +351,27 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
 
                     if (starterDefs != null)
                         definitions.AddRange(starterDefs);
+
+                    // --- NEW: Add ties into footing for starters ---
+                    if (footingExt > 0 && !string.IsNullOrEmpty(request.TransverseBarTypeName))
+                    {
+                        double tDia = GetBarDiameter(request.TransverseBarTypeName);
+                        // Range for ties in footing: from footing bottom + cover up to column base
+                        double zStart = -footingExt + UnitConversion.MmToFeet(75); // Use 75mm bot cover for footing
+                        double zEnd = -UnitConversion.MmToFeet(50); // Stop 50mm below column base
+
+                        var footingTie = ColumnLayoutGenerator.CreateColumnTiesInRange(
+                            host, request.TransverseBarTypeName, tDia,
+                            request.TransverseSpacing, zStart, zEnd,
+                            request.TransverseHookStartName, request.TransverseHookEndName);
+                        
+                        if (footingTie != null)
+                        {
+                            footingTie.Label = "Footing Tie";
+                            definitions.Add(footingTie);
+                        }
+                    }
+                    // -----------------------------------------------
                 }
             }
 
@@ -667,6 +688,26 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
 
                     if (starterDefs != null)
                         definitions.AddRange(starterDefs);
+
+                    // --- NEW: Add ties into footing for starters ---
+                    if (footingExt > 0 && !string.IsNullOrEmpty(request.TransverseBarTypeName))
+                    {
+                        // Range for ties in footing: from footing bottom + cover up to column base
+                        double zStart = -footingExt + UnitConversion.MmToFeet(75); // Use 75mm bot cover for footing
+                        double zEnd = -UnitConversion.MmToFeet(50); // Stop 50mm below column base
+
+                        var footingTie = ColumnLayoutGenerator.CreateColumnTiesInRange(
+                            host, request.TransverseBarTypeName, tDia,
+                            request.TransverseSpacing, zStart, zEnd,
+                            request.TransverseHookStartName, request.TransverseHookEndName);
+                        
+                        if (footingTie != null)
+                        {
+                            footingTie.Label = "Footing Tie";
+                            definitions.Add(footingTie);
+                        }
+                    }
+                    // -----------------------------------------------
                 }
 
                 var ids = _creationService.PlaceRebar(column, definitions);

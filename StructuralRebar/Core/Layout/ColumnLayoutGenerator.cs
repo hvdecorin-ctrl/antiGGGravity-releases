@@ -21,6 +21,20 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
         {
             double totalHeight = host.Length;
             double tieLen = totalHeight - startOffset - endOffset;
+            return CreateColumnTiesInRange(host, barTypeName, barDiameter, spacing, startOffset, startOffset + tieLen, hookStartName, hookEndName);
+        }
+
+        public static RebarDefinition CreateColumnTiesInRange(
+            HostGeometry host,
+            string barTypeName,
+            double barDiameter,
+            double spacing,
+            double zStart,
+            double zEnd,
+            string hookStartName,
+            string hookEndName)
+        {
+            double tieLen = zEnd - zStart;
             if (tieLen <= 0 || spacing <= 0) return null;
 
             XYZ basisX = host.LAxis;
@@ -35,7 +49,7 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
             double wTie = width - 2 * cover;
             double dTie = depth - 2 * cover;
 
-            XYZ tieOrigin = origin + basisZ * startOffset;
+            XYZ tieOrigin = origin + basisZ * zStart;
 
             // Points in Local Basis
             XYZ p1 = tieOrigin - basisX * (wTie / 2.0) - basisY * (dTie / 2.0); // BL
@@ -44,7 +58,6 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
             XYZ p4 = tieOrigin - basisX * (wTie / 2.0) + basisY * (dTie / 2.0); // TL
 
             // Use Counter-Clockwise (CCW) order starting from TR: TR -> TL -> BL -> BR -> TR
-            // This sequence matches beam stirrups and ensures standard hook shape matching succeeds.
             List<Curve> curves = new List<Curve>
             {
                 Line.CreateBound(p3, p4),
@@ -66,7 +79,7 @@ namespace antiGGGravity.StructuralRebar.Core.Layout
                 HookEndName = hookEndName,
                 HookStartOrientation = (RebarHookOrientation)1, // Left
                 HookEndOrientation = (RebarHookOrientation)1,   // Left
-                Label = "Column Tie",
+                Label = "Column Footing Tie",
                 Comment = "Stirrup"
             };
         }
