@@ -23,7 +23,8 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
             double totalLength, 
             List<(double Start, double End)> clearSpans,
             bool isStartCantilever,
-            bool isEndCantilever)
+            bool isEndCantilever,
+            bool isT2 = true)
         {
             var segments = new List<(double Start, double End)>();
             if (clearSpans == null || clearSpans.Count == 0) return segments;
@@ -36,7 +37,7 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
 
             for (int i = 0; i < supportCount; i++)
             {
-                var seg = GetTopSegmentForSupport(i, totalLength, clearSpans, isStartCantilever, isEndCantilever);
+                var seg = GetTopSegmentForSupport(i, totalLength, clearSpans, isStartCantilever, isEndCantilever, isT2);
                 if (seg.HasValue) segments.Add(seg.Value);
             }
 
@@ -141,7 +142,8 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
             double totalLength, 
             List<(double Start, double End)> clearSpans,
             bool isStartCantilever,
-            bool isEndCantilever)
+            bool isEndCantilever,
+            bool isT2 = true)
         {
             if (clearSpans == null || clearSpans.Count == 0) return null;
 
@@ -155,18 +157,18 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
             // Near face is the end of the left span. Far face is the start of the right span.
             double nearFace;
             if (leftL.HasValue) nearFace = clearSpans[leftSpanIdx].End;
-            else if (rightL.HasValue) nearFace = clearSpans[rightSpanIdx].Start; // Failsafe
+            else if (rightL.HasValue) nearFace = clearSpans[rightSpanIdx].Start; 
             else return null;
 
             double farFace;
             if (rightL.HasValue) farFace = clearSpans[rightSpanIdx].Start;
-            else if (leftL.HasValue) farFace = clearSpans[leftSpanIdx].End; // Failsafe
+            else if (leftL.HasValue) farFace = clearSpans[leftSpanIdx].End; 
             else farFace = nearFace;
 
             double startPos = nearFace;
             double endPos = farFace;
 
-            // Left Extension
+            // --- Left Extension ---
             if (leftL.HasValue)
             {
                 bool isCant = (supportIndex == 0 && isStartCantilever);
@@ -178,7 +180,7 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
                 startPos = 0.0;
             }
 
-            // Right Extension
+            // --- Right Extension ---
             if (rightL.HasValue)
             {
                 int totalPhysicalSupports = clearSpans.Count + 1 - (isStartCantilever ? 1 : 0) - (isEndCantilever ? 1 : 0);

@@ -199,6 +199,10 @@ namespace antiGGGravity.StructuralRebar.Core.Geometry
             public ElementId ElementId;
             /// <summary>Whether this is an end support (at beam start or end) vs intermediate.</summary>
             public bool IsEndSupport;
+            /// <summary>Support priority for hierarchy resolution (1=Col/Wall, 2=Beam).</summary>
+            public int Priority;
+            /// <summary>Depth of the support (used for beam-beam resolution).</summary>
+            public double SupportDepth;
         }
 
         /// <summary>
@@ -253,7 +257,6 @@ namespace antiGGGravity.StructuralRebar.Core.Geometry
                 BoundingBoxXYZ bbox = col.get_BoundingBox(null);
                 if (bbox == null) continue;
 
-                // Z-check
                 if (minZ.HasValue && bbox.Max.Z < minZ.Value) continue;
                 if (maxZ.HasValue && bbox.Min.Z > maxZ.Value) continue;
 
@@ -262,6 +265,8 @@ namespace antiGGGravity.StructuralRebar.Core.Geometry
                 {
                     var info = result.Value;
                     info.ElementId = col.Id;
+                    info.Priority = 1; // High priority (Column)
+                    info.SupportDepth = bbox.Max.Z - bbox.Min.Z;
                     supports.Add(info);
                 }
             }
@@ -279,7 +284,6 @@ namespace antiGGGravity.StructuralRebar.Core.Geometry
                 BoundingBoxXYZ bbox = wall.get_BoundingBox(null);
                 if (bbox == null) continue;
 
-                // Z-check
                 if (minZ.HasValue && bbox.Max.Z < minZ.Value) continue;
                 if (maxZ.HasValue && bbox.Min.Z > maxZ.Value) continue;
 
@@ -288,16 +292,14 @@ namespace antiGGGravity.StructuralRebar.Core.Geometry
                 {
                     var info = result.Value;
                     info.ElementId = wall.Id;
+                    info.Priority = 1; // High priority (Wall)
+                    info.SupportDepth = bbox.Max.Z - bbox.Min.Z;
                     supports.Add(info);
                 }
             }
 
             // === Search Primary Beams (Structural Framing) ===
-            var primaryBeams = new FilteredElementCollector(doc)
-                .OfCategory(BuiltInCategory.OST_StructuralFraming)
-                .OfClass(typeof(FamilyInstance))
-                .Cast<FamilyInstance>()
-                .ToList();
+            var primaryBeams = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_StructuralFraming).OfClass(typeof(FamilyInstance)).Cast<FamilyInstance>().ToList();
 
             foreach (var pb in primaryBeams)
             {
@@ -305,81 +307,63 @@ namespace antiGGGravity.StructuralRebar.Core.Geometry
                 BoundingBoxXYZ bbox = pb.get_BoundingBox(null);
                 if (bbox == null) continue;
 
-                // Z-check ensures the primary beam is physically coplanar with our secondary beam
                 if (minZ.HasValue && bbox.Max.Z < minZ.Value) continue;
                 if (maxZ.HasValue && bbox.Min.Z > maxZ.Value) continue;
 
-                // Ensure the primary beam is actually perpendicular/crossing, not parallel
                 var locationCurve = pb.Location as LocationCurve;
                 if (locationCurve != null && locationCurve.Curve is Line pbLine)
                 {
                     XYZ pbDir = pbLine.Direction.Normalize();
-                    double dotParam = Math.Abs(pbDir.DotProduct(lineDir.Normalize()));
-                    
-                    // Dot product near 1 = parallel. Near 0 = perpendicular.
-                    // If it's more parallel than perpendicular (e.g., dot > 0.5), skip it.
-                    if (dotParam > 0.5) continue;
+                    if (Math.Abs(pbDir.DotProduct(lineDir.Normalize())) > 0.5) continue;
                 }
 
-                // Ensure that the intersecting beam is actually a *Support*.
-                // A true supporting primary beam will typically be deeper, meaning its bottom elevation 
-                // is lower than the bottom elevation of the continuous secondary beam.
-                // If the intersecting beam's bottom Z is >= the main beam's bottom Z, it's just framing into the side.
-                // minZ represents the main beam's bounding box min Z (roughly).
-                if (minZ.HasValue)
-                {
-                    // Adding a small tolerance (e.g., 50mm) to account for slight modeling discrepancies
-                    double tolZ = 50.0 / 304.8;
-                    // Note: minZ variable historically had a - 2.0ft tolerance applied to it outside this function.
-                    // We should re-calculate the true bottom Z here for an accurate comparison.
-                }
-
-                // Since minZ is passed in with a 2.0ft tolerance already applied in the caller, we need the exact host bottom Z.
-                // The true bottom Z of the continuous chain was passed in as `minZ + 2.0`.
                 double trueHostBotZ = minZ.HasValue ? minZ.Value + 2.0 : bbox.Min.Z;
                 double truePbBotZ = bbox.Min.Z;
-
-                // Get the physical width of the intersecting beam
                 double pbWidth = BeamGeometryModule.GetParamValue(pb, "Width", "b");
                 if (pbWidth <= 0) pbWidth = Math.Abs((bbox.Max - bbox.Min).DotProduct(lineDir.Normalize()));
 
-                // A beam is a support if it's deeper (by at least 50mm) OR wider (by at least 20mm)
+                // Hierarchy detection: Deeper or Wider
                 bool isDeeper = truePbBotZ <= trueHostBotZ - (50.0 / 304.8);
                 bool isWider = pbWidth >= supportWidth + (20.0 / 304.8);
 
-                // If the intersecting "primary beam" does not extend below the continuous beam by at least 50mm, 
-                // AND it is not wider than the secondary beam, it is framing in, not supporting.
-                if (!isDeeper && !isWider)
-                {
-                    continue; 
-                }
+                if (!isDeeper && !isWider) continue; 
 
                 var result = ProjectSupportOntoBeam(bbox, lineStart, lineDir, linePerp, lineLength, proximityTol);
                 if (result.HasValue)
                 {
                     var info = result.Value;
                     info.ElementId = pb.Id;
+                    info.Priority = 2; // Beam priority
+                    info.SupportDepth = bbox.Max.Z - bbox.Min.Z;
                     supports.Add(info);
                 }
             }
 
-            // Remove duplicates (e.g. nested families or overlapping bounding boxes at same coord)
+            // === Hierarchy Resolution ===
+            // 1. Group by location
+            // 2. Priority: Col/Wall > Deeper Beam > Wider Beam
             supports = supports.OrderBy(s => s.CenterOffset)
-                               .GroupBy(s => Math.Round(s.CenterOffset, 2)) // Group by center (within 1/100th ft)
-                               .Select(g => g.First())
+                               .GroupBy(s => Math.Round(s.CenterOffset, 2))
+                               .Select(g => 
+                               {
+                                   // Within this physical point, find the best support
+                                   return g.OrderBy(s => s.Priority) // 1 (Col) is better than 2 (Beam)
+                                           .ThenByDescending(s => s.SupportDepth) // Deeper is better
+                                           .ThenByDescending(s => s.SupportWidth) // Wider is better
+                                           .First();
+                               })
                                .ToList();
 
-            // Sort by center offset and classify end vs intermediate
-            supports.Sort((a, b) => a.CenterOffset.CompareTo(b.CenterOffset));
-
-            // Mark end supports: those whose center is within 50mm of line start or end
-            double endTol = 100.0 / 304.8; // 100mm
+            // Mark end supports
+            double endTol = 100.0 / 304.8;
             for (int i = 0; i < supports.Count; i++)
             {
                 var s = supports[i];
                 s.IsEndSupport = (s.CenterOffset < endTol) || (s.CenterOffset > lineLength - endTol);
                 supports[i] = s;
             }
+
+            return supports;
 
             return supports;
         }

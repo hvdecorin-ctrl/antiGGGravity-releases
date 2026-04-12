@@ -219,9 +219,22 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
 
                     if (request.EnableZoneSpacing)
                     {
-                        var zones = ZoneSpacingCalculator.CalculateBeamZones(
-                            spanLen, spanHost.Height, request.TransverseSpacing,
-                            offset, request.DesignCode);
+                        // Check if this specific span is a cantilever
+                        int spanIdx = clearSpans.IndexOf(spanBound);
+                        bool isCant = (spanIdx == 0 && isStartCantilever) || (spanIdx == clearSpans.Count - 1 && isEndCantilever);
+
+                        List<SpacingZone> zones;
+                        if (isCant)
+                        {
+                            // Enforce 100mm throughout cantilever spans
+                            zones = ZoneSpacingCalculator.CalculateCantileverZones(spanLen, offset);
+                        }
+                        else
+                        {
+                            zones = ZoneSpacingCalculator.CalculateBeamZones(
+                                spanLen, spanHost.Height, request.TransverseSpacing,
+                                offset, request.DesignCode);
+                        }
 
                         foreach (var zone in zones)
                         {
@@ -305,7 +318,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                 }
                 else
                 {
-                    segments = antiGGGravity.StructuralRebar.Core.Calculators.AdditionalBarCalculator.CalculateTopAdditionalSegments(barLen, shiftedSpans, isStartCantilever, isEndCantilever);
+                    // T2 / Additional layers - Apply cantilever anchorage rule: max(1.5Lc, Lb/3)
+                    segments = antiGGGravity.StructuralRebar.Core.Calculators.AdditionalBarCalculator.CalculateTopAdditionalSegments(barLen, shiftedSpans, isStartCantilever, isEndCantilever, isT2: true);
                 }
 
                 for (int si = 0; si < segments.Count; si++)

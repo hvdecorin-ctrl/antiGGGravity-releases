@@ -157,5 +157,20 @@ namespace antiGGGravity.StructuralRebar.Core.Calculators
 
             return zones;
         }
+
+        /// <summary>
+        /// Calculates stirrup zones for cantilever spans.
+        /// Enforces a hard-coded 100mm spacing throughout the entire span as per engineering standard.
+        /// </summary>
+        public static List<SpacingZone> CalculateCantileverZones(double cantileverLength, double startOffset)
+        {
+            var zones = new List<SpacingZone>();
+            double spacing100mm = UnitConversion.MmToFeet(100.0);
+
+            // Cantilevers have uniform tight spacing throughout their length
+            zones.Add(new SpacingZone(startOffset, cantileverLength, spacing100mm, "Cantilever (100mm)"));
+
+            return zones;
+        }
     }
 }
