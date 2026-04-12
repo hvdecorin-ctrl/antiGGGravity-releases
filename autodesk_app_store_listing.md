@@ -71,7 +71,8 @@ The most comprehensive parametric reinforcement engine available for Revit:
 • Foundations — strip footings, pad footings, irregular-shape pads, bored piles, and side rebar
 • Columns — rectangular and circular profiles with ties, spirals, starter bars, and multi-level stack splicing
 • Walls — single and dual-face layouts, corner reinforcement (L and U), top/bottom/end U-bars, auto-trim at intersections, and starter bars
-• Beams — single and continuous spans, up to 6 rebar layers (T1–T3, B1–B3), stirrup confinement zones, side/skin bars, and lap splices
+• Beams — single and continuous spans with **intelligent support detection** (Column > Wall > Depth > Width priority). Supports up to 6 rebar layers (T1–B3), stirrup confinement zones, side/skin bars, and automated lap splices.
+• **Cantilever Automation** — Automatically detects overhanging beam spans and applies standard engineering detailing, including back-span anchorage extensions for top reinforcement.
 • Full parametric control over bar diameters, covers, spacing, hooks, and automatic rebar comments for scheduling
 • Floating Rebar Palette — persistent toolbar with obscured/unobscured toggles, host-based isolation, cranked lap splices, and bar splitting
 

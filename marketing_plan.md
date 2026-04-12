@@ -60,6 +60,8 @@ The rebar automation space is where antiGGGravity truly dominates. Here's how $5
 | **Columns** | ✅ Rectangular + Circular, spirals, stack splicing, starter bars | ✅ Columns | ✅ Columns | ✅ Columns | ⚠️ Basic |
 | **Walls** | ✅ Multi-face, L/U corners, U-bars, auto-trim, starters, lap splices | ✅ Walls | ✅ Walls | ✅ Walls | ❌ |
 | **Beams** | ✅ 6-layer (T1–B3), continuous spans, stirrup zones, side bars, lap splices | ✅ Beams | ✅ Beams | ✅ Beams | ⚠️ Basic |
+| **Support Intelligence** | **✅ Priority: Column > Wall > Depth > Width** | ❌ Manual | ❌ Manual | ❌ Manual | ❌ |
+| **Cantilever Detailing** | **✅ Auto-detect + Anchorage extensions** | ⚠️ Limited | ❌ | ❌ | ❌ |
 | **Cranked splices** | ✅ 1:6 automated crank | ⚠️ Manual | ❌ | ❌ | ❌ |
 | **Rebar Palette (floating tools)** | ✅ 11 sub-tools | ❌ | ❌ | ❌ | ❌ |
 | **Quantity takeoff** | ✅ By host category + host mark | ✅ Schedules | ⚠️ Limited | ❌ | ❌ |

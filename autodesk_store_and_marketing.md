@@ -71,7 +71,8 @@ The most comprehensive parametric reinforcement engine available for Revit:
 • Foundations — strip footings, pad footings, irregular-shape pads, bored piles, and side rebar
 • Columns — rectangular and circular profiles with ties, spirals, starter bars, and multi-level stack splicing
 • Walls — single and dual-face layouts, corner reinforcement (L and U), top/bottom/end U-bars, auto-trim at intersections, and starter bars
-• Beams — single and continuous spans, up to 6 rebar layers (T1–T3, B1–B3), stirrup confinement zones, side/skin bars, and lap splices
+• Beams — single and continuous spans with **intelligent support detection** (Column > Wall > Depth > Width priority). Supports up to 6 rebar layers (T1–B3), stirrup confinement zones, side/skin bars, and automated lap splices.
+• **Cantilever Automation** — Automatically detects overhanging beam spans and applies standard engineering detailing, including back-span anchorage extensions for top reinforcement.
 • Full parametric control over bar diameters, covers, spacing, hooks, and automatic rebar comments for scheduling
 • Floating Rebar Palette — persistent toolbar with obscured/unobscured toggles, host-based isolation, cranked lap splices, and bar splitting
 
@@ -196,11 +197,9 @@ Version 1.0.0 (April 2026)
 • Roof Framing generation works best with simple and moderately complex roof
   geometry. Highly irregular roof shapes may require manual adjustment of
   individual members after generation.
-• The Transfer Family tool requires both source and target documents to be open
-  in the same Revit session.
 ```
 
-**Character count: ~580**
+**Character count: ~430**
 
 ---
 
@@ -429,6 +428,8 @@ The rebar automation space is where antiGGGravity truly dominates. Here's how yo
 | **Columns** | ✅ Rectangular + Circular, spirals, stack splicing, starter bars | ✅ Columns | ✅ Columns | ✅ Columns | ⚠️ Basic |
 | **Walls** | ✅ Multi-face, L/U corners, U-bars, auto-trim, starters, lap splices | ✅ Walls | ✅ Walls | ✅ Walls | ❌ |
 | **Beams** | ✅ 6-layer (T1–B3), continuous spans, stirrup zones, side bars, lap splices | ✅ Beams | ✅ Beams | ✅ Beams | ⚠️ Basic |
+| **Support Intelligence** | **✅ Priority: Column > Wall > Depth > Width** | ❌ Manual | ❌ Manual | ❌ Manual | ❌ |
+| **Cantilever Detailing** | **✅ Auto-detect + Anchorage extensions** | ⚠️ Limited | ❌ | ❌ | ❌ |
 | **Cranked splices** | ✅ 1:6 automated crank | ⚠️ Manual | ❌ | ❌ | ❌ |
 | **Rebar Palette (floating tools)** | ✅ 11 sub-tools | ❌ | ❌ | ❌ | ❌ |
 | **Quantity takeoff** | ✅ By host category + host mark | ✅ Schedules | ⚠️ Limited | ❌ | ❌ |
