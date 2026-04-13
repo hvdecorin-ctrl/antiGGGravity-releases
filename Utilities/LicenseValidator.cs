@@ -4,7 +4,7 @@ namespace antiGGGravity.Utilities
 {
     /// <summary>
     /// Validates licenses using offline HMAC-signed keys.
-    /// Supports a 7-day free trial period from first install.
+    /// Supports a 14-day free trial period from first install.
     /// Results are cached per Revit session for performance.
     /// </summary>
     public static class LicenseValidator
@@ -12,7 +12,7 @@ namespace antiGGGravity.Utilities
         /// <summary>
         /// Number of free trial days from first install.
         /// </summary>
-        public const int TrialDays = 7;
+        public const int TrialDays = 14;
 
         /// <summary>
         /// Tolerance in hours before flagging clock tampering.
@@ -60,7 +60,10 @@ namespace antiGGGravity.Utilities
         private static LicenseResult PerformValidation()
         {
 #if EMBED_LICENSE
-            return LicenseResult.Valid(DateTime.UtcNow.AddYears(99));
+            // For distribution builds, we strictly enforce the 14-day trial
+            LicenseStorage.EnsureInstallDateRecorded();
+            var effectiveNow = GetEffectiveUtcNow();
+            return CheckTrialPeriod(effectiveNow);
 #else
             // 1. Record install date for trial tracking
             LicenseStorage.EnsureInstallDateRecorded();
@@ -205,7 +208,7 @@ namespace antiGGGravity.Utilities
             IsValid = false,
             IsTrial = true,
             TrialDaysRemaining = 0,
-            Message = "Your 7-day free trial has expired.\nPlease activate a license to continue using antiGGGravity."
+            Message = "Your 14-day free trial has expired.\nPlease activate a license to continue using antiGGGravity."
         };
 
         public static LicenseResult Expired(DateTime expiry) => new LicenseResult

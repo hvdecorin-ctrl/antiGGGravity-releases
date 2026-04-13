@@ -39,16 +39,16 @@ foreach ($v in $VersionsToBuild) {
     # 2. RESTORE
     Write-Host "Restoring for $v..." -ForegroundColor Gray
     $msbuildPath = "C:\Program Files\Microsoft Visual Studio\18\Community\MSBuild\Current\Bin\MSBuild.exe"
-    & $msbuildPath antiGGGravity.csproj /t:Restore /p:Configuration=$v
+    & $msbuildPath antiGGGravity.csproj /t:Restore /p:Configuration=$v /p:EmbedLicense=true
 
     # 3. CLEAN & BUILD
     if ($isNetCore) {
         # NET 8+ / NET 10 uses dotnet build
-        dotnet build antiGGGravity.csproj -c $v --no-incremental
+        dotnet build antiGGGravity.csproj -c $v --no-incremental -p:EmbedLicense=true
     } else {
         # NET 4.8 WPF builds have MC1000 bugs in 'dotnet build'. 
         # We use Full MSBuild.exe from Visual Studio to fix this.
-        & $msbuildPath antiGGGravity.csproj /p:Configuration=$v /p:DeployToRevit=false /t:Clean,Build /nodeReuse:false
+        & $msbuildPath antiGGGravity.csproj /p:Configuration=$v /p:DeployToRevit=false /p:EmbedLicense=true /t:Clean,Build /nodeReuse:false
     }
     
     if ($LASTEXITCODE -ne 0) {

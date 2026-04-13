@@ -62,7 +62,9 @@ namespace antiGGGravity.StructuralRebar
                 if (Directory.Exists(devPath)) baseFolder = devPath;
             }
 
-            string versionFolder = Path.Combine(baseFolder, versionKey);
+            // Map Revit versions to shape folders: R22-R25 → R22, R26+ → R26
+            string shapeFolderKey = GetShapeFolderKey(versionKey);
+            string versionFolder = Path.Combine(baseFolder, shapeFolderKey);
             string shapesFolder = Directory.Exists(versionFolder) ? versionFolder : baseFolder;
 
             if (!Directory.Exists(shapesFolder))
@@ -205,6 +207,21 @@ namespace antiGGGravity.StructuralRebar
 
             TaskDialog.Show("Setup Shapes", report);
             return Result.Succeeded;
+        }
+
+        /// <summary>
+        /// Maps a Revit version key (e.g. "R22", "R25", "R27") to the correct shape folder key.
+        /// R22-R25 use R22 shapes (net48 era), R26+ use R26 shapes (net8 era).
+        /// </summary>
+        private static string GetShapeFolderKey(string versionKey)
+        {
+            // Extract the numeric part (e.g., "R26" → 26)
+            if (versionKey.Length >= 3 && int.TryParse(versionKey.Substring(1), out int ver))
+            {
+                return ver >= 26 ? "R26" : "R22";
+            }
+            // Fallback: try exact match
+            return versionKey;
         }
     }
 }

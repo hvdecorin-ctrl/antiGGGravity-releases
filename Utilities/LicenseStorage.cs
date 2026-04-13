@@ -213,7 +213,7 @@ namespace antiGGGravity.Utilities
         #region Trial / Install Date
 
         /// <summary>
-        /// Records the first-ever install date for the 7-day free trial.
+        /// Records the first-ever install date for the 14-day free trial.
         /// Only writes if the file doesn't already exist.
         /// </summary>
         public static void EnsureInstallDateRecorded()

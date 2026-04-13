@@ -35,6 +35,10 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
         private List<BeamSpanResolver.SupportInfo> _lastSupports = new List<BeamSpanResolver.SupportInfo>();
         private double _totalLength = 0;
 
+        // Physical endpoint cache (must match engine's ProcessContinuousBeam reference frame)
+        private XYZ _trueStartPt;
+        private XYZ _trueEndPt;
+
         public BeamAdvancePanel(UIDocument uiDoc, IRebarWindow parentWindow)
         {
             InitializeComponent();
@@ -181,12 +185,12 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 var targetChain = groups.FirstOrDefault(g => g.Any(b => b.Id == hostBeam.Id));
                 if (targetChain == null || targetChain.Count == 0) return;
 
-                XYZ firstEnd = (targetChain.First().Location as LocationCurve).Curve.GetEndPoint(0);
-                XYZ lastEnd = (targetChain.Last().Location as LocationCurve).Curve.GetEndPoint(1);
+                // Use cached physical endpoints (same reference frame as engine)
+                if (_trueStartPt == null || _trueEndPt == null) return;
                 
-                XYZ lineDir = (lastEnd - firstEnd).Normalize();
+                XYZ lineDir = (_trueEndPt - _trueStartPt).Normalize();
                 XYZ linePerp = new XYZ(-lineDir.Y, lineDir.X, 0);
-                XYZ beamStart2D = new XYZ(firstEnd.X, firstEnd.Y, 0);
+                XYZ beamStart2D = new XYZ(_trueStartPt.X, _trueStartPt.Y, 0);
 
                 foreach (Reference extRef in refs)
                 {
@@ -277,18 +281,42 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             var targetChain = groups.FirstOrDefault(g => g.Any(b => b.Id == beam.Id));
             if (targetChain == null || targetChain.Count == 0) return;
 
-            // Resolve full geometry limits
-            XYZ firstEnd = (targetChain.First().Location as LocationCurve).Curve.GetEndPoint(0);
-            XYZ lastEnd = (targetChain.Last().Location as LocationCurve).Curve.GetEndPoint(1);
-            var hostGeom = BeamGeometryModule.Read(_doc, targetChain.First());
-            double width = hostGeom.Width;
-            double minZ = hostGeom.SolidZMin - 2.0;
-            double maxZ = hostGeom.SolidZMax + 2.0;
+            // === USE PHYSICAL SOLID GEOMETRY ENDPOINTS ===
+            // Must match ProcessContinuousBeam's reference frame exactly,
+            // otherwise support offsets will be wrong for beam supports
+            // (analytical endpoints differ from solid face endpoints by ~half support beam width).
+            var firstHostGeom = BeamGeometryModule.Read(_doc, targetChain.First());
+            XYZ refDir = firstHostGeom.LAxis;
+            XYZ refPt = firstHostGeom.StartPoint;
+
+            XYZ trueStart = refPt;
+            XYZ trueEnd = refPt;
+            double minProj = double.MaxValue;
+            double maxProj = double.MinValue;
+
+            foreach (var spanBeam in targetChain)
+            {
+                var hg = BeamGeometryModule.Read(_doc, spanBeam);
+                double p1 = (hg.StartPoint - refPt).DotProduct(refDir);
+                double p2 = (hg.EndPoint - refPt).DotProduct(refDir);
+
+                if (p1 < minProj) { minProj = p1; trueStart = hg.StartPoint; }
+                if (p2 < minProj) { minProj = p2; trueStart = hg.EndPoint; }
+                if (p1 > maxProj) { maxProj = p1; trueEnd = hg.StartPoint; }
+                if (p2 > maxProj) { maxProj = p2; trueEnd = hg.EndPoint; }
+            }
+
+            _trueStartPt = trueStart;
+            _trueEndPt = trueEnd;
+
+            double width = firstHostGeom.Width;
+            double minZ = firstHostGeom.SolidZMin - 2.0;
+            double maxZ = firstHostGeom.SolidZMax + 2.0;
 
             var excludeIds = targetChain.Select(b => b.Id).ToList();
 
-            _totalLength = firstEnd.DistanceTo(lastEnd);
-            _lastSupports = BeamSpanResolver.FindSupportsAlongLine(_doc, firstEnd, lastEnd, width, excludeIds, minZ, maxZ);
+            _totalLength = _trueStartPt.DistanceTo(_trueEndPt);
+            _lastSupports = BeamSpanResolver.FindSupportsAlongLine(_doc, _trueStartPt, _trueEndPt, width, excludeIds, minZ, maxZ);
             
             PopulateUIFromSupports(targetChain);
             

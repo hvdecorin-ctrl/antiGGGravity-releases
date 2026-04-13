@@ -21,7 +21,7 @@ For any issues, please contact the antiGGGravity development team at antiGGGravi
 
 License Activation:
 -------------------
-1. The add-in includes a 7-day free trial upon first installation.
+1. The add-in includes a 14-day free trial upon first installation.
 2. To activate permanently, open the 'License Manager' tool in the antiGGGravity tab.
 3. Copy your unique 'Hardware ID'.
 4. Send your Hardware ID to antiGGGravity.info@gmail.com to receive your Activation Key.
