@@ -39,7 +39,7 @@ antiGGGravity — BIM Productivity Toolkit
 > **Limit: 200 characters** — This is displayed under the title in search results and is the single most important piece of marketing copy.
 
 ```
-100+ Revit tools for just $5/month — less than a coffee. Automate rebar, generate framing, manage views, and boost your BIM productivity. Built for engineers, architects, and coordinators.
+100+ Revit tools for just $5.99/month — less than a coffee. Automate rebar, generate framing, manage views, and boost your BIM productivity. Built for engineers, architects, and coordinators.
 ```
 
 **Character count: 191**
@@ -52,7 +52,7 @@ antiGGGravity — BIM Productivity Toolkit
 
 ---
 
-**100+ professional tools. $5/month. Less than a cup of coffee ☕**
+**100+ professional tools. $5.99/month. Less than a cup of coffee ☕**
 
 That daily coffee takes 5 minutes to drink and it's gone. For the same price, antiGGGravity saves you **hours every single week** — and keeps working all month long.
 
@@ -62,15 +62,15 @@ Whether you're detailing reinforcement for a 40-storey concrete tower, generatin
 
 **Think about it:** a single rebar detailing task that used to take 30 minutes now takes 30 seconds. Placing roof framing members one by one — measuring angles, adjusting spacing, aligning connections — normally eats up **3 hours** of your day. With the Roof Framing engine? Select the roof, pick your member, set the spacing — **done in 1 minute**. That's 2 hours and 59 minutes back in your pocket from a single click.
 
-And the **Transfer Family** tool? It transfers live views, drafting views, sheets, view templates, and families between Revit documents in a single operation. Other tools charge premium prices just for content management alone. With antiGGGravity, you get Transfer Family **plus 99 other professional tools** — all for just **$5/month**.
+And the **Transfer Family** tool? It transfers live views, drafting views, sheets, view templates, and families between Revit documents in a single operation. Other tools charge premium prices just for content management alone. With antiGGGravity, you get Transfer Family **plus 99 other professional tools** — all for just **$5.99/month**.
 
 Do the math: one tool pays for itself in the first minute. The rest of the month? Pure profit for your productivity.
 
 **🏗️ STRUCTURAL REBAR AUTOMATION (Flagship)**
 The most comprehensive parametric reinforcement engine available for Revit:
 • Foundations — strip footings, pad footings, irregular-shape pads, bored piles, and side rebar
-• Columns — rectangular and circular profiles with ties, spirals, starter bars, and multi-level stack splicing
-• Walls — single and dual-face layouts, corner reinforcement (L and U), top/bottom/end U-bars, auto-trim at intersections, and starter bars
+• **Multi-Level Columns** — rectangular and circular profiles with ties, spirals, starter bars, and multi-level stack splicing
+• **Multi-Level Walls** — single and dual-face layouts, corner reinforcement (L and U), top/bottom/end U-bars, auto-trim at intersections, and starter bars
 • Beams — single and continuous spans with **intelligent support detection** (Column > Wall > Depth > Width priority). Supports up to 6 rebar layers (T1–B3), stirrup confinement zones, side/skin bars, and automated lap splices.
 • **Cantilever Automation** — Automatically detects overhanging beam spans and applies standard engineering detailing, including back-span anchorage extensions for top reinforcement.
 • Full parametric control over bar diameters, covers, spacing, hooks, and automatic rebar comments for scheduling
@@ -100,7 +100,7 @@ The most comprehensive parametric reinforcement engine available for Revit:
 • Wall constraint matching, element rotation, grid management, and text auditing
 • Project Audit — wipe empty tags, resolve annotation overlaps, batch text-style conversion
 
-**All of this for $5/month per PC. No hidden fees. No per-project charges. Just one flat price — less than a coffee — for the most comprehensive Revit toolkit available.**
+**All of this for $5.99/month per PC. No hidden fees. No per-project charges. Just one flat price — less than a coffee — for the most comprehensive Revit toolkit available.**
 
 Compatible with Revit 2022, 2023, 2024, 2025, 2026, and 2027. Runs on .NET Framework 4.8 and .NET 8.0/10.0. One-click installer with automatic version detection. 14-day free trial included.
 
