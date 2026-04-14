@@ -225,9 +225,19 @@
                 <!-- Foundation Starters -->
                 <Border Grid.Column="2" Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15">
                     <StackPanel>
-                        <CheckBox x:Name="UI_Check_Starters" Content="Foundation Starters" FontSize="13" Foreground="#333333" FontWeight="SemiBold"
-                                  VerticalAlignment="Center" Grid.Column="0"
-                                  Checked="Starters_Changed" Unchecked="Starters_Changed"/>
+                        <Grid Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <CheckBox x:Name="UI_Check_Starters" Content="Foundation Starters" FontSize="13" Foreground="#333333" FontWeight="SemiBold"
+                                      VerticalAlignment="Center" Grid.Column="0"
+                                      Checked="Starters_Changed" Unchecked="Starters_Changed"/>
+                            <CheckBox x:Name="UI_Check_StarterOnly" Content="Starter Only" FontSize="12" Foreground="#4A708B" FontWeight="SemiBold"
+                                      VerticalAlignment="Center" Grid.Column="2" IsChecked="False" ToolTip="Generate starter bars only (skip main bars and transverse)"
+                                      Checked="Starters_Changed" Unchecked="Starters_Changed"/>
+                        </Grid>
 
                         <StackPanel x:Name="UI_Panel_StarterFields" IsEnabled="{Binding IsChecked, ElementName=UI_Check_Starters}">
                             <Grid>

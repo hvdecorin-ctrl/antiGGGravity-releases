@@ -97,7 +97,12 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                     if (footingExt > 0) botExt = footingExt;
                 }
 
-                var circDefs = CircularColumnLayoutGenerator.Generate(_doc, host, request, topExt, botExt);
+                var circDefs = new List<RebarDefinition>();
+                // Main longitudinal bars (skip if StarterOnly mode)
+                if (!request.StarterOnly)
+                {
+                    circDefs = CircularColumnLayoutGenerator.Generate(_doc, host, request, topExt, botExt);
+                }
                 
                 // Add Circular Starters if foundation detected
                 if (request.EnableStarterBars && footingExt > 0)
@@ -111,8 +116,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                 var circIds = _creationService.PlaceRebar(column, circDefs);
                 bool success = circIds.Count > 0;
 
-                // Transverse logic (existing) ...
-                if (!string.IsNullOrEmpty(request.TransverseBarTypeName))
+                // Transverse logic (skip if StarterOnly mode)
+                if (!request.StarterOnly && !string.IsNullOrEmpty(request.TransverseBarTypeName))
                 {
                     double hostRadius = 0;
                     if (host.BoundaryCurves.Count > 0 && host.BoundaryCurves.Any(c => c is Arc))
@@ -204,8 +209,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
 
             var definitions = new List<RebarDefinition>();
 
-            // 1. Ties (Transverse)
-            if (!string.IsNullOrEmpty(request.TransverseBarTypeName))
+            // 1. Ties (Transverse) — skip if StarterOnly mode
+            if (!request.StarterOnly && !string.IsNullOrEmpty(request.TransverseBarTypeName))
             {
                 double tDia = GetBarDiameter(request.TransverseBarTypeName);
 
@@ -238,8 +243,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                 }
             }
 
-            // 2. Vertical Main Bars
-            if (!string.IsNullOrEmpty(request.VerticalBarTypeNameX) || !string.IsNullOrEmpty(request.VerticalBarTypeNameY))
+            // 2. Vertical Main Bars (skip if StarterOnly mode)
+            if (!request.StarterOnly && (!string.IsNullOrEmpty(request.VerticalBarTypeNameX) || !string.IsNullOrEmpty(request.VerticalBarTypeNameY)))
             {
                 double vDiaX = GetBarDiameter(request.VerticalBarTypeNameX);
                 double vDiaY = GetBarDiameter(request.VerticalBarTypeNameY);
@@ -463,8 +468,13 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                     }
 
 
-                    var circDefs = CircularColumnLayoutGenerator.Generate(_doc, host, request, topExt, botExt, 
-                        !isBottom && crankUpper, !isTop && crankLower);
+                    var circDefs = new List<RebarDefinition>();
+                    // Main longitudinal bars (skip if StarterOnly mode)
+                    if (!request.StarterOnly)
+                    {
+                        circDefs = CircularColumnLayoutGenerator.Generate(_doc, host, request, topExt, botExt, 
+                            !isBottom && crankUpper, !isTop && crankLower);
+                    }
                     
                     // Starters for bottom column
                     if (isBottom && request.EnableStarterBars && footingExt > 0)
@@ -477,8 +487,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                     var circIds = _creationService.PlaceRebar(column, circDefs);
                     if (circIds.Count > 0) anySuccess = true;
 
-                    // Manually generate Transverse Reinforcement for Circular Columns
-                    if (!string.IsNullOrEmpty(request.TransverseBarTypeName))
+                    // Transverse Reinforcement for Circular Columns (skip if StarterOnly mode)
+                    if (!request.StarterOnly && !string.IsNullOrEmpty(request.TransverseBarTypeName))
                     {
                         double hostRadius = 0;
                         if (host.BoundaryCurves.Count > 0 && host.BoundaryCurves.Any(c => c is Arc))
@@ -571,8 +581,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                 
                 double maxBarDiaStandard = Math.Max(vDiaX, vDiaY);
 
-                // ── 1. TIES (same as single-column, reuse existing logic) ──
-                if (!string.IsNullOrEmpty(request.TransverseBarTypeName))
+                // ── 1. TIES (skip if StarterOnly mode) ──
+                if (!request.StarterOnly && !string.IsNullOrEmpty(request.TransverseBarTypeName))
                 {
                     if (request.EnableZoneSpacing)
                     {
@@ -597,8 +607,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                     }
                 }
 
-                // ── 2. VERTICAL BARS with multi-level splice logic ──
-                if (vDiaX > 0 || vDiaY > 0)
+                // ── 2. VERTICAL BARS with multi-level splice logic (skip if StarterOnly mode) ──
+                if (!request.StarterOnly && (vDiaX > 0 || vDiaY > 0))
                 {
                     var layerTempl = request.Layers.FirstOrDefault() ?? new RebarLayerConfig();
 

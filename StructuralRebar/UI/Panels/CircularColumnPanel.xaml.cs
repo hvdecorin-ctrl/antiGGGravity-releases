@@ -106,6 +106,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 UI_Combo_LapMode.SelectedIndex = SettingsManager.GetInt(VIEW_NAME, "LapMode", 0);
                 UI_Text_LapSplice.Text = SettingsManager.Get(VIEW_NAME, "LapSplice", "40");
                 UI_Text_StarterDevLength.Text = SettingsManager.Get(VIEW_NAME, "StarterDevLength", "0");
+                UI_Check_StarterOnly.IsChecked = SettingsManager.GetBool(VIEW_NAME, "StarterOnly", false);
 
                 SelectHookByName(UI_Combo_TransHookStart, SettingsManager.Get(VIEW_NAME, "TransHookStart"));
                 SelectHookByName(UI_Combo_TransHookEnd, SettingsManager.Get(VIEW_NAME, "TransHookEnd"));
@@ -148,6 +149,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 SettingsManager.Set(VIEW_NAME, "LapMode", UI_Combo_LapMode.SelectedIndex.ToString());
                 SettingsManager.Set(VIEW_NAME, "LapSplice", UI_Text_LapSplice.Text);
                 SettingsManager.Set(VIEW_NAME, "Starters", (UI_Check_Starters.IsChecked == true).ToString());
+                SettingsManager.Set(VIEW_NAME, "StarterOnly", (UI_Check_StarterOnly.IsChecked == true).ToString());
                 SettingsManager.Set(VIEW_NAME, "StarterDevLength", UI_Text_StarterDevLength.Text);
 
                 SettingsManager.Set(VIEW_NAME, "TransHookStart", HookName(UI_Combo_TransHookStart));
@@ -196,6 +198,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
 
                 // Starters
                 EnableStarterBars = (UI_Check_Starters.IsChecked == true),
+                StarterOnly = (UI_Check_StarterOnly.IsChecked == true),
                 StarterBarTypeName = TransTypeName(UI_Combo_StarterType),
                 StarterHookEndName = HookName(UI_Combo_StarterHook),
                 StarterDevLength = UnitConversion.MmToFeet(ParseDouble(UI_Text_StarterDevLength.Text, 0)),
@@ -259,8 +262,21 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
 
         private void Starters_Changed(object sender, RoutedEventArgs e)
         {
-            if (UI_Panel_StarterFields == null || UI_Check_Starters == null) return;
+            if (UI_Panel_StarterFields == null || UI_Check_Starters == null || UI_Check_StarterOnly == null) return;
             bool isChecked = UI_Check_Starters.IsChecked == true;
+            bool starterOnly = UI_Check_StarterOnly.IsChecked == true;
+
+            // StarterOnly auto-enables Starters
+            if (starterOnly && !isChecked)
+            {
+                UI_Check_Starters.IsChecked = true;
+                isChecked = true;
+            }
+
+            // StarterOnly only available when Starters enabled
+            UI_Check_StarterOnly.IsEnabled = isChecked;
+            UI_Check_StarterOnly.Opacity = isChecked ? 1.0 : 0.5;
+
             UI_Panel_StarterFields.IsEnabled = isChecked;
             UI_Panel_StarterFields.Opacity = isChecked ? 1.0 : 0.5;
         }

@@ -251,9 +251,13 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <CheckBox x:Name="UI_Check_Starters" Content="Starter Bars (into Foundation)" FontSize="13" Foreground="#333333" FontWeight="SemiBold"
+                        <CheckBox x:Name="UI_Check_Starters" Content="Foundation Starters" FontSize="13" Foreground="#333333" FontWeight="SemiBold"
                                   VerticalAlignment="Center" Grid.Column="0"
+                                  Checked="Starters_Changed" Unchecked="Starters_Changed"/>
+                        <CheckBox x:Name="UI_Check_StarterOnly" Content="Starter Only" FontSize="12" Foreground="#4A708B" FontWeight="SemiBold"
+                                  VerticalAlignment="Center" Grid.Column="2" IsChecked="False" ToolTip="Generate starter bars only (skip vertical bars and ties)"
                                   Checked="Starters_Changed" Unchecked="Starters_Changed"/>
                     </Grid>
 

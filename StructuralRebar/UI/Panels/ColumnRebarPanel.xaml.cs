@@ -121,6 +121,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 UI_Text_StarterDevLength.Text = SettingsManager.Get(VIEW_NAME, "StarterDevLength", "0");
                 SelectByName(UI_Combo_StarterType, SettingsManager.Get(VIEW_NAME, "StarterType"));
                 SelectHookByName(UI_Combo_StarterHook, SettingsManager.Get(VIEW_NAME, "StarterHook"));
+                UI_Check_StarterOnly.IsChecked = SettingsManager.GetBool(VIEW_NAME, "StarterOnly", false);
 
                 // Lap Length Mode
                 UI_Text_LapSplice.Text = SettingsManager.Get(VIEW_NAME, "LapSplice", "40");
@@ -193,6 +194,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 // Multi-level settings
                 SettingsManager.Set(VIEW_NAME, "MultiLevel", (UI_Check_MultiLevel.IsChecked == true).ToString());
                 SettingsManager.Set(VIEW_NAME, "EnableStarters", (UI_Check_Starters.IsChecked == true).ToString());
+                SettingsManager.Set(VIEW_NAME, "StarterOnly", (UI_Check_StarterOnly.IsChecked == true).ToString());
                 SettingsManager.Set(VIEW_NAME, "CrankPosition", (UI_Combo_CrankPos.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Upper Column");
                 SettingsManager.Set(VIEW_NAME, "StarterDevLength", UI_Text_StarterDevLength.Text);
                 SettingsManager.Set(VIEW_NAME, "StarterType", TransTypeName(UI_Combo_StarterType));
@@ -258,6 +260,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
 
                 // Starter Bars
                 EnableStarterBars = (UI_Check_Starters.IsChecked == true),
+                StarterOnly = (UI_Check_StarterOnly.IsChecked == true),
                 StarterBarTypeName = (UI_Combo_StarterType.SelectedItem as RebarBarType)?.Name,
                 StarterHookEndName = (UI_Combo_StarterHook.SelectedItem as HookViewModel)?.Hook?.Name,
                 StarterDevLength = UnitConversion.MmToFeet(ParseDouble(UI_Text_StarterDevLength.Text, 0)),
@@ -346,9 +349,21 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
 
         private void Starters_Changed(object sender, RoutedEventArgs e)
         {
-            if (UI_Panel_StarterFields == null || UI_Check_Starters == null) return;
+            if (UI_Panel_StarterFields == null || UI_Check_Starters == null || UI_Check_StarterOnly == null) return;
             bool hasStarters = UI_Check_Starters.IsChecked == true;
-            
+            bool starterOnly = UI_Check_StarterOnly.IsChecked == true;
+
+            // StarterOnly auto-enables Starters
+            if (starterOnly && !hasStarters)
+            {
+                UI_Check_Starters.IsChecked = true;
+                hasStarters = true;
+            }
+
+            // StarterOnly only available when Starters enabled
+            UI_Check_StarterOnly.IsEnabled = hasStarters;
+            UI_Check_StarterOnly.Opacity = hasStarters ? 1.0 : 0.5;
+
             UI_Check_Starters.Opacity = hasStarters ? 1.0 : 0.5;
             UI_Panel_StarterFields.IsEnabled = hasStarters;
             UI_Panel_StarterFields.Opacity = hasStarters ? 1.0 : 0.5;

@@ -120,6 +120,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
 
                 UI_Text_StarterBar.Text = SettingsManager.Get(VIEW_NAME, "StarterBar", "800");
                 UI_Check_StarterEnabled.IsChecked = SettingsManager.GetBool(VIEW_NAME, "StarterEnabled", true);
+                UI_Check_StarterOnly.IsChecked = SettingsManager.GetBool(VIEW_NAME, "StarterOnly", false);
                 Starters_Changed(null, null);
 
 
@@ -194,6 +195,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 SettingsManager.Set(VIEW_NAME, "LapMode", (UI_Combo_LapMode.SelectedItem as ComboBoxItem)?.Content.ToString());
                 SettingsManager.Set(VIEW_NAME, "StarterBar", UI_Text_StarterBar.Text);
                 SettingsManager.Set(VIEW_NAME, "StarterEnabled", (UI_Check_StarterEnabled.IsChecked == true).ToString());
+                SettingsManager.Set(VIEW_NAME, "StarterOnly", (UI_Check_StarterOnly.IsChecked == true).ToString());
 
 
                 SettingsManager.Set(VIEW_NAME, "VertType", TransTypeName(UI_Combo_VertType));
@@ -252,6 +254,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                     : 0,
                 CrankPosition = (UI_Combo_CrankPos.SelectedItem as ComboBoxItem)?.Content.ToString() ?? "Lower Wall",
                 EnableStarterBars = (UI_Check_StarterEnabled.IsChecked == true),
+                StarterOnly = (UI_Check_StarterOnly.IsChecked == true),
                 StarterBarTypeName = (UI_Combo_StarterType.SelectedItem as RebarBarType)?.Name,
                 StarterHookEndName = HookName(UI_Combo_StarterHookEnd),
 
@@ -403,8 +406,21 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
 
         private void Starters_Changed(object sender, RoutedEventArgs e)
         {
-            if (UI_Panel_StarterFields == null || UI_Check_StarterEnabled == null) return;
+            if (UI_Panel_StarterFields == null || UI_Check_StarterEnabled == null || UI_Check_StarterOnly == null) return;
             bool hasStarters = UI_Check_StarterEnabled.IsChecked == true;
+            bool starterOnly = UI_Check_StarterOnly.IsChecked == true;
+
+            // StarterOnly auto-enables StarterEnabled
+            if (starterOnly && !hasStarters)
+            {
+                UI_Check_StarterEnabled.IsChecked = true;
+                hasStarters = true;
+            }
+
+            // StarterOnly only available when StarterEnabled
+            UI_Check_StarterOnly.IsEnabled = hasStarters;
+            UI_Check_StarterOnly.Opacity = hasStarters ? 1.0 : 0.5;
+
             UI_Check_StarterEnabled.Opacity = hasStarters ? 1.0 : 0.5;
             UI_Panel_StarterFields.IsEnabled = hasStarters;
             UI_Panel_StarterFields.Opacity = hasStarters ? 1.0 : 0.5;

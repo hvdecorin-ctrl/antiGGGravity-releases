@@ -157,6 +157,8 @@ namespace antiGGGravity.Commands.General
             try
             {
                 JoinAdvanceView win = new JoinAdvanceView(commandData);
+                var wrapper = new System.Windows.Interop.WindowInteropHelper(win);
+                wrapper.Owner = commandData.Application.MainWindowHandle;
                 win.Show();
                 return Result.Succeeded;
             }

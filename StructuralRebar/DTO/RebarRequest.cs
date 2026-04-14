@@ -117,6 +117,9 @@ namespace antiGGGravity.StructuralRebar.DTO
         /// <summary>Whether to extend starter bars from the bottom column into the foundation.</summary>
         public bool EnableStarterBars { get; set; }
 
+        /// <summary>When true, generate ONLY starter bars (skip vertical and horizontal bars).</summary>
+        public bool StarterOnly { get; set; }
+
         /// <summary>Bar type name for starter bars (defaults to vertical bar type if null).</summary>
         public string StarterBarTypeName { get; set; }
 

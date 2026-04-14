@@ -246,6 +246,15 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
             HostGeometry host = WallGeometryModule.Read(_doc, wall);
             if (host.Length <= 0 || host.Width <= 0 || host.Height <= 0) return false;
 
+            // --- FLIP CORRECTION ---
+            // When a wall is flipped (Flip Facing), wall.Orientation reverses but
+            // lAxis stays the same.  This causes RebarHookOrientation (Left/Right
+            // relative to lAxis) to point the wrong physical direction.
+            // Invert the hookOut flags so hooks always bend inward consistently.
+            bool isFlipped = wall.Flipped;
+            bool vHookStartOut = isFlipped ? !request.TransverseHookStartOut : request.TransverseHookStartOut;
+            bool vHookEndOut   = isFlipped ? !request.TransverseHookEndOut   : request.TransverseHookEndOut;
+
             // Find trim distances at intersecting wall faces
             var (startTrim, endTrim) = FindWallFaceTrimDistances(wall);
 
@@ -299,8 +308,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
             // Generate rebar for each layer
             foreach (var (vOff, hOff) in layers)
             {
-                // 1. Vertical Bars
-                if (!string.IsNullOrEmpty(request.TransverseBarTypeName) && vDia > 0)
+                // 1. Vertical Bars (skip if StarterOnly mode)
+                if (!request.StarterOnly && !string.IsNullOrEmpty(request.TransverseBarTypeName) && vDia > 0)
                 {
                     var vertDef = WallLayoutGenerator.CreateVerticalBars(
                         host, request.TransverseBarTypeName, vDia,
@@ -311,7 +320,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                         request.VerticalTopExtension, request.VerticalBottomExtension,
                         vOff,
                         request.TransverseHookStartName, request.TransverseHookEndName,
-                        request.TransverseHookStartOut, request.TransverseHookEndOut);
+                        vHookStartOut, vHookEndOut);
 
                     if (vertDef != null)
                     {
@@ -395,8 +404,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                     }
                 }
 
-                    // 2. Horizontal Bars
-                    if (request.Layers.Count > 0 && hDia > 0)
+                    // 2. Horizontal Bars (skip if StarterOnly mode)
+                    if (!request.StarterOnly && request.Layers.Count > 0 && hDia > 0)
                     {
                         var layer = request.Layers[0]; // Use first layer template for params
 
@@ -421,7 +430,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                                 hEndCover,
                                 hOff,
                                 layer.HookStartName, layer.HookEndName,
-                                layer.HookStartOutward, layer.HookEndOutward);
+                                isFlipped ? !layer.HookStartOutward : layer.HookStartOutward,
+                                isFlipped ? !layer.HookEndOutward : layer.HookEndOutward);
 
                             if (horizDef != null)
                             {
@@ -461,7 +471,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                         0, 0,
                         vOff,
                         request.StarterHookEndName, null, 
-                        request.TransverseHookStartOut, request.TransverseHookEndOut);
+                        vHookStartOut, vHookEndOut);
 
                     if (starterDef != null && starterDef.Curves.Count > 0)
                     {
@@ -505,6 +515,11 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                 var wall = stack[i];
                 HostGeometry host = WallGeometryModule.Read(_doc, wall);
                 if (host.Length <= 0 || host.Width <= 0 || host.Height <= 0) continue;
+
+                // --- FLIP CORRECTION (same as ProcessWall) ---
+                bool isFlipped = wall.Flipped;
+                bool vHookStartOut = isFlipped ? !request.TransverseHookStartOut : request.TransverseHookStartOut;
+                bool vHookEndOut   = isFlipped ? !request.TransverseHookEndOut   : request.TransverseHookEndOut;
 
                 bool isBottom = (i == 0);
                 bool isTop = (i == stack.Count - 1);
@@ -571,8 +586,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
 
                 foreach (var (vOff, hOff) in layers)
                 {
-                    // 1. Vertical Bars
-                    if (!string.IsNullOrEmpty(request.TransverseBarTypeName) && vDia > 0)
+                    // 1. Vertical Bars (skip if StarterOnly mode)
+                    if (!request.StarterOnly && !string.IsNullOrEmpty(request.TransverseBarTypeName) && vDia > 0)
                     {
                         var vertDef = WallLayoutGenerator.CreateVerticalBars(
                             host, request.TransverseBarTypeName, vDia,
@@ -585,7 +600,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                             vOff,
                             isBottom ? request.TransverseHookStartName : null, 
                             isTop ? request.TransverseHookEndName : null,
-                            request.TransverseHookStartOut, request.TransverseHookEndOut);
+                            vHookStartOut, vHookEndOut);
 
                         if (vertDef != null)
                         {
@@ -691,7 +706,7 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                             0, 0,
                             vOff,
                             request.StarterHookEndName, null, // Use Starter Hook from request
-                            request.TransverseHookStartOut, request.TransverseHookEndOut);
+                            vHookStartOut, vHookEndOut);
 
                         if (starterDef != null && starterDef.Curves.Count > 0)
                         {
@@ -719,8 +734,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                         }
                     }
 
-                        // 3. Horizontal Bars
-                        if (request.Layers.Count > 0 && hDia > 0)
+                        // 3. Horizontal Bars (skip if StarterOnly mode)
+                        if (!request.StarterOnly && request.Layers.Count > 0 && hDia > 0)
                         {
                             var layer = request.Layers[0];
 
@@ -743,7 +758,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                                     hEndCover,
                                     hOff,
                                     layer.HookStartName, layer.HookEndName,
-                                    layer.HookStartOutward, layer.HookEndOutward);
+                                    isFlipped ? !layer.HookStartOutward : layer.HookStartOutward,
+                                    isFlipped ? !layer.HookEndOutward : layer.HookEndOutward);
 
                                 if (horizDef != null)
                                 {
@@ -1045,6 +1061,8 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                 catch { /* Fallback to collector state as is (BB filter already applied) */ }
             }
 
+            double wallHeight = wallBox.Max.Z - wallBox.Min.Z;
+
             foreach (var elem in collector)
             {
                 // Skip the wall itself if somehow caught (shouldn't be in these categories)
@@ -1055,6 +1073,14 @@ namespace antiGGGravity.StructuralRebar.Core.Engine
                 {
                     // Ensure the element actually overlaps vertically with our wall's core height
                     if (bbox.Max.Z < wallBox.Min.Z || bbox.Min.Z > wallBox.Max.Z) continue;
+
+                    // Filter out tall / vertical elements (e.g. piling, columns) that
+                    // intersect the wall but should NOT create horizontal-bar exclusion zones.
+                    // Only treat an element as a "slab" if its Z-thickness is less than
+                    // half the wall height.  Piling typically spans the full wall height,
+                    // so this prevents them from wiping out all horizontal bars.
+                    double elemZHeight = bbox.Max.Z - bbox.Min.Z;
+                    if (elemZHeight > wallHeight * 0.5) continue;
 
                     ranges.Add((bbox.Min.Z, bbox.Max.Z));
                 }
