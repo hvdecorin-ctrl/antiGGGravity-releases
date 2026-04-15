@@ -177,6 +177,7 @@
                                 <CheckBox x:Name="UI_Check_Combine" Content="Combine into one file" IsChecked="True" Margin="0,5,0,0"/>
                                 <CheckBox x:Name="UI_Check_HideCrop" Content="Hide Crop Boundaries" IsChecked="True" Margin="0,5,0,0"/>
                                 <CheckBox x:Name="UI_Check_HideRef" Content="Hide Reference Planes" IsChecked="True" Margin="0,5,0,0"/>
+                                <CheckBox x:Name="UI_Check_HideUnref" Content="Hide Unreferenced View Tags" IsChecked="True" Margin="0,5,0,0"/>
                                 <CheckBox x:Name="UI_Check_Color" Content="Color Export (Force Color)" IsChecked="True" Margin="0,5,0,0"/>
                             </StackPanel>
                         </Border>

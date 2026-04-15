@@ -229,25 +229,29 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
         {
             if (UI_Combo_HookBot == null) return;
 
-            // Bottom Hook halftone
+            // Bottom Hook halftone — only Bend Outward requires a hook
             bool hasBotHook = (UI_Combo_HookBot.SelectedItem as HookViewModel)?.Hook != null;
             UI_Check_HookBotOut.IsEnabled = hasBotHook;
             UI_Check_HookBotOut.Opacity = hasBotHook ? 1.0 : 0.5;
-            UI_Check_BotExt.IsEnabled = hasBotHook;
-            UI_Check_BotExt.Opacity = hasBotHook ? 1.0 : 0.5;
+
+            // Bottom Extension — always available, independent of hook
+            UI_Check_BotExt.IsEnabled = true;
+            UI_Check_BotExt.Opacity = 1.0;
             
-            bool hasBotExt = hasBotHook && UI_Check_BotExt.IsChecked == true;
+            bool hasBotExt = UI_Check_BotExt.IsChecked == true;
             UI_Text_BotExtValue.IsEnabled = hasBotExt;
             UI_Text_BotExtValue.Opacity = hasBotExt ? 1.0 : 0.5;
 
-            // Top Hook halftone
+            // Top Hook halftone — only Bend Outward requires a hook
             bool hasTopHook = (UI_Combo_MainHook.SelectedItem as HookViewModel)?.Hook != null;
             UI_Check_HookTopOut.IsEnabled = hasTopHook;
             UI_Check_HookTopOut.Opacity = hasTopHook ? 1.0 : 0.5;
-            UI_Check_TopExt.IsEnabled = hasTopHook;
-            UI_Check_TopExt.Opacity = hasTopHook ? 1.0 : 0.5;
 
-            bool hasTopExt = hasTopHook && UI_Check_TopExt.IsChecked == true;
+            // Top Extension — always available, independent of hook
+            UI_Check_TopExt.IsEnabled = true;
+            UI_Check_TopExt.Opacity = 1.0;
+
+            bool hasTopExt = UI_Check_TopExt.IsChecked == true;
             UI_Text_TopExtValue.IsEnabled = hasTopExt;
             UI_Text_TopExtValue.Opacity = hasTopExt ? 1.0 : 0.5;
         }

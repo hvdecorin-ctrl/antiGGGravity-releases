@@ -52,6 +52,10 @@ panels:
             command: RebarQtyHostMarkCommand
             icon: RebarQtyHostMark
             tooltip: Show rebar quantity summary grouped by host mark (element ID).
+          - name: Rebar Q'ty Partition
+            command: RebarQtyPartitionCommand
+            icon: RebarQtyPartition
+            tooltip: Show rebar quantity summary grouped by Rebar Partition parameter.
       - type: pulldown
         name: Assign Mark
         icon: AssignMark
@@ -77,3 +81,16 @@ panels:
             command: RemoveElementNameCommand
             icon: RemoveElementName
             tooltip: Clear the 'Element Name' value from selected elements.
+      - type: pulldown
+        name: Partition
+        icon: RebarQtyPartition
+        tooltip: Assign rebar Partition from host element parameters.
+        buttons:
+          - name: Mark → Partition
+            command: MarkToPartitionCommand
+            icon: MarkToPartition
+            tooltip: Set each rebar's Partition to its host element's Mark value.
+          - name: ElementName → Partition
+            command: ElementNameToPartitionCommand
+            icon: ElementNameToPartition
+            tooltip: Set each rebar's Partition to its host element's Element Name value.

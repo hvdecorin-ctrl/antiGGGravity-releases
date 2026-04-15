@@ -573,8 +573,9 @@ namespace antiGGGravity.Commands.Transfer.UI
             Options.DuplicateHandlingPrefix = true;
             Options.PrefixString = "Copied_";
 
-            // Load saved standard file and folder paths
-            _transferSettings = TransferSettings.Load();
+            // Load saved standard file and folder paths (version-specific)
+            string revitVersion = _uiApp.Application.VersionNumber;
+            _transferSettings = TransferSettings.Load(revitVersion);
             _standard1Path = _transferSettings.Standard1Path;
             _standard2Path = _transferSettings.Standard2Path;
             _folder1Path = _transferSettings.Folder1Path;

@@ -5,7 +5,7 @@ namespace antiGGGravity.Views.Rebar
 {
     public partial class AssignElementNameView : Window
     {
-        public enum NamingMode { TypeMark, CustomName, TypeMarkXY }
+        public enum NamingMode { TypeMark, CustomName, TypeMarkXY, CopyExact }
         public enum NumberingRule { Auto, Manual }
         public enum ScopeOption { ActiveView, EntireProject }
 
@@ -13,6 +13,7 @@ namespace antiGGGravity.Views.Rebar
         public NamingMode SelectedNamingMode =>
             UI_Radio_TypeMark.IsChecked == true ? NamingMode.TypeMark :
             UI_Radio_TypeMarkXY.IsChecked == true ? NamingMode.TypeMarkXY :
+            UI_Radio_CopyExact.IsChecked == true ? NamingMode.CopyExact :
             NamingMode.CustomName;
         public NumberingRule SelectedNumberingRule => UI_Radio_Auto.IsChecked == true ? NumberingRule.Auto : NumberingRule.Manual;
         public ScopeOption SelectedScope => UI_Radio_ActiveView.IsChecked == true ? ScopeOption.ActiveView : ScopeOption.EntireProject;
@@ -53,6 +54,14 @@ namespace antiGGGravity.Views.Rebar
                 UI_CustomName_Panel.Visibility = UI_Radio_CustomName.IsChecked == true
                     ? Visibility.Visible
                     : Visibility.Collapsed;
+            }
+
+            // Hide Numbering Rule section when CopyExact is selected (no numbering needed)
+            if (UI_NumberingRule_Label != null && UI_NumberingRule_Panel != null)
+            {
+                var vis = UI_Radio_CopyExact.IsChecked == true ? Visibility.Collapsed : Visibility.Visible;
+                UI_NumberingRule_Label.Visibility = vis;
+                UI_NumberingRule_Panel.Visibility = vis;
             }
         }
 

@@ -1,0 +1,288 @@
+<Window x:Class="antiGGGravity.Views.Rebar.RebarPartitionWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Rebar Host Mark"
+        Width="950" Height="480" MinWidth="700" MinHeight="350"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        WindowStartupLocation="CenterScreen" ShowInTaskbar="True"
+        ResizeMode="CanResizeWithGrip">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="55" CornerRadius="12" GlassFrameThickness="0" ResizeBorderThickness="10"/>
+    </WindowChrome.WindowChrome>
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/antiGGGravity;component/Resources/Pre_BrandStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- DataGrid Styles -->
+            <Style x:Key="QtyDataGridStyle" TargetType="DataGrid">
+                <Setter Property="AutoGenerateColumns" Value="False"/>
+                <Setter Property="IsReadOnly" Value="True"/>
+                <Setter Property="Focusable" Value="False"/>
+                <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                <Setter Property="CanUserAddRows" Value="False"/>
+                <Setter Property="CanUserDeleteRows" Value="False"/>
+                <Setter Property="CanUserReorderColumns" Value="False"/>
+                <Setter Property="CanUserResizeRows" Value="False"/>
+                <Setter Property="CanUserSortColumns" Value="False"/>
+                <Setter Property="SelectionMode" Value="Single"/>
+                <Setter Property="SelectionUnit" Value="FullRow"/>
+                <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+                <Setter Property="HorizontalGridLinesBrush" Value="#E8E8E8"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Background" Value="White"/>
+                <Setter Property="RowBackground" Value="White"/>
+                <Setter Property="AlternatingRowBackground" Value="#FAFAFA"/>
+                <Setter Property="HeadersVisibility" Value="Column"/>
+                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="VirtualizingStackPanel.IsVirtualizing" Value="True"/>
+                <Setter Property="VirtualizingStackPanel.VirtualizationMode" Value="Recycling"/>
+            </Style>
+
+            <Style x:Key="QtyColumnHeaderStyle" TargetType="DataGridColumnHeader">
+                <Setter Property="Background" Value="#F0F0F0"/>
+                <Setter Property="Foreground" Value="#333"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="FontSize" Value="11"/>
+                <Setter Property="Padding" Value="8,6"/>
+                <Setter Property="BorderBrush" Value="#DDD"/>
+                <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            </Style>
+
+            <Style x:Key="QtyCellStyle" TargetType="DataGridCell">
+                <Setter Property="Padding" Value="6,4"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Focusable" Value="False"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="DataGridCell">
+                            <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                                <ContentPresenter VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <!-- TabControl Styles -->
+            <Style TargetType="TabControl">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="BorderThickness" Value="0"/>
+            </Style>
+            <Style TargetType="TabItem">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="BorderThickness" Value="0,0,0,2"/>
+                <Setter Property="BorderBrush" Value="Transparent"/>
+                <Setter Property="Foreground" Value="#666"/>
+                <Setter Property="FontSize" Value="13"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="Padding" Value="12,8"/>
+                <Setter Property="Margin" Value="0,0,10,0"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="TabItem">
+                            <Border Name="Border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}">
+                                <ContentPresenter x:Name="ContentSite" VerticalAlignment="Center" HorizontalAlignment="Center" ContentSource="Header"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter TargetName="Border" Property="BorderBrush" Value="#0078D7"/>
+                                    <Setter Property="Foreground" Value="#0078D7"/>
+                                </Trigger>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Foreground" Value="#0078D7"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="CalcLabelStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="13"/>
+                <Setter Property="Foreground" Value="#555"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="Margin" Value="0,0,8,0"/>
+            </Style>
+            <Style x:Key="CalcValueStyle" TargetType="TextBlock" BasedOn="{StaticResource CalcLabelStyle}">
+                <Setter Property="FontWeight" Value="Bold"/>
+                <Setter Property="Foreground" Value="#222"/>
+            </Style>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Border Style="{StaticResource PremiumBorderStyle}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="55"/>   <!-- Header -->
+                <RowDefinition Height="*"/>    <!-- DataGrid -->
+                <RowDefinition Height="Auto"/> <!-- Footer -->
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Border Grid.Row="0" Background="{StaticResource BrandGradientBrush}" CornerRadius="12,12,0,0">
+                <Grid Margin="15,0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" IsHitTestVisible="False">
+                        <TextBlock Style="{StaticResource CompanyLogoStyle}"/>
+                        <TextBlock Style="{StaticResource CompanyDividerStyle}"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Rebar Partition Quantity" Style="{StaticResource PremiumTitleStyle}"/>
+                            <TextBlock Text="Quantity Summary by Partition &amp; Diameter" Style="{StaticResource PremiumSubtitleStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <Button HorizontalAlignment="Right" VerticalAlignment="Center" 
+                            Style="{StaticResource PremiumIconButtonStyle}" Width="30" Height="30" Content="✕" 
+                            Click="Close_Click" WindowChrome.IsHitTestVisibleInChrome="True"/>
+                </Grid>
+            </Border>
+
+            <!-- Main Content Area -->
+            <TabControl Grid.Row="1" Margin="12,12,12,0">
+                
+                <!-- Tab 1: Original Matrix -->
+                <TabItem Header="Quantity Summary">
+                    <Grid Margin="0,10,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Search Box -->
+                        <Border Grid.Row="0" Background="#F5F5F5" CornerRadius="4" Padding="8,2" Margin="0,0,0,10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="🔍" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="#888"/>
+                                <TextBox x:Name="SearchBox" Grid.Column="1" 
+                                         Background="Transparent" BorderThickness="0" 
+                                         VerticalContentAlignment="Center" FontSize="13"
+                                         TextChanged="SearchBox_TextChanged"
+                                         Tag="Search Partition..."/>
+                                <TextBlock Grid.Column="1" Text="Search Partition..." 
+                                           VerticalAlignment="Center" IsHitTestVisible="False" 
+                                           Foreground="#888" Opacity="0.5" Margin="2,0,0,0">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Text, ElementName=SearchBox}" Value="">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Grid>
+                        </Border>
+
+                        <DataGrid x:Name="QtyGrid" Grid.Row="1"
+                                  Style="{StaticResource QtyDataGridStyle}"
+                                  ColumnHeaderStyle="{StaticResource QtyColumnHeaderStyle}"
+                                  CellStyle="{StaticResource QtyCellStyle}"/>
+                    </Grid>
+                </TabItem>
+
+                <!-- Tab 2: Calculation Method -->
+                <TabItem Header="Calculation Method">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="10,15,10,10">
+                            
+                            <!-- Theory Section -->
+                            <TextBlock Text="Standard Formulas" FontSize="16" FontWeight="SemiBold" Foreground="#333" Margin="0,0,0,10"/>
+                            
+                            <Border Background="#F9F9F9" BorderBrush="#EAEAEA" BorderThickness="1" CornerRadius="6" Padding="15" Margin="0,0,0,20">
+                                <StackPanel>
+                                    <TextBlock Text="1. Unit Weight" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                                    <TextBlock Text="Unit Weight (kg/m) = d² / 162.2" FontFamily="Consolas" Foreground="#005A9E" Margin="10,0,0,10"/>
+                                    
+                                    <TextBlock Text="2. Total Weight" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                                    <TextBlock Text="Total Weight (kg) = Total Length (m) × Unit Weight" FontFamily="Consolas" Foreground="#005A9E" Margin="10,0,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Interactive Lookup Section -->
+                            <TextBlock Text="Interactive Lookup Calculator" FontSize="16" FontWeight="SemiBold" Foreground="#333" Margin="0,0,0,10"/>
+                            
+                            <Border Background="White" BorderBrush="#0078D7" BorderThickness="1" CornerRadius="6" Padding="20">
+                                <StackPanel>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="30"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="100"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="15"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <!-- Row 0: Inputs -->
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Bar Dia (mm):" Style="{StaticResource CalcLabelStyle}"/>
+                                        <TextBox x:Name="InputDiameter" Grid.Row="0" Grid.Column="1" Height="26" Padding="5,0" VerticalContentAlignment="Center" Text="16" TextChanged="CalcInput_Changed"/>
+
+                                        <TextBlock Grid.Row="0" Grid.Column="3" Text="Total Length (m):" Style="{StaticResource CalcLabelStyle}"/>
+                                        <TextBox x:Name="InputLength" Grid.Row="0" Grid.Column="4" Height="26" Padding="5,0" VerticalContentAlignment="Center" Text="2571.2" TextChanged="CalcInput_Changed"/>
+
+                                        <!-- Row 2: Outputs -->
+                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Unit Wt (kg/m):" Style="{StaticResource CalcLabelStyle}"/>
+                                        <TextBlock x:Name="ResultUnitWeight" Grid.Row="2" Grid.Column="1" Text="1.58" Style="{StaticResource CalcValueStyle}"/>
+
+                                        <TextBlock Grid.Row="2" Grid.Column="3" Text="Total Wt (kg):" Style="{StaticResource CalcLabelStyle}"/>
+                                        <TextBlock x:Name="ResultTotalWeight" Grid.Row="2" Grid.Column="4" Text="4068.3" Style="{StaticResource CalcValueStyle}" Foreground="#0078D7"/>
+                                    </Grid>
+                                    
+                                    <!-- Note -->
+                                    <TextBlock Text="* The quantity summary tab uses these exact calculation principles." 
+                                               FontStyle="Italic" Foreground="#888" Margin="0,20,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+            </TabControl>
+
+            <!-- Footer -->
+            <Border Grid.Row="2" BorderBrush="#E8E8E8" BorderThickness="0,1,0,0" Margin="12,4,12,0">
+                <Grid Margin="0,8,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock x:Name="StatusText" Grid.Column="0" VerticalAlignment="Center"
+                               FontSize="11" Foreground="#888" Margin="4,0,0,0"/>
+
+                    <Button Grid.Column="1" Content="📋 Copy to Clipboard" 
+                            Style="{StaticResource PremiumPrimaryButtonStyle}"
+                            Padding="12,0" Margin="0,0,8,0"
+                            Click="CopyToClipboard_Click"
+                            WindowChrome.IsHitTestVisibleInChrome="True"/>
+
+                    <Button Grid.Column="2" Content="📊 Export to CSV" 
+                            Style="{StaticResource PremiumPrimaryButtonStyle}"
+                            Padding="12,0" Margin="0,0,8,0"
+                            Click="ExportToCsv_Click"
+                            WindowChrome.IsHitTestVisibleInChrome="True"/>
+
+                    <Button Grid.Column="3" Content="🔄 Refresh" 
+                            Style="{StaticResource PremiumPrimaryButtonStyle}"
+                            Padding="12,0"
+                            Click="Refresh_Click"
+                            WindowChrome.IsHitTestVisibleInChrome="True"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

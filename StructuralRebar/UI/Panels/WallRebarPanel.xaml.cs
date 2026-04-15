@@ -371,25 +371,29 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
         {
             if (UI_Combo_VertHookStart == null) return;
 
-            // Vertical Bottom Hook halftone
+            // Vertical Bottom Hook halftone — only Bend Outward requires a hook
             bool hasVertBotHook = (UI_Combo_VertHookStart.SelectedItem as HookViewModel)?.Hook != null;
             UI_Check_VertHookStartOut.IsEnabled = hasVertBotHook;
             UI_Check_VertHookStartOut.Opacity = hasVertBotHook ? 1.0 : 0.5;
-            UI_Check_VertBotExt.IsEnabled = hasVertBotHook;
-            UI_Check_VertBotExt.Opacity = hasVertBotHook ? 1.0 : 0.5;
+
+            // Bottom Extension — always available, independent of hook
+            UI_Check_VertBotExt.IsEnabled = true;
+            UI_Check_VertBotExt.Opacity = 1.0;
             
-            bool hasVertBotExt = hasVertBotHook && UI_Check_VertBotExt.IsChecked == true;
+            bool hasVertBotExt = UI_Check_VertBotExt.IsChecked == true;
             UI_Text_VertBotExt.IsEnabled = hasVertBotExt;
             UI_Text_VertBotExt.Opacity = hasVertBotExt ? 1.0 : 0.5;
 
-            // Vertical Top Hook halftone
+            // Vertical Top Hook halftone — only Bend Outward requires a hook
             bool hasVertTopHook = (UI_Combo_VertHookEnd.SelectedItem as HookViewModel)?.Hook != null;
             UI_Check_VertHookEndOut.IsEnabled = hasVertTopHook;
             UI_Check_VertHookEndOut.Opacity = hasVertTopHook ? 1.0 : 0.5;
-            UI_Check_VertTopExt.IsEnabled = hasVertTopHook;
-            UI_Check_VertTopExt.Opacity = hasVertTopHook ? 1.0 : 0.5;
 
-            bool hasVertTopExt = hasVertTopHook && UI_Check_VertTopExt.IsChecked == true;
+            // Top Extension — always available, independent of hook
+            UI_Check_VertTopExt.IsEnabled = true;
+            UI_Check_VertTopExt.Opacity = 1.0;
+
+            bool hasVertTopExt = UI_Check_VertTopExt.IsChecked == true;
             UI_Text_VertTopExt.IsEnabled = hasVertTopExt;
             UI_Text_VertTopExt.Opacity = hasVertTopExt ? 1.0 : 0.5;
 

@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace antiGGGravity.Commands.Transfer
 {
@@ -12,24 +13,36 @@ namespace antiGGGravity.Commands.Transfer
         public string Folder2Path { get; set; } = "";
         public string LastManagerFolderPath { get; set; } = "";
 
+        // Not serialized — set at runtime so Save() knows which file to write
+        [JsonIgnore]
+        private string _settingsFilePath;
+
         private static readonly string SettingsDir = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "antiGGGravity");
 
-        private static readonly string SettingsFile = Path.Combine(SettingsDir, "transfer_settings.json");
-
-        public static TransferSettings Load()
+        /// <summary>
+        /// Load version-specific settings. Each Revit version gets its own file
+        /// (e.g. transfer_settings_2022.json, transfer_settings_2026.json).
+        /// </summary>
+        public static TransferSettings Load(string revitVersion)
         {
+            string filePath = GetSettingsFilePath(revitVersion);
             try
             {
-                if (File.Exists(SettingsFile))
+                if (File.Exists(filePath))
                 {
-                    string json = File.ReadAllText(SettingsFile);
-                    return JsonSerializer.Deserialize<TransferSettings>(json) ?? new TransferSettings();
+                    string json = File.ReadAllText(filePath);
+                    var settings = JsonSerializer.Deserialize<TransferSettings>(json) ?? new TransferSettings();
+                    settings._settingsFilePath = filePath;
+                    return settings;
                 }
             }
             catch { /* Return defaults on any error */ }
-            return new TransferSettings();
+
+            var defaults = new TransferSettings();
+            defaults._settingsFilePath = filePath;
+            return defaults;
         }
 
         public void Save()
@@ -40,9 +53,18 @@ namespace antiGGGravity.Commands.Transfer
                     Directory.CreateDirectory(SettingsDir);
 
                 string json = JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(SettingsFile, json);
+                File.WriteAllText(_settingsFilePath, json);
             }
             catch { /* Silently fail if unable to save */ }
         }
+
+        private static string GetSettingsFilePath(string revitVersion)
+        {
+            string fileName = string.IsNullOrEmpty(revitVersion)
+                ? "transfer_settings.json"
+                : $"transfer_settings_{revitVersion}.json";
+            return Path.Combine(SettingsDir, fileName);
+        }
     }
 }
+

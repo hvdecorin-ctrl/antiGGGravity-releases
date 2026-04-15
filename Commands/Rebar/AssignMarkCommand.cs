@@ -73,6 +73,12 @@ namespace antiGGGravity.Commands.Rebar
             // Resolve category filter
             var categories = ResolveCategoryTag(categoryTag);
 
+            // CopyExact mode: just copy the source parameter value directly, no numbering
+            if (namingMode == AssignMarkView.NamingMode.CopyExact)
+            {
+                return RunCopyExactMode(doc, scope, prefixSource, categories);
+            }
+
             // Manual mode: user clicks elements one by one
             if (numberingRule == AssignMarkView.NumberingRule.Manual)
             {
@@ -81,6 +87,53 @@ namespace antiGGGravity.Commands.Rebar
 
             // Auto mode: collect and sort left-to-right
             return RunAutoMode(doc, namingMode, scope, prefixSource, customPrefix, categories);
+        }
+
+        /// <summary>
+        /// CopyExact mode: copies the source parameter value (TypeMark, TypeComments, TypeName) 
+        /// directly to each element's Mark without any numbering.
+        /// </summary>
+        private Result RunCopyExactMode(Document doc,
+            AssignMarkView.ScopeOption scope,
+            string prefixSource,
+            BuiltInCategory[] categories)
+        {
+            var allElements = CollectStructuralElements(doc, scope == AssignMarkView.ScopeOption.ActiveView, categories);
+
+            if (allElements.Count == 0)
+            {
+                TaskDialog.Show("Assign Mark", "No structural elements found in the selected scope.");
+                return Result.Succeeded;
+            }
+
+            int totalUpdated = 0;
+
+            using (Transaction t = new Transaction(doc, "Assign Mark (Copy Exact)"))
+            {
+                t.Start();
+
+                foreach (var elem in allElements)
+                {
+                    string value = GetPrefix(doc, elem, prefixSource);
+                    if (string.IsNullOrWhiteSpace(value)) continue;
+
+                    Parameter param = elem.get_Parameter(BuiltInParameter.ALL_MODEL_MARK) ?? elem.get_Parameter(BuiltInParameter.ROOM_NUMBER);
+                    if (param != null && !param.IsReadOnly)
+                    {
+                        param.Set(value);
+                        totalUpdated++;
+                    }
+                }
+
+                t.Commit();
+            }
+
+            TaskDialog.Show("Assign Mark",
+                $"Copy Exact complete!\n\n" +
+                $"  ✓ Updated: {totalUpdated} elements\n" +
+                $"  📋 Source: {prefixSource}");
+
+            return Result.Succeeded;
         }
 
         /// <summary>

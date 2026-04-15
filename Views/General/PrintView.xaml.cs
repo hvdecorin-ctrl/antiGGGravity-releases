@@ -200,6 +200,7 @@ namespace antiGGGravity.Views.General
                     UI_Check_Combine.IsChecked.ToString(),
                     UI_Check_Color.IsChecked.ToString(),
                     UI_Combo_CadSetups.SelectedIndex.ToString(),
+                    UI_Check_HideUnref.IsChecked.ToString(), // New Setting
                     "" // Reserved
                 };
                 File.WriteAllLines(GetSettingsPath(), settings);
@@ -220,6 +221,7 @@ namespace antiGGGravity.Views.General
                     if (lines.Length >= 3) UI_Check_Combine.IsChecked = lines[2].ToLower() == "true";
                     if (lines.Length >= 4) UI_Check_Color.IsChecked = lines[3].ToLower() == "true";
                     if (lines.Length >= 5 && int.TryParse(lines[4], out int cadIndex)) UI_Combo_CadSetups.SelectedIndex = cadIndex;
+                    if (lines.Length >= 6) UI_Check_HideUnref.IsChecked = lines[5].ToLower() == "true";
                 }
                 else
                 {
@@ -318,6 +320,7 @@ namespace antiGGGravity.Views.General
                     {
                         HideCropBoundaries = UI_Check_HideCrop.IsChecked == true,
                         HideReferencePlane = UI_Check_HideRef.IsChecked == true,
+                        HideUnreferencedViewTags = UI_Check_HideUnref.IsChecked == true,
                         Combine = UI_Check_Combine.IsChecked == true,
                         // ExportQuality = Autodesk.Revit.DB.PDFExportQuality.DPI300,
                         StopOnError = false

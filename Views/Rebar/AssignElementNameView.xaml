@@ -86,6 +86,9 @@
                             <RadioButton x:Name="UI_Radio_TypeMarkXY" Content="Prefix + X/Y + Number  (e.g. B1-X1, B1-Y1)" 
                                          FontSize="13" Foreground="#333" Margin="0,0,0,10"
                                          Checked="UI_NamingMode_Changed"/>
+                            <RadioButton x:Name="UI_Radio_CopyExact" Content="Copy Exact from Source  (no numbering)" 
+                                         FontSize="13" Foreground="#333" Margin="0,0,0,10"
+                                         Checked="UI_NamingMode_Changed"/>
                             <RadioButton x:Name="UI_Radio_CustomName" Content="Custom Name + Number" 
                                          FontSize="13" Foreground="#333"
                                          Checked="UI_NamingMode_Changed"/>
@@ -102,8 +105,8 @@
                     </Border>
 
                     <!-- NUMBERING RULE -->
-                    <TextBlock Text="Numbering Rule" Style="{DynamicResource PremiumSectionLabelStyle}" Margin="0,0,0,10"/>
-                    <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="{DynamicResource PremiumBorderBrush}" BorderThickness="1" Padding="15,12" Margin="0,0,0,15">
+                    <TextBlock x:Name="UI_NumberingRule_Label" Text="Numbering Rule" Style="{DynamicResource PremiumSectionLabelStyle}" Margin="0,0,0,10"/>
+                    <Border x:Name="UI_NumberingRule_Panel" Background="#FAFAFA" CornerRadius="8" BorderBrush="{DynamicResource PremiumBorderBrush}" BorderThickness="1" Padding="15,12" Margin="0,0,0,15">
                         <StackPanel>
                             <RadioButton x:Name="UI_Radio_Auto" Content="Auto (Left → Right sorting)" 
                                          IsChecked="True" FontSize="13" Foreground="#333" Margin="0,0,0,10"/>
