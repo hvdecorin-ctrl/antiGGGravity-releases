@@ -11,16 +11,97 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="20"/>
-            <ColumnDefinition Width="220"/>
-            <ColumnDefinition Width="20"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
+
+        <!-- ══════ MODE SELECTOR ══════ -->
+        <Border Grid.Row="0" Background="#F0F2F5" CornerRadius="8" Padding="4" Margin="0,0,0,15">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <RadioButton x:Name="UI_Radio_ModeColumn" Grid.Column="0" Content="Column" IsChecked="True"
+                             GroupName="CircColumnMode" Checked="ColumnMode_Changed"
+                             FontSize="13" FontWeight="SemiBold" Foreground="#333" Cursor="Hand"
+                             HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                             Height="34" Margin="2">
+                    <RadioButton.Template>
+                        <ControlTemplate TargetType="RadioButton">
+                            <Border x:Name="Bd" Background="Transparent" CornerRadius="6" Padding="12,6" SnapsToDevicePixels="True">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="White"/>
+                                    <Setter TargetName="Bd" Property="Effect">
+                                        <Setter.Value>
+                                            <DropShadowEffect ShadowDepth="1" BlurRadius="4" Opacity="0.15" Color="Black"/>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Setter Property="Foreground" Value="#1A73E8"/>
+                                </Trigger>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="#E8EAF0"/>
+                                </Trigger>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="IsMouseOver" Value="True"/>
+                                        <Condition Property="IsChecked" Value="True"/>
+                                    </MultiTrigger.Conditions>
+                                    <Setter TargetName="Bd" Property="Background" Value="White"/>
+                                </MultiTrigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </RadioButton.Template>
+                </RadioButton>
+                <RadioButton x:Name="UI_Radio_ModeMultiLevel" Grid.Column="1" Content="Multi Level Column" 
+                             GroupName="CircColumnMode" Checked="ColumnMode_Changed"
+                             FontSize="13" FontWeight="SemiBold" Foreground="#333" Cursor="Hand"
+                             HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                             Height="34" Margin="2">
+                    <RadioButton.Template>
+                        <ControlTemplate TargetType="RadioButton">
+                            <Border x:Name="Bd" Background="Transparent" CornerRadius="6" Padding="12,6" SnapsToDevicePixels="True">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="White"/>
+                                    <Setter TargetName="Bd" Property="Effect">
+                                        <Setter.Value>
+                                            <DropShadowEffect ShadowDepth="1" BlurRadius="4" Opacity="0.15" Color="Black"/>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Setter Property="Foreground" Value="#1A73E8"/>
+                                </Trigger>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="#E8EAF0"/>
+                                </Trigger>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="IsMouseOver" Value="True"/>
+                                        <Condition Property="IsChecked" Value="True"/>
+                                    </MultiTrigger.Conditions>
+                                    <Setter TargetName="Bd" Property="Background" Value="White"/>
+                                </MultiTrigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </RadioButton.Template>
+                </RadioButton>
+            </Grid>
+        </Border>
+
+        <!-- ══════ MAIN CONTENT ROW ══════ -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="220"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
         <!-- LEFT COLUMN: MAIN BARS & HOOKS -->
-        <StackPanel Grid.Row="0" Grid.Column="0">
+        <StackPanel Grid.Column="0">
             <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,15">
                 <StackPanel>
                     <!-- Main Longitudinal Section -->
@@ -78,7 +159,7 @@
         </StackPanel>
 
         <!-- CENTER COLUMN: VISUALIZATION -->
-        <StackPanel Grid.Row="0" Grid.Column="2" VerticalAlignment="Top">
+        <StackPanel Grid.Column="2" VerticalAlignment="Top">
             <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#E8E8E8" BorderThickness="1" Padding="10" Margin="0,0,0,15">
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="Pile Section preview" FontWeight="Bold" Foreground="#333" HorizontalAlignment="Center" Margin="0,0,0,10"/>
@@ -88,7 +169,7 @@
         </StackPanel>
 
         <!-- RIGHT COLUMN: TRANSVERSE (Ties/Spiral) -->
-        <StackPanel Grid.Row="0" Grid.Column="4">
+        <StackPanel Grid.Column="4">
             <Border Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15" Margin="0,0,0,15">
                 <StackPanel>
                     <TextBlock Text="Transverse Reinforcement" FontWeight="Bold" Foreground="#333333" Margin="0,0,0,15"/>
@@ -157,114 +238,113 @@
                 </StackPanel>
             </Border>
         </StackPanel>
-        <!-- MIDDLE ROW: MULTI-LEVEL & STARTERS -->
-        <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="5" Margin="0,10,0,0">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="20"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+        </Grid>
 
-                <!-- Multi-Level Processing -->
-                <Border Grid.Column="0" Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15">
-                    <StackPanel>
-                        <CheckBox x:Name="UI_Check_MultiLevel" Content="Multi-Level Processing" FontSize="13" Foreground="#333333" FontWeight="SemiBold" 
-                                  VerticalAlignment="Center" Grid.Column="0" 
-                                  Checked="MultiLevel_Changed" Unchecked="MultiLevel_Changed"/>
-                        
-                        <StackPanel x:Name="UI_Panel_MultiLevelFields" IsEnabled="{Binding IsChecked, ElementName=UI_Check_MultiLevel}">
-                            <Grid Margin="0,0,0,10">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="10"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Splice Position" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                                    <ComboBox x:Name="UI_Combo_SplicePos" Height="32" Padding="8,0">
-                                        <ComboBoxItem Content="Above Slab" IsSelected="True"/>
-                                        <ComboBoxItem Content="Mid Height"/>
-                                    </ComboBox>
-                                </StackPanel>
-                                <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Crank Position" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                                    <ComboBox x:Name="UI_Combo_CrankPos" Height="32" Padding="8,0">
-                                        <ComboBoxItem Content="None"/>
-                                        <ComboBoxItem Content="Upper Bar" IsSelected="True"/>
-                                        <ComboBoxItem Content="Lower Bar"/>
-                                    </ComboBox>
-                                </StackPanel>
-                            </Grid>
+        <!-- ══════ BOTTOM ROW: MULTI-LEVEL & STARTERS ══════ -->
+        <Grid x:Name="UI_BottomRow" Grid.Row="2" Margin="0,10,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition x:Name="UI_ColMultiLevel" Width="*"/>
+                <ColumnDefinition x:Name="UI_ColSpacer" Width="20"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-                            <Grid Margin="0,10,0,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="10"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Lap Length Mode" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                                    <ComboBox x:Name="UI_Combo_LapMode" Height="32" Padding="8,0">
-                                        <ComboBoxItem Content="Auto (Code)" IsSelected="True"/>
-                                        <ComboBoxItem Content="Manual"/>
-                                    </ComboBox>
-                                </StackPanel>
-                                <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Manual Lap" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBox x:Name="UI_Text_LapSplice" Text="40" Height="32" Width="60" VerticalContentAlignment="Center" Padding="8,0"/>
-                                        <TextBlock Text="x Dia Bar" FontSize="11" Foreground="#666666" VerticalAlignment="Center" Margin="8,0,0,0"/>
-                                    </StackPanel>
-                                </StackPanel>
-                            </Grid>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-
-                <!-- Foundation Starters -->
-                <Border Grid.Column="2" Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15">
-                    <StackPanel>
-                        <Grid Margin="0,0,0,15">
+            <!-- Multi-Level Processing (only visible in Multi Level mode) -->
+            <Border x:Name="UI_Border_MultiLevel" Grid.Column="0" Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15">
+                <StackPanel>
+                    <TextBlock Text="Multi-Level Processing" FontSize="13" Foreground="#333333" FontWeight="SemiBold" Margin="0,0,0,15"/>
+                    
+                    <StackPanel x:Name="UI_Panel_MultiLevelFields">
+                        <Grid Margin="0,0,0,10">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <CheckBox x:Name="UI_Check_Starters" Content="Foundation Starters" FontSize="13" Foreground="#333333" FontWeight="SemiBold"
-                                      VerticalAlignment="Center" Grid.Column="0"
-                                      Checked="Starters_Changed" Unchecked="Starters_Changed"/>
-                            <CheckBox x:Name="UI_Check_StarterOnly" Content="Starter Only" FontSize="12" Foreground="#4A708B" FontWeight="SemiBold"
-                                      VerticalAlignment="Center" Grid.Column="2" IsChecked="False" ToolTip="Generate starter bars only (skip main bars and transverse)"
-                                      Checked="Starters_Changed" Unchecked="Starters_Changed"/>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Splice Position" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                                <ComboBox x:Name="UI_Combo_SplicePos" Height="32" Padding="8,0">
+                                    <ComboBoxItem Content="Above Slab" IsSelected="True"/>
+                                    <ComboBoxItem Content="Mid Height"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Crank Position" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                                <ComboBox x:Name="UI_Combo_CrankPos" Height="32" Padding="8,0">
+                                    <ComboBoxItem Content="None"/>
+                                    <ComboBoxItem Content="Upper Bar" IsSelected="True"/>
+                                    <ComboBoxItem Content="Lower Bar"/>
+                                </ComboBox>
+                            </StackPanel>
                         </Grid>
 
-                        <StackPanel x:Name="UI_Panel_StarterFields" IsEnabled="{Binding IsChecked, ElementName=UI_Check_Starters}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="10"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="10"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Bar Type" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                                    <ComboBox x:Name="UI_Combo_StarterType" Height="32" Padding="8,0"/>
+                        <Grid Margin="0,10,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Lap Length Mode" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                                <ComboBox x:Name="UI_Combo_LapMode" Height="32" Padding="8,0">
+                                    <ComboBoxItem Content="Auto (Code)" IsSelected="True"/>
+                                    <ComboBoxItem Content="Manual"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Manual Lap" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBox x:Name="UI_Text_LapSplice" Text="40" Height="32" Width="60" VerticalContentAlignment="Center" Padding="8,0"/>
+                                    <TextBlock Text="x Dia Bar" FontSize="11" Foreground="#666666" VerticalAlignment="Center" Margin="8,0,0,0"/>
                                 </StackPanel>
-                                <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Hook End" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                                    <ComboBox x:Name="UI_Combo_StarterHook" Height="32" Padding="8,0"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="4">
-                                    <TextBlock Text="Dev Length (mm)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
-                                    <TextBox x:Name="UI_Text_StarterDevLength" Text="600" Height="32" Padding="8,0" VerticalContentAlignment="Center"/>
-                                </StackPanel>
-                            </Grid>
-                        </StackPanel>
+                            </StackPanel>
+                        </Grid>
                     </StackPanel>
-                </Border>
-            </Grid>
-        </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Foundation Starters -->
+            <Border Grid.Column="2" Background="#FAFAFA" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1" Padding="15">
+                <StackPanel>
+                    <Grid Margin="0,0,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <CheckBox x:Name="UI_Check_Starters" Content="Foundation Starters" FontSize="13" Foreground="#333333" FontWeight="SemiBold"
+                                  VerticalAlignment="Center" Grid.Column="0"
+                                  Checked="Starters_Changed" Unchecked="Starters_Changed"/>
+                        <CheckBox x:Name="UI_Check_StarterOnly" Content="Starter Only" FontSize="12" Foreground="#4A708B" FontWeight="SemiBold"
+                                  VerticalAlignment="Center" Grid.Column="2" IsChecked="False" ToolTip="Generate starter bars only (skip main bars and transverse)"
+                                  Checked="Starters_Changed" Unchecked="Starters_Changed"/>
+                    </Grid>
+
+                    <StackPanel x:Name="UI_Panel_StarterFields">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Bar Type" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                                <ComboBox x:Name="UI_Combo_StarterType" Height="32" Padding="8,0"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Hook End" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                                <ComboBox x:Name="UI_Combo_StarterHook" Height="32" Padding="8,0"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="4">
+                                <TextBlock Text="Dev Length (mm)" FontSize="11" Foreground="#666666" Margin="0,0,0,4"/>
+                                <TextBox x:Name="UI_Text_StarterDevLength" Text="600" Height="32" Padding="8,0" VerticalContentAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
     </Grid>
 </UserControl>
+

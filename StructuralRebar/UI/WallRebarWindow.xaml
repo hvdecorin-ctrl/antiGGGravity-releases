@@ -51,10 +51,7 @@
                 <Border Grid.Column="0" Background="#F8F9FA" BorderBrush="{StaticResource PremiumBorderBrush}" BorderThickness="0,0,1,0">
                     <StackPanel Margin="{StaticResource PremiumSidebarMargin}">
                         <TextBlock Text="Category" FontSize="11" FontWeight="SemiBold" Foreground="#888888" Margin="8,0,0,10"/>
-                        <RadioButton x:Name="UI_Radio_WallStandard" Content="Wall Standard" IsChecked="True" 
-                                     GroupName="ElementType" Style="{StaticResource PremiumSidebarButtonStyle}"
-                                     Checked="ElementType_Changed"/>
-                        <RadioButton x:Name="UI_Radio_WallMultiLevel" Content="Wall Multi Level" 
+                        <RadioButton x:Name="UI_Radio_WallStandard" Content="Wall" IsChecked="True" 
                                      GroupName="ElementType" Style="{StaticResource PremiumSidebarButtonStyle}"
                                      Checked="ElementType_Changed"/>
                         <RadioButton x:Name="UI_Radio_WallCornerL" Content="Wall Corner L" 

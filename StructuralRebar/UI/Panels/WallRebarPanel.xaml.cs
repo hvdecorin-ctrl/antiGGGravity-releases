@@ -21,12 +21,15 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
         private List<RebarBarType> _rebarTypes;
         private List<HookViewModel> _hookList;
 
+        public bool IsMultiLevelMode => UI_Radio_ModeMultiLevelWall?.IsChecked == true;
+
         public WallRebarPanel(Document doc)
         {
             InitializeComponent();
             _doc = doc;
             LoadData();
             LoadSettings();
+            ApplyWallMode();
         }
 
         private void LoadData()
@@ -102,9 +105,11 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 UI_Check_HorizHookStartOut.IsChecked = SettingsManager.GetBool(VIEW_NAME, "HorizHookStartOut", false);
                 UI_Check_HorizHookEndOut.IsChecked = SettingsManager.GetBool(VIEW_NAME, "HorizHookEndOut", false);
 
-                // Multi-Level
-                UI_Check_MultiLevel.IsChecked = SettingsManager.GetBool(VIEW_NAME, "MultiLevel", false);
-                UI_Check_MultiLevel_Changed(null, null);
+                // Multi-Level Mode
+                string mode = SettingsManager.Get(VIEW_NAME, "MultiLevelMode", "Wall");
+                if (mode == "MultiLevel") UI_Radio_ModeMultiLevelWall.IsChecked = true;
+                else UI_Radio_ModeWall.IsChecked = true;
+
                 UI_Text_LapSplice.Text = SettingsManager.Get(VIEW_NAME, "LapSplice", "40");
 
                 string lapMode = SettingsManager.Get(VIEW_NAME, "LapMode", "Auto (Code)");
@@ -160,7 +165,6 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 
                 // Set halftone states
                 UpdateHooksExtHalftone(null, null);
-                MultiLevel_Changed(null, null);
                 Starters_Changed(null, null);
                 
                 DrawWallCrossSection();
@@ -189,8 +193,9 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 SettingsManager.Set(VIEW_NAME, "HorizHookStartOut", (UI_Check_HorizHookStartOut.IsChecked == true).ToString());
                 SettingsManager.Set(VIEW_NAME, "HorizHookEndOut", (UI_Check_HorizHookEndOut.IsChecked == true).ToString());
 
-                // Multi-Level
-                SettingsManager.Set(VIEW_NAME, "MultiLevel", (UI_Check_MultiLevel.IsChecked == true).ToString());
+                // Multi-Level Mode
+                SettingsManager.Set(VIEW_NAME, "MultiLevelMode", IsMultiLevelMode ? "MultiLevel" : "Wall");
+
                 SettingsManager.Set(VIEW_NAME, "LapSplice", UI_Text_LapSplice.Text);
                 SettingsManager.Set(VIEW_NAME, "LapMode", (UI_Combo_LapMode.SelectedItem as ComboBoxItem)?.Content.ToString());
                 SettingsManager.Set(VIEW_NAME, "StarterBar", UI_Text_StarterBar.Text);
@@ -240,7 +245,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             {
                 HostType = ElementHostType.Wall,
                 RemoveExisting = false, // Handled by Window level now
-                EnableLapSplice = UI_Check_MultiLevel.IsChecked == true, // Using MultiLevel checkbox to drive Stack processing
+                EnableLapSplice = IsMultiLevelMode, 
                 
                 // Multi-Level specific parameters mapping to DTO
                 EnableZoneSpacing = false, // Walls usually don't have confinement zones like columns
@@ -431,16 +436,6 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             DrawWallCrossSection();
         }
 
-        private void MultiLevel_Changed(object sender, RoutedEventArgs e)
-        {
-            if (UI_Panel_MultiLevelFields == null || UI_Check_MultiLevel == null) return;
-            bool isMultiLevel = UI_Check_MultiLevel.IsChecked == true;
-            UI_Check_MultiLevel.Opacity = isMultiLevel ? 1.0 : 0.5;
-            UI_Panel_MultiLevelFields.IsEnabled = isMultiLevel;
-            UI_Panel_MultiLevelFields.Opacity = isMultiLevel ? 1.0 : 0.5;
-            DrawWallCrossSection();
-        }
-
         private double ParseDouble(string text, double defaultValue)
         {
             return double.TryParse(text, out double result) ? result : defaultValue;
@@ -560,15 +555,6 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             }
         }
 
-        private void UI_Check_MultiLevel_Changed(object sender, RoutedEventArgs e)
-        {
-            if (UI_Panel_MultiLevelFields == null || UI_Check_MultiLevel == null) return;
-            bool isMultiLevel = UI_Check_MultiLevel.IsChecked == true;
-            UI_Check_MultiLevel.Opacity = isMultiLevel ? 1.0 : 0.5;
-            UI_Panel_MultiLevelFields.IsEnabled = isMultiLevel;
-            UI_Panel_MultiLevelFields.Opacity = isMultiLevel ? 1.0 : 0.5;
-        }
-
         private void UI_Combo_LapMode_Changed(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             if (UI_Text_LapSplice == null) return;
@@ -588,54 +574,23 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
         /// </summary>
         public void UpdateStackInfo(Wall selectedWall)
         {
-            if (selectedWall == null || UI_Check_MultiLevel.IsChecked != true)
-            {
-                UI_Text_StackInfo.Text = "No wall selected or Multi-Level mode disabled.";
-                return;
-            }
-
-            try
-            {
-                var stack = MultiLevelResolver.FindWallStack(_doc, selectedWall);
-                if (stack.Count <= 1)
-                {
-                    UI_Text_StackInfo.Text = "Only 1 wall found in stack.\nMulti-level logic will act as single-level.";
-                    return;
-                }
-
-                var infoList = MultiLevelResolver.GetWallStackInfo(_doc, stack);
-                
-                string infoStr = $"Detected {stack.Count} stacked wall(s):\n";
-                for (int i = 0; i < infoList.Count; i++)
-                {
-                    var info = infoList[i];
-                    string marker = (stack[i].Id == selectedWall.Id) ? " ▶ " : "   ";
-                    
-                    double lengthMm = UnitConversion.FeetToMm(info.Length);
-                    double thickMm = UnitConversion.FeetToMm(info.Thickness);
-                    double heightMm = UnitConversion.FeetToMm(info.Height);
-                    
-                    infoStr += $"{marker}Lvl {i + 1}: {info.LevelName} | {lengthMm:F0}x{thickMm:F0} L, {heightMm:F0} H\n";
-                }
-
-                UI_Text_StackInfo.Text = infoStr.TrimEnd();
-            }
-            catch (Exception ex)
-            {
-                UI_Text_StackInfo.Text = "Error analyzing stack: " + ex.Message;
-            }
+            // Removed for clean UI
         }
-        /// <summary>
-        /// Called by WallRebarWindow when the user selects "Wall Standard" or "Wall Multi Level" 
-        /// from the sidebar. Forces multi-level mode on/off and hides the checkbox to avoid confusion.
-        /// </summary>
-        public void SetMultiLevelMode(bool isMultiLevel)
+
+        private void WallMode_Changed(object sender, RoutedEventArgs e)
         {
-            UI_Check_MultiLevel.IsChecked = isMultiLevel;
-            UI_Check_MultiLevel.Visibility = System.Windows.Visibility.Collapsed;
-            UI_Panel_MultiLevelFields.IsEnabled = isMultiLevel;
-            UI_Panel_MultiLevelFields.Opacity = isMultiLevel ? 1.0 : 0.5;
-            UI_Panel_MultiLevelFields.Visibility = isMultiLevel ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+            ApplyWallMode();
+        }
+
+        private void ApplyWallMode()
+        {
+            if (UI_Border_MultiLevel == null) return;
+
+            bool isMulti = IsMultiLevelMode;
+            UI_Border_MultiLevel.Visibility = isMulti ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+            UI_ColMultiLevel.Width = isMulti ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
+            UI_ColSpacer.Width = isMulti ? new GridLength(15) : new GridLength(0);
+
             DrawWallCrossSection();
         }
     }

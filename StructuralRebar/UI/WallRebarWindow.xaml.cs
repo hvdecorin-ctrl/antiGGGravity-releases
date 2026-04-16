@@ -29,7 +29,6 @@ namespace antiGGGravity.StructuralRebar.UI
             InitializeComponent();
 
             _wallPanel = new WallRebarPanel(_doc);
-            _wallPanel.SetMultiLevelMode(false); // Wall Standard is the default
             UI_PanelHost.Content = _wallPanel;
         }
 
@@ -42,14 +41,6 @@ namespace antiGGGravity.StructuralRebar.UI
             {
                 SelectedHostType = ElementHostType.Wall;
                 if (_wallPanel == null) _wallPanel = new WallRebarPanel(_doc);
-                _wallPanel.SetMultiLevelMode(false);
-                UI_PanelHost.Content = _wallPanel;
-            }
-            else if (UI_Radio_WallMultiLevel?.IsChecked == true)
-            {
-                SelectedHostType = ElementHostType.Wall;
-                if (_wallPanel == null) _wallPanel = new WallRebarPanel(_doc);
-                _wallPanel.SetMultiLevelMode(true);
                 UI_PanelHost.Content = _wallPanel;
             }
             else if (UI_Radio_WallCornerL?.IsChecked == true)

@@ -19,6 +19,9 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
         private List<RebarBarType> _rebarTypes;
         private List<HookViewModel> _hookList;
 
+        /// <summary>True when "Multi Level Column" tab is selected.</summary>
+        public bool IsMultiLevelMode => UI_Radio_ModeMultiLevel?.IsChecked == true;
+
         public ColumnRebarPanel(Document doc)
         {
             InitializeComponent();
@@ -26,6 +29,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             LoadData();
             LoadSettings();
             DrawCrossSection();
+            ApplyColumnMode(); // Set initial visibility
         }
 
         private void LoadData()
@@ -115,8 +119,11 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 UI_Radio_TieEQ.IsChecked = !(UI_Radio_TieUnEQ.IsChecked == true);
                 TieDist_Changed(null, null);
 
+                // Column mode (tab selector)
+                UI_Radio_ModeMultiLevel.IsChecked = SettingsManager.GetBool(VIEW_NAME, "MultiLevelMode", false);
+                UI_Radio_ModeColumn.IsChecked = !(UI_Radio_ModeMultiLevel.IsChecked == true);
+
                 // Multi-level settings
-                UI_Check_MultiLevel.IsChecked = SettingsManager.GetBool(VIEW_NAME, "MultiLevel", false);
                 UI_Check_Starters.IsChecked = SettingsManager.GetBool(VIEW_NAME, "EnableStarters", false);
                 UI_Text_StarterDevLength.Text = SettingsManager.Get(VIEW_NAME, "StarterDevLength", "0");
                 SelectByName(UI_Combo_StarterType, SettingsManager.Get(VIEW_NAME, "StarterType"));
@@ -157,7 +164,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 }
 
                 // Apply visibility
-                MultiLevel_Changed(null, null);
+                ApplyColumnMode();
                 Starters_Changed(null, null);
             }
             catch { }
@@ -191,8 +198,8 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
 
                 SettingsManager.Set(VIEW_NAME, "TieDistUnEQ", (UI_Radio_TieUnEQ.IsChecked == true).ToString());
 
-                // Multi-level settings
-                SettingsManager.Set(VIEW_NAME, "MultiLevel", (UI_Check_MultiLevel.IsChecked == true).ToString());
+                // Mode + Multi-level settings
+                SettingsManager.Set(VIEW_NAME, "MultiLevelMode", IsMultiLevelMode.ToString());
                 SettingsManager.Set(VIEW_NAME, "EnableStarters", (UI_Check_Starters.IsChecked == true).ToString());
                 SettingsManager.Set(VIEW_NAME, "StarterOnly", (UI_Check_StarterOnly.IsChecked == true).ToString());
                 SettingsManager.Set(VIEW_NAME, "CrankPosition", (UI_Combo_CrankPos.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Upper Column");
@@ -248,8 +255,8 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 EnableZoneSpacing = (UI_Radio_TieUnEQ.IsChecked == true),
                 EnableLapSplice = false, // Set by window/handler now
 
-                // Multi-Level
-                MultiLevel = (UI_Check_MultiLevel.IsChecked == true),
+                // Multi-Level (driven by tab selector, not checkbox)
+                MultiLevel = IsMultiLevelMode,
                 SplicePosition = (UI_Combo_SplicePos.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Above Slab",
                 CrankPosition = (UI_Combo_CrankPos.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Upper Column",
                 LapSpliceMode = (UI_Combo_LapMode.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Auto (Code)",
@@ -303,14 +310,26 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
             return mode.StartsWith("Auto", StringComparison.OrdinalIgnoreCase);
         }
 
-        private void MultiLevel_Changed(object sender, RoutedEventArgs e)
+        private void ColumnMode_Changed(object sender, RoutedEventArgs e)
         {
-            if (UI_Panel_MultiLevelFields == null || UI_Check_MultiLevel == null) return;
-            bool isChecked = UI_Check_MultiLevel.IsChecked == true;
-            UI_Panel_MultiLevelFields.IsEnabled = isChecked;
-            UI_Panel_MultiLevelFields.Opacity = isChecked ? 1.0 : 0.5;
-            
-            UI_Check_MultiLevel.Opacity = isChecked ? 1.0 : 0.5;
+            ApplyColumnMode();
+        }
+
+        /// <summary>
+        /// Shows/hides the multi-level section based on the selected column mode tab.
+        /// In Column mode: multi-level hidden, starters take full width.
+        /// In Multi Level mode: multi-level visible, starters share row.
+        /// </summary>
+        private void ApplyColumnMode()
+        {
+            if (UI_Border_MultiLevel == null) return;
+            bool isMulti = IsMultiLevelMode;
+
+            // Show/hide multi-level section
+            UI_Border_MultiLevel.Visibility = isMulti ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+            UI_ColMultiLevel.Width = isMulti ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
+            UI_ColSpacer.Width = isMulti ? new GridLength(20) : new GridLength(0);
+
             DrawCrossSection();
         }
 
@@ -558,8 +577,7 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
         /// </summary>
         public void UpdateStackInfo(string info)
         {
-            if (UI_StackInfoText != null)
-                UI_StackInfoText.Text = info;
+            // Removed for clean UI
         }
 
         // --- Helpers ---
