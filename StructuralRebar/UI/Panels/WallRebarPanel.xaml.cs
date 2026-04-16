@@ -625,5 +625,18 @@ namespace antiGGGravity.StructuralRebar.UI.Panels
                 UI_Text_StackInfo.Text = "Error analyzing stack: " + ex.Message;
             }
         }
+        /// <summary>
+        /// Called by WallRebarWindow when the user selects "Wall Standard" or "Wall Multi Level" 
+        /// from the sidebar. Forces multi-level mode on/off and hides the checkbox to avoid confusion.
+        /// </summary>
+        public void SetMultiLevelMode(bool isMultiLevel)
+        {
+            UI_Check_MultiLevel.IsChecked = isMultiLevel;
+            UI_Check_MultiLevel.Visibility = System.Windows.Visibility.Collapsed;
+            UI_Panel_MultiLevelFields.IsEnabled = isMultiLevel;
+            UI_Panel_MultiLevelFields.Opacity = isMultiLevel ? 1.0 : 0.5;
+            UI_Panel_MultiLevelFields.Visibility = isMultiLevel ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+            DrawWallCrossSection();
+        }
     }
 }

@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Wall Reinforcement" 
         Height="900" Width="950" 
-        MinHeight="700" MinWidth="900"
+        MinHeight="700" MinWidth="950"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         WindowStartupLocation="CenterScreen" ShowInTaskbar="True">
 
@@ -52,6 +52,9 @@
                     <StackPanel Margin="{StaticResource PremiumSidebarMargin}">
                         <TextBlock Text="Category" FontSize="11" FontWeight="SemiBold" Foreground="#888888" Margin="8,0,0,10"/>
                         <RadioButton x:Name="UI_Radio_WallStandard" Content="Wall Standard" IsChecked="True" 
+                                     GroupName="ElementType" Style="{StaticResource PremiumSidebarButtonStyle}"
+                                     Checked="ElementType_Changed"/>
+                        <RadioButton x:Name="UI_Radio_WallMultiLevel" Content="Wall Multi Level" 
                                      GroupName="ElementType" Style="{StaticResource PremiumSidebarButtonStyle}"
                                      Checked="ElementType_Changed"/>
                         <RadioButton x:Name="UI_Radio_WallCornerL" Content="Wall Corner L" 
