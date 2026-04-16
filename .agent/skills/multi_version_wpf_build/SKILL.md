@@ -151,14 +151,18 @@ And for folder dialogs, use `#if` fallbacks:
 #endif
 ```
 
-## ✅ Step 5: Client Distribution Package (Standard)
-For client-ready deliveries, you must generate a self-contained root folder (e.g., `Distribute`) including:
-1. **Embedded License Implementation**: Use a preprocessor bypass (e.g., `EMBED_LICENSE`) to skip hardware-bound activation for the client build.
-2. **Version-Specific Subfolders**: `R2022`, `R2023`, etc., containing the `.addin` manifest and a sub-folder with the assembly and its dependencies.
-3. **Automation Scripts**:
+## ✅ Step 5: Client Distribution Package (Strict Licensing)
+
+To protect your copyright and prevent unauthorized use, every distribution package (even for specific clients) **MUST** strictly enforce the 14-day trial and Hardware-ID activation. **NEVER** distribute an unlimited or bypassed build.
+
+For client-ready deliveries, generate a self-contained root folder (e.g., `Distribute`) including:
+1. **Strict 14-Day Trial**: Ensure all assemblies enforce the standard 14-day trial period from the first install date.
+2. **Hardware-ID Activation**: After the trial, the tool **MUST** prompt for an activation key bound to that specific PC's Hardware-ID.
+3. **Version-Specific Subfolders**: `R2022`, `R2023`, etc., containing the `.addin` manifest and a sub-folder with the assembly and its dependencies.
+4. **Automation Scripts**:
     - `install.bat`: Prompts for a Revit year and copies files to `%AppData%\Autodesk\Revit\Addins\[Year]`.
     - `uninstall.bat`: Removes the specific version.
-4. **Documentation**: A clear `instructions.txt` explaining the zero-activation installation process.
+5. **Documentation**: A clear `instructions.txt` explaining the trial period and how to provide their Hardware-ID for activation.
 
 ### Assembly Leakage Cleanup (CRITICAL)
 Before running a multi-version build, always delete existing `Distribute`, `bin`, and `obj` folders. Failure to do so causes MSBuild to find `.NET 8` candidates when building `.NET 4.8` versions, triggering the `MC1000` error.
@@ -170,4 +174,4 @@ Remove-Item -Path "Distribute", "bin", "obj" -Recurse -Force -ErrorAction Silent
 1. When asked to build multi-version Revit SDK projects, **verify** the `.csproj` complies with the `TargetFramework` and `AssemblySearchPaths` rules above.
 2. **Always clean** the `Distribute`, `bin`, and `obj` folders before starting to prevent assembly leakage.
 3. Use `msbuild /t:Restore` and `msbuild` for `.net48` configurations to ensure the correct WPF compiler logic is used.
-4. Implement the `EMBED_LICENSE` pattern and provide `install.bat`/`uninstall.bat` for professional client deliveries.
+4. **STRICT LICENSING**: Never bypass activation. Every package sent out must enforce the 14-day trial + HWID activation system. Provide `install.bat`/`uninstall.bat` for professional client deliveries.

@@ -7,14 +7,14 @@ using System.Diagnostics;
 
 namespace antiGGGravity.Commands.Transfer.UI
 {
-    public partial class ViewTransferWindow : Window
+    public partial class FamilyManagerWindow : Window
     {
-        private ViewTransferViewModel _viewModel;
+        private FamilyManagerViewModel _viewModel;
 
-        public ViewTransferWindow(UIApplication uiApp, TransferRequestHandler handler, ExternalEvent exEvent, FamilyManagerRequestHandler fmHandler, ExternalEvent fmExEvent, ReadFamilyTypesHandler typesHandler, ExternalEvent typesExEvent, DuplicatorRequestHandler dupHandler = null, ExternalEvent dupExEvent = null)
+        public FamilyManagerWindow(UIApplication uiApp, TransferRequestHandler handler, ExternalEvent externalEvent, FamilyManagerRequestHandler fmHandler, ExternalEvent fmExternalEvent, ReadFamilyTypesHandler typesHandler, ExternalEvent typesExEvent, DuplicatorRequestHandler dupHandler, ExternalEvent dupExEvent)
         {
             InitializeComponent();
-            _viewModel = new ViewTransferViewModel(uiApp, handler, exEvent, fmHandler, fmExEvent, typesHandler, typesExEvent, dupHandler, dupExEvent);
+            _viewModel = new FamilyManagerViewModel(uiApp, handler, externalEvent, fmHandler, fmExternalEvent, typesHandler, typesExEvent, dupHandler, dupExEvent);
             this.DataContext = _viewModel;
 
             // Set Revit as owner to prevent crashes with Style=None and Transparency=True

@@ -62,7 +62,7 @@ Whether you're detailing reinforcement for a 40-storey concrete tower, generatin
 
 **Think about it:** a single rebar detailing task that used to take 30 minutes now takes 30 seconds. Placing roof framing members one by one — measuring angles, adjusting spacing, aligning connections — normally eats up **3 hours** of your day. With the Roof Framing engine? Select the roof, pick your member, set the spacing — **done in 1 minute**. That's 2 hours and 59 minutes back in your pocket from a single click.
 
-And the **Transfer Family** tool? It transfers live views, drafting views, sheets, view templates, and families between Revit documents in a single operation. Other tools charge premium prices just for content management alone. With antiGGGravity, you get Transfer Family **plus 99 other professional tools** — all for just **$5.99/month**.
+And the **Family Manager** tool? It transfers live views, drafting views, sheets, view templates, and families between Revit documents in a single operation. Other tools charge premium prices just for content management alone. With antiGGGravity, you get Family Manager **plus 99 other professional tools** — all for just **$5.99/month**.
 
 Do the math: one tool pays for itself in the first minute. The rest of the month? Pure profit for your productivity.
 

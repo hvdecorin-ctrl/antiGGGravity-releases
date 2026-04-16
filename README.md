@@ -225,7 +225,7 @@ The Model Panel goes beyond documentation—it **builds your structural model fo
 
 | Command | Description |
 |---------|-------------|
-| **Transfer Family** | Transfer live views, drafting views, sheets, and families between Revit documents. |
+| **Family Manager** | Selective family manager and transfer views, sheets across projects. |
 | **Rename Views (Active Sheet)** | Batch-rename all viewports on the currently active sheet. |
 | **Rename Views (All Sheets)** | Apply a consistent naming standard across every sheet in the project. |
 | **Renumber Viewports** | Sequentially re-number viewport detail numbers on a sheet. |

@@ -17,7 +17,7 @@ using Viewport = Autodesk.Revit.DB.Viewport;
 
 namespace antiGGGravity.Commands.Transfer.UI
 {
-    public class ViewTransferViewModel : INotifyPropertyChanged
+    public class FamilyManagerViewModel : INotifyPropertyChanged
     {
         private readonly UIApplication _uiApp;
         private FileManagerModule _fileManager;
@@ -534,7 +534,7 @@ namespace antiGGGravity.Commands.Transfer.UI
             set { _isSourceLoaded = value; OnPropertyChanged(); }
         }
 
-        public ViewTransferViewModel(UIApplication uiApp, TransferRequestHandler handler, ExternalEvent exEvent, FamilyManagerRequestHandler fmHandler, ExternalEvent fmExEvent, ReadFamilyTypesHandler typesHandler, ExternalEvent typesExEvent, DuplicatorRequestHandler dupHandler = null, ExternalEvent dupExEvent = null)
+        public FamilyManagerViewModel(UIApplication uiApp, TransferRequestHandler handler, ExternalEvent exEvent, FamilyManagerRequestHandler fmHandler, ExternalEvent fmExEvent, ReadFamilyTypesHandler typesHandler, ExternalEvent typesExEvent, DuplicatorRequestHandler dupHandler = null, ExternalEvent dupExEvent = null)
         {
             _uiApp = uiApp;
             _fileManager = new FileManagerModule(uiApp);

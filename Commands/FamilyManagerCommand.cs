@@ -7,9 +7,9 @@ using Autodesk.Revit.UI;
 namespace antiGGGravity.Commands
 {
     [Transaction(TransactionMode.Manual)]
-    public class ViewTransferCommand : BaseCommand
+    public class FamilyManagerCommand : BaseCommand
     {
-        private static ViewTransferWindow _window;
+        private static FamilyManagerWindow _window;
 
         protected override Result ExecuteSafe(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
@@ -32,7 +32,7 @@ namespace antiGGGravity.Commands
             DuplicatorRequestHandler dupHandler = new DuplicatorRequestHandler();
             ExternalEvent dupExEvent = ExternalEvent.Create(dupHandler);
 
-            _window = new ViewTransferWindow(commandData.Application, handler, externalEvent, fmHandler, fmExternalEvent, typesHandler, typesExEvent, dupHandler, dupExEvent);
+            _window = new FamilyManagerWindow(commandData.Application, handler, externalEvent, fmHandler, fmExternalEvent, typesHandler, typesExEvent, dupHandler, dupExEvent);
             _window.Show();
 
             return Result.Succeeded;

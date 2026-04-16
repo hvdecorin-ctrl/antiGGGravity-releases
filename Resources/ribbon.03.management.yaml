@@ -4,10 +4,10 @@ panels:
   # ============================================================
   - name: Management
     items:
-      - name: Transfer Family
-        command: ViewTransferCommand
-        icon: TransferFamily
-        tooltip: Transfer live views, drafting views, sheets, and families between Revit documents.
+      - name: Family Manager
+        command: FamilyManagerCommand
+        icon: FamilyManager
+        tooltip: Selective family manager and transfer views, sheets across projects.
       - type: stacked
         buttons:
           - type: pulldown

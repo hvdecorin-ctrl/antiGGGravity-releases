@@ -52,10 +52,29 @@ namespace antiGGGravity.Views.Rebar
 
             table.Columns.Add("Weight (per Item)", typeof(string));
 
+            // Group rows by category and insert subtotals after each group
+            bool hasMultipleCategories = result.CategoryGroups != null && result.CategoryGroups.Count > 1;
+            string lastCategory = null;
+
             foreach (var row in result.Rows)
             {
+                // Insert category header separator when category changes
+                if (hasMultipleCategories && row.HostCategoryGroup != lastCategory)
+                {
+                    // Insert subtotal for previous category (if not the first)
+                    if (lastCategory != null && result.CategorySubtotals.ContainsKey(lastCategory))
+                    {
+                        AddSubtotalRow(table, result, lastCategory);
+                        // Add separator row
+                        var sepCat = table.NewRow();
+                        sepCat["HostMark"] = "";
+                        table.Rows.Add(sepCat);
+                    }
+                    lastCategory = row.HostCategoryGroup;
+                }
+
                 var dr = table.NewRow();
-                dr["HostMark"] = row.HostCategory; // Repurposed for Host Mark
+                dr["HostMark"] = row.HostCategory;
 
                 foreach (int dia in result.Diameters)
                 {
@@ -67,6 +86,12 @@ namespace antiGGGravity.Views.Rebar
 
                 dr["Weight (per Item)"] = row.RowTotalWeightKg.ToString("N1");
                 table.Rows.Add(dr);
+            }
+
+            // Insert subtotal for the last category
+            if (hasMultipleCategories && lastCategory != null && result.CategorySubtotals.ContainsKey(lastCategory))
+            {
+                AddSubtotalRow(table, result, lastCategory);
             }
 
             var sepRow = table.NewRow();
@@ -136,7 +161,47 @@ namespace antiGGGravity.Views.Rebar
 
             QtyGrid.ItemsSource = table.DefaultView;
 
+            // Highlight subtotal and total rows
+            QtyGrid.LoadingRow -= QtyGrid_LoadingRow;
+            QtyGrid.LoadingRow += QtyGrid_LoadingRow;
+
             StatusText.Text = $"{result.Rows.Count} host marks  •  {result.Diameters.Count} bar sizes  •  Total: {result.GrandTotalWeightKg:N1} kg";
+        }
+
+        private void AddSubtotalRow(DataTable table, RebarQuantityResult result, string category)
+        {
+            if (!result.CategorySubtotals.ContainsKey(category)) return;
+            var sub = result.CategorySubtotals[category];
+            var dr = table.NewRow();
+            dr["HostMark"] = $"► {sub.HostCategory}";
+            foreach (int dia in result.Diameters)
+            {
+                if (sub.DiameterData.ContainsKey(dia))
+                    dr[$"{dia} mm"] = sub.DiameterData[dia].TotalLengthM.ToString("N1");
+                else
+                    dr[$"{dia} mm"] = "—";
+            }
+            dr["Weight (per Item)"] = sub.RowTotalWeightKg.ToString("N1");
+            table.Rows.Add(dr);
+        }
+
+        private void QtyGrid_LoadingRow(object sender, DataGridRowEventArgs e)
+        {
+            if (e.Row.Item is System.Data.DataRowView drv)
+            {
+                string hostMark = drv["HostMark"]?.ToString() ?? "";
+                if (hostMark.StartsWith("►") || hostMark == "Total Length (m)" || hostMark == "Total Weight (kg)")
+                {
+                    e.Row.Background = new System.Windows.Media.SolidColorBrush(
+                        (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#E8F0FE"));
+                    e.Row.FontWeight = FontWeights.Bold;
+                }
+                else
+                {
+                    e.Row.Background = null;
+                    e.Row.FontWeight = FontWeights.Normal;
+                }
+            }
         }
 
         private void Close_Click(object sender, RoutedEventArgs e)
@@ -161,8 +226,22 @@ namespace antiGGGravity.Views.Rebar
                 sb.Append($"\t{dia} mm");
             sb.AppendLine("\tTotal Weight (kg)");
 
+            bool hasMultiCat = _currentResult.CategoryGroups != null && _currentResult.CategoryGroups.Count > 1;
+            string lastCat = null;
+
             foreach (var row in _currentResult.Rows)
             {
+                // Insert subtotal for previous category when category changes
+                if (hasMultiCat && row.HostCategoryGroup != lastCat)
+                {
+                    if (lastCat != null && _currentResult.CategorySubtotals.ContainsKey(lastCat))
+                    {
+                        AppendSubtotalToSb(sb, _currentResult, lastCat);
+                        sb.AppendLine();
+                    }
+                    lastCat = row.HostCategoryGroup;
+                }
+
                 sb.Append(row.HostCategory);
                 foreach (int dia in _currentResult.Diameters)
                 {
@@ -172,6 +251,12 @@ namespace antiGGGravity.Views.Rebar
                         sb.Append("\t0.0");
                 }
                 sb.AppendLine($"\t{row.RowTotalWeightKg:N1}");
+            }
+
+            // Subtotal for last category
+            if (hasMultiCat && lastCat != null && _currentResult.CategorySubtotals.ContainsKey(lastCat))
+            {
+                AppendSubtotalToSb(sb, _currentResult, lastCat);
             }
 
             sb.AppendLine();
@@ -203,6 +288,20 @@ namespace antiGGGravity.Views.Rebar
             }
         }
 
+        private void AppendSubtotalToSb(StringBuilder sb, RebarQuantityResult result, string cat)
+        {
+            var sub = result.CategorySubtotals[cat];
+            sb.Append($"► {sub.HostCategory}");
+            foreach (int dia in result.Diameters)
+            {
+                if (sub.DiameterData.ContainsKey(dia))
+                    sb.Append($"\t{sub.DiameterData[dia].TotalLengthM:N1}");
+                else
+                    sb.Append("\t0.0");
+            }
+            sb.AppendLine($"\t{sub.RowTotalWeightKg:N1}");
+        }
+
         private void ExportToCsv_Click(object sender, RoutedEventArgs e)
         {
             if (_currentResult == null) return;
@@ -229,9 +328,22 @@ namespace antiGGGravity.Views.Rebar
                     }
                     sb.AppendLine("Total Weight (kg)");
 
-                    // Data rows
+                    // Data rows with category subtotals
+                    bool hasMultiCat = _currentResult.CategoryGroups != null && _currentResult.CategoryGroups.Count > 1;
+                    string lastCat = null;
+
                     foreach (var r in _currentResult.Rows)
                     {
+                        if (hasMultiCat && r.HostCategoryGroup != lastCat)
+                        {
+                            if (lastCat != null && _currentResult.CategorySubtotals.ContainsKey(lastCat))
+                            {
+                                AppendSubtotalToCsv(sb, _currentResult, lastCat);
+                                sb.AppendLine();
+                            }
+                            lastCat = r.HostCategoryGroup;
+                        }
+
                         string host = r.HostCategory.Contains(",") ? $"\"{r.HostCategory}\"" : r.HostCategory;
                         sb.Append($"{host},");
                         foreach (int dia in _currentResult.Diameters)
@@ -242,6 +354,11 @@ namespace antiGGGravity.Views.Rebar
                                 sb.Append("0,");
                         }
                         sb.AppendLine($"{Math.Round(r.RowTotalWeightKg, 1)}");
+                    }
+
+                    if (hasMultiCat && lastCat != null && _currentResult.CategorySubtotals.ContainsKey(lastCat))
+                    {
+                        AppendSubtotalToCsv(sb, _currentResult, lastCat);
                     }
 
                     sb.AppendLine(); 
@@ -297,18 +414,33 @@ namespace antiGGGravity.Views.Rebar
                     // Or we can just filter by HostMark and accept that totals might disappear if they don't match
                     // Usually better to keep totals if possible, but RowFilter 
                     // applies to all rows in the view.
-                    view.RowFilter = $"[HostMark] LIKE '%{filterText}%' OR [HostMark] = '' OR [HostMark] = 'Total Length (m)' OR [HostMark] = 'Total Weight (kg)'";
+                    view.RowFilter = $"[HostMark] LIKE '%{filterText}%' OR [HostMark] LIKE '►%' OR [HostMark] = '' OR [HostMark] = 'Total Length (m)' OR [HostMark] = 'Total Weight (kg)'";
                 }
                 
                 // Update status with visible count
                 if (_currentResult != null)
                 {
                     int visibleRows = view.Count;
-                    // Subtracting 3 for the summary rows (separator, Total Length, Total Weight) if they exist
                     int dataRows = Math.Max(0, visibleRows - 3);
                     StatusText.Text = $"Filtered: {dataRows} of {_currentResult.Rows.Count} host marks  •  Total: {_currentResult.GrandTotalWeightKg:N1} kg";
                 }
             }
+        }
+
+        private void AppendSubtotalToCsv(StringBuilder sb, RebarQuantityResult result, string cat)
+        {
+            var sub = result.CategorySubtotals[cat];
+            string label = $"► {sub.HostCategory}";
+            label = label.Contains(",") ? $"\"{label}\"" : label;
+            sb.Append($"{label},");
+            foreach (int dia in result.Diameters)
+            {
+                if (sub.DiameterData.ContainsKey(dia))
+                    sb.Append($"{Math.Round(sub.DiameterData[dia].TotalLengthM, 1)},");
+                else
+                    sb.Append("0,");
+            }
+            sb.AppendLine($"{Math.Round(sub.RowTotalWeightKg, 1)}");
         }
 
         private void CalcInput_Changed(object sender, TextChangedEventArgs e)

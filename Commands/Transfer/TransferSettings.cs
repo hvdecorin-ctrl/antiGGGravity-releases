@@ -14,7 +14,6 @@ namespace antiGGGravity.Commands.Transfer
         public string LastManagerFolderPath { get; set; } = "";
 
         // Not serialized — set at runtime so Save() knows which file to write
-        [JsonIgnore]
         private string _settingsFilePath;
 
         private static readonly string SettingsDir = Path.Combine(

@@ -1,10 +1,10 @@
-<Window x:Class="antiGGGravity.Commands.Transfer.UI.ViewTransferWindow"
+<Window x:Class="antiGGGravity.Commands.Transfer.UI.FamilyManagerWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Transfer Tool" Height="800" Width="900" 
+        Title="Family Manager" Height="800" Width="900" 
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         WindowStartupLocation="CenterScreen"
         MinHeight="500" MinWidth="700">
@@ -40,8 +40,8 @@
                         <TextBlock Style="{DynamicResource CompanyLogoStyle}"/>
                         <TextBlock Style="{DynamicResource CompanyDividerStyle}"/>
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="Transfer &amp; Family" Style="{DynamicResource PremiumTitleStyle}"/>
-                            <TextBlock Text="Selectively transfer views, sheets &amp; families across projects" Style="{DynamicResource PremiumSubtitleStyle}"/>
+                            <TextBlock Text="Family Manager" Style="{DynamicResource PremiumTitleStyle}"/>
+                            <TextBlock Text="Selectively manage families, views &amp; sheets across projects" Style="{DynamicResource PremiumSubtitleStyle}"/>
                         </StackPanel>
                     </StackPanel>
                     <Button HorizontalAlignment="Right" VerticalAlignment="Center" Content="✕" 

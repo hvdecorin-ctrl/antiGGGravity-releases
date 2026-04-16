@@ -53,7 +53,7 @@ namespace antiGGGravity.Commands.Rebar
                         .ToList();
                 }
 
-                var rawEntries = new List<(string host, int dia, double lengthM)>();
+                var rawEntries = new List<(string host, string hostCat, int dia, double lengthM)>();
 
                 foreach (var elem in allRebarElements)
                 {
@@ -62,12 +62,13 @@ namespace antiGGGravity.Commands.Rebar
                         if (elem == null || !elem.IsValidObject) continue;
 
                         string hostMark = GetHostMark(doc, elem);
+                        string hostCat = GetHostCategoryName(doc, elem);
                         int diaMm = GetBarDiameterMm(elem);
                         double lengthM = GetTotalLengthMeters(elem);
 
                         if (diaMm > 0)
                         {
-                            rawEntries.Add((hostMark, diaMm, lengthM));
+                            rawEntries.Add((hostMark, hostCat, diaMm, lengthM));
                         }
                     }
                     catch { /* Skip problematic individual bars */ }
@@ -76,6 +77,7 @@ namespace antiGGGravity.Commands.Rebar
                 if (rawEntries.Count == 0) return new RebarQuantityResult();
 
                 var diameters = rawEntries.Select(e => e.dia).Distinct().OrderBy(d => d).ToList();
+                // Group by host mark
                 var grouped = rawEntries.GroupBy(e => e.host);
                 var rowDict = new Dictionary<string, RebarHostRow>();
 
@@ -83,7 +85,12 @@ namespace antiGGGravity.Commands.Rebar
                 {
                     try
                     {
-                        var row = new RebarHostRow { HostCategory = grp.Key };
+                        // Determine category: take the most common category for this mark
+                        string catGroup = grp.GroupBy(e => e.hostCat)
+                            .OrderByDescending(g => g.Count())
+                            .First().Key;
+
+                        var row = new RebarHostRow { HostCategory = grp.Key, HostCategoryGroup = catGroup };
                         foreach (var diaGrp in grp.GroupBy(e => e.dia))
                         {
                             double totalLen = diaGrp.Sum(e => e.lengthM);
@@ -101,7 +108,42 @@ namespace antiGGGravity.Commands.Rebar
                     catch { }
                 }
 
-                var rows = rowDict.Values.OrderBy(r => r.HostCategory).ToList();
+                // Order rows: group by category (priority order), then alphabetically within each
+                string[] hostOrder = { "Foundation", "Wall", "Column", "Beam", "Floor", "Roof" };
+                var rows = rowDict.Values
+                    .OrderBy(r =>
+                    {
+                        int idx = Array.IndexOf(hostOrder, r.HostCategoryGroup);
+                        return idx >= 0 ? idx : hostOrder.Length;
+                    })
+                    .ThenBy(r => r.HostCategoryGroup)
+                    .ThenBy(r => r.HostCategory)
+                    .ToList();
+
+                // Determine ordered category groups
+                var catGroups = rows.Select(r => r.HostCategoryGroup).Distinct().ToList();
+
+                // Compute category subtotals
+                var categorySubtotals = new Dictionary<string, RebarHostRow>();
+                foreach (var cat in catGroups)
+                {
+                    var catRows = rows.Where(r => r.HostCategoryGroup == cat).ToList();
+                    var subtotalRow = new RebarHostRow { HostCategory = $"{cat} Total", HostCategoryGroup = cat };
+                    foreach (var dia in diameters)
+                    {
+                        double sumLen = catRows.Sum(r => r.DiameterData.ContainsKey(dia) ? r.DiameterData[dia].TotalLengthM : 0);
+                        double sumWt = catRows.Sum(r => r.DiameterData.ContainsKey(dia) ? r.DiameterData[dia].TotalWeightKg : 0);
+                        if (sumLen > 0 || sumWt > 0)
+                        {
+                            subtotalRow.DiameterData[dia] = new RebarCellData
+                            {
+                                TotalLengthM = Math.Round(sumLen, 1),
+                                TotalWeightKg = Math.Round(sumWt, 1)
+                            };
+                        }
+                    }
+                    categorySubtotals[cat] = subtotalRow;
+                }
 
                 var totalLenPerDia = new Dictionary<int, double>();
                 var totalWtPerDia = new Dictionary<int, double>();
@@ -120,7 +162,9 @@ namespace antiGGGravity.Commands.Rebar
                     Rows = rows,
                     TotalLengthPerDia = totalLenPerDia,
                     TotalWeightPerDia = totalWtPerDia,
-                    GrandTotalWeightKg = Math.Round(rows.Sum(r => r.RowTotalWeightKg), 1)
+                    GrandTotalWeightKg = Math.Round(rows.Sum(r => r.RowTotalWeightKg), 1),
+                    CategoryGroups = catGroups,
+                    CategorySubtotals = categorySubtotals
                 };
             }
             catch (Exception ex)
@@ -151,6 +195,36 @@ namespace antiGGGravity.Commands.Rebar
                 }
                 
                 return "<Unmarked>";
+            }
+            catch
+            {
+                return "Unknown Host";
+            }
+        }
+
+        private static string GetHostCategoryName(Document doc, Element rebarElem)
+        {
+            try
+            {
+                ElementId hostId = RebarHelper.GetHostIdSafe(rebarElem);
+                if (hostId == null || hostId == ElementId.InvalidElementId) return "Unknown Host";
+
+                Element host = doc.GetElement(hostId);
+                if (host == null || !host.IsValidObject) return "Deleted/Missing Host";
+                if (host.Category == null) return "Unknown Category";
+
+                long catId = host.Category.Id.GetIdValue();
+
+                if (catId == (long)BuiltInCategory.OST_StructuralFoundation) return "Foundation";
+                if (catId == (long)BuiltInCategory.OST_Walls) return "Wall";
+                if (catId == (long)BuiltInCategory.OST_StructuralColumns ||
+                    catId == (long)BuiltInCategory.OST_Columns) return "Column";
+                if (catId == (long)BuiltInCategory.OST_StructuralFraming) return "Beam";
+                if (catId == (long)BuiltInCategory.OST_Floors) return "Floor";
+                if (catId == (long)BuiltInCategory.OST_Roofs) return "Roof";
+
+                try { return host.Category.Name; }
+                catch { return "Unknown (" + catId + ")"; }
             }
             catch
             {

@@ -23,6 +23,11 @@ namespace antiGGGravity.Commands.Rebar
     public class RebarHostRow
     {
         public string HostCategory { get; set; }
+        /// <summary>
+        /// The structural category group this row belongs to (e.g. "Column", "Wall").
+        /// Used by Host Mark and Partition tools to compute category subtotals.
+        /// </summary>
+        public string HostCategoryGroup { get; set; }
         public Dictionary<int, RebarCellData> DiameterData { get; set; } = new Dictionary<int, RebarCellData>();
         
         public double RowTotalWeightKg => DiameterData.Values.Sum(c => c.TotalWeightKg);
@@ -44,6 +49,16 @@ namespace antiGGGravity.Commands.Rebar
 
         /// <summary>Grand total weight across everything (kg).</summary>
         public double GrandTotalWeightKg { get; set; }
+
+        /// <summary>
+        /// Ordered list of category groups present in Rows, for display ordering.
+        /// </summary>
+        public List<string> CategoryGroups { get; set; } = new List<string>();
+
+        /// <summary>
+        /// Pre-computed subtotal row per category group. Key = category name.
+        /// </summary>
+        public Dictionary<string, RebarHostRow> CategorySubtotals { get; set; } = new Dictionary<string, RebarHostRow>();
     }
 
     /// <summary>

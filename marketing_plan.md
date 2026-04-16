@@ -38,7 +38,7 @@
 | Annual cost | **$71.88/year** | $200/year | Custom (higher) | ~$900/year |
 | **vs antiGGGravity** | — | **3.3× more expensive** | — | **12.5× more expensive** |
 | What you get | **100+ tools** (rebar, framing, VG, transfers, overrides, audit) | Content browser & channel management | Cloud library management | Family processing & checking |
-| Transfer capability | **Views, sheets, templates, families** — all in one operation | Channel-based content sharing | Cloud-based family sync | Family batch tools |
+| Transfer capability | **Family Manager**: Selective family manager and transfer views, sheets across projects. | Channel-based content sharing | Cloud-based family sync | Family batch tools |
 | Rebar automation | ✅ Full parametric engine | ❌ | ❌ | ❌ |
 | Roof framing | ✅ One-click generation | ❌ | ❌ | ❌ |
 | Visibility tools | ✅ 22 toggles + Quick VG/Filter/Pick | ❌ | ❌ | ❌ |
