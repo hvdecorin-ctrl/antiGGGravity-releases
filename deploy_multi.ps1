@@ -52,7 +52,13 @@ foreach ($v in $VersionsToBuild) {
 
     # 2. RESTORE
     Write-Host "Restoring for $v using $projFile..." -ForegroundColor Gray
-    $msbuildPath = "C:\Program Files\Microsoft Visual Studio\18\Community\MSBuild\Current\Bin\MSBuild.exe"
+    
+    # Robustly find MSBuild 2022 path (Professional or Community)
+    $msbuildPath = "C:\Program Files\Microsoft Visual Studio\2022\Professional\MSBuild\Current\Bin\MSBuild.exe"
+    if (!(Test-Path $msbuildPath)) {
+        $msbuildPath = "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe"
+    }
+    
     & $msbuildPath $projFile /t:Restore /p:Configuration=$v /p:EmbedLicense=true
 
     # 3. CLEAN & BUILD
