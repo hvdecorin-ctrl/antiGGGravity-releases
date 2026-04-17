@@ -2,8 +2,8 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Foundation Reinforcement" 
-        Height="900" Width="950" 
-        MinHeight="700" MinWidth="900"
+        Height="1000" Width="1000" 
+        MinHeight="600" MinWidth="600"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         WindowStartupLocation="CenterScreen" ShowInTaskbar="True">
 

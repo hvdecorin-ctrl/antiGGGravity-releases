@@ -101,15 +101,16 @@ namespace antiGGGravity.StructuralRebar.Core.Geometry
         }
 
         /// <summary>
-        /// Finds all walls stacked at the same XY location curve midpoint,
+        /// Finds all walls stacked vertically above/below the given wall,
         /// sorted by base elevation (bottom to top).
-        /// Uses midpoint matching instead of bounding box overlap so
-        /// adjacent side-by-side panels are NOT grouped together.
+        /// Matches walls that are collinear in plan (same axis, close perpendicular
+        /// distance) AND whose projections along the wall axis overlap.
+        /// This correctly handles walls of different lengths or slight horizontal offsets.
         /// </summary>
         public static List<Wall> FindWallStack(Document doc, Wall wall)
         {
-            XYZ refMid = GetWallXYMidpoint(wall);
-            if (refMid == null) return new List<Wall> { wall };
+            var refLine = GetWallXYLine(wall);
+            if (refLine == null) return new List<Wall> { wall };
 
             // Collect all walls in the document
             var allWalls = new FilteredElementCollector(doc)
@@ -118,16 +119,14 @@ namespace antiGGGravity.StructuralRebar.Core.Geometry
                 .Cast<Wall>()
                 .ToList();
 
-            // Filter to walls whose location-curve midpoint matches in XY
+            // Filter to walls that are collinear and overlap in plan projection
             var stack = new List<Wall>();
             foreach (var candidate in allWalls)
             {
-                XYZ candidateMid = GetWallXYMidpoint(candidate);
-                if (candidateMid == null) continue;
+                var candidateLine = GetWallXYLine(candidate);
+                if (candidateLine == null) continue;
 
-                double dx = Math.Abs(refMid.X - candidateMid.X);
-                double dy = Math.Abs(refMid.Y - candidateMid.Y);
-                if (dx < XY_TOLERANCE && dy < XY_TOLERANCE)
+                if (AreWallsCollinearAndOverlapping(refLine.Value, candidateLine.Value))
                 {
                     stack.Add(candidate);
                 }
@@ -203,15 +202,74 @@ namespace antiGGGravity.StructuralRebar.Core.Geometry
         }
 
         /// <summary>
-        /// Gets the XY midpoint of a wall's location curve (Z flattened to 0).
+        /// Gets the XY endpoints of a wall's location curve (Z flattened to 0).
+        /// Returns null if the wall has no line-based location curve.
         /// </summary>
-        private static XYZ GetWallXYMidpoint(Wall wall)
+        private static (XYZ P0, XYZ P1)? GetWallXYLine(Wall wall)
         {
             LocationCurve loc = wall.Location as LocationCurve;
             if (loc == null || !(loc.Curve is Line line)) return null;
             XYZ p0 = line.GetEndPoint(0);
             XYZ p1 = line.GetEndPoint(1);
-            return new XYZ((p0.X + p1.X) / 2.0, (p0.Y + p1.Y) / 2.0, 0);
+            return (new XYZ(p0.X, p0.Y, 0), new XYZ(p1.X, p1.Y, 0));
+        }
+
+        /// <summary>
+        /// Checks whether two wall XY lines are collinear (same infinite axis)
+        /// AND their projections along that axis overlap.
+        /// This correctly handles walls of different lengths that share some extent.
+        /// </summary>
+        private static bool AreWallsCollinearAndOverlapping(
+            (XYZ P0, XYZ P1) lineA, (XYZ P0, XYZ P1) lineB)
+        {
+            XYZ dirA = (lineA.P1 - lineA.P0);
+            double lenA = dirA.GetLength();
+            if (lenA < 1e-9) return false;
+            XYZ unitA = dirA.Normalize();
+
+            // Check perpendicular distance of lineB's midpoint to the infinite line of A
+            XYZ midB = new XYZ(
+                (lineB.P0.X + lineB.P1.X) / 2.0,
+                (lineB.P0.Y + lineB.P1.Y) / 2.0, 0);
+            XYZ vecToMidB = midB - lineA.P0;
+            double perpDist = Math.Abs(vecToMidB.X * (-unitA.Y) + vecToMidB.Y * unitA.X);
+
+            if (perpDist > XY_TOLERANCE) return false;
+
+            // Check that the wall directions are parallel (dot product ~1 or ~-1)
+            XYZ dirB = (lineB.P1 - lineB.P0);
+            double lenB = dirB.GetLength();
+            if (lenB < 1e-9) return false;
+            XYZ unitB = dirB.Normalize();
+            double dot = Math.Abs(unitA.X * unitB.X + unitA.Y * unitB.Y);
+            if (dot < 0.95) return false; // Not parallel enough
+
+            // Project both lines onto the axis direction of line A
+            double a0 = 0;
+            double a1 = lenA;
+            double b0 = (lineB.P0 - lineA.P0).DotProduct(unitA);
+            double b1 = (lineB.P1 - lineA.P0).DotProduct(unitA);
+            if (b0 > b1) { double tmp = b0; b0 = b1; b1 = tmp; }
+
+            // Check for overlap: intervals [a0, a1] and [b0, b1] overlap if min of maxes > max of mins
+            double overlapStart = Math.Max(a0, b0);
+            double overlapEnd = Math.Min(a1, b1);
+            double overlap = overlapEnd - overlapStart;
+
+            // Require at least XY_TOLERANCE of overlap
+            return overlap > XY_TOLERANCE;
+        }
+
+        /// <summary>
+        /// Gets the XY midpoint of a wall's location curve (Z flattened to 0).
+        /// </summary>
+        private static XYZ GetWallXYMidpoint(Wall wall)
+        {
+            var line = GetWallXYLine(wall);
+            if (line == null) return null;
+            return new XYZ(
+                (line.Value.P0.X + line.Value.P1.X) / 2.0,
+                (line.Value.P0.Y + line.Value.P1.Y) / 2.0, 0);
         }
 
         private static double GetBaseElevation(Element element)

@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             d:DesignHeight="700" d:DesignWidth="700">
+             d:DesignHeight="800" d:DesignWidth="800">
     <Grid Margin="0">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -31,23 +31,20 @@
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsChecked" Value="True">
-                                    <Setter TargetName="Bd" Property="Background" Value="White"/>
-                                    <Setter TargetName="Bd" Property="Effect">
-                                        <Setter.Value>
-                                            <DropShadowEffect ShadowDepth="1" BlurRadius="4" Opacity="0.15" Color="Black"/>
-                                        </Setter.Value>
-                                    </Setter>
-                                    <Setter Property="Foreground" Value="#1A73E8"/>
+                                    <Setter TargetName="Bd" Property="Background" Value="#E3F2FD"/>
+                                    <Setter TargetName="Bd" Property="BorderBrush" Value="#BBDEFB"/>
+                                    <Setter TargetName="Bd" Property="BorderThickness" Value="1"/>
+                                    <Setter Property="Foreground" Value="#1565C0"/>
                                 </Trigger>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="Bd" Property="Background" Value="#E8EAF0"/>
+                                    <Setter TargetName="Bd" Property="Background" Value="#F0F7FF"/>
                                 </Trigger>
                                 <MultiTrigger>
                                     <MultiTrigger.Conditions>
                                         <Condition Property="IsMouseOver" Value="True"/>
                                         <Condition Property="IsChecked" Value="True"/>
                                     </MultiTrigger.Conditions>
-                                    <Setter TargetName="Bd" Property="Background" Value="White"/>
+                                    <Setter TargetName="Bd" Property="Background" Value="#D1E9FF"/>
                                 </MultiTrigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
@@ -65,23 +62,20 @@
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsChecked" Value="True">
-                                    <Setter TargetName="Bd" Property="Background" Value="White"/>
-                                    <Setter TargetName="Bd" Property="Effect">
-                                        <Setter.Value>
-                                            <DropShadowEffect ShadowDepth="1" BlurRadius="4" Opacity="0.15" Color="Black"/>
-                                        </Setter.Value>
-                                    </Setter>
-                                    <Setter Property="Foreground" Value="#1A73E8"/>
+                                    <Setter TargetName="Bd" Property="Background" Value="#E3F2FD"/>
+                                    <Setter TargetName="Bd" Property="BorderBrush" Value="#BBDEFB"/>
+                                    <Setter TargetName="Bd" Property="BorderThickness" Value="1"/>
+                                    <Setter Property="Foreground" Value="#1565C0"/>
                                 </Trigger>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="Bd" Property="Background" Value="#E8EAF0"/>
+                                    <Setter TargetName="Bd" Property="Background" Value="#F0F7FF"/>
                                 </Trigger>
                                 <MultiTrigger>
                                     <MultiTrigger.Conditions>
                                         <Condition Property="IsMouseOver" Value="True"/>
                                         <Condition Property="IsChecked" Value="True"/>
                                     </MultiTrigger.Conditions>
-                                    <Setter TargetName="Bd" Property="Background" Value="White"/>
+                                    <Setter TargetName="Bd" Property="Background" Value="#D1E9FF"/>
                                 </MultiTrigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
