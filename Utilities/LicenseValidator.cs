@@ -172,6 +172,37 @@ namespace antiGGGravity.Utilities
 
             return effectiveNow;
         }
+
+        /// <summary>
+        /// Cross-validates IntegrityChecker — verifies its IsIntact method hasn't been
+        /// replaced with a simple "return true" stub by a binary patcher.
+        /// This creates a circular dependency: patching either class requires
+        /// understanding and patching both.
+        /// </summary>
+        internal static bool VerifyIntegrityCheckerIntact()
+        {
+            try
+            {
+                var asm = System.Reflection.Assembly.GetExecutingAssembly();
+                var checkerType = asm.GetType(SecurityStrings.LicenseValidator
+                    .Replace("LicenseValidator", "IntegrityChecker"));
+
+                if (checkerType == null) return false;
+
+                var isIntactMethod = checkerType.GetMethod(SecurityStrings.IsIntact,
+                    System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+                if (isIntactMethod == null) return false;
+
+                // A patched "return true" would be ~2-3 IL bytes.
+                // The real method is 50+ bytes.
+                var body = isIntactMethod.GetMethodBody();
+                if (body == null || body.GetILAsByteArray().Length < 10)
+                    return false;
+
+                return true;
+            }
+            catch { return false; }
+        }
     }
 
     /// <summary>

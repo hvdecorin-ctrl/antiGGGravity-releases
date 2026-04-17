@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <RootNamespace>antiGGGravity.KeyGen</RootNamespace>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <AssemblyName>KeyGen</AssemblyName>
+    <UseWindowsForms>true</UseWindowsForms>
+    <DefineConstants>$(DefineConstants);KEYGEN_BUILD</DefineConstants>
+  </PropertyGroup>
+
+  <!-- Link the shared crypto file — KEYGEN_BUILD exposes the private key for signing -->
+  <ItemGroup>
+    <Compile Include="..\Utilities\LicenseCrypto.cs" Link="LicenseCrypto.cs" />
+  </ItemGroup>
+</Project>

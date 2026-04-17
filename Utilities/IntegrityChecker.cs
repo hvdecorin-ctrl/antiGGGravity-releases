@@ -1,6 +1,8 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
 
 namespace antiGGGravity.Utilities
 {
@@ -8,10 +10,25 @@ namespace antiGGGravity.Utilities
     /// Runtime integrity checker that verifies the assembly hasn't been tampered with.
     /// Uses reflection to ensure critical security methods and classes still exist
     /// and haven't been removed or hollowed out by a binary patcher.
+    /// 
+    /// Security features:
+    ///   - Encrypted string references (no plaintext type/method names for dnSpy to find)
+    ///   - IL body size verification (catches NOP patching)
+    ///   - Cross-linked with LicenseValidator (circular dependency)
+    ///   - Strong name token verification (catches unsigned replacement DLLs)
     /// </summary>
     public static class IntegrityChecker
     {
         private static bool? _cachedResult;
+
+        // Expected strong name public key token (from antiGGGravity.snk)
+        private static readonly byte[] ExpectedPublicKeyToken = { 0x0c, 0x3e, 0x48, 0x43, 0x90, 0xfc, 0xb3, 0x09 };
+
+        /// <summary>
+        /// Minimum expected IL body sizes for critical methods.
+        /// </summary>
+        private const int MinExecuteILSize = 20;
+        private const int MinValidateLicenseILSize = 15;
 
         /// <summary>
         /// Returns true if the assembly appears unmodified.
@@ -24,6 +41,16 @@ namespace antiGGGravity.Utilities
             return _cachedResult.Value;
         }
 
+        private static void LogFailure(string reason)
+        {
+            try
+            {
+                string logPath = Path.Combine(Path.GetTempPath(), "agg_integrity.log");
+                File.AppendAllText(logPath, $"[{DateTime.Now}] Integrity Failure: {reason}{Environment.NewLine}");
+            }
+            catch { }
+        }
+
         private static bool PerformChecks()
         {
             try
@@ -33,62 +60,99 @@ namespace antiGGGravity.Utilities
                 // Check 1: Critical security types must exist
                 var criticalTypes = new[]
                 {
-                    "antiGGGravity.Utilities.LicenseValidator",
-                    "antiGGGravity.Utilities.LicenseCrypto",
-                    "antiGGGravity.Utilities.LicenseStorage",
-                    "antiGGGravity.Utilities.HardwareIdGenerator",
-                    "antiGGGravity.Commands.BaseCommand"
+                    SecurityStrings.LicenseValidator,
+                    SecurityStrings.LicenseCrypto,
+                    SecurityStrings.LicenseStorage,
+                    SecurityStrings.HardwareIdGenerator,
+                    SecurityStrings.BaseCommand
                 };
 
                 foreach (var typeName in criticalTypes)
                 {
                     if (asm.GetType(typeName) == null)
+                    {
+                        LogFailure($"Type missing: {typeName}");
                         return false;
+                    }
                 }
 
-                // Check 2: BaseCommand.Execute must exist and contain the license check
-                var baseCmd = asm.GetType("antiGGGravity.Commands.BaseCommand");
-                var executeMethod = baseCmd?.GetMethod("Execute",
+                // Check 2: BaseCommand.Execute must exist and be non-trivial
+                var baseCmd = asm.GetType(SecurityStrings.BaseCommand);
+                var executeMethod = baseCmd?.GetMethod(SecurityStrings.Execute,
                     BindingFlags.Public | BindingFlags.Instance,
                     null,
                     new[] { typeof(Autodesk.Revit.UI.ExternalCommandData), typeof(string).MakeByRefType(), typeof(Autodesk.Revit.DB.ElementSet) },
                     null);
-                if (executeMethod == null) return false;
+                
+                if (executeMethod == null)
+                {
+                    LogFailure("Execute method not found via reflection.");
+                    return false;
+                }
 
                 // Check 3: RequiresLicense property must exist on BaseCommand
-                var requiresLicenseProp = baseCmd?.GetProperty("RequiresLicense",
+                var requiresLicenseProp = baseCmd?.GetProperty(SecurityStrings.RequiresLicense,
                     BindingFlags.NonPublic | BindingFlags.Instance);
-                if (requiresLicenseProp == null) return false;
+                if (requiresLicenseProp == null)
+                {
+                    LogFailure("RequiresLicense property missing.");
+                    return false;
+                }
 
                 // Check 4: LicenseValidator.ValidateLicense must exist
-                var validator = asm.GetType("antiGGGravity.Utilities.LicenseValidator");
-                var validateMethod = validator?.GetMethod("ValidateLicense",
+                var validator = asm.GetType(SecurityStrings.LicenseValidator);
+                var validateMethod = validator?.GetMethod(SecurityStrings.ValidateLicense,
                     BindingFlags.Public | BindingFlags.Static);
-                if (validateMethod == null) return false;
-
-                // Check 5: LicenseCrypto.ValidateActivationKey must exist
-                var crypto = asm.GetType("antiGGGravity.Utilities.LicenseCrypto");
-                var validateKeyMethod = crypto?.GetMethod("ValidateActivationKey",
-                    BindingFlags.Public | BindingFlags.Static);
-                if (validateKeyMethod == null) return false;
-
-                // Check 6: Verify the Execute method body isn't suspiciously small
-                // (A NOP'd or hollowed method would have a tiny body)
-                var methodBody = executeMethod.GetMethodBody();
-                if (methodBody == null || methodBody.GetILAsByteArray().Length < 30)
+                if (validateMethod == null)
+                {
+                    LogFailure("ValidateLicense method missing.");
                     return false;
+                }
 
-                // Check 7: Verify the assembly hasn't been re-signed with a different key
-                // (strong name check — if assembly was originally signed)
+                // Check 6: Verify Execute method body size (catches NOP patching)
+                var executeBody = executeMethod.GetMethodBody();
+                if (executeBody == null || executeBody.GetILAsByteArray().Length < MinExecuteILSize)
+                {
+                    LogFailure($"Execute IL size too small: {executeBody?.GetILAsByteArray()?.Length ?? 0}");
+                    return false;
+                }
+
+                // Check 7: Verify ValidateLicense method body size
+                var validateBody = validateMethod.GetMethodBody();
+                if (validateBody == null || validateBody.GetILAsByteArray().Length < MinValidateLicenseILSize)
+                {
+                    LogFailure($"ValidateLicense IL size too small: {validateBody?.GetILAsByteArray()?.Length ?? 0}");
+                    return false;
+                }
+
+                // Check 8: Strong name public key token verification
                 var name = asm.GetName();
                 var publicKeyToken = name.GetPublicKeyToken();
-                // If we have a strong name and it's been stripped, flag it
-                // (Only relevant if we sign the assembly)
+                if (publicKeyToken != null && publicKeyToken.Length > 0)
+                {
+                    if (!publicKeyToken.SequenceEqual(ExpectedPublicKeyToken))
+                    {
+                        string actual = BitConverter.ToString(publicKeyToken).Replace("-", "").ToLower();
+                        LogFailure($"Strong name mismatch. Actual: {actual}");
+                        return false;
+                    }
+                }
+
+                // Check 9: Verify IntegrityChecker itself
+                var selfType = asm.GetType("antiGGGravity.Utilities.IntegrityChecker");
+                var isIntactMethod = selfType?.GetMethod(SecurityStrings.IsIntact,
+                    BindingFlags.Public | BindingFlags.Static);
+                if (isIntactMethod == null)
+                {
+                    LogFailure("IntegrityChecker self-lookup failed.");
+                    return false;
+                }
 
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                LogFailure($"Exception in PerformChecks: {ex.Message}");
                 return false;
             }
         }

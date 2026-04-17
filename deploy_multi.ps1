@@ -1,10 +1,15 @@
 # Deploy multi-version script
 # Builds antiGGGravity for all Revit versions and packages for client distribution.
 # 
-# IMPORTANT: Do NOT enable Obfuscar obfuscation. It breaks the ribbon at runtime
-# because it renames properties needed for YAML deserialization and corrupts
-# string constants used for resource loading. The EMBED_LICENSE build flag
-# already provides client protection by bypassing license checks.
+# SECURITY: Protection is provided by:
+#   1. Code-level obfuscation (SecurityStrings.cs — encrypted string references)
+#   2. Assembly strong naming (antiGGGravity.snk — prevents DLL replacement)
+#   3. Cross-linked integrity checks (IntegrityChecker ⟷ LicenseValidator)
+#   4. EMBED_LICENSE build flag for client distribution builds
+#
+# Obfuscar: Config is available (obfuscar.xml) with correct skip rules.
+#           Can be enabled with -Obfuscate flag for additional protection.
+#           Currently optional because code-level hardening provides baseline protection.
 #
 # Usage:
 #   .\deploy_multi.ps1                          # Build all versions

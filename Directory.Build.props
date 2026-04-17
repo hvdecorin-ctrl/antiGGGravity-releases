@@ -1,0 +1,10 @@
+<Project>
+  <PropertyGroup>
+    <!-- 
+      Isolate intermediate output paths by project name to prevent .NET 8 leakage 
+      from antiGGGravity.csproj into antiGGGravity_Legacy.csproj during WPF compilation.
+    -->
+    <BaseIntermediateOutputPath>obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)$(Configuration)\</IntermediateOutputPath>
+  </PropertyGroup>
+</Project>

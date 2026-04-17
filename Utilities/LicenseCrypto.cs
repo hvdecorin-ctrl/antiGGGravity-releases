@@ -18,16 +18,26 @@ namespace antiGGGravity.Utilities
     {
         // =====================================================================
         // PUBLIC KEY — Safe to ship in the DLL. Cannot be used to forge keys.
+        // Generated: 2026-04-18. Algorithm: ECDSA P-256.
         // =====================================================================
-        private static readonly byte[] PublicKeyX = Convert.FromBase64String("/ti/xZPRw2vJAfMdM1DZG/2XWW9omw8n5T3bw0ki784=");
-        private static readonly byte[] PublicKeyY = Convert.FromBase64String("qSPOuSna6CPzPpmhxZc52wsXwhGecbfyAU9VTkgyM4s=");
+        private static readonly byte[] PublicKeyX = Convert.FromBase64String("IlDLzcO57fOy43N+ntvaNb5ZfkeRcyOLCdc/ATQP7Pg=");
+        private static readonly byte[] PublicKeyY = Convert.FromBase64String("Oh6O+fWPkmbPRED1n5uWeaMi06jCfDbf51QVkpJ9WF0=");
 
         // =====================================================================
         // PRIVATE KEY — Only used by KeyGen. Compiled out of the main DLL via
         // the KEYGEN_BUILD preprocessor constant.
+        // Loaded from environment variable AGG_PRIVATE_KEY — never in source code.
         // =====================================================================
 #if KEYGEN_BUILD
-        private static readonly byte[] PrivateKeyD = Convert.FromBase64String("K3QH0fP24s5Go13cqpm+/D4QBo5u7NmwgVWP3sIzduk=");
+        private static byte[] LoadPrivateKey()
+        {
+            var b64 = Environment.GetEnvironmentVariable("AGG_PRIVATE_KEY");
+            if (string.IsNullOrEmpty(b64))
+                throw new InvalidOperationException(
+                    "AGG_PRIVATE_KEY environment variable not set.\n" +
+                    "Set it with: [System.Environment]::SetEnvironmentVariable('AGG_PRIVATE_KEY', '<key>', 'User')");
+            return Convert.FromBase64String(b64);
+        }
 #endif
 
         // Base32 alphabet — 32 chars, no 0/O/1/I to avoid user confusion
@@ -167,10 +177,11 @@ namespace antiGGGravity.Utilities
 #if KEYGEN_BUILD
         /// <summary>
         /// Creates an ECDsa instance with the private key for signing.
-        /// Only available in KeyGen builds.
+        /// Only available in KeyGen builds. Private key loaded from environment variable.
         /// </summary>
         private static ECDsa CreatePrivateKey()
         {
+            var privateKeyD = LoadPrivateKey();
             var parameters = new ECParameters
             {
                 Curve = ECCurve.NamedCurves.nistP256,
@@ -179,7 +190,7 @@ namespace antiGGGravity.Utilities
                     X = (byte[])PublicKeyX.Clone(),
                     Y = (byte[])PublicKeyY.Clone()
                 },
-                D = (byte[])PrivateKeyD.Clone()
+                D = (byte[])privateKeyD.Clone()
             };
             return ECDsa.Create(parameters);
         }

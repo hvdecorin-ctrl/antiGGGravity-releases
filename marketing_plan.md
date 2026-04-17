@@ -8,7 +8,11 @@
 
 ## 1. Pricing Strategy — The Coffee Strategy ☕
 
-**Chosen price: $5.99/month per PC ($71.88/year)**
+**Standard Price: $5.99/month per PC ($71.88/year)**
+
+### Simple "All-Access" Model
+- No tiers, no "pro" versions, no confusion.
+- One price unlocks **every single tool** (Rebar automation, Roof framing, Visibility tools, etc.).
 
 ### Why $5.99/month is a Killer Price Point
 
@@ -16,92 +20,29 @@
 |-----------|--------|
 | ☕ **"Less than a coffee"** | Instantly relatable, removes all price objection |
 | 🧠 **Low decision threshold** | Managers approve $5.99/month without a procurement process |
-| 📈 **Volume play** | At $5.99/month you'll attract 10× more users than at $25/month, earning more total revenue |
-| 🔒 **Lock-in through habit** | Once teams rely on 100+ tools daily, $5.99/month is never cancelled |
-| 💡 **Per-PC licensing** | Simple, fair, scales naturally with firm size (10 PCs = $59.90/month = still cheap) |
-| 💰 **Premium over $5** | The extra $0.99 earns ~20% more revenue than flat $5 while feeling psychologically identical |
+| 📈 **Volume play** | At $5.99/month you'll attract 10× more users than at $25/month |
+| 🔒 **Habit forming** | Once teams rely on 100+ tools daily, $5.99/month is never cancelled |
+| 💰 **Premium over $5** | The extra $0.99 earns ~20% more revenue than flat $5 |
 
 ### Trial Period
 
-- **14-day full access free trial** — Autodesk App Store supports trial periods natively
-- Let users experience the full rebar engine and all 100+ tools before committing
+- **14-day full access free trial** — Autodesk App Store supports trial periods natively.
+- Let users experience the full power of all 100+ tools before committing.
 
 ---
 
-## 2. Competitor Analysis — Content Management & Transfer Tools
+## 2. Competitor Analysis — Rebar & Productivity
 
-### antiGGGravity vs AVAIL / Kinship / CTC
-
-| Factor | **antiGGGravity** | AVAIL | Kinship (Unifi) | CTC BIM Manager |
-|--------|:-----------------:|:-----:|:---------------:|:---------------:|
-| Monthly cost | **$5.99/PC** | $20/user | Custom quote | ~$75/license |
-| Annual cost | **$71.88/year** | $200/year | Custom (higher) | ~$900/year |
-| **vs antiGGGravity** | — | **3.3× more expensive** | — | **12.5× more expensive** |
-| What you get | **100+ tools** (rebar, framing, VG, transfers, overrides, audit) | Content browser & channel management | Cloud library management | Family processing & checking |
-| Transfer capability | **Family Manager**: Selective family manager and transfer views, sheets across projects. | Channel-based content sharing | Cloud-based family sync | Family batch tools |
-| Rebar automation | ✅ Full parametric engine | ❌ | ❌ | ❌ |
+| Factor | **antiGGGravity** | Graitec PowerPack | Naviate Rebar | CTC BIM Manager |
+|--------|:-----------------:|:-----------------:|:-------------:|:---------------:|
+| Monthly cost | **$5.99/PC** | ~$165/mo | ~$17/mo | ~$75/license |
+| Annual cost | **$71.88/year** | $2,000+ | $210 | $900 |
+| **vs antiGGGravity** | — | **28× more expensive** | **2.9× more expensive** | **12.5× more expensive** |
+| What you get | **100+ tools** | ~15 tools | ~10 tools | ~5 tools |
+| Rebar automation | ✅ Full parametric engine | ✅ Full | ⚠️ Limited | ❌ |
 | Roof framing | ✅ One-click generation | ❌ | ❌ | ❌ |
-| Visibility tools | ✅ 22 toggles + Quick VG/Filter/Pick | ❌ | ❌ | ❌ |
+| Visibility tools | ✅ 22 toggles + Quick VG | ❌ | ❌ | ❌ |
 | Revit versions | **2022–2027** | Latest 2–3 | Latest 2–3 | Latest 2–4 |
-| Price per tool | **$0.055/mo** | N/A (1 tool) | N/A (1 tool) | ~$7.50/mo per tool |
-
-**Key talking point:** AVAIL charges **$20/user/month** just for content management. antiGGGravity gives you a more powerful Transfer Family tool **plus 99 other professional tools** for **3.3× less money**. That's the killer comparison for your marketing.
-
----
-
-## 3. Competitor Analysis — Rebar Automation
-
-The rebar automation space is where antiGGGravity truly dominates. Here's how $5.99/month stacks up against every competitor:
-
-| Factor | **antiGGGravity** | Graitec PowerPack | Naviate Rebar | CADS Rebar Extensions | KS Digital Rebar Automate |
-|--------|:-----------------:|:-----------------:|:-------------:|:---------------------:|:-------------------------:|
-| **Price** | **$5.99/month ($71.88/yr)** | ~$2,000+/year (enterprise quote) | €190/year (~$210/yr) | Free (basic) / RC3D = quote | ~$49/year |
-| **vs antiGGGravity** | — | **28× more expensive** | **2.9× more expensive** | — | similar price |
-| **Foundations** | ✅ Strip, Pad, Varied Shape, Bored Pile, Side rebar | ✅ Basic footings | ⚠️ Limited | ✅ Footings, pile caps | ⚠️ Limited |
-| **Columns** | ✅ **Multi-Level Column** — Rectangular + Circular, spirals, stack splicing, starter bars | ✅ Columns | ✅ Columns | ✅ Columns | ⚠️ Basic |
-| **Walls** | ✅ **Multi-Level Wall** — Multi-face, L/U corners, U-bars, auto-trim, starters, lap splices | ✅ Walls | ✅ Walls | ✅ Walls | ❌ |
-| **Beams** | ✅ 6-layer (T1–B3), continuous spans, stirrup zones, side bars, lap splices | ✅ Beams | ✅ Beams | ✅ Beams | ⚠️ Basic |
-| **Support Intelligence** | **✅ Priority: Column > Wall > Depth > Width** | ❌ Manual | ❌ Manual | ❌ Manual | ❌ |
-| **Cantilever Detailing** | **✅ Auto-detect + Anchorage extensions** | ⚠️ Limited | ❌ | ❌ | ❌ |
-| **Cranked splices** | ✅ 1:6 automated crank | ⚠️ Manual | ❌ | ❌ | ❌ |
-| **Rebar Palette (floating tools)** | ✅ 11 sub-tools | ❌ | ❌ | ❌ | ❌ |
-| **Quantity takeoff** | ✅ By host category + host mark | ✅ Schedules | ⚠️ Limited | ❌ | ❌ |
-| **International standards** | ✅ AS, BS, US (ASTM) | ✅ Multi-standard | ✅ Multi-standard | ✅ UK focused | ⚠️ Limited |
-| **Bonus: 90+ other tools** | ✅ Roof framing, bracing, VG, overrides, transfers, audit | ❌ Rebar only | ❌ Rebar only | ❌ Rebar only | ❌ Rebar only |
-| **Revit versions** | **2022–2027** | Latest 2–3 | Latest 2–3 | Latest 2–3 | Latest 2–3 |
-
----
-
-## 4. Score Summary — All Competitors at a Glance
-
-| | **antiGGGravity** | Graitec | Naviate | CADS | KS Digital | AVAIL | Kinship | CTC |
-|--|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-| **Total features** | **100+** | ~15 | ~10 | ~8 | ~5 | ~3 | ~2 | ~5 |
-| **Price / year** | **$71.88** | $2,000+ | $210 | Free/quote | $49 | $200 | Custom | $900 |
-| **Cost per feature** | **$0.72/yr** | ~$133/yr | ~$21/yr | — | ~$10/yr | ~$67/yr | — | ~$180/yr |
-| **Rebar** | ✅ Full | ✅ Full | ✅ Partial | ✅ Basic | ⚠️ Basic | ❌ | ❌ | ❌ |
-| **Model generation** | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **Visibility** | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **Overrides** | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **Management** | ✅ | ❌ | ❌ | ❌ | ❌ | ⚠️ | ⚠️ | ⚠️ |
-| **General tools** | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **Revit versions** | **2022–2027** | 2–3 | 2–3 | 2–3 | 2–3 | 2–3 | 2–3 | 2–4 |
-
-> **Bottom line:** Every competitor does ONE thing. antiGGGravity does EVERYTHING — for less than any of them charge for their one thing.
-
-### Key Takeaways for Marketing
-
-1. **Graitec** is the closest rebar competitor — but at **$2,000+/year**, it costs **28× more** and is rebar-only.
-2. **Naviate Rebar** costs **€190/year** (~$210) and does only rebar — **2.9× more** for a fraction of the features.
-3. **CADS** offers free basic rebar, but advanced RC3D requires enterprise pricing. Lacks cranked splices, floating palette, varied-shape pads.
-4. **KS Digital** is near your price (~$49/year) — but covers only basic rebar with limited element types.
-5. **AVAIL** charges **$20/user/month** — **3.3× more** than antiGGGravity — for just content management with no rebar, no framing, no VG.
-6. **CTC** charges **~$900/year** — **12.5× more** — for just family processing tools.
-7. **Only antiGGGravity** bundles a full rebar engine + model generation + visibility + overrides + management + general tools for **$5.99/month**.
-
-
----
-
 ## 5. Differentiation Messaging
 
 When marketing, hammer these messages everywhere:

@@ -17,16 +17,40 @@
   <AssemblySearchPath path="C:\Program Files\Autodesk\Revit 2022" />
   
   <Module file="$(InPath)\antiGGGravity.dll">
-    <!-- Keep IExternalApplication implementation visible to Revit -->
+    <!-- ============================================================ -->
+    <!-- Revit API Entry Points — loaded by name, must not be renamed  -->
+    <!-- ============================================================ -->
     <SkipType name="antiGGGravity.App" />
-
-    <!-- Keep IExternalCommand implementations visible to Revit -->
-    <!-- These classes are loaded by name so they must not be renamed -->
     <SkipType name="antiGGGravity.Commands.*.*$" rx="true" />
     <SkipType name="antiGGGravity.StructuralRebar.*Command$" rx="true" />
 
-    <!-- Keep LicenseResult public interface visible -->
+    <!-- ============================================================ -->
+    <!-- YAML Deserialization Models — properties must keep names for  -->
+    <!-- YamlDotNet CamelCaseNamingConvention deserialization          -->
+    <!-- ============================================================ -->
+    <SkipType name="antiGGGravity.Utilities.RibbonConfiguration" />
+    <SkipType name="antiGGGravity.Utilities.TabConfig" />
+    <SkipType name="antiGGGravity.Utilities.PanelConfig" />
+    <SkipType name="antiGGGravity.Utilities.PanelItemConfig" />
+    <SkipType name="antiGGGravity.Utilities.ButtonConfig" />
+    <SkipType name="antiGGGravity.Utilities.RibbonConfigLoader" />
+
+    <!-- ============================================================ -->
+    <!-- WPF / Resource Loading — used by Pack URIs and XAML binding   -->
+    <!-- ============================================================ -->
+    <SkipType name="antiGGGravity.Utilities.SharedResources" />
+    <SkipType name="antiGGGravity.Resources.Branding" />
+
+    <!-- ============================================================ -->
+    <!-- License Result public API — properties accessed via reflection -->
+    <!-- ============================================================ -->
     <SkipType name="antiGGGravity.Utilities.LicenseResult" skipMethods="true" skipProperties="false" />
     <SkipType name="antiGGGravity.Utilities.LicenseKeyResult" skipMethods="true" skipProperties="false" />
+
+    <!-- ============================================================ -->
+    <!-- Auto-updater models — JSON deserialization requires property names -->
+    <!-- ============================================================ -->
+    <SkipType name="antiGGGravity.Utilities.UpdateInfo" />
+    <SkipType name="antiGGGravity.Utilities.DownloadResult" />
   </Module>
 </Obfuscator>

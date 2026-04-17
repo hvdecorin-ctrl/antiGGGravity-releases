@@ -12,6 +12,8 @@
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>antiGGGravity.snk</AssemblyOriginatorKeyFile>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
     <GenerateAssemblyNeutralResourcesLanguageAttribute>false</GenerateAssemblyNeutralResourcesLanguageAttribute>
@@ -37,14 +39,12 @@
   </PropertyGroup>
 
 
-  <!-- Exclude the private KeyGen console and UI apps from this project -->
+  <!-- Exclude the private KeyGen tools from this project -->
   <ItemGroup>
     <Compile Remove="KeyGen\**" />
     <None Remove="KeyGen\**" />
-    <Compile Remove="KeyGenUI\**" />
-    <None Remove="KeyGenUI\**" />
-    <Page Remove="KeyGenUI\**" />
-    <ApplicationDefinition Remove="KeyGenUI\**" />
+    <Page Remove="KeyGen\**" />
+    <ApplicationDefinition Remove="KeyGen\**" />
   </ItemGroup>
 
 

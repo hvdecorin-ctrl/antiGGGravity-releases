@@ -60,10 +60,11 @@ Distribute/
 *.addin
 !antiGGGravity.addin
 
-# Private KeyGen Apps (Unignored for GitHub synchronization as requested)
-!KeyGen_App/
-KeyGen/
-KeyGenUI/
+# KeyGen Source Code — Safe to commit (keys moved to env vars)
+!/KeyGen/
+
+# Strong name key file (private — do not share via Git)
+*.snk
 
 # Project Build Logs
 build_errors.log

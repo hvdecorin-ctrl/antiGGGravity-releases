@@ -8,14 +8,18 @@
     <RootNamespace>antiGGGravity</RootNamespace>
     <PlatformTarget>x64</PlatformTarget>
     <Nullable>disable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
+    <ImplicitUsings>disable</ImplicitUsings>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>antiGGGravity.snk</AssemblyOriginatorKeyFile>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
     <GenerateAssemblyNeutralResourcesLanguageAttribute>false</GenerateAssemblyNeutralResourcesLanguageAttribute>
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
-    
+
     <!-- MC1000 Robust Fixes for net48 -->
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
     <IncludePackageReferencesDuringMarkupCompilation>false</IncludePackageReferencesDuringMarkupCompilation>
     <_NoWinFXReferenceInclude>true</_NoWinFXReferenceInclude>
 
@@ -93,9 +97,7 @@
   <ItemGroup>
     <Compile Remove="KeyGen\**" />
     <None Remove="KeyGen\**" />
-    <Compile Remove="KeyGenUI\**" />
-    <None Remove="KeyGenUI\**" />
-    <Page Remove="KeyGenUI\**" />
+    <Page Remove="KeyGen\**" />
     <ApplicationDefinition Remove="KeyGenUI\**" />
     <Compile Remove="Reserve\**\*.cs" />
     <Page Remove="Reserve\**\*.xaml" />
