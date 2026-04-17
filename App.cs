@@ -17,8 +17,12 @@ namespace antiGGGravity
         {
             try
             {
+                // Apply any previously staged update (replaces DLLs on disk for this session)
+                var updateResult = antiGGGravity.Utilities.AutoUpdater.ApplyStagedUpdate();
+
                 // Pre-load global UI resources for all windows to prevent latency
                 antiGGGravity.Utilities.SharedResources.Load();
+
 
                 // Load ribbon configuration from embedded YAML
                 var config = RibbonConfigLoader.Load();

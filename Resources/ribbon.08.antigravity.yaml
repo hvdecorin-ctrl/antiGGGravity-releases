@@ -15,4 +15,9 @@ panels:
                 command: GetHardwareIdCommand
                 icon: HardwareID
                 tooltip: Copy your machine ID for license activation.
+              - separator: true
+              - name: Check Update
+                command: CheckUpdateCommand
+                icon: CheckUpdate
+                tooltip: Check for new versions and download updates.
 

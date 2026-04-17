@@ -35,6 +35,16 @@ foreach ($v in $VersionsToBuild) {
 
     # 1. SDK VERSION HANDLING
     $isNetCore = ($v -eq "R27" -or $v -eq "R26" -or $v -eq "R25")
+    $globalJsonPath = Join-Path $PSScriptRoot "global.json"
+
+    if (!$isNetCore) {
+        # Force SDK 6.0.428 for .NET Framework targets (fixes MC1000 bug in newer SDKs)
+        $json = '{ "sdk": { "version": "6.0.428", "rollForward": "latestFeature" } }'
+        $json | Set-Content -Path $globalJsonPath -Force
+    } else {
+        # Remove pin for .NET Core targets
+        if (Test-Path $globalJsonPath) { Remove-Item $globalJsonPath -Force }
+    }
 
     # 2. RESTORE
     Write-Host "Restoring for $v..." -ForegroundColor Gray
@@ -51,6 +61,9 @@ foreach ($v in $VersionsToBuild) {
         & $msbuildPath antiGGGravity.csproj /p:Configuration=$v /p:DeployToRevit=false /p:EmbedLicense=true /t:Clean,Build /nodeReuse:false
     }
     
+    # Cleanup global.json after use
+    if (Test-Path $globalJsonPath) { Remove-Item $globalJsonPath -Force }
+
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Build failed for $v. Stopping script." -ForegroundColor Red
         exit 1

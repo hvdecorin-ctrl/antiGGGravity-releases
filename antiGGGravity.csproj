@@ -21,8 +21,8 @@
     <DefineConstants Condition="'$(EmbedLicense)' == 'true'">$(DefineConstants);EMBED_LICENSE</DefineConstants>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
-    <IncludePackageReferencesDuringMarkupCompilation>true</IncludePackageReferencesDuringMarkupCompilation>
-    <_NoWinFXReferenceInclude>false</_NoWinFXReferenceInclude>
+    <IncludePackageReferencesDuringMarkupCompilation>false</IncludePackageReferencesDuringMarkupCompilation>
+    <_NoWinFXReferenceInclude>true</_NoWinFXReferenceInclude>
 
     <AssemblySearchPaths Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
       {CandidateAssemblyFiles};
