@@ -36,8 +36,12 @@ foreach ($v in $VersionsToBuild) {
     # 1. SDK VERSION HANDLING
     $isNetCore = ($v -eq "R27" -or $v -eq "R26" -or $v -eq "R25")
     $globalJsonPath = Join-Path $PSScriptRoot "global.json"
-
+    
+    # Choose project file (Legacy for R22-R24)
+    $projFile = "antiGGGravity.csproj"
     if (!$isNetCore) {
+        $projFile = "antiGGGravity_Legacy.csproj"
+        
         # Force SDK 6.0.428 for .NET Framework targets (fixes MC1000 bug in newer SDKs)
         $json = '{ "sdk": { "version": "6.0.428", "rollForward": "latestFeature" } }'
         $json | Set-Content -Path $globalJsonPath -Force
@@ -47,18 +51,18 @@ foreach ($v in $VersionsToBuild) {
     }
 
     # 2. RESTORE
-    Write-Host "Restoring for $v..." -ForegroundColor Gray
+    Write-Host "Restoring for $v using $projFile..." -ForegroundColor Gray
     $msbuildPath = "C:\Program Files\Microsoft Visual Studio\18\Community\MSBuild\Current\Bin\MSBuild.exe"
-    & $msbuildPath antiGGGravity.csproj /t:Restore /p:Configuration=$v /p:EmbedLicense=true
+    & $msbuildPath $projFile /t:Restore /p:Configuration=$v /p:EmbedLicense=true
 
     # 3. CLEAN & BUILD
     if ($isNetCore) {
         # NET 8+ / NET 10 uses dotnet build
-        dotnet build antiGGGravity.csproj -c $v --no-incremental -p:EmbedLicense=true
+        dotnet build $projFile -c $v --no-incremental -p:EmbedLicense=true
     } else {
         # NET 4.8 WPF builds have MC1000 bugs in 'dotnet build'. 
-        # We use Full MSBuild.exe from Visual Studio to fix this.
-        & $msbuildPath antiGGGravity.csproj /p:Configuration=$v /p:DeployToRevit=false /p:EmbedLicense=true /t:Clean,Build /nodeReuse:false
+        # We use Full MSBuild.exe from Visual Studio + Legacy Project to fix this.
+        & $msbuildPath $projFile /p:Configuration=$v /p:DeployToRevit=false /p:EmbedLicense=true /t:Clean,Build /nodeReuse:false
     }
     
     # Cleanup global.json after use

@@ -1,0 +1,104 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Configurations>R22;R23;R24</Configurations>
+    <TargetFramework>net48</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>antiGGGravity</AssemblyName>
+    <RootNamespace>antiGGGravity</RootNamespace>
+    <PlatformTarget>x64</PlatformTarget>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+    <GenerateAssemblyNeutralResourcesLanguageAttribute>false</GenerateAssemblyNeutralResourcesLanguageAttribute>
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+    
+    <!-- MC1000 Robust Fixes for net48 -->
+    <IncludePackageReferencesDuringMarkupCompilation>false</IncludePackageReferencesDuringMarkupCompilation>
+    <_NoWinFXReferenceInclude>true</_NoWinFXReferenceInclude>
+
+    <AssemblySearchPaths>
+      {CandidateAssemblyFiles};
+      {HintPathFromItem};
+      {TargetFrameworkDirectory};
+      {RegistryPreferredFilePaths};
+      {AssemblyFolders};
+      {GAC};
+      {RawFileName};
+    </AssemblySearchPaths>
+    <FrameworkPathOverride>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8</FrameworkPathOverride>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="System" />
+    <Using Include="System.Collections.Generic" />
+    <Using Include="System.Linq" />
+    <Using Include="System.Text" />
+    <Using Include="System.Threading.Tasks" />
+    <Using Include="antiGGGravity.Utilities" />
+    <Using Include="antiGGGravity.Commands" />
+  </ItemGroup>
+
+  <!-- Preprocessor Constants -->
+  <PropertyGroup Condition="'$(Configuration)' == 'R22'">
+    <DefineConstants>REVIT2022;REVIT2022_OR_GREATER</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'R23'">
+    <DefineConstants>REVIT2023;REVIT2023_OR_GREATER;REVIT2022_OR_GREATER</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'R24'">
+    <DefineConstants>REVIT2024;REVIT2024_OR_GREATER;REVIT2023_OR_GREATER;REVIT2022_OR_GREATER</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="4.7.2" />
+    <PackageReference Include="YamlDotNet" Version="13.7.1" />
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Management">
+      <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Management.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Drawing">
+      <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Drawing.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Configuration)' == 'R22'">
+    <PackageReference Include="Autodesk.Revit.SDK.Refs.2022" Version="*" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'R23'">
+    <PackageReference Include="Autodesk.Revit.SDK.Refs.2023" Version="*" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'R24'">
+    <PackageReference Include="Autodesk.Revit.SDK.Refs.2024" Version="*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\Icons\**\*.png" />
+    <Resource Include="Resources\beam_cut_diagram.png" />
+    <EmbeddedResource Include="Resources\ribbon*.yaml" />
+    <None Include="Resources\RebarShapes\**\*.rfa">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>RebarShapes\%(RecursiveDir)%(FileName)%(Extension)</Link>
+    </None>
+  </ItemGroup>
+
+  <!-- Exclude items that are managed in separate projects or specific folders if any -->
+  <ItemGroup>
+    <Compile Remove="KeyGen\**" />
+    <None Remove="KeyGen\**" />
+    <Compile Remove="KeyGenUI\**" />
+    <None Remove="KeyGenUI\**" />
+    <Page Remove="KeyGenUI\**" />
+    <ApplicationDefinition Remove="KeyGenUI\**" />
+    <Compile Remove="Reserve\**\*.cs" />
+    <Page Remove="Reserve\**\*.xaml" />
+    <EmbeddedResource Remove="Reserve\**\*" />
+  </ItemGroup>
+</Project>
