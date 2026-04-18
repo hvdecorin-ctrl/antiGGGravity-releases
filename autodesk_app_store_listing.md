@@ -207,39 +207,36 @@ Version 1.0.0 (April 2026)
 
 > Autodesk requires a list of commands with name, description, and icon. Below is a structured list grouped by panel. Provide an icon (16×16 or 32×32) for each.
 
-### Rebar Panel (20 commands)
+### Rebar Panel (17 commands)
 
 | Command | Description |
 |---------|-------------|
+| Design Rules | View design codes, reference parameters, and calculation rules |
+| Pre-defined Shape | Load special rebar shapes (HT, L, LL, SP, CT) from the project library |
+| Foundation Rebar | Parametric reinforcement for Strip Footings and Pad Footings |
+| Wall Rebar | Parametric reinforcement for Walls and Wall Corners |
 | Column Rebar | Parametric reinforcement for rectangular and circular columns |
 | Beam Rebar | Multi-layer reinforcement for single and continuous beam spans |
-| Wall Rebar | Full wall reinforcement with face selection and corner tools |
-| Strip Footing Rebar | Automated reinforcement for strip foundations |
-| Pad Footing Rebar | Automated reinforcement for pad foundations |
-| Bored Pile Rebar | Circular reinforcement for deep pile foundations |
-| Side Rebar | Vertical/side reinforcement for deep pad foundations |
-| Rebar Palette | Floating toolbar with 11 rebar sub-tools |
-| Pre-defined Shape | Load special rebar shapes from the project library |
-| Design Rules | View design codes and calculation reference parameters |
-| Assign Mark | Auto-generate unique marks for structural elements |
-| Assign ElementName | Auto-generate element names for scheduling |
-| Rebar Q'ty Host Category | Quantity summary grouped by host category |
-| Rebar Q'ty Host Mark | Quantity summary grouped by host mark |
-| Create ElementName | Create shared parameter for custom element names |
-| Remove Extg Mark | Clear mark values from selected elements |
-| Remove Extg ElementName | Clear element name values from selected elements |
-| Wall L-Corner | L-corner rebar for intersecting walls |
-| Wall U-Corner | U-corner rebar for three-way wall intersections |
-| Wall U-Bar | Top, bottom, and end U-bars for walls |
+| Rebar Palette | Floating toolbar with 11 persistent rebar visibility and host-based tools |
+| Q'ty Host Category | Rebar quantity summary grouped by host category (beam, wall, etc.) |
+| Q'ty Host Mark | Rebar quantity summary grouped by host mark (element ID) |
+| Q'ty Partition | Rebar quantity summary grouped by Rebar Partition parameter |
+| Assign Mark | Auto-generate and assign a unique mark to selected elements |
+| Create ElementName | Create a shared parameter to store a custom element name |
+| Assign ElementName | Auto-generate and assign a custom Element Name to selected elements |
+| Remove Extg Mark | Clear the mark value from selected elements |
+| Remove Extg ElementName | Clear the 'Element Name' value from selected elements |
+| Mark → Partition | Set each rebar's Partition to its host element's Mark value |
+| ElementName → Partition | Set each rebar's Partition to its host element's Element Name value |
 
 ### Model Panel (4 commands)
 
 | Command | Description |
 |---------|-------------|
-| Roof Framing | Generate purlin/rafter assemblies on roof or slab geometry |
-| X-Brace | Cross-diagonal bracing between structural bays |
-| K-Brace | Chevron (inverted-V) bracing with configurable apex |
-| H-Frame | Horizontal multi-brace configurations between columns |
+| Roof Framing | Generate purlin and rafter assemblies on roof or slab geometry |
+| X-Brace | Crossed (X) diagonal bracing between two structural columns |
+| K-Brace | K-shaped (chevron) bracing with a central apex point |
+| H-Frame | Parallel horizontal braces spanning multiple structural bays |
 
 ### Project Audit (6 commands)
 
@@ -275,22 +272,20 @@ Version 1.0.0 (April 2026)
 
 ### Management Panel (14 commands)
 
-| Command | Description |
-|---------|-------------|
-| Transfer Family | Transfer views, sheets, and families between documents |
-| Rename Views (Active) | Batch-rename viewports on active sheet |
-| Rename Views (All) | Apply naming standard across all sheets |
-| Renumber Viewports | Re-number viewport detail numbers sequentially |
-| Add Selected View | Place selected view onto a target sheet |
+| Family Manager | Selective family manager and transfer views/sheets across projects |
+| Rename View | Rename viewports across all sheets using a naming rule |
+| Rename (Override) | Strictly rename views to match Detail Numbers, resolving collisions |
+| Renumber Viewports | Renumber viewports on the active sheet sequentially |
+| Add Selected View | Place the selected view onto a chosen target sheet |
 | Add Views | Batch-place multiple views onto sheets |
-| Duplicate Sheets | Clone sheets with titleblock and viewport layout |
-| Set Crop View | Interactively adjust crop region boundaries |
-| Crop Region | Toggle crop region visibility on placed views |
-| Zoom To | Zoom to bounding box of selected elements |
-| Auto 3D | Generate 3D view with automatic section box |
-| Toggle 3D | Toggle section box on/off |
-| Sectbox | Toggle section box visibility |
-| Align Schematic | Align viewports across multiple sheets |
+| Sheet Maker | Batch create or manage (rename/renumber) existing sheets |
+| Set Crop View | Set the crop region boundary interactively for the active view |
+| Crop Region | Toggle crop region visibility for all placed views project-wide |
+| Zoom To | Zoom the active view to fit the current element selection |
+| Auto 3D | Create a 3D view auto-fitted to selected elements |
+| Toggle 3D | Show or hide the section box in the active 3D view |
+| Sectbox | Toggle section box visibility without resizing its bounds |
+| Align Schematic | Align viewports to a consistent position across multiple sheets |
 
 ### Visibility Graphic Panel (22 commands)
 
@@ -309,42 +304,53 @@ Version 1.0.0 (April 2026)
 | Toggle Floors | Floor and slab elements |
 | Toggle Columns | Structural columns |
 | Toggle Framing | Beams, braces, trusses |
-| Toggle Roof | Roof elements |
-| Toggle Connections | Structural connections |
-| Toggle Rebar | Reinforcement bars |
-| Toggle Grids | Grid lines |
-| Toggle Levels | Level datums |
-| Toggle Ref Planes | Reference planes |
-| Toggle Scope Box | Scope boxes |
-| Toggle CAD Links | CAD imports and links |
-| Toggle Revit Links | Linked Revit models |
+| Toggle Roof | Show or hide roof elements in the active view |
+| Toggle Connections | Show or hide structural connection elements |
+| Toggle Rebar | Show or hide reinforcement bars in the active view |
+| Toggle Grids | Show or hide grid lines (2D and 3D) |
+| Toggle Levels | Show or hide level datum elements |
+| Toggle Ref Planes | Show or hide reference planes |
+| Toggle Scope Box | Show or hide scope box elements |
+| Toggle CAD Links | Show or hide all imported and linked CAD files |
+| Toggle Revit Links | Show or hide all linked Revit models in the project |
 
-### General Panel (22 commands)
+### General Panel (26 commands)
 
 | Command | Description |
 |---------|-------------|
+| Print PDF / CAD | Batch export sheets to PDF or DWG with automatic sorting |
 | Allow Join (Selection) | Allow geometry join on selected elements |
-| Allow Join (View) | Allow join on all elements in active view |
-| Disallow Join (Selection) | Disallow join on selected elements |
-| Disallow Join (View) | Disallow join in active view |
-| Beam Reset | Reset beam extensions and justification |
-| Join Advance | Toggle join/unjoin with priority control |
-| Cut Geometry | Cut all intersecting elements by selection |
-| Flip Elements | Batch-flip facing orientation |
-| Rotate Multiple | Rotate elements around individual centres |
-| Transfer Templates | Copy view templates between projects |
-| Copy Filters | Copy view filters to multiple views |
-| Filters Legend | Auto-generate colour-coded legend from filters |
-| Toggle All Grids | Show/hide all grids in active view |
-| Grid 3D & 2D | Switch grids between 3D and 2D display |
-| Merge Regions | Combine overlapping filled regions |
+| Allow Join (View) | Allow geometry join on all elements in the active view |
+| Disallow Join (Selection) | Disallow geometry join on selected elements |
+| Disallow Join (View) | Disallow geometry join on all elements in the active view |
+| Beam Reset | Reset beam start/end extensions and justification to defaults |
+| Join Advance | Toggle join/unjoin geometry between two selected elements |
+| Cut Geometry | Use one element to cut all intersecting elements in its path |
+| Flip Elements | Flip the facing or orientation of selected elements |
+| Set Rev | Set selected revisions on selected sheets |
+| Create Rev Set | Create a sheet set from sheets containing selected revisions |
+| Copy Filters | Copy view filters from one view to multiple selected views |
+| Filters Legend | Generate a legend showing all active filter colors and rules |
+| Toggle All Grids | Show or hide all grid lines in the active view |
+| Grid 3D & 2D | Switch selected grids between 3D and 2D extents |
+| Rotate Multiple | Rotate multiple selected elements by a specified angle |
+| Merge Regions | Merge multiple overlapping filled regions into one |
 | Regions → Floors | Convert filled regions to floor elements |
 | Regions → Ceilings | Convert filled regions to ceiling elements |
-| Change LineStyle | Batch-modify filled region line styles |
-| Match Top | Copy top constraint to target walls |
-| Match Base | Copy base constraint to target walls |
-| Match Both | Copy both constraints to target walls |
-| Auto Dims | Auto-dimension grids, walls, columns, foundations |
+| Change LineStyle | Change the line style of selected filled region boundaries |
+| Match Top | Match the top constraint of selected walls to a reference wall |
+| Match Base | Match the base constraint of selected walls to a reference wall |
+| Match Both | Match both top and base constraints to a reference wall |
+| Modify Constraints | Manually set the top and base constraints for selected walls |
+| Auto Dims | Auto-dimension grids, walls, columns, and foundations |
+| Dim Audit | Find and fix overlapping or unreadable dimensions in the view |
+
+### AntiGravity Panel (2 commands)
+
+| Command | Description |
+|---------|-------------|
+| Hardware ID | Copy your machine identifier for license activation |
+| Check Update | Check for new versions and download updates automatically |
 
 ---
 
@@ -437,7 +443,7 @@ holders. antiGGGravity is not affiliated with or endorsed by Autodesk, Inc.
 | Company Description | ~650 characters — see Section 5 | ✅ Ready |
 | Version Info | See Section 6 | ✅ Ready |
 | Known Issues | ~580 characters — see Section 7 | ✅ Ready |
-| Commands List | 106 commands — see Section 8 | ✅ Ready |
+| Commands List | 107 commands — see Section 8 | ✅ Ready |
 | Screenshots | 6–8 recommended — see Section 9 | ⬜ You create |
 | Demo Video | 2–3 min recommended — see Section 10 | ⬜ You create |
 | Privacy Policy URL | Template in Section 11 — host at public URL | ⬜ You host |
