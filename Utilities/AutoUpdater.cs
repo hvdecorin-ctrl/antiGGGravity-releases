@@ -2,8 +2,10 @@ using System;
 using System.IO;
 using System.IO.Compression;
 using System.Net.Http;
+using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace antiGGGravity.Utilities
 {
@@ -24,18 +26,32 @@ namespace antiGGGravity.Utilities
             Timeout = TimeSpan.FromSeconds(30)
         };
 
-        // Use LocalAppData so updates are per-machine (not roamed)
         private static readonly string UpdateRoot = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "antiGGGravity", "updates");
 
-        private static readonly string StagedDir = Path.Combine(UpdateRoot, "staged");
+        private static string GetStagedDir(string revitVersion = null)
+        {
+            if (string.IsNullOrEmpty(revitVersion))
+            {
+                // Root staging for current version
+                revitVersion = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileVersionInfo.FileDescription.Contains("20") 
+                    ? GetCurrentRevitYear() : "2026";
+            }
+            return Path.Combine(UpdateRoot, "staged", $"R{revitVersion}");
+        }
+
+        private static string GetVersionFile(string revitVersion = null) => Path.Combine(GetStagedDir(revitVersion), "version.txt");
         private static readonly string DownloadDir = Path.Combine(UpdateRoot, "download");
-        private static readonly string VersionFile = Path.Combine(StagedDir, "version.txt");
+
+        private static string GetCurrentRevitYear()
+        {
+            try { return System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName.Split('\\').Last(x => x.StartsWith("Revit 20")).Replace("Revit ", ""); }
+            catch { return "2026"; }
+        }
 
         static AutoUpdater()
         {
-            // GitHub API requires a User-Agent header
             if (!_client.DefaultRequestHeaders.Contains("User-Agent"))
                 _client.DefaultRequestHeaders.Add("User-Agent", "antiGGGravity-Updater");
         }
@@ -51,21 +67,28 @@ namespace antiGGGravity.Utilities
         {
             try
             {
-                if (!File.Exists(VersionFile))
+                var currentYear = GetCurrentRevitYear();
+                var stagedDir = GetStagedDir(currentYear);
+                var versionFile = GetVersionFile(currentYear);
+
+                if (!File.Exists(versionFile))
                     return null;
 
-                var stagedVersion = File.ReadAllText(VersionFile).Trim();
-                if (string.IsNullOrEmpty(stagedVersion))
-                    return null;
-
-                var installDir = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+                var stagedVersion = File.ReadAllText(versionFile).Trim();
+                var installDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
                 if (string.IsNullOrEmpty(installDir)) return null;
 
-                // Create a small PowerShell script to handle the swap after Revit closes
+                // 1. Verify Signature of staged assembly BEFORE applying
+                var stagedDll = Path.Combine(stagedDir, "antiGGGravity.dll");
+                if (!VerifySignature(stagedDll))
+                {
+                    LogFailure($"Staged update for v{stagedVersion} failed signature check. Aborting.");
+                    Directory.Delete(stagedDir, true);
+                    return "Update failed: Invalid signature.";
+                }
+
                 var revitPid = System.Diagnostics.Process.GetCurrentProcess().Id;
-                
-                // Escape paths for PowerShell
-                var psStagedDir = StagedDir.Replace("'", "''");
+                var psStagedDir = stagedDir.Replace("'", "''");
                 var psInstallDir = installDir.Replace("'", "''");
 
                 var script = $@"
@@ -75,27 +98,19 @@ $stagedDir = '{psStagedDir}'
 $installDir = '{psInstallDir}'
 
 # 1. Wait for Revit to exit
-$process = Get-Process -Id $revitPid
-if ($process) {{
-    $process | Wait-Process
-}}
+$process = Get-Process -Id $revitPid -ErrorAction SilentlyContinue
+if ($process) {{ $process | Wait-Process }}
 
-# 2. Brief wait to ensure file handles are released
 Start-Sleep -Seconds 2
 
-# 3. Swap the files
+# 2. Swap files
 if (Test-Path $stagedDir) {{
-    # Copy staged files over installed ones (excluding the version marker)
     Get-ChildItem -Path $stagedDir -Exclude 'version.txt' | ForEach-Object {{
         Copy-Item -Path $_.FullName -Destination $installDir -Force -Recurse
     }}
-    
-    # 4. Clean up staging directory
     Remove-Item -Path $stagedDir -Recurse -Force
 }}
 ";
-
-                // Launch PowerShell hidden
                 var psi = new System.Diagnostics.ProcessStartInfo
                 {
                     FileName = "powershell.exe",
@@ -105,13 +120,30 @@ if (Test-Path $stagedDir) {{
                 };
 
                 System.Diagnostics.Process.Start(psi);
-
                 return $"Update v{stagedVersion} staged. Will be applied after Revit closes.";
             }
             catch (Exception ex)
             {
                 return $"Update failed to stage: {ex.Message}";
             }
+        }
+
+        private static bool VerifySignature(string path)
+        {
+            try
+            {
+                if (!File.Exists(path)) return false;
+                var name = AssemblyName.GetAssemblyName(path);
+                var token = name.GetPublicKeyToken();
+                var expected = new byte[] { 0x0c, 0x3e, 0x48, 0x43, 0x90, 0xfc, 0xb3, 0x09 };
+                return token != null && System.Linq.Enumerable.SequenceEqual(token, expected);
+            }
+            catch { return false; }
+        }
+
+        private static void LogFailure(string msg)
+        {
+            try { File.AppendAllText(Path.Combine(Path.GetTempPath(), "agg_updater.log"), $"[{DateTime.Now}] {msg}\n"); } catch { }
         }
 
         #endregion
@@ -192,102 +224,77 @@ if (Test-Path $stagedDir) {{
         /// the correct subfolder from the zip (e.g., "R2026/").
         /// </summary>
         public static async Task<DownloadResult> DownloadUpdateAsync(
-            string downloadUrl, string newVersion, string revitVersion,
+            string downloadUrl, string newVersion, bool allVersions = false, 
             IProgress<double> progress = null)
         {
             try
             {
-                // Clean up any previous staging/download
-                CleanDirectory(StagedDir);
                 CleanDirectory(DownloadDir);
-
                 Directory.CreateDirectory(DownloadDir);
-                Directory.CreateDirectory(StagedDir);
 
                 var zipPath = Path.Combine(DownloadDir, "update.zip");
 
-                // Download the zip with progress
                 using (var response = await _client.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false))
                 {
                     response.EnsureSuccessStatusCode();
                     var totalBytes = response.Content.Headers.ContentLength ?? -1;
-
                     using (var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
-                    using (var fileStream = new FileStream(zipPath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, useAsync: true))
+                    using (var fileStream = new FileStream(zipPath, FileMode.Create))
                     {
                         var buffer = new byte[8192];
                         long totalRead = 0;
                         int bytesRead;
-
                         while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false)) > 0)
                         {
                             await fileStream.WriteAsync(buffer, 0, bytesRead).ConfigureAwait(false);
                             totalRead += bytesRead;
-
-                            if (totalBytes > 0)
-                                progress?.Report((double)totalRead / totalBytes * 100);
+                            if (totalBytes > 0) progress?.Report((double)totalRead / totalBytes * 100);
                         }
                     }
                 }
 
-                // Extract the zip
                 var extractDir = Path.Combine(DownloadDir, "extracted");
                 ZipFile.ExtractToDirectory(zipPath, extractDir);
 
-                // Find the correct Revit version subfolder (e.g., "R2026/antiGGGravity/")
-                var versionFolder = $"R{revitVersion}";
-                var addinSubDir = Path.Combine(extractDir, versionFolder, "antiGGGravity");
+                // Determine which versions to stage
+                var versionsToStage = allVersions 
+                    ? new[] { "2022", "2023", "2024", "2025", "2026", "2027" } 
+                    : new[] { GetCurrentRevitYear() };
 
-                if (!Directory.Exists(addinSubDir))
+                int successfullyStaged = 0;
+                foreach (var v in versionsToStage)
                 {
-                    // Fallback: try just the antiGGGravity folder at root level
-                    addinSubDir = Path.Combine(extractDir, "antiGGGravity");
+                    var addinSubDir = Path.Combine(extractDir, $"R{v}", "antiGGGravity");
+                    if (!Directory.Exists(addinSubDir)) continue;
+
+                    // Verify signature of the DLL in the zip before staging
+                    if (!VerifySignature(Path.Combine(addinSubDir, "antiGGGravity.dll"))) continue;
+
+                    var stagedDir = GetStagedDir(v);
+                    CleanDirectory(stagedDir);
+                    CopyDirectory(addinSubDir, stagedDir);
+                    File.WriteAllText(GetVersionFile(v), newVersion.TrimStart('v', 'V'));
+                    successfullyStaged++;
                 }
 
-                if (!Directory.Exists(addinSubDir))
-                {
-                    // Last fallback: if the zip is flat (files directly in root)
-                    addinSubDir = extractDir;
-                }
+                try { Directory.Delete(DownloadDir, true); } catch { }
 
-                // Copy the DLLs to staged directory
-                CopyDirectory(addinSubDir, StagedDir);
-
-                // Write the version marker (signals that staging is complete and ready)
-                File.WriteAllText(VersionFile, newVersion.TrimStart('v', 'V'));
-
-                // Clean up download directory
-                try { Directory.Delete(DownloadDir, recursive: true); } catch { }
+                if (successfullyStaged == 0)
+                    return new DownloadResult { Success = false, ErrorMessage = "No compatible versions found in update package or signature verification failed." };
 
                 return new DownloadResult { Success = true };
             }
             catch (Exception ex)
             {
-                // Clean up on failure
-                try { CleanDirectory(StagedDir); } catch { }
-                try { CleanDirectory(DownloadDir); } catch { }
-
                 return new DownloadResult { Success = false, ErrorMessage = ex.Message };
             }
         }
 
-        /// <summary>
-        /// Checks if a staged update is waiting to be applied.
-        /// </summary>
-        public static bool HasStagedUpdate()
-        {
-            return File.Exists(VersionFile);
-        }
+        public static bool HasStagedUpdate() => File.Exists(GetVersionFile(GetCurrentRevitYear()));
 
-        /// <summary>
-        /// Gets the version of the staged update, or null if none.
-        /// </summary>
         public static string GetStagedVersion()
         {
-            try
-            {
-                return File.Exists(VersionFile) ? File.ReadAllText(VersionFile).Trim() : null;
-            }
+            try { return HasStagedUpdate() ? File.ReadAllText(GetVersionFile(GetCurrentRevitYear())).Trim() : null; }
             catch { return null; }
         }
 

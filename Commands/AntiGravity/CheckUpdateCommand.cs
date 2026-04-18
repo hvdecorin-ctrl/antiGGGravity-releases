@@ -86,41 +86,36 @@ namespace antiGGGravity.Commands.AntiGravity
                         : ""),
                 CommonButtons = TaskDialogCommonButtons.Close
             };
+
             updateDialog.AddCommandLink(TaskDialogCommandLinkId.CommandLink1,
-                "Download Update",
-                "Download and stage the update. Restart Revit to apply.");
+                "Update This Version Only",
+                $"Download and stage v{info.LatestVersion} for Revit {commandData.Application.Application.VersionNumber}.");
+
+            updateDialog.AddCommandLink(TaskDialogCommandLinkId.CommandLink2,
+                "Update All Versions (2022-2027)",
+                $"Download and stage v{info.LatestVersion} for all installed Revit versions on this PC.");
 
             var dialogResult = updateDialog.Show();
 
-            if (dialogResult != TaskDialogResult.CommandLink1)
+            if (dialogResult != TaskDialogResult.CommandLink1 && dialogResult != TaskDialogResult.CommandLink2)
                 return Result.Succeeded;
+
+            bool updateAll = (dialogResult == TaskDialogResult.CommandLink2);
 
             // Download the update
             if (string.IsNullOrEmpty(info.DownloadUrl))
             {
                 TaskDialog.Show(antiGGGravity.Resources.Branding.COMPANY_NAME,
-                    "❌ No downloadable zip file found in this release.\n\n" +
-                    "Please ensure the GitHub Release has a .zip asset attached.");
+                    "❌ No downloadable zip file found in this release.");
                 return Result.Failed;
             }
 
-            // Detect current Revit version year
-            string revitVersion;
-            try
-            {
-                revitVersion = commandData.Application.Application.VersionNumber;
-            }
-            catch
-            {
-                revitVersion = "2026"; // Fallback
-            }
-
-            // Download synchronously with a simple progress dialog
+            // Download synchronously
             DownloadResult downloadResult;
             try
             {
                 downloadResult = Task.Run(() => AutoUpdater.DownloadUpdateAsync(
-                    info.DownloadUrl, info.LatestVersion, revitVersion))
+                    info.DownloadUrl, info.LatestVersion, updateAll))
                     .GetAwaiter().GetResult();
             }
             catch (Exception ex)

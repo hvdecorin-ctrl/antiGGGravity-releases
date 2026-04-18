@@ -15,7 +15,7 @@ namespace antiGGGravity.Resources
         /// The auto-updater compares this against the latest GitHub release tag.
         /// Format: major.minor.patch (e.g., "1.2.0")
         /// </summary>
-        public const string VERSION = "1.7.0";
+        public const string VERSION = "1.8.0";
 
         /// <summary>
         /// GitHub repository for the auto-updater to check for releases.

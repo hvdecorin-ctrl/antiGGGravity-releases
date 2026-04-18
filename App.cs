@@ -31,6 +31,20 @@ namespace antiGGGravity
                 var builder = new RibbonBuilder();
                 builder.Build(application, config);
 
+                // Run a quiet background update check
+                System.Threading.Tasks.Task.Run(async () =>
+                {
+                    try
+                    {
+                        var info = await antiGGGravity.Utilities.AutoUpdater.CheckForUpdateAsync();
+                        if (info != null && info.IsUpdateAvailable)
+                        {
+                            NotifyUpdateAvailable(application, config.Tab.Name, info.LatestVersion);
+                        }
+                    }
+                    catch { /* Quiet failure */ }
+                });
+
                 // After ribbon is built, check license and disable buttons if needed
                 DisableButtonsIfUnlicensed(application, config);
                 
@@ -93,6 +107,36 @@ namespace antiGGGravity
         /// Disables a ribbon item if the underlying command requires a license.
         /// Recursively handles pulldown buttons.
         /// </summary>
+        /// <summary>
+        /// Quietly updates the Check Update button label if a new version is found.
+        /// </summary>
+        private void NotifyUpdateAvailable(UIControlledApplication application, string tabName, string version)
+        {
+            try
+            {
+                var panels = application.GetRibbonPanels(tabName);
+                foreach (var panel in panels)
+                {
+                    foreach (var item in panel.GetItems())
+                    {
+                        if (item is PulldownButton pulldown)
+                        {
+                            foreach (var subItem in pulldown.GetItems())
+                            {
+                                if (subItem is PushButton button && button.ClassName.EndsWith("CheckUpdateCommand"))
+                                {
+                                    button.ItemText = $"Update Available! (v{version})";
+                                    button.ToolTip = $"A new version (v{version}) is available. Click to download.";
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch { }
+        }
+
         private void DisableIfLicensed(RibbonItem item)
         {
             try
