@@ -1,0 +1,2 @@
+# Disable Git LFS for zip files
+*.zip filter=lfs diff=lfs merge=lfs -text
