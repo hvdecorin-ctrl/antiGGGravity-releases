@@ -22,7 +22,7 @@
 ## 🚀 Introduction
 **antiGGGravity** is a high-performance productivity suite designed by structural engineers for the AEC industry. It automates the "low-value" repetitive tasks that consume up to 40% of a BIM professional's day, allowing you to focus on engineering and design.
 
-With **100+ specialized commands**, this toolkit bridges the gap between Revit's native functionality and the speed required for large-scale commercial project delivery.
+With **129 specialized commands**, this toolkit bridges the gap between Revit's native functionality and the speed required for large-scale commercial project delivery.
 
 ---
 
@@ -61,11 +61,11 @@ With **100+ specialized commands**, this toolkit bridges the gap between Revit's
 | Command | Description |
 |:---|:---|
 | **Project Folder** | Instantly open Windows Explorer at the central model's file location. |
-| **Wipe Empty Tags** | Scans the view and deletes all tags that have null or empty values. |
 | **Resolve Overlaps** | Intelligently offsets overlapping text notes and tags for better readability. |
 | **Project TextStyle** | Batch-convert or align all text styles in the project to your office standard. |
 | **Title on Sheets** | Apply consistent title block naming and numbering across all sheets. |
 | **Load More Type** | Add additional types to an existing family without using the Type Catalog. |
+| **Wipe Suite** | One-click purge of empty tags, model components, unused filters/templates, subcategories, and CAD links. |
 
 ---
 
@@ -75,6 +75,7 @@ With **100+ specialized commands**, this toolkit bridges the gap between Revit's
 | Command | Description |
 |:---|:---|
 | **Dim Fake** | A safety-first tool to override dimension text with custom values or "dummy" text. |
+| **Text Tools** | Audit all text elements in the view, or batch-convert selected text to uppercase. |
 | **CAD Presets** | Instant presets for Linked CAD: Black/Half/Trans, Orange, Blue, Green, or Purple. |
 | **Transparency** | Set 60% or 100% surface transparency on selected elements with one click. |
 | **Match Overrides** | Select a source element and paint its graphic overrides onto multiple targets. |
@@ -89,8 +90,10 @@ With **100+ specialized commands**, this toolkit bridges the gap between Revit's
 | Command | Description |
 |:---|:---|
 | **Family Manager** | A powerful browser to transfer views, sheets, and templates between projects. |
-| **Rename Tools** | Batch-rename viewports and views based on Detail Numbers or naming rules. |
-| **Sheet Maker** | Bulk-create sheets from a list or duplicate existing sheets with view placeholders. |
+| **Drawing Manager** | Sheet Maker (batch create/rename), Renumber Sheets by prefix series, and Drawing Register. |
+| **Rename Tools** | Batch-rename viewports/views by Detail Number, naming rules, or auto by coordinates. |
+| **Add Views** | Place a selected view, or batch-place multiple views, onto target sheets. |
+| **View & 3D Controls** | Set crop region, toggle crop visibility, zoom to selection, Auto 3D, and section-box tools. |
 | **Auto Place Break line** | Automatically places detail components where model elements cross the crop boundary. |
 | **Align Schematic** | Perfectly align viewports to the exact same XY coordinate across multiple sheets. |
 | **IFC Cleaner** | A vital tool to purge and optimize IFC files before importing them into Revit. |
@@ -116,9 +119,13 @@ With **100+ specialized commands**, this toolkit bridges the gap between Revit's
 | Command | Description |
 |:---|:---|
 | **Print PDF / CAD** | Batch export sheets with automatic naming and sorting rules. |
-| **Join Advance** | Intuitive join/unjoin geometry with cut priority control between elements. |
+| **Revision Tools** | Set/remove revisions on sheets, create Revision Sets, and manage revision cloud visibility. |
+| **Join & Cut** | Join Advance with cut-priority control, Cut Geometry, and Allow/Disallow Join (selection or view). |
+| **Flip Elements** | Batch-flip the facing or orientation of selected elements. |
 | **Auto Dims** | Automatic dimensioning of Grids, Walls, Columns, and Foundations. |
 | **Rotate Multiple** | Rotate a large group of elements individually around their own center points. |
+| **Grid Tools** | Toggle grid bubbles and switch selected grids between 2D and 3D extents. |
+| **Filter Tools** | Copy view filters between views and auto-generate a colour-coded Filters Legend. |
 | **Region Tools** | Merge filled regions, convert them to Floors/Ceilings, or change LineStyles. |
 | **Wall Constraints** | Match top/base constraints of selected walls to a reference wall instantly. |
 
