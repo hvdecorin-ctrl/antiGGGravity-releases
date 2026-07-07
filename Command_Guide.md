@@ -80,7 +80,7 @@ With **129 specialized commands**, this toolkit bridges the gap between Revit's 
 | **Transparency** | Set 60% or 100% surface transparency on selected elements with one click. |
 | **Match Overrides** | Select a source element and paint its graphic overrides onto multiple targets. |
 | **Reset Tools** | Quickly clear all overrides from a selection or the entire active view. |
-| **Filter Toggles** | Temporarily disable or enable all View Filters to see "raw" model geometry. |
+| **Filter Toggles** | Temporarily disable, re-enable, or permanently remove all View Filters from the active view. |
 
 ---
 
@@ -96,6 +96,7 @@ With **129 specialized commands**, this toolkit bridges the gap between Revit's 
 | **View & 3D Controls** | Set crop region, toggle crop visibility, zoom to selection, Auto 3D, and section-box tools. |
 | **Auto Place Break line** | Automatically places detail components where model elements cross the crop boundary. |
 | **Align Schematic** | Perfectly align viewports to the exact same XY coordinate across multiple sheets. |
+| **Revit Upgrade** | Duplicate a .rvt file for every target Revit version (R22–R27), or batch upgrade an entire folder of files in-place to the current running Revit version. |
 | **IFC Cleaner** | A vital tool to purge and optimize IFC files before importing them into Revit. |
 
 ---
@@ -108,6 +109,7 @@ With **129 specialized commands**, this toolkit bridges the gap between Revit's 
 | **Quick Filter** | Instant parameter-based colour coding for model auditing and coordination. |
 | **Highlight** | Focus on your selection by turning the rest of the model 80% transparent. |
 | **Quick VG** | A streamlined panel replacing Visibility/Graphics for all major categories. |
+| **Quick Pick** | Category-based element picker with custom favourites for fast selection workflows. |
 | **Category Toggles** | 2D/3D Master Toggles, plus instant show/hide for Foundations, Walls, Rebar, etc. |
 | **Link Toggles** | One-click visibility for all Linked Revit Models and Linked/Imported CAD. |
 
@@ -118,8 +120,9 @@ With **129 specialized commands**, this toolkit bridges the gap between Revit's 
 
 | Command | Description |
 |:---|:---|
-| **Print PDF / CAD** | Batch export sheets with automatic naming and sorting rules. |
-| **Revision Tools** | Set/remove revisions on sheets, create Revision Sets, and manage revision cloud visibility. |
+| **Print PDF** | Batch export sheets to PDF with automatic naming, sorting, and Print Set selection. |
+| **Export CAD** | Export selected sheets to DWG with one layout per sheet and automatic naming. |
+| **Revision Tools** | Set or remove revisions on sheets, create Revision Sets, show/hide current revision clouds, reset hidden clouds, and delete selected revision clouds. |
 | **Join & Cut** | Join Advance with cut-priority control, Cut Geometry, and Allow/Disallow Join (selection or view). |
 | **Flip Elements** | Batch-flip the facing or orientation of selected elements. |
 | **Auto Dims** | Automatic dimensioning of Grids, Walls, Columns, and Foundations. |
@@ -138,7 +141,7 @@ With **129 specialized commands**, this toolkit bridges the gap between Revit's 
 3. Restart Revit. The **antiGGGravity** tab will appear in your ribbon.
 
 ### Activation
-*   **Trial**: Click **Request License** -> Select "14-Day Trial" -> Click **Send**.
+*   **Trial**: Click **Request License** -> Select "30-Day Trial" -> Click **Send**.
 *   **Full Version**: Send your **Hardware ID** (found in the antiGGGravity panel) to `antiGGGravity.info@gmail.com`.
 
 ---
