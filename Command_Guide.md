@@ -22,7 +22,7 @@
 ## 🚀 Introduction
 **antiGGGravity** is a high-performance productivity suite designed by structural engineers for the AEC industry. It automates the "low-value" repetitive tasks that consume up to 40% of a BIM professional's day, allowing you to focus on engineering and design.
 
-With **129 specialized commands**, this toolkit bridges the gap between Revit's native functionality and the speed required for large-scale commercial project delivery.
+With **125 specialized commands**, this toolkit bridges the gap between Revit's native functionality and the speed required for large-scale commercial project delivery.
 
 ---
 
@@ -39,7 +39,7 @@ With **129 specialized commands**, this toolkit bridges the gap between Revit's 
 | **Beam Rebar** | Multi-layer beam detailing. | Continuous spans, auto-support detection, and 6-layer control. |
 | **Rebar Palette** | Floating persistent toolbar. | Quick access to **Crank rebar** (auto-lap) and **Split rebar** tools. |
 | **Quantity Tools** | Automated rebar scheduling metadata. | Group quantities by Host Category, Mark, or Partition. |
-| **Metadata Suite** | Smart parameter management. | Batch assign Marks, create ElementNames, and sync to Partitions. |
+| **Metadata Suite** | Smart parameter management. | Auto-assign Element Names, create the ElementName parameter, clear existing values, and sync Mark/ElementName to Partition. |
 
 ---
 
