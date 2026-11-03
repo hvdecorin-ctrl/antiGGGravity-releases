@@ -3,93 +3,28 @@
 
 > **The definitive command guide and functional documentation for the antiGGGravity BIM Toolkit.**
 > Compatible with Revit 2022, 2023, 2024, 2025, 2026, and 2027.
+> *Guide version: 2.2.36*
 
 ---
 
 ## 📑 Table of Contents
 1. [Introduction](#-introduction)
-2. [Structural Rebar Panel](#-structural-rebar-panel)
-3. [Structural Model Panel](#-structural-model-panel)
-4. [Project Audit Panel](#-project-audit-panel)
-5. [Graphic Overrides Panel](#-graphic-overrides-panel)
-6. [Management Panel](#-management-panel)
-7. [Visibility & Graphics Panel](#-visibility--graphics-panel)
-8. [General Productivity Panel](#-general-productivity-panel)
-9. [Installation & Licensing](#-installation--licensing)
+2. [Project Audit Panel](#-project-audit-panel)
+3. [Overrides Panel](#-overrides-panel)
+4. [Management Panel](#-management-panel)
+5. [Visibility Graphic Panel](#-visibility-graphic-panel)
+6. [Rebar Panel](#-rebar-panel)
+7. [Model Panel](#-model-panel)
+8. [General Panel](#-general-panel)
+9. [AntiGGGravity Panel (License & Updates)](#-antigggravity-panel-license--updates)
+10. [Installation & Licensing](#-installation--licensing)
 
 ---
 
 ## 🚀 Introduction
 **antiGGGravity** is a high-performance productivity suite designed by structural engineers for the AEC industry. It automates the "low-value" repetitive tasks that consume up to 40% of a BIM professional's day, allowing you to focus on engineering and design.
 
-With **160+ specialized commands**, this toolkit bridges the gap between Revit's native functionality and the speed required for large-scale commercial project delivery.
-
-**Headline Workflows**
-- **3D Rebar Model to Shop Drawing in 1 Click** — Beam, Column, Wall and Foundation shop drawings with tags, bar bending schedules and mass summaries.
-- **Auto Documentation** — Auto G&A, Auto Plan, Auto 3D, Auto Detail, Auto Tag and Auto Dims build a presentation set straight from the model.
-- **Steel Framing & Connections** — Generate portal-frame sheds and apply steel connections across the model.
-
----
-
-## 🏗️ Structural Rebar Panel
-*Our flagship suite of parametric reinforcement tools. Automate complex detailing in seconds.*
-
-| Command | Description | Key Features |
-|:---|:---|:---|
-| **Design Rules** | Centralized design code configuration. | Set default covers, lap lengths, and bar standards (AS/BS/US). |
-| **Pre-defined Shape** | Load standard rebar shape families. | Instantly loads HT, L, LL, SP, and CT shapes into your project. |
-| **Foundation Rebar** | Parametric reinforcement for footings. | Supports Strip Footings, Pad Footings, and Bored Piles. |
-| **Wall Rebar** | Intelligent wall reinforcement engine. | Handles vertical/horizontal bars, stack splicing, and L/U corners. |
-| **Column Rebar** | Rapid column reinforcement. | Rectangular and circular profiles with ties and confinement zones. |
-| **Beam Rebar** | Multi-layer beam detailing. | Standard and Advance modes, continuous spans, auto-support detection, and 6-layer control. |
-| **Slab Rebar** *(Preview)* | Mat reinforcement for slabs & raft foundations. | Span-direction-aware two-way mats, opening avoidance, and auto-grouped rebar sets. Curtailment and native Area Reinforcement output are coming in a future release. |
-| **Rebar Presets** | Named presets inside every rebar window. | Save, load and delete named settings per tool, and Export / Import them as `.json` files to share with your team. |
-| **Rebar Palette** | Floating persistent toolbar. | Quick access to rebar visibility, host-based tools, **Crank Bar** (auto-lap) and **Split Bar**. |
-| **Rebar Setting** | Rebar visibility and host tools. | Obscured / Unobscured display, Hide / Show All, and Hide / Show / Isolate / Select / Delete rebar by host element. |
-| **Rebar Q'ty** | Rebar quantity summaries. | Group quantities by Host Category, Host Mark, or Rebar Partition. |
-| **Metadata Suite** | Smart parameter management. | Auto-assign Element Names, create the ElementName parameter, clear Name / Mark / Comments values, and sync Mark or ElementName to Partition. |
-| **Apply Bar Marks** | Number beam rebar for shop drawings. | Numbers rebar per beam Mark in drawing order (top bars left to right, then bottom, side bars, stirrups); identical bars share one mark. |
-
-### 📐 Rebar Shop — Shop Drawing Suite
-*Select the host elements and create the drawing from the rebar already in your model, placed on a new or existing sheet. Re-run to update in place.*
-
-| Command | Description | Key Features |
-|:---|:---|:---|
-| **Beam Shop Drawing** | Drawing for one continuous beam line (several lines per run). | Long section, cross sections at supports and midspans, 3D view, span divisions (L/3, L/4), stirrup zone and lap dimensions, rebar tags with optional leaders, merged identical sections, bar bending schedule with mass summary, and notes block. |
-| **Column Shop Drawing** | Drawing for one or more column stacks. | Elevations of the whole stack (footing to roof) showing the existing rebar. |
-| **Wall Shop Drawing** | Drawing for one or more wall stacks. | Elevation of the whole wall stack (footing to roof), vertical sections, dimensions, range annotations, tags, bar bending schedule and notes. |
-| **Footing Shop Drawing** | One drawing per pad footing type (same Mark and bars). | Bottom-mat plan, sections, 3D view, bar bending schedule and notes. |
-| **Strip Footing Shop Drawing** | One drawing per strip footing type, size and bars. | Cross section, optional elevation along the strip, 3D view, bar bending schedule and notes. Supports Wall Foundations, line-based foundation families and long pads. |
-| **Pile Shop Drawing** | One drawing per bored pile type. | Elevation of the full cage, cross sections, 3D view, bar bending schedule and notes. |
-
-All shop drawing windows use tabbed settings (Views, Dimensions, Tags, Sheet & Output), built-in dimension styles and named presets.
-
----
-
-## 📐 Structural Model Panel
-*Generative modeling tools for structural framing, connections and analysis handoff.*
-
-| Command | Description |
-|:---|:---|
-| **Roof Framing** | Select any Roof or Floor and generate a full purlin/rafter assembly with spacing control. |
-| **Auto Frame** | Generate a parametric steel portal-frame shed — columns, rafters, purlins, side rails, gable girts and bracing — with a live 3D preview. |
-| **Advance Frame** | Same generator as Auto Frame, plus advanced options (under active development). |
-| **Auto Connection** | Scan existing columns and framing and apply steel connections at column bases, column-to-beam knees and beam-to-beam joints. Auto Scan or Manual Pick, with Force Connect to bridge small gaps. Needs the connection families loaded in the project. |
-| **Reset Steel Member** | Return steel columns and framing that have steel connections back to native Revit behaviour (attach, cut and cope work again). |
-| **Column Attach** | Attach column tops or bases to the nearest beam and/or slab, or detach them while keeping their position. Uses the selection, otherwise the columns in the active view. |
-| **X-Brace** | Generate crossed diagonal bracing between structural columns with auto-angle calculation. |
-| **K-Brace** | Generate K-shaped (chevron) bracing with a central apex point. |
-| **H-Frame** | Generate parallel horizontal braces spanning multiple structural bays. |
-
-### Build Analytical *(Revit 2026 and 2027)*
-*Prepare the analytical model for handoff to Robot Structural Analysis or Space Gass.*
-
-| Command | Description |
-|:---|:---|
-| **Generate Analytical Model** | Builds the analytical model for the selected columns and framing, or for the active view if nothing is selected. |
-| **Check Analytical Model** | Audits the analytical model against a 7-point checklist (coverage, connectivity, consistency, classification, section, supports, stray members) and lists issues to fix. |
-| **Export to Robot Structural Analysis** | Exports nodes and bars to Robot, tagging each bar with a Revit ID so members can be traced between Revit and Robot. |
-| **Apply Basic Loads** | Adds a Dead self-weight case, or tributary-width-distributed uniform Dead / Live / Wind / Snow load cases, to the connected Robot session. |
+With **160+ specialized commands** across 8 ribbon panels, this toolkit bridges the gap between Revit's native functionality and the speed required for large-scale commercial project delivery.
 
 ---
 
@@ -98,94 +33,160 @@ All shop drawing windows use tabbed settings (Views, Dimensions, Tags, Sheet & O
 
 | Command | Description |
 |:---|:---|
-| **Project Folder** | Instantly open Windows Explorer at the central model's file location. |
-| **Resolve Overlaps** | Detect and fix overlapping text notes and tags for better readability. |
-| **Project TextStyle** | Batch align text notes and their leaders, or convert between text styles. |
-| **Title on Sheets** | Apply a consistent title block across all sheets (e.g. Section, Detail). |
-| **Load More Type** | Add additional types to an existing family without using the Type Catalog. |
-| **Wipe Suite** | One-click purge of empty tags, model components, unused filters and templates, subcategories, and CAD links. |
+| **Project Folder** | Open Windows Explorer at the central model's file location. |
+| **Audit ▸ Project TextStyle** | Batch align text notes and their leaders, or convert between text styles. |
+| **Audit ▸ Title on Sheets** | Apply a consistent title block across all sheets (e.g. Section, Detail). |
+| **Wipe ▸ Wipe Empty Tags** | Delete all tags that have no content in the current view. |
+| **Wipe ▸ Wipe Model Components** | Multi-select model elements to permanently remove (constraints, groups, links, etc.). |
+| **Wipe ▸ Wipe Unused Filters** | Find and purge filters not used in any view or template. |
+| **Wipe ▸ Wipe Unused Templates** | Find and purge view templates not assigned to any view. |
+| **Wipe ▸ Wipe SubCategories** | Purge custom subcategories from the project. |
+| **Wipe ▸ Wipe CADs** | Find and purge imported/linked CAD files and their unused categories. |
+| **Load More Type** | Load additional types from an existing family without using the Type Catalog. |
 
 ---
 
-## 🎨 Graphic Overrides Panel
+## 🎨 Overrides Panel
 *Control your view presentation without fighting the native Revit dialogs.*
 
 | Command | Description |
 |:---|:---|
-| **Dim Fake** | A safety-first tool to override dimension text with custom values or "dummy" text. |
-| **Text Tools** | Audit all text elements in the view, or batch-convert selected text to uppercase. |
-| **CAD Presets** | Instant override presets for linked CAD: Black / Hidden / Transparent, Purple, Orange, Blue or Green, plus a saved Project CAD Override applied across all views. |
-| **Transparency** | Set 40%, 60% or 100% surface transparency on selected elements with one click. |
-| **Match Overrides** | Select a source element and paint its graphic overrides onto multiple targets. |
-| **Reset Tools** | Quickly clear all overrides from a selection or the entire active view. |
-| **Filter Toggles** | Temporarily disable, re-enable, or permanently remove all View Filters from the active view. |
+| **Dim Fake** | Override dimension text with a custom value or "dummy" text. |
+| **Text Edit ▸ Text Audit** | Audit and report all text elements in the view. |
+| **Text Edit ▸ Text Upper** | Convert selected text elements to uppercase. |
+| **Cad Override** | Preset styles for linked/imported CAD: Black / Hidden / Trans, Purple / Hidden / Trans, Orange / Trans, Blue / Trans, Green / Trans, plus **Project CAD Override** to apply a saved style across all views. |
+| **Transparency** | Set 40%, 60% or 100% surface transparency on selected elements. |
+| **Match & Reset ▸ Match Overrides** | Copy graphic overrides from a source element onto selected targets. |
+| **Match & Reset ▸ Reset Selected / Reset All Overrides** | Clear overrides from the selection, or from the entire active view. |
+| **Reset Filters** | Disable, re-enable, or permanently remove all view filters in the active view. |
 
 ---
 
 ## 📂 Management Panel
-*Automate the documentation grind: Sheets, Views, viewports, IFC coordination, and model upgrades.*
+*Automate the documentation grind: families, sheets, views, auto drafting, IFC coordination, and model upgrades.*
 
 | Command | Description | Key Features |
 |:---|:---|:---|
-| **Family Manager** | A powerful browser to transfer views, sheets, and templates between projects. | Selective copy/transfer of system families, view templates, sheets, and views across open Revit models. |
-| **Sheet Maker** | Batch sheet creation and management. | Rapid multi-sheet generation from templates or lists, with real-time preview and sheet parameter population. |
-| **Renumber Sheets** | Prefix-based sheet renumbering engine. | Batch renumber sheets by replacing prefix series (e.g. S2- to S5-) across the entire project or selected sheet sets. |
-| **Drawing Register** *(Under Development)* | Drawing sheet tracking and registers. | Manage drawing registers and revision histories. |
-| **Align Schematic** | Viewport alignment tool. | Perfectly align viewports to the exact same XY coordinate across multiple sheets. |
-| **Rename Tools** | Batch-rename and renumber viewports. | Rename by naming rule, strictly rename to match the Detail Number, or auto-renumber sequentially based on sheet XY coordinates. |
-| **Add Views** | Batch view placement on sheets. | Place a selected view, or batch-place multiple views, onto target sheets in a single operation. |
-| **View & 3D Controls** | Crop and viewport navigation tools. | Set crop region interactively, toggle crop visibility project-wide, **Zoom To** any element in the selection, show/hide the section box, and align it to a picked face. |
-| **Auto BreakLine** | Automatic crop boundary breaklines. | Automatically places detail components wherever model elements cross the crop boundary; choose the break line family with Set Family. |
-| **IFC Export** | High-precision discipline IFC exporter. | Export discipline-specific IFC models (Structural, Architectural, MEP, or Custom 3D View filters) with locked zero-drift coordinates (Shared Coordinate or Project Internal) and automated file naming. |
-| **IFC Cleaner** | IFC geometry optimizer and sanitizer. | Purge and optimize heavy IFC files (strip unnecessary geometry such as doors, furniture, sanitary fittings) to prevent Revit from hanging during import. |
-| **Revit Upgrade** | Version migration tools. | Duplicate a .rvt file for every target Revit version (R22–R27), or batch upgrade an entire folder of files in-place to the current running Revit version. |
-
-### 🤖 Auto Drafting — Presentation Set from the Model
-*Build views, sheets, tags and dimensions in batches.*
-
-| Command | Description |
-|:---|:---|
-| **Auto G&A** | One-click General Arrangement set from the company standard: 3D presentation (S0), plans (S1), sections and elevations (S2), all tagged. |
-| **Auto Plan** | Batch-create Floor Plan and Structural Framing Plan views for every level, and place each on its own sheet with auto-numbering. |
-| **Auto 3D** | Create a 3D view auto-fitted to selected elements, or batch-generate 3D views by Level, Grid, Workset or Selection with standard isometric views, templates and sheet placement. |
-| **Auto Detail** | Auto-generate elevations (and sheets) for selected walls, beams or rooms. |
-| **Auto Tag** | Tag beams, columns, walls and foundations in the active plan, section or elevation with clash-free placement and free-end leaders. |
-| **Auto Dims** | Auto-dimension grids, walls, columns and foundations in the current plan view. |
-| **Dim Audit** | Find and fix overlapping or unreadable dimensions in the active view. |
+| **Family Manager** | Selective family manager and transfer tool. | Transfer views, sheets, templates and system families between open Revit projects. |
+| **Drawing Manager ▸ Sheet Maker** | Batch sheet creation and management. | Multi-sheet generation from templates or lists, rename/renumber existing sheets. |
+| **Drawing Manager ▸ Renumber Sheets** | Prefix-based sheet renumbering. | Replace prefix series (e.g. S2- → S5-) across the project or selected sheets. |
+| **Drawing Manager ▸ Drawing Register** | Drawing register management. | *Under development.* |
+| **Align Schematic** | Viewport alignment. | Align viewports to a consistent XY position across multiple sheets. |
+| **Rename ▸ Rename View / Rename (Override)** | Batch-rename viewports/views. | Rename by naming rule, or strictly match the Detail Number (overriding name collisions). |
+| **Rename ▸ Renumber Viewports / (Auto)** | Viewport renumbering. | Sequential renumbering on the active sheet, manually or automatically from XY coordinates and rule. |
+| **Add Views** | Place views on sheets. | Add Selected View to a chosen sheet, or batch-place multiple views. |
+| **Set Crop View** | Set the crop region boundary for the active view. | |
+| **Crop Region** | Toggle crop region visibility. | Applies to all views placed on any sheet in the project. |
+| **Zoom To** | Selection navigator. | Lists the current selection and jumps to any element in its best view. |
+| **Break Line ▸ Auto BreakLine / Set Family** | Automatic crop-boundary breaklines. | Places break-line detail components where elements cross the crop boundary; choose the detail family. |
+| **Auto 3D** | Quick 3D view. | Creates a 3D view auto-fitted to the selected elements. |
+| **Toggle 3D ▸ Toggle 3D / Align SectBox** | Section box tools. | Show/hide the section box, or align it to a picked face. |
+| **Sectbox** | Toggle section box visibility without resizing it. | |
+| **Auto Drafting ▸ Auto G&A** | One-click General Arrangement set. | 3D presentation (S0), plans (S1), sections and elevations (S2), all tagged, from the company standard. |
+| **Auto Drafting ▸ Auto Plan** | Batch plan views and sheets per level. | Floor Plan and Structural Framing Plan views for every level, each on its own sheet with auto-numbering. |
+| **Auto Drafting ▸ Auto 3D** | Batch 3D view generator. | By Level, Grid, Workset or Selection, with standard isometrics, templates and sheet placement. |
+| **Auto Drafting ▸ Auto Detail** | Auto elevations and sheets. | For selected walls, beams or rooms. |
+| **Auto Drafting ▸ Auto Tag** | Clash-free tagging. | Tags beams, columns, walls and foundations in plan, section or elevation with free-end leaders. |
+| **Auto Drafting ▸ Annotation Audit** | Annotation clash checker. | Scans tags, text notes and dimensions (active view, view set or project), lists clashes and moves them (Fix Selected / Fix All). |
+| **Auto Drafting ▸ Section Gap** | *Experimental.* | Splits selected section lines in a plan and pulls the gap toward the heads; drives the mouse, so park the cursor first to calibrate. |
+| **Auto Drafting ▸ Auto Dims** | Automatic dimensioning. | Grids, walls, columns and foundations in the current plan view. |
+| **IFC Manager ▸ IFC Export** | High-precision discipline IFC exporter. | Structural, Architectural, MEP or Custom 3D View filters with locked zero-drift coordinates. |
+| **IFC Manager ▸ IFC Cleaner** | IFC optimizer. | Strip unnecessary geometry (doors, furniture, vanity) to stop Revit hanging on import. |
+| **IFC Manager ▸ Upgrade Revit Version** | Version duplication. | Duplicate a .rvt with `(Rxx)` in its name for all target versions (R22–R27); re-run to overwrite. |
+| **IFC Manager ▸ Upgrade Revit Package** | Batch upgrade. | Upgrade all Revit files in a folder in-place to the running Revit version. |
 
 ---
 
-## 👁️ Visibility & Graphics Panel
-*22 commands for lightning-fast category management.*
+## 👁️ Visibility Graphic Panel
+*Lightning-fast category and workset visibility management.*
 
 | Command | Description |
 |:---|:---|
 | **Quick Filter** | Instant parameter-based colour coding for model auditing and coordination. |
-| **Highlight** | Focus on your selection by turning the rest of the model 80% transparent. |
-| **Quick VG** | A streamlined panel replacing Visibility/Graphics for all major categories. |
-| **Quick Pick** | Quickly select elements by type, category, or parameter value, with custom favourites. |
-| **Category Toggles** | 2D/3D master toggles, plus instant show/hide for Foundations, Walls, Floors, Columns, Framing, Roof, Connections, Structural Packs, MEP Pack, Rebar, Grids, Levels, Reference Planes and Scope Boxes. |
-| **Link Toggles** | One-click visibility for all Linked Revit Models and Linked/Imported CAD. |
+| **Highlight** | Fade all other model elements to 80% transparency to focus on your selection. |
+| **Workset Manager** | Create worksets and move whole categories into them (reusable lists from file), then toggle workset visibility live in the active view. |
+| **Quick VG** | Streamlined panel replacing Visibility/Graphics for all major categories. |
+| **Quick Pick** | Select elements by type, category or parameter value, with custom favourites. |
+| **Visibility ▸ Master toggles** | Toggle All Elements, 2D Elements, 3D Elements, Structural Packs, MEP Pack. |
+| **Visibility ▸ Model categories** | Toggle Foundations, Walls, Floors (Slabs), Columns, Framing, Roof, Connections, Rebar. |
+| **Visibility ▸ Datums** | Toggle Grids, Levels, Ref Planes, Scope Box. |
+| **Visibility ▸ Links** | Toggle CAD Links and Revit Links. |
 
 ---
 
-## 🛠️ General Productivity Panel
+## 🏗️ Rebar Panel
+*Our flagship suite of parametric reinforcement tools. Automate complex detailing in seconds.*
+
+| Command | Description | Key Features |
+|:---|:---|:---|
+| **Design Rules** | Centralized design code configuration. | View design codes, reference parameters and calculation rules (covers, laps, bar standards). |
+| **Pre-defined Shape** | Load special rebar shape families. | HT, L, LL, SP and CT shapes from the project library. |
+| **Foundation Rebar** | Parametric footing reinforcement. | Strip Footings and Pad Footings. |
+| **Wall Rebar** | Wall reinforcement engine. | Walls and wall corners. |
+| **Column Rebar** | Rapid column reinforcement. | Structural columns. |
+| **Beam Rebar** | Multi-layer beam detailing. | Standard and Advance modes. |
+| **Slab Rebar** *(Preview)* | Mat reinforcement for slabs & raft foundations. | Continuous mats only; curtailment and openings are not yet supported. |
+| **Rebar Shop ▸ Beam Shop Drawing** | Beam shop drawing. | Long section, cross sections at supports/midspans and a 3D view of existing rebar, on a new or existing sheet. |
+| **Rebar Shop ▸ Column Shop Drawing** | Column shop drawing. | Full-stack elevations (footing to roof) of existing rebar. |
+| **Rebar Shop ▸ Wall Shop Drawing** | Wall shop drawing. | Full-stack elevation with bar bending schedule and notes. |
+| **Rebar Shop ▸ Footing Shop Drawing** | Pad footing shop drawing. | One drawing per footing type: bottom-mat plan, sections, 3D view, BBS and notes. |
+| **Rebar Shop ▸ Strip Footing Shop Drawing** | Strip footing shop drawing. | Cross section, optional elevation along the strip, 3D view, BBS and notes. |
+| **Rebar Shop ▸ Pile Shop Drawing** | Bored pile shop drawing. | Full cage elevation, cross sections, 3D view, BBS and notes. |
+| **Rebar Palette** | Floating persistent toolbar. | Rebar visibility, selection and host-based tools in one palette. |
+| **Rebar Setting** | Visibility, host and editing tools (also in the Palette). | Obscured / Unobscured, Hide / Show All, Hide / Show / Isolate / Select / Delete Host, **Crank Bar**, **Split Bar**. |
+| **Rebar Q'ty** | Rebar quantity summaries. | Group by Host Category, Host Mark, or Partition. |
+| **Assign Name** | Element Name management. | Assign Name (auto-generate), Create ElementName parameter, Remove Extg Value (clear Name/Mark/Comments). |
+| **Rebar Partition** | Partition from host parameters. | Mark → Partition, ElementName → Partition, and **Apply Bar Marks** (numbers beam rebar per Mark and orders marks for shop drawings; identical bars share one mark). |
+
+---
+
+## 📐 Model Panel
+*Generative modeling, steel connections and analytical model tools.*
+
+| Command | Description |
+|:---|:---|
+| **Roof Framing** | Generate purlins and rafters on roof or slab faces (pre-select roofs/floors or pick faces). |
+| **Frame Generator ▸ Auto Frame** | Parametric steel portal-frame shed: columns, rafters, purlins, side rails, gable girts and bracing, with live 3D preview. |
+| **Frame Generator ▸ Advance Frame** | Same generator as Auto Frame plus advanced options under active development. |
+| **Frame Generator ▸ Auto Connection** | Scan existing columns and framing and apply steel connections at bases, knees and beam-to-beam joints. |
+| **Frame Generator ▸ Reset Steel Member** | Return steel members with connections to native Revit behaviour (attach, cut, cope). Needs a concrete column/framing family loaded. |
+| **Frame Generator ▸ Column Attach** | Attach column tops/bases to the nearest beam and/or slab, or detach while keeping position. |
+| **Bracing ▸ X-Brace / K-Brace / H-Frame** | Crossed bracing between two columns, K-shaped bracing with apex, and parallel horizontal braces across multiple bays. |
+| **Build Analytical ▸ Generate Analytical Model** | Build the analytical model for selected (or view) columns and framing. |
+| **Build Analytical ▸ Check Analytical Model** | Audit against a 7-point checklist (coverage, connectivity, consistency, classification, section, supports, stray members). |
+| **Build Analytical ▸ Export to Robot Structural Analysis** | Export nodes and bars via RobotOM with a Revit ID correlation table for two-way traceability. |
+| **Build Analytical ▸ Apply Basic Loads** | Add Dead self-weight, or tributary-width Dead/Live/Wind/Snow load cases, to the connected Robot session (requires Export to Robot first). |
+
+---
+
+## 🛠️ General Panel
 *The "Swiss Army Knife" of everyday Revit tools.*
 
 | Command | Description |
 |:---|:---|
-| **Print PDF** | Batch export sheets to PDF or DWG with automatic naming, sorting, and Print Set selection. |
-| **Export CAD** | Export selected sheets to a single DWG file with one layout per sheet. |
-| **Export Dim Styles** | Pick dimension styles from the project and export their settings to a JSON file. |
-| **Revision Tools** | Set or remove revisions on sheets, create Revision Sets, show/hide current revision clouds, reset hidden clouds, and delete selected revision clouds. |
-| **Join & Cut** | Join Advance (toggle join/unjoin), Cut Geometry, and **Auto Notch** — select main beams to notch the intersecting secondary beams automatically. |
-| **Framing Tools** | Allow/Disallow Join (selection or view), **Beam Reset** (default extensions and justification), and **Fix Off-Axis Framing** for beams and braces with tiny level mismatches. |
-| **Flip Elements** | Batch-flip the facing or orientation of selected elements. |
-| **Rotate Multiple** | Rotate a large group of elements individually around their own center points. |
-| **Grid Tools** | Toggle grid bubbles and switch selected grids between 2D and 3D extents. |
-| **Filter Tools** | Copy view filters between views and auto-generate a colour-coded Filters Legend. |
-| **Region Tools** | Merge filled regions, convert them to Floors/Ceilings, or change LineStyles. |
-| **Wall Constraints** | Match top, base or both constraints of selected walls to a reference wall, or set them manually with Modify Constraints. |
+| **Export Manager ▸ Print PDF** | Batch export sheets to PDF or DWG with automatic sorting and Print Set selection. |
+| **Export Manager ▸ Export CAD** | Export selected sheets to a single DWG with one layout per sheet. |
+| **Export Manager ▸ Export Dim Styles** | Export selected dimension style settings to a JSON file. |
+| **Revision** | Set Rev, Remove Rev, Create Rev Set, Show Current Rev, Reset Rev Clouds, Remove Cloud. |
+| **Join Advance** | Toggle join/unjoin geometry between two selected elements. |
+| **Geometry Issue** | **Cut Geometry** (cut all intersecting elements) and **Auto Notch** (notch secondary beams against selected main beams). |
+| **Flip Elements** | Batch-flip facing or orientation of selected elements. |
+| **Framing Issue** | Allow/Disallow Join (selection or view), **Beam Reset** (extensions and justification), **Fix Off-Axis Framing** (fixes tiny start/end level mismatches, lists the rest). |
+| **View Filters** | Copy Filters between views; generate a colour-coded Filters Legend. |
+| **Grid Bubble** | Toggle grid bubbles, switch grids between 2D/3D extents, and flip **Level Head** left/right. |
+| **Rotate Multiple** | Rotate multiple selected elements by a specified angle. |
+| **Filled Regions** | Merge regions, convert to Floors or Ceilings, or change LineStyle. |
+| **Walls** | Match Top, Match Base, Match Both constraints to a reference wall, or Modify Constraints manually. |
+
+---
+
+## 🔐 AntiGGGravity Panel (License & Updates)
+
+| Command | Description |
+|:---|:---|
+| **License ▸ Hardware ID** | Copy your machine ID for license activation. |
+| **License ▸ Request License** | Submit a request for a trial or full license. |
+| **License ▸ Check Update** | Check for new versions and download updates. |
 
 ---
 
@@ -196,8 +197,8 @@ All shop drawing windows use tabbed settings (Views, Dimensions, Tags, Sheet & O
 3. Restart Revit. The **antiGGGravity** tab will appear in your ribbon.
 
 ### Activation
-*   **Trial or Full Version**: Click **Request License** in the License panel, choose a trial or full license, and click **Send**. Use **Hardware ID** to copy your machine ID, and **Check Update** to download new versions.
-*   You can also send your **Hardware ID** to `antiGGGravity.info@gmail.com`.
+*   **Trial**: Click **Request License** -> Select "30-Day Trial" -> Click **Send**.
+*   **Full Version**: Send your **Hardware ID** (found in the antiGGGravity panel) to `antiGGGravity.info@gmail.com`.
 
 ---
 © 2026 antiGGGravity. All rights reserved. Revit® is a registered trademark of Autodesk, Inc.
