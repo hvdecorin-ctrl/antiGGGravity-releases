@@ -174,7 +174,7 @@ With **160+ specialized commands** across 8 ribbon panels, this toolkit bridges 
 | **Join Advance** | Toggle join/unjoin geometry between two selected elements. |
 | **Geometry Issue** | **Cut Geometry** (cut all intersecting elements) and **Auto Notch** (notch secondary beams against selected main beams). |
 | **Flip Elements** | Batch-flip facing or orientation of selected elements. |
-| **Framing Issue** | Allow/Disallow Join (selection or view). |
+| **Framing Issue** | **Allow Join** / **Disallow Join** — act on the selected elements; with nothing selected, on all structural framing in the active view. |
 | **View Filters** | Copy Filters between views; generate a colour-coded Filters Legend. |
 | **Grid Bubble** | Toggle grid bubbles, switch grids between 2D/3D extents, and flip **Level Head** left/right. |
 | **Rotate Multiple** | Rotate multiple selected elements by a specified angle. |
