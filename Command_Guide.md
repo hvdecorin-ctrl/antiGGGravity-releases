@@ -3,7 +3,7 @@
 
 > **The definitive command guide and functional documentation for the antiGGGravity BIM Toolkit.**
 > Compatible with Revit 2022, 2023, 2024, 2025, 2026, and 2027.
-> *Guide version: 2.2.36*
+> *Guide version: 2.2.37*
 
 ---
 
@@ -150,8 +150,11 @@ With **160+ specialized commands** across 8 ribbon panels, this toolkit bridges 
 | **Frame Generator ▸ Advance Frame** | Same generator as Auto Frame plus advanced options under active development. |
 | **Frame Generator ▸ Auto Connection** | Scan existing columns and framing and apply steel connections at bases, knees and beam-to-beam joints. |
 | **Frame Generator ▸ Reset Steel Member** | Return steel members with connections to native Revit behaviour (attach, cut, cope). Needs a concrete column/framing family loaded. |
+| **Frame Generator ▸ Beam Reset** | Reset beam start/end extensions and justification to defaults. |
+| **Frame Generator ▸ Fix Off-Axis Framing** | Auto-fix beams/braces Revit flags as "slightly off axis" when the cause is a tiny start/end level mismatch; lists anything else for manual review. |
 | **Frame Generator ▸ Column Attach** | Attach column tops/bases to the nearest beam and/or slab, or detach while keeping position. |
 | **Bracing ▸ X-Brace / K-Brace / H-Frame** | Crossed bracing between two columns, K-shaped bracing with apex, and parallel horizontal braces across multiple bays. |
+| **Bracing ▸ Auto X-Brace** | Scan the active view (or selected columns and parallel beams) for adjacent column bays, preview them, and place an X-brace in each bay you keep ticked. Bays that already have a diagonal brace are skipped. |
 | **Build Analytical ▸ Generate Analytical Model** | Build the analytical model for selected (or view) columns and framing. |
 | **Build Analytical ▸ Check Analytical Model** | Audit against a 7-point checklist (coverage, connectivity, consistency, classification, section, supports, stray members). |
 | **Build Analytical ▸ Export to Robot Structural Analysis** | Export nodes and bars via RobotOM with a Revit ID correlation table for two-way traceability. |
@@ -171,7 +174,7 @@ With **160+ specialized commands** across 8 ribbon panels, this toolkit bridges 
 | **Join Advance** | Toggle join/unjoin geometry between two selected elements. |
 | **Geometry Issue** | **Cut Geometry** (cut all intersecting elements) and **Auto Notch** (notch secondary beams against selected main beams). |
 | **Flip Elements** | Batch-flip facing or orientation of selected elements. |
-| **Framing Issue** | Allow/Disallow Join (selection or view), **Beam Reset** (extensions and justification), **Fix Off-Axis Framing** (fixes tiny start/end level mismatches, lists the rest). |
+| **Framing Issue** | **Allow Join** / **Disallow Join** — act on the selected elements; with nothing selected, on all structural framing in the active view. |
 | **View Filters** | Copy Filters between views; generate a colour-coded Filters Legend. |
 | **Grid Bubble** | Toggle grid bubbles, switch grids between 2D/3D extents, and flip **Level Head** left/right. |
 | **Rotate Multiple** | Rotate multiple selected elements by a specified angle. |
